@@ -510,6 +510,48 @@
       "title": "Supernatural",
       "archivedAt": "2026-07-24",
       "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-24.md"
+    },
+    {
+      "key": "movie:1081003",
+      "mediaType": "movie",
+      "tmdbId": 1081003,
+      "title": "Supergirl",
+      "archivedAt": "2026-07-25",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-25.md"
+    },
+    {
+      "key": "movie:1315772",
+      "mediaType": "movie",
+      "tmdbId": 1315772,
+      "title": "Minions & Monsters",
+      "archivedAt": "2026-07-25",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-25.md"
+    },
+    {
+      "key": "movie:1413976",
+      "mediaType": "movie",
+      "tmdbId": 1413976,
+      "title": "Citizen Vigilante",
+      "archivedAt": "2026-07-25",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-25.md"
+    },
+    {
+      "key": "show:322055:season:1",
+      "mediaType": "show",
+      "tmdbId": 322055,
+      "seasonNumber": 1,
+      "title": "The Prosecutor's Proposal",
+      "archivedAt": "2026-07-25",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-25.md"
+    },
+    {
+      "key": "show:289763:season:1",
+      "mediaType": "show",
+      "tmdbId": 289763,
+      "seasonNumber": 1,
+      "title": "See You at Work Tomorrow!",
+      "archivedAt": "2026-07-25",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-25.md"
     }
   ]
 }

@@ -1000,6 +1000,9 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     if (skipped) return [skipped];
   }
   let source = await sourceForTask(task, date, sourceFixtureDir, repo);
+  if (task === "mdblist-weekly" && !parseMdblistRecommendationsFromSource(source).length) {
+    return [skippedLowQuality(task, date, "no MDBList candidates matched the recent-week, IMDb > 7.0, and history-deduplication rules")];
+  }
   const contentDate = contentDateForTask(task, date, source);
   if (!force && isMagazineTask(task)) {
     const skipped = skippedExisting(task, repo, contentDate);

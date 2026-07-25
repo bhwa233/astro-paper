@@ -14,7 +14,7 @@ import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFa
 import { githubTrendingMarkdownFromModelJson, parseGitHubTrendingFacts } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
-import { buildMdblistWeeklySource, latestStartedSeasonNumber, selectUnrecommendedMdblistCandidates } from "../scripts/mdblist_weekly_source.ts";
+import { buildMdblistWeeklySource, isReleaseWithinRecentWeek, latestStartedSeasonNumber, selectUnrecommendedMdblistCandidates } from "../scripts/mdblist_weekly_source.ts";
 import { dailyDigestMarkdownFromModelJson } from "../scripts/daily_digest_compose.ts";
 import { FEEDS, buildForeignTechPodcastSource } from "../scripts/foreign_tech_podcast_source.ts";
 import { bjtArchiveInstant, fetchText } from "../scripts/blog_common.ts";
@@ -1160,6 +1160,17 @@ test("mdblist compose requires every selected candidate exactly once", () => {
   );
 });
 
+test("mdblist compose and archive allow a single populated media section", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-sources/mdblist-weekly.md"), "utf8");
+  const movieOnlySource = source.slice(0, source.indexOf("## 2."));
+  const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-ai-responses/mdblist-weekly.json"), "utf8"));
+  const markdown = mdblistMarkdownFromModelJson(JSON.stringify({ ...raw, movies: [raw.movies[0]], series: [] }), movieOnlySource);
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "mdblist-single-section-"));
+  assert.match(markdown, /^## 电影推荐$/m);
+  assert.doesNotMatch(markdown, /^## 剧集推荐$/m);
+  assert.doesNotThrow(() => archivePost({ task: "mdblist-weekly", date: "2099-01-09", repo, body: markdown, force: true }));
+});
+
 test("mdblist season identity uses the latest season with started episodes", () => {
   assert.equal(
     latestStartedSeasonNumber([
@@ -1174,20 +1185,20 @@ test("mdblist season identity uses the latest season with started episodes", () 
 });
 
 test("mdblist candidate selection expands past recommended TMDB identities", () => {
-  const startedSeason = (season: number, imdb: number | null = 6) => ({
+  const startedSeason = (season: number, imdb: number | null = 7.1) => ({
     ratings: imdb === null ? [] : [{ source: "imdb", value: imdb }],
     seasons: [{ season_number: season, episodes: [{ votes: 1, rating: 8 }] }],
   });
   const candidates = [
     { item: { title: "Already recommended", ids: { tmdb: 101 } }, info: startedSeason(2) },
-    { item: { title: "Low rated", ids: { tmdb: 102 } }, info: startedSeason(1, 5.9) },
+    { item: { title: "Boundary rated", ids: { tmdb: 102 } }, info: startedSeason(1, 7) },
     { item: { title: "Missing IMDb", ids: { tmdb: 103 } }, info: startedSeason(1, null) },
     {
       item: { title: "Future season only", ids: { tmdb: 104 } },
       info: { ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 0, rating: null }] }] },
     },
-    { item: { title: "Fresh first", ids: { tmdb: 105 } }, info: startedSeason(1, 6) },
-    { item: { title: "Fresh second", ids: { tmdb: 106 } }, info: startedSeason(4, 6.1) },
+    { item: { title: "Fresh first", ids: { tmdb: 105 } }, info: startedSeason(1, 7.1) },
+    { item: { title: "Fresh second", ids: { tmdb: 106 } }, info: startedSeason(4, 8) },
   ];
   const selected = selectUnrecommendedMdblistCandidates(candidates, "show", new Set(["show:101:season:2"]), 2);
   assert.deepEqual(
@@ -1197,6 +1208,13 @@ test("mdblist candidate selection expands past recommended TMDB identities", () 
       { title: "Fresh second", key: "show:106:season:4" },
     ],
   );
+});
+
+test("mdblist recent-week release window is inclusive and requires an exact release date", () => {
+  assert.equal(isReleaseWithinRecentWeek("2099-01-03", "2099-01-09"), true);
+  assert.equal(isReleaseWithinRecentWeek("2099-01-09", "2099-01-09"), true);
+  assert.equal(isReleaseWithinRecentWeek("2099-01-02", "2099-01-09"), false);
+  assert.equal(isReleaseWithinRecentWeek("2099", "2099-01-09"), false);
 });
 
 test("mdblist ledger persists successful selections and replaces same-post reruns", () => {
@@ -1234,7 +1252,7 @@ test("mdblist source evidence exposes the TMDB identities selected for the ledge
   });
 });
 
-test("mdblist source builder scans deeper and returns as many unrecommended candidates as available", async () => {
+test("mdblist source builder applies server-side date filters and locally enforces recent IMDb > 7 candidates", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mdblist-source-"));
   const ledgerFile = path.join(dir, "recommended.json");
   appendMdblistRecommendations(
@@ -1252,42 +1270,62 @@ test("mdblist source builder scans deeper and returns as many unrecommended cand
     const url = new URL(String(input));
     let payload: unknown;
     if (url.pathname.includes("/lists/87667/items")) {
-      payload = { movies: [{ title: "Seen Movie", ids: { tmdb: 1 } }, { title: "Fresh Movie", ids: { tmdb: 2 } }] };
+      assert.equal(url.searchParams.get("released_from"), "2099-01-03");
+      assert.equal(url.searchParams.get("released_to"), "2099-01-09");
+      payload = {
+        movies: [
+          { title: "Seen Movie", ids: { tmdb: 1 } },
+          { title: "Old Movie", ids: { tmdb: 2 } },
+          { title: "Boundary Movie", ids: { tmdb: 3 } },
+          { title: "Fresh Movie", ids: { tmdb: 4 } },
+        ],
+      };
     } else if (url.pathname.includes("/lists/88434/items")) {
+      assert.equal(url.searchParams.get("released_from"), "2099-01-03");
+      assert.equal(url.searchParams.get("released_to"), "2099-01-09");
       payload = {
         shows: [
           { title: "Seen Show", ids: { tmdb: 11 } },
-          { title: "Low Rated Show", ids: { tmdb: 12 } },
+          { title: "Boundary Rated Show", ids: { tmdb: 12 } },
           { title: "Missing IMDb Show", ids: { tmdb: 13 } },
           { title: "Future Show", ids: { tmdb: 14 } },
-          { title: "Fresh Show", ids: { tmdb: 15 } },
+          { title: "Old Show", ids: { tmdb: 15 } },
+          { title: "Fresh Show", ids: { tmdb: 16 } },
         ],
       };
+    } else if (url.pathname.endsWith("/tmdb/movie/2")) {
+      payload = { released: "2099-01-02", ratings: [{ source: "imdb", value: 8 }], genres: [] };
+    } else if (url.pathname.endsWith("/tmdb/movie/3")) {
+      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 7 }], genres: [] };
+    } else if (url.pathname.endsWith("/tmdb/movie/4")) {
+      payload = { released: "2099-01-03", ratings: [{ source: "imdb", value: 7.1 }], genres: [] };
     } else if (url.pathname.endsWith("/tmdb/show/11")) {
-      payload = { ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
+      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
     } else if (url.pathname.endsWith("/tmdb/show/12")) {
-      payload = { ratings: [{ source: "imdb", value: 5.9 }], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
+      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 7 }], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
     } else if (url.pathname.endsWith("/tmdb/show/13")) {
-      payload = { ratings: [], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
+      payload = { released: "2099-01-09", ratings: [], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
     } else if (url.pathname.endsWith("/tmdb/show/14")) {
-      payload = { ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 0, rating: null }] }] };
+      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 0, rating: null }] }] };
     } else if (url.pathname.endsWith("/tmdb/show/15")) {
-      payload = { ratings: [{ source: "imdb", value: 6 }], seasons: [{ season_number: 2, episodes: [{ votes: 2, rating: 7 }] }] };
+      payload = { released: "2099-01-02", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 2, episodes: [{ votes: 2, rating: 7 }] }] };
+    } else if (url.pathname.endsWith("/tmdb/show/16")) {
+      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 2, episodes: [{ votes: 2, rating: 7 }] }] };
     } else {
-      payload = { title: "Fresh Movie", description: "A fresh movie.", ratings: [], genres: [] };
+      payload = { title: "Unexpected", description: "Unexpected media lookup.", ratings: [], genres: [] };
     }
     return new Response(JSON.stringify(payload), { status: 200 });
   }) as typeof fetch;
   try {
-    const source = await buildMdblistWeeklySource("2099-01-09", 2, { candidatesToFetch: 5, ledgerFile });
-    assert.match(source, /过滤历史推荐后各最多选 2 部/);
-    assert.match(source, /剧集评分门槛：IMDb 评分存在且不低于 6\.0/);
+    const source = await buildMdblistWeeklySource("2099-01-09", 2, { candidatesToFetch: 6, ledgerFile });
+    assert.match(source, /上映日期：2099-01-03 至 2099-01-09/);
+    assert.match(source, /IMDb > 7\.0/);
     assert.match(source, /## 1\. Fresh Movie/);
-    assert.match(source, /- TMDB ID：2/);
+    assert.match(source, /- TMDB ID：4/);
     assert.match(source, /## 1\. Fresh Show/);
-    assert.match(source, /- TMDB ID：15/);
+    assert.match(source, /- TMDB ID：16/);
     assert.match(source, /- 推荐季度：2/);
-    assert.doesNotMatch(source, /## \d+\. (?:Seen Movie|Seen Show|Low Rated Show|Missing IMDb Show|Future Show)/);
+    assert.doesNotMatch(source, /## \d+\. (?:Seen Movie|Seen Show|Old Movie|Boundary Movie|Boundary Rated Show|Missing IMDb Show|Future Show|Old Show)/);
   } finally {
     globalThis.fetch = originalFetch;
     if (originalKey === undefined) delete process.env.MDBLIST_API_KEY;

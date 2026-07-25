@@ -80,7 +80,7 @@ export function parseMdblistModelJson(raw: string): { movies: MdblistModelItem[]
   const parsed = parseModelJsonObject(raw, "mdblist");
   const movies = validateModelItems(parsed.movies, "movies");
   const series = validateModelItems(parsed.series, "series");
-  if (movies.length + series.length < 4) throw new Error(`mdblist model JSON needs at least four works, got ${movies.length + series.length}`);
+  if (movies.length + series.length < 1) throw new Error("mdblist model JSON needs at least one work");
   return { movies, series };
 }
 
@@ -130,7 +130,12 @@ export function composeMdblistBody(
 ): string {
   const movies = composeSection("电影推荐", model.movies, facts.movies);
   const series = composeSection("剧集推荐", model.series, facts.series);
-  return `${movies}\n\n${series}\n`;
+  const sections = [
+    facts.movies.length ? movies : "",
+    facts.series.length ? series : "",
+  ].filter(Boolean);
+  if (!sections.length) throw new Error("mdblist source has no eligible works");
+  return `${sections.join("\n\n")}\n`;
 }
 
 export function mdblistMarkdownFromModelJson(raw: string, source: string): string {

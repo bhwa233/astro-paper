@@ -334,11 +334,10 @@ function formatGitHubTrendingDaily(text: string): string {
 
 function formatMdblistWeekly(text: string): string {
   const normalized = stripLeadingTitleHeading(normalizeMarkdown(text));
-  for (const section of ["电影推荐", "剧集推荐"]) {
-    if (!new RegExp(`^##\\s+${section}\\s*$`, "m").test(normalized)) throw new Error(`mdblist weekly missing section: ${section}`);
-  }
+  const sections = ["电影推荐", "剧集推荐"].filter(section => new RegExp(`^##\\s+${section}\\s*$`, "m").test(normalized));
+  if (!sections.length) throw new Error("mdblist weekly needs at least one of 电影推荐 or 剧集推荐");
   const works = (normalized.match(/^###\s+.+$/gm) || []).length;
-  if (works < 4) throw new Error(`mdblist weekly needs at least four title entries, got ${works}`);
+  if (works < 1) throw new Error("mdblist weekly needs at least one title entry");
   const count = (label: string): number => (normalized.match(new RegExp(`^####\\s+${label}\\s*$`, "gm")) || []).length;
   if (count("基本信息") !== works) throw new Error(`mdblist weekly each work needs a 基本信息 block: ${count("基本信息")} vs ${works} works`);
   for (const label of ["剧情概要", "推荐理由", "评论总结"]) {

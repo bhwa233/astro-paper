@@ -7,10 +7,12 @@ import {
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
+import compress from "@playform/compress";
 import { unified } from "@astrojs/markdown-remark";
 import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
 import rehypeCallouts from "rehype-callouts";
+import rehypeExternalLinks from "rehype-external-links";
 import {
   transformerNotationDiff,
   transformerNotationHighlight,
@@ -31,6 +33,10 @@ const NON_INDEXABLE_PATHNAMES = new Set([
 
 export default defineConfig({
   site: config.site.url,
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: "hover",
+  },
   integrations: [
     mdx(),
     sitemap({
@@ -55,6 +61,9 @@ export default defineConfig({
         lastmod: getSitemapLastmodForUrl(item.url),
       }),
     }),
+    // Runs last: minifies built HTML/CSS/JS/SVG in dist. Images are left to
+    // astro:assets + sharp (OG PNGs are already optimized).
+    compress({ Image: false }),
   ],
   i18n: {
     locales: [...LOCALES],
@@ -69,7 +78,16 @@ export default defineConfig({
         remarkToc,
         [remarkCollapse, { test: "Table of contents" }],
       ],
-      rehypePlugins: [rehypeCallouts],
+      rehypePlugins: [
+        rehypeCallouts,
+        [
+          rehypeExternalLinks,
+          {
+            target: "_blank",
+            rel: ["noopener", "noreferrer"],
+          },
+        ],
+      ],
     }),
     shikiConfig: {
       themes: { light: "min-light", dark: "night-owl" },

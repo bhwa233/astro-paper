@@ -108,21 +108,24 @@ function listItemsPath(list: string): string {
   return `/lists/${trimmed}/items`;
 }
 
-function recentReleaseWindow(date: string): { from: string; to: string } {
-  const to = new Date(`${date}T00:00:00Z`);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(to.getTime()) || to.toISOString().slice(0, 10) !== date) {
+function previousMonthReleaseWindow(date: string): { from: string; to: string } {
+  const archiveDate = new Date(`${date}T00:00:00Z`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(archiveDate.getTime()) || archiveDate.toISOString().slice(0, 10) !== date) {
     throw new Error(`invalid MDBList archive date: ${date}`);
   }
+  const targetYear = archiveDate.getUTCFullYear();
+  const targetMonth = archiveDate.getUTCMonth() - 1;
+  const lastDayOfTargetMonth = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+  const to = new Date(Date.UTC(targetYear, targetMonth, Math.min(archiveDate.getUTCDate(), lastDayOfTargetMonth)));
   const from = new Date(to);
   from.setUTCDate(from.getUTCDate() - 6);
-  return { from: from.toISOString().slice(0, 10), to: date };
+  return { from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) };
 }
 
-export function isReleaseWithinRecentWeek(released: string | null | undefined, date: string): boolean {
+function isReleaseWithinWindow(released: string | null | undefined, releaseWindow: { from: string; to: string }): boolean {
   const releaseDate = compact(released || "").match(/^(\d{4}-\d{2}-\d{2})(?:T.*)?$/)?.[1];
   if (!releaseDate) return false;
-  const { from, to } = recentReleaseWindow(date);
-  return releaseDate >= from && releaseDate <= to;
+  return releaseDate >= releaseWindow.from && releaseDate <= releaseWindow.to;
 }
 
 async function fetchListItems(spec: ListSpec, key: string, count: number, releaseWindow?: { from: string; to: string }): Promise<MdblistItem[]> {
@@ -295,7 +298,6 @@ async function buildSection(
   count: number,
   candidatesToFetch: number,
   recommendedKeys: Set<string>,
-  date: string,
   releaseWindow: { from: string; to: string },
 ): Promise<{ source: string[]; diagnostics: MdblistFilterDiagnostics }> {
   // 日期条件继续由 MDBList 服务端执行；同时读取同一榜单的未过滤计数，供只读诊断产物解释日期层淘汰量。
@@ -325,9 +327,9 @@ async function buildSection(
       continue;
     }
     const candidate: EnrichedItem = { item, info: await fetchMediaInfo(item, spec.mediaType, key) };
-    if (!isReleaseWithinRecentWeek(candidate.info?.released, date)) {
+    if (!isReleaseWithinWindow(candidate.info?.released, releaseWindow)) {
       diagnostics.rejectedDate += 1;
-      diagnostics.rejectedCandidates.push(rejectedCandidate(item, candidate.info, tmdbId, "详情上映日期不在最近一周窗口"));
+      diagnostics.rejectedCandidates.push(rejectedCandidate(item, candidate.info, tmdbId, "详情上映日期不在上月同期窗口"));
       continue;
     }
     const imdbRating = ratingValue(candidate.info, "imdb");
@@ -386,16 +388,16 @@ export async function buildMdblistWeeklySource(
     throw new Error(`MDBList candidate limit must be at least the final item limit: ${candidatesToFetch} < ${count}`);
   }
   const recommendedKeys = loadMdblistRecommendationKeys(ledgerFile, excludePostPath);
-  const releaseWindow = recentReleaseWindow(date);
-  const sections = await Promise.all(specs.map(spec => buildSection(spec, key, count, candidatesToFetch, recommendedKeys, date, releaseWindow)));
+  const releaseWindow = previousMonthReleaseWindow(date);
+  const sections = await Promise.all(specs.map(spec => buildSection(spec, key, count, candidatesToFetch, recommendedKeys, releaseWindow)));
   return [
     `# 每周影视推荐候选源｜${date}`,
     "",
     "来源：mdblist 聚合的 Trakt 趋势电影与剧集榜单（media 元数据来自 IMDb/TMDb/Trakt 等）",
     `接口：${MDBLIST_API}/lists/{list}/items`,
     `抓取时间：${bjtTimestamp()}`,
-    `上映日期：${releaseWindow.from} 至 ${releaseWindow.to}（最近 7 个自然日，含归档日）`,
-    `候选池：电影与剧集各取最多 ${candidatesToFetch} 部，过滤上映日期、IMDb >= ${MIN_IMDB_RATING.toFixed(1)} 与历史推荐后各最多选 ${count} 部`,
+    `上映日期：${releaseWindow.from} 至 ${releaseWindow.to}（上月同期 7 个自然日）`,
+    `候选池：电影与剧集各取最多 ${candidatesToFetch} 部，过滤上月同期上映日期、IMDb >= ${MIN_IMDB_RATING.toFixed(1)} 与历史推荐后各最多选 ${count} 部`,
     "剧集额外要求：存在已开播季度；同一剧集按最新已开播季去重",
     "",
     "筛选诊断（只读产物）：",

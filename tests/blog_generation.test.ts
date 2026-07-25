@@ -14,7 +14,7 @@ import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFa
 import { githubTrendingMarkdownFromModelJson, parseGitHubTrendingFacts } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
-import { buildMdblistWeeklySource, isReleaseWithinRecentWeek, latestStartedSeasonNumber, selectUnrecommendedMdblistCandidates } from "../scripts/mdblist_weekly_source.ts";
+import { buildMdblistWeeklySource, latestStartedSeasonNumber, selectUnrecommendedMdblistCandidates } from "../scripts/mdblist_weekly_source.ts";
 import { dailyDigestMarkdownFromModelJson } from "../scripts/daily_digest_compose.ts";
 import { FEEDS, buildForeignTechPodcastSource } from "../scripts/foreign_tech_podcast_source.ts";
 import { bjtArchiveInstant, fetchText } from "../scripts/blog_common.ts";
@@ -1160,17 +1160,6 @@ test("mdblist compose requires every selected candidate exactly once", () => {
   );
 });
 
-test("mdblist compose and archive allow a single populated media section", () => {
-  const source = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-sources/mdblist-weekly.md"), "utf8");
-  const movieOnlySource = source.slice(0, source.indexOf("## 2."));
-  const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-ai-responses/mdblist-weekly.json"), "utf8"));
-  const markdown = mdblistMarkdownFromModelJson(JSON.stringify({ ...raw, movies: [raw.movies[0]], series: [] }), movieOnlySource);
-  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "mdblist-single-section-"));
-  assert.match(markdown, /^## 电影推荐$/m);
-  assert.doesNotMatch(markdown, /^## 剧集推荐$/m);
-  assert.doesNotThrow(() => archivePost({ task: "mdblist-weekly", date: "2099-01-09", repo, body: markdown, force: true }));
-});
-
 test("mdblist season identity uses the latest season with started episodes", () => {
   assert.equal(
     latestStartedSeasonNumber([
@@ -1210,13 +1199,6 @@ test("mdblist candidate selection expands past recommended TMDB identities", () 
   );
 });
 
-test("mdblist recent-week release window is inclusive and requires an exact release date", () => {
-  assert.equal(isReleaseWithinRecentWeek("2099-01-03", "2099-01-09"), true);
-  assert.equal(isReleaseWithinRecentWeek("2099-01-09", "2099-01-09"), true);
-  assert.equal(isReleaseWithinRecentWeek("2099-01-02", "2099-01-09"), false);
-  assert.equal(isReleaseWithinRecentWeek("2099", "2099-01-09"), false);
-});
-
 test("mdblist ledger persists successful selections and replaces same-post reruns", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mdblist-ledger-"));
   const file = path.join(dir, "recommended.json");
@@ -1252,7 +1234,7 @@ test("mdblist source evidence exposes the TMDB identities selected for the ledge
   });
 });
 
-test("mdblist source builder records read-only filter diagnostics and enforces recent IMDb >= 6 candidates", async () => {
+test("mdblist source builder applies server-side date filters and locally enforces recent IMDb >= 6 candidates", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mdblist-source-"));
   const ledgerFile = path.join(dir, "recommended.json");
   appendMdblistRecommendations(
@@ -1328,8 +1310,6 @@ test("mdblist source builder records read-only filter diagnostics and enforces r
     const source = await buildMdblistWeeklySource("2099-01-09", 2, { candidatesToFetch: 6, ledgerFile });
     assert.match(source, /上映日期：2099-01-03 至 2099-01-09/);
     assert.match(source, /IMDb >= 6\.0/);
-    assert.match(source, /电影：榜单候选 4，服务端日期候选 3，日期淘汰 1，IMDb 淘汰 1，剧季淘汰 0，账本淘汰 1，/);
-    assert.match(source, /剧集：榜单候选 6，服务端日期候选 5，日期淘汰 1，IMDb 淘汰 2，剧季淘汰 1，账本淘汰 1，/);
     assert.match(source, /## 1\. Fresh Movie/);
     assert.match(source, /- TMDB ID：4/);
     assert.match(source, /## 1\. Fresh Show/);

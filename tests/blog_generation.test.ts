@@ -1185,27 +1185,27 @@ test("mdblist season identity uses the latest season with started episodes", () 
 });
 
 test("mdblist candidate selection expands past recommended TMDB identities", () => {
-  const startedSeason = (season: number, imdb: number | null = 7.1) => ({
+  const startedSeason = (season: number, imdb: number | null = 6) => ({
     ratings: imdb === null ? [] : [{ source: "imdb", value: imdb }],
     seasons: [{ season_number: season, episodes: [{ votes: 1, rating: 8 }] }],
   });
   const candidates = [
     { item: { title: "Already recommended", ids: { tmdb: 101 } }, info: startedSeason(2) },
-    { item: { title: "Boundary rated", ids: { tmdb: 102 } }, info: startedSeason(1, 7) },
+    { item: { title: "Boundary rated", ids: { tmdb: 102 } }, info: startedSeason(1, 6) },
     { item: { title: "Missing IMDb", ids: { tmdb: 103 } }, info: startedSeason(1, null) },
     {
       item: { title: "Future season only", ids: { tmdb: 104 } },
       info: { ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 0, rating: null }] }] },
     },
-    { item: { title: "Fresh first", ids: { tmdb: 105 } }, info: startedSeason(1, 7.1) },
+    { item: { title: "Fresh first", ids: { tmdb: 105 } }, info: startedSeason(1, 6) },
     { item: { title: "Fresh second", ids: { tmdb: 106 } }, info: startedSeason(4, 8) },
   ];
   const selected = selectUnrecommendedMdblistCandidates(candidates, "show", new Set(["show:101:season:2"]), 2);
   assert.deepEqual(
     selected.map(entry => ({ title: entry.item.title, key: entry.recommendation.key })),
     [
+      { title: "Boundary rated", key: "show:102:season:1" },
       { title: "Fresh first", key: "show:105:season:1" },
-      { title: "Fresh second", key: "show:106:season:4" },
     ],
   );
 });
@@ -1252,7 +1252,7 @@ test("mdblist source evidence exposes the TMDB identities selected for the ledge
   });
 });
 
-test("mdblist source builder applies server-side date filters and locally enforces recent IMDb > 7 candidates", async () => {
+test("mdblist source builder records read-only filter diagnostics and enforces recent IMDb >= 6 candidates", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mdblist-source-"));
   const ledgerFile = path.join(dir, "recommended.json");
   appendMdblistRecommendations(
@@ -1270,39 +1270,47 @@ test("mdblist source builder applies server-side date filters and locally enforc
     const url = new URL(String(input));
     let payload: unknown;
     if (url.pathname.includes("/lists/87667/items")) {
-      assert.equal(url.searchParams.get("released_from"), "2099-01-03");
-      assert.equal(url.searchParams.get("released_to"), "2099-01-09");
+      const dateFiltered = url.searchParams.has("released_from");
+      if (dateFiltered) {
+        assert.equal(url.searchParams.get("released_from"), "2099-01-03");
+        assert.equal(url.searchParams.get("released_to"), "2099-01-09");
+      }
       payload = {
         movies: [
           { title: "Seen Movie", ids: { tmdb: 1 } },
-          { title: "Old Movie", ids: { tmdb: 2 } },
-          { title: "Boundary Movie", ids: { tmdb: 3 } },
+          ...(dateFiltered ? [] : [{ title: "Old Movie", ids: { tmdb: 2 } }]),
+          { title: "Low Rated Movie", ids: { tmdb: 3 } },
           { title: "Fresh Movie", ids: { tmdb: 4 } },
         ],
       };
     } else if (url.pathname.includes("/lists/88434/items")) {
-      assert.equal(url.searchParams.get("released_from"), "2099-01-03");
-      assert.equal(url.searchParams.get("released_to"), "2099-01-09");
+      const dateFiltered = url.searchParams.has("released_from");
+      if (dateFiltered) {
+        assert.equal(url.searchParams.get("released_from"), "2099-01-03");
+        assert.equal(url.searchParams.get("released_to"), "2099-01-09");
+      }
       payload = {
         shows: [
           { title: "Seen Show", ids: { tmdb: 11 } },
-          { title: "Boundary Rated Show", ids: { tmdb: 12 } },
+          { title: "Low Rated Show", ids: { tmdb: 12 } },
           { title: "Missing IMDb Show", ids: { tmdb: 13 } },
           { title: "Future Show", ids: { tmdb: 14 } },
-          { title: "Old Show", ids: { tmdb: 15 } },
+          ...(dateFiltered ? [] : [{ title: "Old Show", ids: { tmdb: 15 } }]),
           { title: "Fresh Show", ids: { tmdb: 16 } },
         ],
       };
+    } else if (url.pathname.endsWith("/tmdb/movie/1")) {
+      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 8 }], genres: [] };
     } else if (url.pathname.endsWith("/tmdb/movie/2")) {
       payload = { released: "2099-01-02", ratings: [{ source: "imdb", value: 8 }], genres: [] };
     } else if (url.pathname.endsWith("/tmdb/movie/3")) {
-      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 7 }], genres: [] };
+      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 5.9 }], genres: [] };
     } else if (url.pathname.endsWith("/tmdb/movie/4")) {
-      payload = { released: "2099-01-03", ratings: [{ source: "imdb", value: 7.1 }], genres: [] };
+      payload = { released: "2099-01-03", ratings: [{ source: "imdb", value: 6 }], genres: [] };
     } else if (url.pathname.endsWith("/tmdb/show/11")) {
       payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
     } else if (url.pathname.endsWith("/tmdb/show/12")) {
-      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 7 }], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
+      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 5.9 }], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
     } else if (url.pathname.endsWith("/tmdb/show/13")) {
       payload = { released: "2099-01-09", ratings: [], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] };
     } else if (url.pathname.endsWith("/tmdb/show/14")) {
@@ -1310,7 +1318,7 @@ test("mdblist source builder applies server-side date filters and locally enforc
     } else if (url.pathname.endsWith("/tmdb/show/15")) {
       payload = { released: "2099-01-02", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 2, episodes: [{ votes: 2, rating: 7 }] }] };
     } else if (url.pathname.endsWith("/tmdb/show/16")) {
-      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 2, episodes: [{ votes: 2, rating: 7 }] }] };
+      payload = { released: "2099-01-09", ratings: [{ source: "imdb", value: 6 }], seasons: [{ season_number: 2, episodes: [{ votes: 2, rating: 7 }] }] };
     } else {
       payload = { title: "Unexpected", description: "Unexpected media lookup.", ratings: [], genres: [] };
     }
@@ -1319,13 +1327,15 @@ test("mdblist source builder applies server-side date filters and locally enforc
   try {
     const source = await buildMdblistWeeklySource("2099-01-09", 2, { candidatesToFetch: 6, ledgerFile });
     assert.match(source, /上映日期：2099-01-03 至 2099-01-09/);
-    assert.match(source, /IMDb > 7\.0/);
+    assert.match(source, /IMDb >= 6\.0/);
+    assert.match(source, /电影：榜单候选 4，服务端日期候选 3，日期淘汰 1，IMDb 淘汰 1，剧季淘汰 0，账本淘汰 1，/);
+    assert.match(source, /剧集：榜单候选 6，服务端日期候选 5，日期淘汰 1，IMDb 淘汰 2，剧季淘汰 1，账本淘汰 1，/);
     assert.match(source, /## 1\. Fresh Movie/);
     assert.match(source, /- TMDB ID：4/);
     assert.match(source, /## 1\. Fresh Show/);
     assert.match(source, /- TMDB ID：16/);
     assert.match(source, /- 推荐季度：2/);
-    assert.doesNotMatch(source, /## \d+\. (?:Seen Movie|Seen Show|Old Movie|Boundary Movie|Boundary Rated Show|Missing IMDb Show|Future Show|Old Show)/);
+    assert.doesNotMatch(source, /## \d+\. (?:Seen Movie|Seen Show|Old Movie|Low Rated Movie|Low Rated Show|Missing IMDb Show|Future Show|Old Show)/);
   } finally {
     globalThis.fetch = originalFetch;
     if (originalKey === undefined) delete process.env.MDBLIST_API_KEY;

@@ -11,7 +11,7 @@ import {
 const MDBLIST_API = "https://api.mdblist.com";
 const DEFAULT_LIMIT = 10;
 const DEFAULT_CANDIDATE_LIMIT = 50;
-const MIN_IMDB_RATING_EXCLUSIVE = 7;
+const MIN_IMDB_RATING = 6;
 // mdblist 上 snoak 维护的 Trakt 趋势榜（数字 list id 比 slug 稳定），可用环境变量覆盖。
 const DEFAULT_MOVIES_LIST = "87667"; // Trakt's Trending Movies
 const DEFAULT_SHOWS_LIST = "88434"; // Trakt's Trending Shows
@@ -53,6 +53,18 @@ export type MdblistMediaInfo = {
 };
 
 type ListSpec = { label: string; mediaLabel: string; mediaType: "movie" | "show"; list: string };
+
+type MdblistFilterDiagnostics = {
+  listed: number;
+  serverDateCandidates: number;
+  rejectedDate: number;
+  rejectedImdb: number;
+  rejectedSeason: number;
+  rejectedHistory: number;
+  invalidTmdbId: number;
+  eligible: number;
+  selected: number;
+};
 
 export type EnrichedItem = { item: MdblistItem; info: MdblistMediaInfo | null };
 export type SelectedMdblistCandidate = EnrichedItem & { recommendation: MdblistRecommendation };
@@ -104,12 +116,13 @@ export function isReleaseWithinRecentWeek(released: string | null | undefined, d
   return releaseDate >= from && releaseDate <= to;
 }
 
-async function fetchListItems(spec: ListSpec, key: string, count: number, releaseWindow: { from: string; to: string }): Promise<MdblistItem[]> {
-  const payload = await fetchJson<MdblistListResponse | MdblistItem[]>(apiUrl(listItemsPath(spec.list), key, {
-    limit: String(count),
-    released_from: releaseWindow.from,
-    released_to: releaseWindow.to,
-  }), {
+async function fetchListItems(spec: ListSpec, key: string, count: number, releaseWindow?: { from: string; to: string }): Promise<MdblistItem[]> {
+  const params: Record<string, string> = { limit: String(count) };
+  if (releaseWindow) {
+    params.released_from = releaseWindow.from;
+    params.released_to = releaseWindow.to;
+  }
+  const payload = await fetchJson<MdblistListResponse | MdblistItem[]>(apiUrl(listItemsPath(spec.list), key, params), {
     headers: { accept: "application/json" },
   });
   if (!Array.isArray(payload) && payload.error) throw new Error(`mdblist API error for ${spec.label}: ${payload.error}`);
@@ -184,7 +197,7 @@ function recommendationForCandidate(candidate: EnrichedItem, mediaType: MdblistM
   const tmdbId = Number(candidate.item.ids?.tmdb);
   if (!Number.isInteger(tmdbId) || tmdbId <= 0) return null;
   const imdbRating = ratingValue(candidate.info, "imdb");
-  if (imdbRating === null || imdbRating <= MIN_IMDB_RATING_EXCLUSIVE) return null;
+  if (imdbRating === null || imdbRating < MIN_IMDB_RATING) return null;
   const seasonNumber = mediaType === "show" ? latestStartedSeasonNumber(candidate.info.seasons) : undefined;
   if (mediaType === "show" && seasonNumber === null) return null;
   return {
@@ -236,6 +249,10 @@ function sourceBlock(enriched: SelectedMdblistCandidate, index: number, spec: Li
   ].join("\n");
 }
 
+function formatFilterDiagnostics(spec: ListSpec, diagnostics: MdblistFilterDiagnostics): string {
+  return `- ${spec.mediaLabel}：榜单候选 ${diagnostics.listed}，服务端日期候选 ${diagnostics.serverDateCandidates}，日期淘汰 ${diagnostics.rejectedDate}，IMDb 淘汰 ${diagnostics.rejectedImdb}，剧季淘汰 ${diagnostics.rejectedSeason}，账本淘汰 ${diagnostics.rejectedHistory}，无有效 TMDB ID ${diagnostics.invalidTmdbId}，通过全部规则 ${diagnostics.eligible}，最终入选 ${diagnostics.selected}`;
+}
+
 async function buildSection(
   spec: ListSpec,
   key: string,
@@ -244,24 +261,64 @@ async function buildSection(
   recommendedKeys: Set<string>,
   date: string,
   releaseWindow: { from: string; to: string },
-): Promise<string[]> {
-  const items = await fetchListItems(spec, key, candidatesToFetch, releaseWindow);
+): Promise<{ source: string[]; diagnostics: MdblistFilterDiagnostics }> {
+  // 日期条件继续由 MDBList 服务端执行；同时读取同一榜单的未过滤计数，供只读诊断产物解释日期层淘汰量。
+  const [allItems, items] = await Promise.all([
+    fetchListItems(spec, key, candidatesToFetch),
+    fetchListItems(spec, key, candidatesToFetch, releaseWindow),
+  ]);
+  const diagnostics: MdblistFilterDiagnostics = {
+    listed: allItems.length,
+    serverDateCandidates: items.length,
+    rejectedDate: Math.max(0, allItems.length - items.length),
+    rejectedImdb: 0,
+    rejectedSeason: 0,
+    rejectedHistory: 0,
+    invalidTmdbId: 0,
+    eligible: 0,
+    selected: 0,
+  };
   const selected: SelectedMdblistCandidate[] = [];
   const blocked = new Set(recommendedKeys);
   for (const item of items) {
     const tmdbId = Number(item.ids?.tmdb);
-    if (!Number.isInteger(tmdbId) || tmdbId <= 0) continue;
-    if (spec.mediaType === "movie" && blocked.has(mdblistRecommendationKey("movie", tmdbId))) continue;
+    if (!Number.isInteger(tmdbId) || tmdbId <= 0) {
+      diagnostics.invalidTmdbId += 1;
+      continue;
+    }
     const candidate: EnrichedItem = { item, info: await fetchMediaInfo(item, spec.mediaType, key) };
-    if (!isReleaseWithinRecentWeek(candidate.info?.released, date)) continue;
-    const next = selectUnrecommendedMdblistCandidates([candidate], spec.mediaType, blocked, 1)[0];
-    if (!next) continue;
-    selected.push(next);
-    blocked.add(next.recommendation.key);
-    if (selected.length >= count) break;
+    if (!isReleaseWithinRecentWeek(candidate.info?.released, date)) {
+      diagnostics.rejectedDate += 1;
+      continue;
+    }
+    const imdbRating = ratingValue(candidate.info, "imdb");
+    if (imdbRating === null || imdbRating < MIN_IMDB_RATING) {
+      diagnostics.rejectedImdb += 1;
+      continue;
+    }
+    if (spec.mediaType === "show" && latestStartedSeasonNumber(candidate.info?.seasons) === null) {
+      diagnostics.rejectedSeason += 1;
+      continue;
+    }
+    const recommendation = recommendationForCandidate(candidate, spec.mediaType);
+    if (!recommendation) {
+      diagnostics.invalidTmdbId += 1;
+      continue;
+    }
+    if (blocked.has(recommendation.key)) {
+      diagnostics.rejectedHistory += 1;
+      continue;
+    }
+    diagnostics.eligible += 1;
+    if (selected.length >= count) continue;
+    selected.push({ ...candidate, recommendation });
+    blocked.add(recommendation.key);
   }
-  if (!selected.length) return [];
-  return [`# ${spec.mediaLabel}候选`, "", ...selected.map((entry, index) => sourceBlock(entry, index, spec)), ""];
+  diagnostics.selected = selected.length;
+  return {
+    diagnostics,
+    source: selected.length ? [`# ${spec.mediaLabel}候选`, "", ...selected.map((entry, index) => sourceBlock(entry, index, spec)), ""] : [],
+  };
 }
 
 function listSpecs(): ListSpec[] {
@@ -295,12 +352,15 @@ export async function buildMdblistWeeklySource(
     `接口：${MDBLIST_API}/lists/{list}/items`,
     `抓取时间：${bjtTimestamp()}`,
     `上映日期：${releaseWindow.from} 至 ${releaseWindow.to}（最近 7 个自然日，含归档日）`,
-    `候选池：电影与剧集各取最多 ${candidatesToFetch} 部，过滤上映日期、IMDb > ${MIN_IMDB_RATING_EXCLUSIVE.toFixed(1)} 与历史推荐后各最多选 ${count} 部`,
+    `候选池：电影与剧集各取最多 ${candidatesToFetch} 部，过滤上映日期、IMDb >= ${MIN_IMDB_RATING.toFixed(1)} 与历史推荐后各最多选 ${count} 部`,
     "剧集额外要求：存在已开播季度；同一剧集按最新已开播季去重",
+    "",
+    "筛选诊断（只读产物）：",
+    ...sections.map((section, index) => formatFilterDiagnostics(specs[index], section.diagnostics)),
     "",
     "数据说明：榜单代表近期 Trakt 趋势热度，不是官方权威排名。请据证据写推荐，不要编造评分、剧情或上线日期。",
     "",
-    ...sections.flat(),
+    ...sections.flatMap(section => section.source),
   ].join("\n");
 }
 

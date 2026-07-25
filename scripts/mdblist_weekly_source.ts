@@ -64,6 +64,15 @@ type MdblistFilterDiagnostics = {
   invalidTmdbId: number;
   eligible: number;
   selected: number;
+  rejectedCandidates: MdblistRejectedCandidate[];
+};
+
+type MdblistRejectedCandidate = {
+  title: string;
+  tmdbId: string;
+  releaseDate: string;
+  imdbRating: string;
+  reason: string;
 };
 
 export type EnrichedItem = { item: MdblistItem; info: MdblistMediaInfo | null };
@@ -253,6 +262,33 @@ function formatFilterDiagnostics(spec: ListSpec, diagnostics: MdblistFilterDiagn
   return `- ${spec.mediaLabel}：榜单候选 ${diagnostics.listed}，服务端日期候选 ${diagnostics.serverDateCandidates}，日期淘汰 ${diagnostics.rejectedDate}，IMDb 淘汰 ${diagnostics.rejectedImdb}，剧季淘汰 ${diagnostics.rejectedSeason}，账本淘汰 ${diagnostics.rejectedHistory}，无有效 TMDB ID ${diagnostics.invalidTmdbId}，通过全部规则 ${diagnostics.eligible}，最终入选 ${diagnostics.selected}`;
 }
 
+function rejectedCandidate(
+  item: MdblistItem,
+  info: MdblistMediaInfo | null,
+  tmdbId: number | null,
+  reason: string,
+): MdblistRejectedCandidate {
+  const imdbRating = ratingValue(info, "imdb");
+  return {
+    title: compact(item.title || "") || "未命名作品",
+    tmdbId: tmdbId && tmdbId > 0 ? String(tmdbId) : "-",
+    releaseDate: releaseDateText(info, item),
+    imdbRating: imdbRating === null ? "缺失" : imdbRating.toFixed(1),
+    reason,
+  };
+}
+
+function formatRejectedCandidateDiagnostics(spec: ListSpec, diagnostics: MdblistFilterDiagnostics): string[] {
+  const heading = `### ${spec.mediaLabel}淘汰明细`;
+  if (!diagnostics.rejectedCandidates.length) return [heading, "", "- 无（服务端日期候选均通过后续规则或没有日期候选）", ""];
+  return [
+    heading,
+    "",
+    ...diagnostics.rejectedCandidates.map(candidate => `- ${candidate.title}｜TMDB ID：${candidate.tmdbId}｜上映日期：${candidate.releaseDate}｜IMDb：${candidate.imdbRating}｜淘汰原因：${candidate.reason}`),
+    "",
+  ];
+}
+
 async function buildSection(
   spec: ListSpec,
   key: string,
@@ -277,6 +313,7 @@ async function buildSection(
     invalidTmdbId: 0,
     eligible: 0,
     selected: 0,
+    rejectedCandidates: [],
   };
   const selected: SelectedMdblistCandidate[] = [];
   const blocked = new Set(recommendedKeys);
@@ -284,29 +321,35 @@ async function buildSection(
     const tmdbId = Number(item.ids?.tmdb);
     if (!Number.isInteger(tmdbId) || tmdbId <= 0) {
       diagnostics.invalidTmdbId += 1;
+      diagnostics.rejectedCandidates.push(rejectedCandidate(item, null, null, "无有效 TMDB ID"));
       continue;
     }
     const candidate: EnrichedItem = { item, info: await fetchMediaInfo(item, spec.mediaType, key) };
     if (!isReleaseWithinRecentWeek(candidate.info?.released, date)) {
       diagnostics.rejectedDate += 1;
+      diagnostics.rejectedCandidates.push(rejectedCandidate(item, candidate.info, tmdbId, "详情上映日期不在最近一周窗口"));
       continue;
     }
     const imdbRating = ratingValue(candidate.info, "imdb");
     if (imdbRating === null || imdbRating < MIN_IMDB_RATING) {
       diagnostics.rejectedImdb += 1;
+      diagnostics.rejectedCandidates.push(rejectedCandidate(item, candidate.info, tmdbId, imdbRating === null ? "IMDb 评分缺失" : `IMDb ${imdbRating.toFixed(1)} < ${MIN_IMDB_RATING.toFixed(1)}`));
       continue;
     }
     if (spec.mediaType === "show" && latestStartedSeasonNumber(candidate.info?.seasons) === null) {
       diagnostics.rejectedSeason += 1;
+      diagnostics.rejectedCandidates.push(rejectedCandidate(item, candidate.info, tmdbId, "没有已开播季度"));
       continue;
     }
     const recommendation = recommendationForCandidate(candidate, spec.mediaType);
     if (!recommendation) {
       diagnostics.invalidTmdbId += 1;
+      diagnostics.rejectedCandidates.push(rejectedCandidate(item, candidate.info, tmdbId, "无法建立推荐身份"));
       continue;
     }
     if (blocked.has(recommendation.key)) {
       diagnostics.rejectedHistory += 1;
+      diagnostics.rejectedCandidates.push(rejectedCandidate(item, candidate.info, tmdbId, "已在推荐账本中"));
       continue;
     }
     diagnostics.eligible += 1;
@@ -358,6 +401,8 @@ export async function buildMdblistWeeklySource(
     "筛选诊断（只读产物）：",
     ...sections.map((section, index) => formatFilterDiagnostics(specs[index], section.diagnostics)),
     "",
+    "筛选明细（只读产物，仅列出服务端日期候选中在后续规则被淘汰的作品）：",
+    ...sections.flatMap((section, index) => formatRejectedCandidateDiagnostics(specs[index], section.diagnostics)),
     "数据说明：榜单代表近期 Trakt 趋势热度，不是官方权威排名。请据证据写推荐，不要编造评分、剧情或上线日期。",
     "",
     ...sections.flatMap(section => section.source),

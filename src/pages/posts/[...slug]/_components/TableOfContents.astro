@@ -1,0 +1,42 @@
+---
+import type { MarkdownHeading } from "astro";
+
+type Props = {
+  headings: MarkdownHeading[];
+  title: string;
+};
+
+const { headings, title } = Astro.props;
+
+// Only h2/h3 make a useful outline.
+const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
+---
+
+{
+  tocHeadings.length >= 2 && (
+    <aside
+      id="toc"
+      aria-label={title}
+      class="fixed top-24 left-[calc(50%_+_24rem_+_1.5rem)] hidden max-h-[calc(100dvh_-_8rem)] w-56 overflow-y-auto xl:block"
+    >
+      <h2 class="text-foreground mb-2 text-sm font-semibold tracking-wide">
+        {title}
+      </h2>
+      <nav>
+        <ul class="text-muted-foreground space-y-1 text-sm">
+          {tocHeadings.map(heading => (
+            <li class:list={[{ "ps-3": heading.depth === 3 }]}>
+              <a
+                href={`#${heading.slug}`}
+                data-toc-slug={heading.slug}
+                class="hover:text-accent block border-s-2 border-transparent py-0.5 ps-2 leading-snug no-underline transition-colors"
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </aside>
+  )
+}

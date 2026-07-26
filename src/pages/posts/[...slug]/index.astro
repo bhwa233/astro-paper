@@ -13,6 +13,7 @@ import ShareLinks from "./_components/ShareLinks.astro";
 import BackButton from "./_components/BackButton.astro";
 import BackToTopButton from "./_components/BackToTopButton.astro";
 import AdjacentPostNav from "./_components/AdjacentPostNav.astro";
+import TableOfContents from "./_components/TableOfContents.astro";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { getPostDetailPaths } from "@/utils/localeStaticPaths";
 import { getLocalizedSiteTitle } from "@/utils/siteMeta";
@@ -55,7 +56,7 @@ const {
   hideEditPost,
 } = post.data;
 
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 
 let ogImageUrl: string | undefined;
 
@@ -129,6 +130,8 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
       </span>
       <EditPost {hideEditPost} {post} class="max-sm:hidden" />
     </div>
+
+    <TableOfContents {headings} title={t.post.tableOfContents} />
 
     {
       showCoverImage && ogImageUrl && (
@@ -251,6 +254,69 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
     }
   }
   addHeadingLinks();
+
+  /** Scroll-spy: highlight the current section in the outline sidebar. */
+  function initToc() {
+    const toc = document.getElementById("toc");
+    const article = document.getElementById("article");
+    if (!toc || !article) return;
+
+    const links = new Map();
+    for (const link of toc.querySelectorAll("a[data-toc-slug]")) {
+      links.set(link.dataset.tocSlug, link);
+    }
+    if (links.size === 0) return;
+
+    const activeClass = ["text-accent", "border-accent", "font-medium"];
+    let current = null;
+
+    function setActive(slug) {
+      if (slug === current) return;
+      if (current && links.has(current)) {
+        links.get(current).classList.remove(...activeClass);
+      }
+      const link = links.get(slug);
+      if (link) {
+        link.classList.add(...activeClass);
+        current = slug;
+      }
+    }
+
+    const headings = Array.from(article.querySelectorAll("h2, h3")).filter(h =>
+      links.has(h.id)
+    );
+    if (headings.length === 0) return;
+
+    const visible = new Set();
+    const observer = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target);
+          else visible.delete(entry.target);
+        }
+        // Pick the topmost heading currently in the viewport band.
+        let top = null;
+        for (const h of headings) {
+          if (visible.has(h)) {
+            top = h;
+            break;
+          }
+        }
+        // Nothing in band (e.g. mid long section): keep last heading above.
+        if (!top) {
+          for (const h of headings) {
+            if (h.getBoundingClientRect().top < 120) top = h;
+            else break;
+          }
+        }
+        if (top) setActive(top.id);
+      },
+      { rootMargin: "-100px 0px -66% 0px", threshold: 0 }
+    );
+
+    for (const h of headings) observer.observe(h);
+  }
+  initToc();
 
   function attachCopyButtons() {
     const mainContent = document.getElementById("main-content");

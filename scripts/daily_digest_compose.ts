@@ -38,9 +38,14 @@ function sourceLinkMap(source: string): Map<string, string[]> {
   return links;
 }
 
-// Repair only the observed model corruption: a leading prefix of the final URL slug
-// is duplicated. Every other URL component must still match a source-pool URL.
-function hasDuplicatedSlugPrefix(url: string, sourceUrl: string): boolean {
+type SlugPair = {
+  candidateSlug: string;
+  sourceSlug: string;
+};
+
+// Looser reconciliation is restricted to the final path segment. Origin, credentials,
+// query, hash, and every preceding path segment must remain identical.
+function matchingSlugPair(url: string, sourceUrl: string): SlugPair | undefined {
   try {
     const candidate = new URL(url);
     const source = new URL(sourceUrl);
@@ -51,23 +56,63 @@ function hasDuplicatedSlugPrefix(url: string, sourceUrl: string): boolean {
       candidate.search !== source.search ||
       candidate.hash !== source.hash
     ) {
-      return false;
+      return undefined;
     }
 
-    const sourceSlash = source.pathname.lastIndexOf("/");
-    const candidateSlash = candidate.pathname.lastIndexOf("/");
-    if (sourceSlash < 0 || candidateSlash < 0 || source.pathname.slice(0, sourceSlash + 1) !== candidate.pathname.slice(0, candidateSlash + 1)) {
-      return false;
-    }
-
-    const sourceSlug = source.pathname.slice(sourceSlash + 1);
-    const candidateSlug = candidate.pathname.slice(candidateSlash + 1);
-    if (!sourceSlug || !candidateSlug.endsWith(sourceSlug)) return false;
-    const duplicatedPrefix = candidateSlug.slice(0, -sourceSlug.length);
-    return duplicatedPrefix.length > 0 && sourceSlug.startsWith(duplicatedPrefix);
+    const candidateParts = candidate.pathname.split("/").filter(Boolean);
+    const sourceParts = source.pathname.split("/").filter(Boolean);
+    if (candidateParts.length === 0 || candidateParts.length !== sourceParts.length) return undefined;
+    if (candidateParts.slice(0, -1).some((part, index) => part !== sourceParts[index])) return undefined;
+    return { candidateSlug: candidateParts.at(-1)!, sourceSlug: sourceParts.at(-1)! };
   } catch {
+    return undefined;
+  }
+}
+
+// Repair the known model corruption where a leading prefix of the final URL slug is
+// duplicated. Every other URL component must still match a source-pool URL.
+function hasDuplicatedSlugPrefix(url: string, sourceUrl: string): boolean {
+  const pair = matchingSlugPair(url, sourceUrl);
+  if (!pair || !pair.candidateSlug.endsWith(pair.sourceSlug)) return false;
+  const duplicatedPrefix = pair.candidateSlug.slice(0, -pair.sourceSlug.length);
+  return duplicatedPrefix.length > 0 && pair.sourceSlug.startsWith(duplicatedPrefix);
+}
+
+function normalizedSlugTokens(slug: string): string[] {
+  return slug
+    .replace(/['\u2018\u2019]/g, "")
+    .replace(/[;,:._-]+/g, "-")
+    .split("-")
+    .filter(Boolean);
+}
+
+function differsByOneItsToken(left: string[], right: string[]): boolean {
+  let longer: string[];
+  let shorter: string[];
+  if (left.length === right.length + 1) {
+    [longer, shorter] = [left, right];
+  } else if (right.length === left.length + 1) {
+    [longer, shorter] = [right, left];
+  } else {
     return false;
   }
+  return longer.some((token, index) => (
+    token === "its" &&
+    longer.slice(0, index).every((value, valueIndex) => value === shorter[valueIndex]) &&
+    longer.slice(index + 1).every((value, valueIndex) => value === shorter[index + valueIndex])
+  ));
+}
+
+// Repair only punctuation rendering changes and one optional possessive connector
+// (the two transformations present in the failed CI responses).
+function hasConservativelyEquivalentSlug(url: string, sourceUrl: string): boolean {
+  const pair = matchingSlugPair(url, sourceUrl);
+  if (!pair) return false;
+  const candidateTokens = normalizedSlugTokens(pair.candidateSlug);
+  const sourceTokens = normalizedSlugTokens(pair.sourceSlug);
+  if (candidateTokens.length === 0 || sourceTokens.length === 0) return false;
+  if (candidateTokens.length === sourceTokens.length && candidateTokens.every((token, index) => token === sourceTokens[index])) return true;
+  return differsByOneItsToken(candidateTokens, sourceTokens);
 }
 
 function reconcileSourceLink(url: string, allowed: Map<string, string[]>): string | undefined {
@@ -77,7 +122,9 @@ function reconcileSourceLink(url: string, allowed: Map<string, string[]>): strin
   if (exact.length === 1) return exact[0];
   const normalizedMatches = allowed.get(normalized) || [];
   if (normalizedMatches.length === 1) return normalizedMatches[0];
-  const matches = [...allowed].flatMap(([sourceKey, sourceUrls]) => (hasDuplicatedSlugPrefix(normalized, sourceKey) ? sourceUrls : []));
+  const matches = [...allowed].flatMap(([sourceKey, sourceUrls]) => (
+    hasDuplicatedSlugPrefix(normalized, sourceKey) || hasConservativelyEquivalentSlug(normalized, sourceKey) ? sourceUrls : []
+  ));
   return matches.length === 1 ? matches[0] : undefined;
 }
 

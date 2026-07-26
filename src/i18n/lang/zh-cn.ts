@@ -22,6 +22,7 @@ export default {
     previousPost: "上一篇",
     nextPost: "下一篇",
     tableOfContents: "目录",
+    readingTime: "{{min}} 分钟阅读",
   },
   pagination: {
     prev: "上一页",
@@ -88,6 +89,7 @@ export default {
     lightTheme: "浅色主题",
     darkTheme: "深色主题",
     languageSwitcher: "切换语言",
+    headingLink: "跳转到本节：{{title}}",
     searchPlaceholder: "搜索文章……",
     noResults: "未找到结果",
     goToPreviousPage: "前往上一页",

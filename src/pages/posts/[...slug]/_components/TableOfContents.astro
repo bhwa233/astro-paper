@@ -40,3 +40,27 @@ const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
     </aside>
   )
 }
+
+{
+  tocHeadings.length >= 2 && (
+    <details class="border-border bg-surface/60 mt-6 rounded-lg border px-4 py-2 xl:hidden">
+      <summary class="text-foreground cursor-pointer py-1 text-sm font-semibold tracking-wide">
+        {title}
+      </summary>
+      <nav>
+        <ul class="text-muted-foreground mt-2 space-y-1 text-sm">
+          {tocHeadings.map(heading => (
+            <li class:list={[{ "ps-3": heading.depth === 3 }]}>
+              <a
+                href={`#${heading.slug}`}
+                class="hover:text-accent block py-0.5 leading-snug no-underline transition-colors"
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </details>
+  )
+}

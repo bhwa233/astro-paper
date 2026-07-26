@@ -22,6 +22,7 @@ export default {
     previousPost: "Previous Post",
     nextPost: "Next Post",
     tableOfContents: "On this page",
+    readingTime: "{{min}} min read",
   },
   pagination: {
     prev: "Prev",
@@ -88,6 +89,7 @@ export default {
     lightTheme: "Light theme",
     darkTheme: "Dark theme",
     languageSwitcher: "Switch language",
+    headingLink: "Link to section: {{title}}",
     searchPlaceholder: "Search posts...",
     noResults: "No results found",
     goToPreviousPage: "Go to previous page",

@@ -19,6 +19,8 @@ import { getPostDetailPaths } from "@/utils/localeStaticPaths";
 import { getLocalizedSiteTitle } from "@/utils/siteMeta";
 import { getPostLocaleAlternates } from "@/utils/localeAlternates";
 import { useTranslations } from "@/i18n";
+import { tplStr } from "@/i18n/format";
+import { getReadingTime } from "@/utils/readingTime";
 import config from "@/config";
 import TradingViewChart from "@/components/TradingViewChart.astro";
 
@@ -57,6 +59,8 @@ const {
 } = post.data;
 
 const { Content, headings } = await render(post);
+
+const readingTime = getReadingTime(post.body ?? "");
 
 let ogImageUrl: string | undefined;
 
@@ -104,6 +108,7 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
     data-pagefind-filter={`locale:${locale}`}
     data-copy-label={t.code.copy}
     data-copied-label={t.code.copied}
+    data-heading-link-label={t.a11y.headingLink}
     data-zoom-image-label={t.lightbox.zoomImage}
     data-zoom-image-with-alt={t.lightbox.zoomImageWithAlt}
     data-image-preview-label={t.lightbox.imagePreview}
@@ -119,6 +124,10 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
 
     <div class="my-2 flex items-center gap-2">
       <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />
+      <span aria-hidden="true" class="text-muted-foreground">|</span>
+      <span class="text-muted-foreground text-sm sm:text-base">
+        {tplStr(t.post.readingTime, { min: readingTime })}
+      </span>
       <span
         aria-hidden="true"
         class:list={[
@@ -236,6 +245,8 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
   updateScrollProgress();
 
   function addHeadingLinks() {
+    const mainContent = document.getElementById("main-content");
+    const labelTemplate = mainContent?.dataset.headingLinkLabel ?? "";
     const headings = Array.from(
       document.querySelectorAll("h2, h3, h4, h5, h6")
     );
@@ -245,6 +256,15 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
       link.className =
         "heading-link ms-2 no-underline opacity-75 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100";
       link.href = "#" + heading.id;
+      // Give the anchor an accessible name so screen readers don't
+      // announce an empty link (the "#" glyph is decorative).
+      const headingText = heading.textContent?.trim() ?? "";
+      link.setAttribute(
+        "aria-label",
+        labelTemplate
+          ? labelTemplate.replace("{{title}}", headingText)
+          : headingText
+      );
 
       const span = document.createElement("span");
       span.ariaHidden = "true";
@@ -273,11 +293,14 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
     function setActive(slug) {
       if (slug === current) return;
       if (current && links.has(current)) {
-        links.get(current).classList.remove(...activeClass);
+        const prev = links.get(current);
+        prev.classList.remove(...activeClass);
+        prev.removeAttribute("aria-current");
       }
       const link = links.get(slug);
       if (link) {
         link.classList.add(...activeClass);
+        link.setAttribute("aria-current", "location");
         current = slug;
       }
     }

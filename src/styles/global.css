@@ -42,6 +42,15 @@
   }
 }
 
+/* Respect reduced-motion: disable Astro view-transition animations. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 @utility max-w-app {
   @apply max-w-3xl;
 }

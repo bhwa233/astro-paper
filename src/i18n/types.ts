@@ -20,6 +20,7 @@ export interface UIStrings {
     previousPost: string;
     nextPost: string;
     tableOfContents: string;
+    readingTime: string;
   };
   pagination: {
     prev: string;
@@ -85,6 +86,7 @@ export interface UIStrings {
     lightTheme: string;
     darkTheme: string;
     languageSwitcher: string;
+    headingLink: string;
     searchPlaceholder: string;
     noResults: string;
     goToPreviousPage: string;

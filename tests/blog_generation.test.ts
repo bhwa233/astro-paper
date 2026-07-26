@@ -1326,17 +1326,27 @@ test("mdblist source builder applies the previous-month window and locally enfor
 test("daily digest compose retains canonical source URL spelling after matching and reconciliation", () => {
   const exactSourceUrl = "https://www.cisa.gov/News-Events/News/Exact-Case-Sensitive-Path";
   const reconciledSourceUrl = "https://www.cisa.gov/News-Events/News/Alert-Targeting";
-  const source = [`- 链接：${exactSourceUrl}`, `- 链接：${reconciledSourceUrl}`].join("\n");
+  const arsSourceUrl = "https://arstechnica.com/tech-policy/2026/07/ai-firms-want-more-data-centers-trumps-epa-may-give-neighbors-less-say/";
+  const wiredSourceUrl = "https://www.wired.com/story/eu-fines-google-billion-prioritizing-own-services-in-search/";
+  const source = [`- 链接：${exactSourceUrl}`, `- 链接：${reconciledSourceUrl}`, `- 链接：${arsSourceUrl}`, `- 链接：${wiredSourceUrl}`].join("\n");
   const corruptedUrl = "https://www.cisa.gov/news-events/news/alert-alert-targeting";
+  const arsPunctuationCorruption = "https://arstechnica.com/tech-policy/2026/07/ai-firms-want-more-data-centers;trump's-epa-may-give-neighbors-less-say";
+  const wiredConnectorCorruption = "https://www.wired.com/story/eu-fines-google-billion-prioritizing-its-own-services-in-search/";
   const body = "这是一段足够长的中文正文用于通过低信号与长度校验，说明事件影响与风险。";
   const items = [
     { title_zh: "精确匹配保留来源 URL 大小写", source_url: exactSourceUrl, body_markdown: body },
     { title_zh: "美国政府更新关键基础设施 PLC 威胁预警", source_url: corruptedUrl, body_markdown: body },
+    { title_zh: "美国拟弱化部分数据中心项目的公众参与门槛", source_url: arsPunctuationCorruption, body_markdown: body },
+    { title_zh: "欧盟因 Google 搜索自我优待处以十亿美元罚款", source_url: wiredConnectorCorruption, body_markdown: body },
   ];
   const markdown = dailyDigestMarkdownFromModelJson(JSON.stringify({ overview: "今天的主线是关键基础设施的网络安全风险。", sections: [{ title: "安全", items }] }), source);
   assert.ok(markdown.includes(`](${exactSourceUrl})`));
   assert.ok(markdown.includes(`](${reconciledSourceUrl})`));
+  assert.ok(markdown.includes(`](${arsSourceUrl})`));
+  assert.ok(markdown.includes(`](${wiredSourceUrl})`));
   assert.equal(markdown.includes(corruptedUrl), false);
+  assert.equal(markdown.includes(arsPunctuationCorruption), false);
+  assert.equal(markdown.includes(wiredConnectorCorruption), false);
 });
 
 test("daily digest compose rejects external, ambiguous, and duplicate source links", () => {
@@ -1353,6 +1363,12 @@ test("daily digest compose rejects external, ambiguous, and duplicate source lin
   const ambiguousSource = ["- 链接：https://example.com/news/aa", "- 链接：https://example.com/news/aaa"].join("\n");
   assert.throws(
     () => dailyDigestMarkdownFromModelJson(JSON.stringify({ overview, sections: [{ title: "平台工程", items: [{ ...good, source_url: "https://example.com/news/aaaa" }] }] }), ambiguousSource),
+    /outside the source pool/,
+  );
+  // 一个窄松弛匹配仍对应两个 source 时，不能猜测应该回填哪一个。
+  const ambiguousRelaxedSource = ["- 链接：https://example.com/news/example-article", "- 链接：https://example.com/news/example.its.article"].join("\n");
+  assert.throws(
+    () => dailyDigestMarkdownFromModelJson(JSON.stringify({ overview, sections: [{ title: "平台工程", items: [{ ...good, source_url: "https://example.com/news/example.its-article" }] }] }), ambiguousRelaxedSource),
     /outside the source pool/,
   );
   // 同一链接复用 → 拒绝。

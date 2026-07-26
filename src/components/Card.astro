@@ -2,15 +2,17 @@
 import type { CollectionEntry } from "astro:content";
 import { getPostUrl } from "@/utils/getPostPaths";
 import { toTransitionName } from "@/utils/toTransitionName";
+import { getReadingTime } from "@/utils/readingTime";
 import Datetime from "./Datetime.astro";
 
 type Props = {
   variant?: "h2" | "h3";
 } & CollectionEntry<"posts">;
 
-const { variant: Heading = "h2", id, data, filePath } = Astro.props;
+const { variant: Heading = "h2", id, data, filePath, body } = Astro.props;
 
 const { title, description, ...props } = data;
+const readingTime = getReadingTime(body ?? "");
 ---
 
 <li
@@ -28,6 +30,6 @@ const { title, description, ...props } = data;
       {title}
     </Heading>
   </a>
-  <Datetime {...props} />
+  <Datetime {...props} {readingTime} />
   <p class="text-muted-foreground mt-2 leading-7">{description}</p>
 </li>

@@ -3,6 +3,7 @@ import type { SiteLocale } from "@/i18n/locales";
 import { filterCollectionByLocale } from "@/utils/contentLocale";
 import { getPostUrl } from "@/utils/getPostPaths";
 import { getSortedPosts } from "@/utils/getSortedPosts";
+import { getReadingTime } from "@/utils/readingTime";
 
 export const HOME_POSTS_PER_LOAD = 20;
 
@@ -13,6 +14,7 @@ export type HomePost = {
   pubDatetime: string;
   modDatetime: string | null;
   timezone: string | undefined;
+  readingTime: number;
 };
 
 export type HomePostFeed = {
@@ -34,13 +36,14 @@ export function toHomePostFeed(
   const pagePosts = posts.slice(start, start + HOME_POSTS_PER_LOAD);
 
   return {
-    posts: pagePosts.map(({ id, filePath, data }) => ({
+    posts: pagePosts.map(({ id, filePath, data, body }) => ({
       title: data.title,
       description: data.description,
       url: getPostUrl(id, filePath, locale),
       pubDatetime: data.pubDatetime.toISOString(),
       modDatetime: data.modDatetime?.toISOString() ?? null,
       timezone: data.timezone,
+      readingTime: getReadingTime(body ?? ""),
     })),
     hasMore: start + HOME_POSTS_PER_LOAD < posts.length,
   };

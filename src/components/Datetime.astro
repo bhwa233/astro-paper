@@ -5,6 +5,7 @@ import timezone from "dayjs/plugin/timezone";
 import IconCalendar from "@/assets/icons/IconCalendar.svg";
 import config from "@/config";
 import { useTranslations } from "@/i18n";
+import { tplStr } from "@/i18n/format";
 import { getLocaleLangTag } from "@/utils/localeMeta";
 
 dayjs.extend(utc);
@@ -16,6 +17,7 @@ type Props = {
   pubDatetime: string | Date;
   timezone?: string;
   modDatetime?: string | Date | null;
+  readingTime?: number;
 };
 
 const {
@@ -24,6 +26,7 @@ const {
   size = "sm",
   class: className = "",
   timezone: postTimezone,
+  readingTime,
 } = Astro.props;
 
 const locale = Astro.currentLocale ?? config.site.lang;
@@ -56,7 +59,10 @@ const date = new Intl.DateTimeFormat(localeTag, {
   />
   {
     isModified && (
-      <span class:list={["text-sm", { "sm:text-base": size === "lg" }]}>
+      <span
+        data-updated-label
+        class:list={["text-sm", { "sm:text-base": size === "lg" }]}
+      >
         {t.post.updatedAt}:
       </span>
     )
@@ -67,4 +73,19 @@ const date = new Intl.DateTimeFormat(localeTag, {
   >
     {date}
   </time>
+  {
+    readingTime != null && (
+      <>
+        <span aria-hidden="true" data-reading-sep>
+          |
+        </span>
+        <span
+          data-reading-time
+          class:list={["text-sm", { "sm:text-base": size === "lg" }]}
+        >
+          {tplStr(t.post.readingTime, { min: readingTime })}
+        </span>
+      </>
+    )
+  }
 </div>

@@ -1,5 +1,8 @@
 ---
 import type { MarkdownHeading } from "astro";
+import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
+import IconX from "@/assets/icons/IconX.svg";
+import { useTranslations } from "@/i18n";
 
 type Props = {
   headings: MarkdownHeading[];
@@ -7,6 +10,7 @@ type Props = {
 };
 
 const { headings, title } = Astro.props;
+const t = useTranslations(Astro.currentLocale);
 
 // Only h2/h3 make a useful outline.
 const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
@@ -17,6 +21,7 @@ const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
     <aside
       id="toc"
       aria-label={title}
+      data-toc
       class="fixed top-24 left-[calc(50%_+_24rem_+_1.5rem)] hidden max-h-[calc(100dvh_-_8rem)] w-56 overflow-y-auto xl:block"
     >
       <h2 class="text-foreground mb-2 text-sm font-semibold tracking-wide">
@@ -43,24 +48,107 @@ const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
 
 {
   tocHeadings.length >= 2 && (
-    <details class="border-border bg-surface/60 mt-6 rounded-lg border px-4 py-2 xl:hidden">
-      <summary class="text-foreground cursor-pointer py-1 text-sm font-semibold tracking-wide">
-        {title}
-      </summary>
-      <nav>
-        <ul class="text-muted-foreground mt-2 space-y-1 text-sm">
-          {tocHeadings.map(heading => (
-            <li class:list={[{ "ps-3": heading.depth === 3 }]}>
-              <a
-                href={`#${heading.slug}`}
-                class="hover:text-accent block py-0.5 leading-snug no-underline transition-colors"
-              >
-                {heading.text}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </details>
+    <>
+      <div class="fixed right-4 bottom-[max(2rem,calc(env(safe-area-inset-bottom)_+_1rem))] z-50 xl:hidden">
+        <button
+          id="toc-trigger"
+          type="button"
+          aria-label={title}
+          aria-controls="toc-dialog"
+          aria-expanded="false"
+          class="border-border bg-surface hover:bg-surface-hover text-muted-foreground flex size-14 items-center justify-center rounded-full border shadow-xl transition-colors"
+        >
+          <IconMenuDeep class="size-6" />
+        </button>
+      </div>
+
+      <dialog
+        id="toc-dialog"
+        aria-labelledby="toc-dialog-title"
+        class="border-border bg-surface text-foreground fixed inset-x-0 top-auto bottom-0 z-[60] m-0 hidden max-h-[min(34rem,75dvh)] w-full max-w-none flex-col rounded-t-lg border border-b-0 p-0 shadow-2xl backdrop:bg-black/40 xl:hidden [&[open]]:flex"
+      >
+        <div class="border-border flex shrink-0 items-center justify-between border-b px-5 py-4">
+          <h2
+            id="toc-dialog-title"
+            class="text-base font-semibold tracking-wide"
+          >
+            {title}
+          </h2>
+          <button
+            type="button"
+            data-toc-close
+            autofocus
+            aria-label={t.a11y.closeTableOfContents}
+            class="hover:bg-surface-hover text-muted-foreground flex size-9 items-center justify-center rounded-full"
+          >
+            <IconX class="size-5" />
+          </button>
+        </div>
+        <nav data-toc class="min-h-0 overflow-y-auto px-5 py-4">
+          <ul class="text-muted-foreground space-y-1 text-sm">
+            {tocHeadings.map(heading => (
+              <li class:list={[{ "ps-3": heading.depth === 3 }]}>
+                <a
+                  href={`#${heading.slug}`}
+                  data-toc-slug={heading.slug}
+                  class="hover:text-accent block border-s-2 border-transparent py-1 ps-2 leading-snug no-underline transition-colors"
+                >
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </dialog>
+    </>
   )
 }
+
+<script is:inline data-astro-rerun>
+  function initMobileToc() {
+    const trigger = document.getElementById("toc-trigger");
+    const dialog = document.getElementById("toc-dialog");
+    if (
+      !(trigger instanceof HTMLButtonElement) ||
+      !(dialog instanceof HTMLDialogElement) ||
+      trigger.dataset.tocReady === "true"
+    )
+      return;
+    trigger.dataset.tocReady = "true";
+    const closeButton = dialog.querySelector("[data-toc-close]");
+
+    function closeDialog() {
+      dialog.close();
+    }
+
+    function openDialog() {
+      if (dialog.open) return;
+
+      const scrollPosition = window.scrollY;
+      dialog.showModal();
+      trigger.setAttribute("aria-expanded", "true");
+      if (closeButton instanceof HTMLButtonElement) {
+        closeButton.focus({ preventScroll: true });
+      }
+      window.requestAnimationFrame(() => window.scrollTo(0, scrollPosition));
+    }
+
+    trigger.addEventListener("click", openDialog);
+    closeButton?.addEventListener("click", closeDialog);
+    dialog.addEventListener("mousedown", event => {
+      if (event.target === dialog) closeDialog();
+    });
+    dialog.addEventListener("close", () => {
+      trigger.setAttribute("aria-expanded", "false");
+    });
+    dialog.querySelectorAll("a[data-toc-slug]").forEach(link => {
+      link.addEventListener("click", closeDialog);
+    });
+  }
+  document.addEventListener("astro:page-load", initMobileToc);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMobileToc);
+  } else {
+    initMobileToc();
+  }
+</script>

@@ -82,6 +82,7 @@ export interface UIStrings {
     rssFeed: string;
     openMenu: string;
     closeMenu: string;
+    closeTableOfContents: string;
     toggleTheme: string;
     lightTheme: string;
     darkTheme: string;

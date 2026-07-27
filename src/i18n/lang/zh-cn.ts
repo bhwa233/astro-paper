@@ -85,6 +85,7 @@ export default {
     rssFeed: "RSS 订阅",
     openMenu: "打开菜单",
     closeMenu: "关闭菜单",
+    closeTableOfContents: "关闭目录",
     toggleTheme: "切换主题",
     lightTheme: "浅色主题",
     darkTheme: "深色主题",

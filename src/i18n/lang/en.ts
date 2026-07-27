@@ -85,6 +85,7 @@ export default {
     rssFeed: "RSS Feed",
     openMenu: "Open menu",
     closeMenu: "Close menu",
+    closeTableOfContents: "Close table of contents",
     toggleTheme: "Toggle theme",
     lightTheme: "Light theme",
     darkTheme: "Dark theme",

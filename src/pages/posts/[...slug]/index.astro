@@ -122,7 +122,13 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
     </h1>
 
     <div class="my-2 flex items-center gap-2">
-      <Datetime {pubDatetime} {modDatetime} {timezone} {readingTime} size="lg" />
+      <Datetime
+        {pubDatetime}
+        {modDatetime}
+        {timezone}
+        {readingTime}
+        size="lg"
+      />
       <span
         aria-hidden="true"
         class:list={[
@@ -270,15 +276,19 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
   }
   addHeadingLinks();
 
-  /** Scroll-spy: highlight the current section in the outline sidebar. */
+  /** Scroll-spy: highlight the current section in every visible outline. */
   function initToc() {
-    const toc = document.getElementById("toc");
     const article = document.getElementById("article");
-    if (!toc || !article) return;
+    const tocs = Array.from(document.querySelectorAll("[data-toc]"));
+    if (!article || tocs.length === 0) return;
 
     const links = new Map();
-    for (const link of toc.querySelectorAll("a[data-toc-slug]")) {
-      links.set(link.dataset.tocSlug, link);
+    for (const toc of tocs) {
+      for (const link of toc.querySelectorAll("a[data-toc-slug]")) {
+        const slug = link.dataset.tocSlug;
+        if (!slug) continue;
+        links.set(slug, [...(links.get(slug) ?? []), link]);
+      }
     }
     if (links.size === 0) return;
 
@@ -288,14 +298,17 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
     function setActive(slug) {
       if (slug === current) return;
       if (current && links.has(current)) {
-        const prev = links.get(current);
-        prev.classList.remove(...activeClass);
-        prev.removeAttribute("aria-current");
+        for (const prev of links.get(current)) {
+          prev.classList.remove(...activeClass);
+          prev.removeAttribute("aria-current");
+        }
       }
-      const link = links.get(slug);
-      if (link) {
-        link.classList.add(...activeClass);
-        link.setAttribute("aria-current", "location");
+      const currentLinks = links.get(slug);
+      if (currentLinks) {
+        for (const link of currentLinks) {
+          link.classList.add(...activeClass);
+          link.setAttribute("aria-current", "location");
+        }
         current = slug;
       }
     }

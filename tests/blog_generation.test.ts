@@ -7,7 +7,7 @@ import test from "node:test";
 import AdmZip from "adm-zip";
 
 import { archivePost } from "../scripts/astro_paper_archive.ts";
-import { chatCompletionsUrl, renderPrompt, resolvePromptFile } from "../scripts/ai_blog_writer.ts";
+import { chatCompletionsUrl, renderPrompt } from "../scripts/ai_blog_writer.ts";
 import { DEFAULT_AI_BASE_URL, DEFAULT_AI_MODEL, callBlogAi, callBlogAiWithFailover, isTransientAiError, parseResponsesSse, responsesUrl } from "../scripts/blog_ai_client.ts";
 import { buildPayload, classify } from "../scripts/hn_top10_source.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
@@ -21,10 +21,9 @@ import { bjtArchiveInstant, fetchText } from "../scripts/blog_common.ts";
 import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
 import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
 import { dedupeItems, eventFamilyKey } from "../scripts/daily_digest_source.ts";
-import { CAPITAL_MARKET_SOURCE_SEP, articleConflictsWithIndexSnapshot, buildUsSection } from "../scripts/market_daily_source.ts";
+import { CAPITAL_MARKET_SOURCE_SEP, articleConflictsWithIndexSnapshot } from "../scripts/market_daily_source.ts";
 import { composeFullCapitalMarket } from "../scripts/market_compose.ts";
 import { economistWeeklyMarkdown, parseEconomistArticleSummaries } from "../scripts/economist_weekly_compose.ts";
-import { parseEconomistEpub } from "../scripts/economist_weekly_source.ts";
 import { magazineConfig, parseMagazineEpub } from "../scripts/magazine.ts";
 import { buildGitHubTrendingDailySource, parseGitHubTrendingHtml, sanitizeReadmeText } from "../scripts/github_trending_daily_source.ts";
 import { buildXyzRankTopEpisodesSource } from "../scripts/xyzrank_top_episodes_source.ts";
@@ -35,12 +34,7 @@ import {
   parseRedditSourceApiResponse,
   parseMagazineItemSummary,
   settleDailyPodcastArticleResults,
-  usesJsonComposer,
 } from "../scripts/generate_scheduled_post.ts";
-
-// prompts 已按 daily/weekly/market/podcast 分类到子目录，用解析器按名查找（根目录 + 一层子目录）。
-const PROMPTS_DIR = path.join(process.cwd(), "prompts/blog");
-const promptPath = (name: string): string => resolvePromptFile(PROMPTS_DIR, name);
 
 const GITHUB_TRENDING_HTML_FIXTURE = `<!doctype html><html><body>
   <article class="Box-row">
@@ -961,7 +955,7 @@ ${"这是一段用于覆盖模型把播客顶层标题写成三级标题时的�
 });
 
 test("Economist EPUB keeps every valid article without title dedupe or body truncation", () => {
-  const issue = parseEconomistEpub(economistEpubFixture(12));
+  const issue = parseMagazineEpub(economistEpubFixture(12), magazineConfig("economist-weekly"));
   assert.equal(issue.articles.length, 12);
   assert.deepEqual(
     issue.articles.map(article => article.rank),

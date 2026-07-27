@@ -66,7 +66,7 @@ function assertRelativeStrength(text: string, market: string, evidence: MarketEv
 
 export function composeFullCapitalMarket(raw: string, source: string): string {
   const parsed = parseModelJsonObject(raw, "capital market daily");
-  const description = requireProse(parsed.description, "description");
+  requireProse(parsed.description, "description");
   const overview = requireProse(parsed.overview, "overview");
   const us = requireProse(parsed.us, "us");
   const ashare = requireProse(parsed.ashare, "ashare");

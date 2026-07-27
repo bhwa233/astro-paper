@@ -28,7 +28,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI_MODEL override. Empty = repository secret/default."
+        description: "Optional AI model override. Empty = gpt-5.6-terra."
         required: false
         type: string
       podcast_max_episodes:
@@ -71,7 +71,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI_MODEL override. Empty = repository secret/default."
+        description: "Optional AI model override. Empty = gpt-5.6-terra."
         required: false
         type: string
       podcast_max_episodes:
@@ -153,7 +153,7 @@ jobs:
           EVENT_SCHEDULE: ${{ inputs.event_schedule || '' }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
-          AI_MODEL: ${{ inputs.ai_model || secrets.AI_MODEL }}
+          AI_MODEL: ${{ inputs.ai_model || 'gpt-5.6-terra' }}
           AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
           AI_FALLBACK_BASE_URL: ${{ secrets.AI_FALLBACK_BASE_URL || 'https://api.deepseek.com' }}
           AI_FALLBACK_MODEL: ${{ secrets.AI_FALLBACK_MODEL || 'deepseek-v4-flash' }}

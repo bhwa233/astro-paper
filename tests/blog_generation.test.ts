@@ -148,7 +148,7 @@ test("AI writer renders prompts and normalizes chat completions URLs", () => {
   assert.equal(chatCompletionsUrl("https://api.example.com/v1"), "https://api.example.com/v1/chat/completions");
   assert.equal(chatCompletionsUrl("https://api.example.com/v1/chat/completions"), "https://api.example.com/v1/chat/completions");
   assert.equal(DEFAULT_AI_BASE_URL, "https://www.right.codes/codex/v1");
-  assert.equal(DEFAULT_AI_MODEL, "gpt-5.6-luna");
+  assert.equal(DEFAULT_AI_MODEL, "gpt-5.6-terra");
 });
 
 test("blog source evidence keeps long text sentinels instead of truncating", () => {
@@ -359,7 +359,7 @@ test("callBlogAi posts to /responses and decodes the SSE stream when apiStyle is
       prompt: "hello",
       apiKey: "key",
       baseUrl: "https://www.right.codes/codex/v1",
-      model: "gpt-5.6-luna",
+      model: "gpt-5.6-terra",
       apiStyle: "responses",
       jsonMode: true,
     });

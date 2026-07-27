@@ -4,7 +4,7 @@ export const DEFAULT_AI_BASE_URL = "https://www.right.codes/codex/v1";
 export const DEFAULT_AI_MODEL = "gpt-5.6-terra";
 export const DEFAULT_FALLBACK_AI_BASE_URL = "https://api.deepseek.com";
 export const DEFAULT_FALLBACK_AI_MODEL = "deepseek-v4-flash";
-export const DEFAULT_MAX_TOKENS = 4096;
+export const DEFAULT_MAX_TOKENS = 8192;
 
 export type AiApiStyle = "responses" | "chat";
 
@@ -159,6 +159,7 @@ export async function callBlogAi({
           // Some provider backends strictly require the list form and reject a bare string
           // with HTTP 400 "Input must be a list".
           input: [{ role: "user", content: [{ type: "input_text", text: prompt }] }],
+          reasoning: { mode: "pro", effort: "high" },
           max_output_tokens: maxTokens,
           ...(jsonMode ? { text: { format: { type: "json_object" } } } : {}),
         }

@@ -23,14 +23,14 @@ type ManifestItem = { id: string; href: string; mediaType: string };
 
 export type MagazineArticle = {
   rank: number;
-  originUrl: string;
+  originalTitle: string;
   text: string;
 };
 
 export type MagazineParsedIssue = { title: string; articles: MagazineArticle[] };
 
 // Per-magazine extraction of one EPUB document; drop=true excludes it (non-article page/section).
-export type ArticleExtraction = { originUrl: string; text: string; drop?: boolean };
+export type ArticleExtraction = { originalTitle: string; text: string; drop?: boolean };
 
 export type MagazineConfig = {
   task: string;
@@ -62,34 +62,48 @@ function normalizedText(value = ""): string {
     .trim();
 }
 
+function extractArticleTitle(document: Document): string {
+  const selectors = [
+    '[itemprop="headline"]',
+    ".article__headline",
+    ".ny_article_h1_title",
+    ".te_title",
+    "h1",
+    "h2",
+  ];
+  for (const selector of selectors) {
+    const title = [...document.querySelectorAll(selector)]
+      .filter(node => !node.closest("nav, header, footer, [class*=navbar]"))
+      .map(node => normalizedText(node.textContent || ""))
+      .find(text => text.length > 2);
+    if (title) return title;
+  }
+  const metaTitle = document.querySelector('meta[property="og:title"], meta[name="twitter:title"]')?.getAttribute("content") || "";
+  return normalizedText(metaTitle || document.querySelector("title")?.textContent || "");
+}
+
 // --- The Economist ---------------------------------------------------------
 const ECONOMIST_NON_ARTICLE_SECTIONS = new Set(["the world this week", "letters", "economic & financial indicators"]);
 
 function economistExtract(html: string): ArticleExtraction {
   const { document } = new JSDOM(html).window;
   const section = normalizedText(document.querySelector(".te_section_title")?.textContent || "未标明");
-  const originUrl = ((document.querySelector("a.origin_link") as HTMLAnchorElement | null)?.href || "").replace(/^(https?:\/\/[^/]+)\/+/i, "$1/");
   const paragraphs = [...document.querySelectorAll("p")]
     .filter(node => !node.closest(".link_navbar, nav, header, footer") && !/downloaded by|subscribers only/i.test(node.textContent || ""))
     .map(node => normalizedText(node.textContent || ""))
     .filter(text => text.length > 30);
-  return { originUrl, text: paragraphs.join("\n\n"), drop: ECONOMIST_NON_ARTICLE_SECTIONS.has(section.toLowerCase()) };
+  return { originalTitle: extractArticleTitle(document), text: paragraphs.join("\n\n"), drop: ECONOMIST_NON_ARTICLE_SECTIONS.has(section.toLowerCase()) };
 }
 
 // --- The New Yorker --------------------------------------------------------
 function newYorkerExtract(html: string): ArticleExtraction {
   const { document } = new JSDOM(html).window;
   const article = document.querySelector(".article");
-  if (!article) return { originUrl: "", text: "", drop: true };
+  if (!article) return { originalTitle: "", text: "", drop: true };
   const paragraphs = [...article.querySelectorAll("p")]
     .map(node => normalizedText(node.textContent || ""))
     .filter(text => text.length > 30);
-  // The New Yorker EPUB has no dedicated origin link; take the first canonical article URL if present.
-  const link = [...document.querySelectorAll('a[href*="newyorker.com/"]')]
-    .map(anchor => (anchor as HTMLAnchorElement).href)
-    .find(href => /newyorker\.com\/[a-z]/i.test(href)) || "";
-  const originUrl = link.replace(/[#?].*$/, "");
-  return { originUrl, text: paragraphs.join("\n\n") };
+  return { originalTitle: extractArticleTitle(document), text: paragraphs.join("\n\n") };
 }
 
 // --- Calibre-generic (The Atlantic, Wired) ---------------------------------
@@ -101,7 +115,7 @@ function calibreExtract(html: string): ArticleExtraction {
     .filter(node => !node.closest('nav, header, footer, [class*="navbar"]'))
     .map(node => normalizedText(node.textContent || ""))
     .filter(text => text.length > 30);
-  return { originUrl: "", text: paragraphs.join("\n\n") };
+  return { originalTitle: extractArticleTitle(document), text: paragraphs.join("\n\n") };
 }
 
 export const MAGAZINES: Record<string, MagazineConfig> = {
@@ -205,7 +219,7 @@ export function parseMagazineEpub(buffer: Buffer, config: MagazineConfig): Magaz
     if (!entry) continue;
     const extracted = config.extractArticle(entry.getData().toString("utf8"));
     if (extracted.drop || extracted.text.length < config.minArticleChars) continue;
-    articles.push({ originUrl: extracted.originUrl, text: extracted.text });
+    articles.push({ originalTitle: extracted.originalTitle, text: extracted.text });
   }
   if (articles.length < 3) throw new Error(`${config.name} EPUB produced too few complete articles: ${articles.length}`);
   return { title, articles: articles.map((article, index) => ({ ...article, rank: index + 1 })) };
@@ -244,7 +258,7 @@ export function renderMagazineSource(config: MagazineConfig, issue: MagazineIssu
     ...parsed.articles.flatMap(article => [
       `## ${article.rank}. 文章`,
       "",
-      `- 原文链接：${article.originUrl || "-"}`,
+      `- 原文标题：${article.originalTitle || "-"}`,
       "",
       article.text,
       "",

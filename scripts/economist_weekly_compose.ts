@@ -2,7 +2,6 @@ import { bulletValue, extractBullets, hasChinese, looksLowSignal } from "./compo
 
 export type EconomistArticleSummary = {
   rank: number;
-  originUrl: string;
   titleZh: string;
   oneSentenceSummary: string;
   corePoint: string;
@@ -32,7 +31,6 @@ export function parseEconomistArticleSummaries(source: string): EconomistArticle
   return sourceBlocks(source).map((block, index) => {
     const rank = Number(block.match(/^##\s+(\d+)\./m)?.[1]);
     const bullets = extractBullets(block);
-    const originUrl = bulletValue(bullets, "原文链接") === "-" ? "" : bulletValue(bullets, "原文链接");
     const titleZh = bulletValue(bullets, "中文标题");
     const oneSentenceSummary = bulletValue(bullets, "一句话摘要");
     const corePoint = bulletValue(bullets, "核心观点");
@@ -43,7 +41,7 @@ export function parseEconomistArticleSummaries(source: string): EconomistArticle
     if ([oneSentenceSummary, corePoint, contentSummary].some(looksLowSignal)) throw new Error(`economist weekly rank ${rank} has empty or low-signal summary`);
     if (![oneSentenceSummary, corePoint, contentSummary].every(hasChinese)) throw new Error(`economist weekly rank ${rank} summaries must be Chinese`);
     if (/^\s{0,3}#{1,6}\s/m.test(contentSummary)) throw new Error(`economist weekly rank ${rank} content_summary must not use Markdown headings`);
-    return { rank, originUrl, titleZh, oneSentenceSummary, corePoint, contentSummary };
+    return { rank, titleZh, oneSentenceSummary, corePoint, contentSummary };
   });
 }
 
@@ -59,7 +57,6 @@ export function economistWeeklyMarkdown(source: string): { markdown: string; des
   if (articles.length < 3) throw new Error(`economist weekly source needs at least three articles, got ${articles.length}`);
   const renderedArticles = articles.map(article => {
     const lines = [`## ${article.titleZh}`, ""];
-    if (article.originUrl) lines.push(`- 原文：[The Economist](${article.originUrl})`, "");
     lines.push(
       "### 一句话摘要",
       "",

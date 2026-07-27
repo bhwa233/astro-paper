@@ -717,7 +717,7 @@ async function buildCombinedMagazineSource({
     ...blocks.flatMap(block => {
       const rank = Number(block.match(/^##\s+(\d+)\./m)?.[1]);
       const summary = byRank.get(rank);
-      const factLines = block.split("\n").filter(line => /^##\s+|^- 原文链接：/.test(line));
+      const factLines = block.split("\n").filter(line => /^##\s+/.test(line));
       if (!summary) throw new Error(`${config.name} item summary missing rank ${rank}`);
       return [
         ...factLines,

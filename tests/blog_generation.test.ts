@@ -367,6 +367,8 @@ test("callBlogAi posts to /responses and decodes the SSE stream when apiStyle is
     assert.equal(calls.length, 1);
     assert.equal(calls[0].url, "https://www.right.codes/codex/v1/responses");
     assert.deepEqual(calls[0].body.input, [{ role: "user", content: [{ type: "input_text", text: "hello" }] }]);
+    assert.deepEqual(calls[0].body.reasoning, { mode: "pro", effort: "high" });
+    assert.equal(calls[0].body.max_output_tokens, 8192);
     assert.deepEqual(calls[0].body.text, { format: { type: "json_object" } });
     assert.equal("messages" in calls[0].body, false);
   } finally {
@@ -967,7 +969,8 @@ test("Economist EPUB keeps every valid article without title dedupe or body trun
   );
   assert.match(issue.articles[0].text, /ARTICLE_1_TAIL_SENTINEL/);
   assert.ok(issue.articles[0].text.length > 12_000);
-  assert.deepEqual(Object.keys(issue.articles[0]).sort(), ["originUrl", "rank", "text"]);
+  assert.deepEqual(Object.keys(issue.articles[0]).sort(), ["originalTitle", "rank", "text"]);
+  assert.equal(issue.articles[0].originalTitle, "Repeated title");
 });
 
 test("New Yorker EPUB parses .article bodies and drops non-article and short pages", () => {
@@ -979,7 +982,7 @@ test("New Yorker EPUB parses .article bodies and drops non-article and short pag
     [1, 2, 3, 4, 5],
   );
   assert.match(issue.articles[0].text, /NY_1_TAIL/);
-  assert.equal(issue.articles[0].originUrl, "https://www.newyorker.com/news/story-1");
+  assert.equal(issue.articles[0].originalTitle, "Story 1");
 });
 
 test("Calibre EPUB (Atlantic/Wired) parses bodies, strips navbar, drops the feed index", () => {
@@ -988,7 +991,7 @@ test("Calibre EPUB (Atlantic/Wired) parses bodies, strips navbar, drops the feed
     assert.equal(issue.articles.length, 4);
     assert.match(issue.articles[0].text, /CAL_1_TAIL/);
     assert.doesNotMatch(issue.articles[0].text, /Next/); // navbar stripped
-    assert.equal(issue.articles[0].originUrl, ""); // no reliable canonical link
+    assert.equal(issue.articles[0].originalTitle, "Feature 1");
   }
 });
 
@@ -1027,7 +1030,7 @@ test("Economist compose aggregates per-article summaries with no issue-level sec
   assert.match(markdown, /^### 内容总结$/m);
   // content_summary Markdown structure survives the carrier round-trip.
   assert.match(markdown, /- \*\*国内政治\*\*：/);
-  assert.match(markdown, /- 原文：\[The Economist\]\(https:\/\/www\.economist\.com\/leaders\/2099\/01\/01\/a-fragile-peace\)/);
+  assert.doesNotMatch(markdown, /^- 原文：/m);
   assert.doesNotMatch(markdown, /原题：|栏目：|作者：|A fragile peace faces a hard test/);
   assert.equal(description, summaries[0].oneSentenceSummary.slice(0, 30));
   assert.ok(description.length > 0 && description.length <= 30);
@@ -1044,7 +1047,6 @@ test("Economist archive accepts more than ten complete articles", () => {
       return [
         `## ${rank}. 文章`,
         "",
-        `- 原文链接：https://www.economist.com/fixture/${rank}`,
         `- 中文标题：第${rank}篇中文标题`,
         `- 一句话摘要：第${rank}篇文章的一句话中文摘要。`,
         `- 核心观点：第${rank}篇文章的核心中文观点。`,

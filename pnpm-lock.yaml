@@ -39,9 +39,6 @@ importers:
       astro:
         specifier: ^6.4.8
         version: 6.4.8(@types/node@26.0.0)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.4)(terser@5.46.1)(tsx@4.22.4)(yaml@2.8.3)
-      coingecko-api-v3:
-        specifier: ^0.0.31
-        version: 0.0.31
       dayjs:
         specifier: ^1.11.21
         version: 1.11.21
@@ -1420,9 +1417,6 @@ packages:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
 
-  coingecko-api-v3@0.0.31:
-    resolution: {integrity: sha512-X+9SdZivtX0xKfmIl6ST3/Z+T5sFIQF00e599rg0vgxAR4wNBq6RnAVzo8HgLZm7H77RX7vApFdluR7vPKLbGQ==}
-
   collapse-white-space@2.1.0:
     resolution: {integrity: sha512-loKTxY1zCOuG4j9f6EPnuyyYkf58RnhhWTvRoZEokgB+WbdXehfjFviyOVYkqzEWz1Q5kRiZdBYS5SwxbQYwzw==}
 
@@ -2041,9 +2035,6 @@ packages:
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
     engines: {node: '>= 0.8'}
-
-  https@1.0.0:
-    resolution: {integrity: sha512-4EC57ddXrkaF0x83Oj8sM6SLQHAWXw90Skqu2M4AEWENZ3F02dFJE/GARA8igO79tcgYqGrD7ae4f5L3um2lgg==}
 
   humanize-url@2.1.1:
     resolution: {integrity: sha512-V4nxsPGNE7mPjr1qDp471YfW8nhBiTRWrG/4usZlpvFU8I7gsV7Jvrrzv/snbLm5dWO3dr1ennu2YqnhTWFmYA==}
@@ -4927,10 +4918,6 @@ snapshots:
 
   clsx@2.1.1: {}
 
-  coingecko-api-v3@0.0.31:
-    dependencies:
-      https: 1.0.0
-
   collapse-white-space@2.1.0: {}
 
   color-convert@2.0.1:
@@ -5701,8 +5688,6 @@ snapshots:
       setprototypeof: 1.2.0
       statuses: 2.0.2
       toidentifier: 1.0.1
-
-  https@1.0.0: {}
 
   humanize-url@2.1.1:
     dependencies:

@@ -2,7 +2,7 @@
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from "jsdom";
 import YahooFinance from "yahoo-finance2";
-import { bjtDateString, compact, fetchJson, parseArgs, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { compact, fetchJson, writeStderr } from "./blog_common.ts";
 import { buildMarketTableData, renderMarketTable, formatChange as formatMarketChange, formatLatest as formatMarketLatest, type MarketTableData, type MarketTableRow } from "./market_table_source.ts";
 
 const yahooFinance = new YahooFinance({ suppressNotices: ["ripHistorical"] });
@@ -452,14 +452,6 @@ function buildAsiaSectionFromMarketTable(data: MarketTableData, date: string, na
   };
 }
 
-export function buildAsiaMarketDailyFromTable(data: MarketTableData, date = data.date): string {
-  const sections = [
-    buildAsiaSectionFromMarketTable(data, date, A_SHARE_INDEX_NAMES, "aShare", "A股", CLOSED_TEXT.aShare, UNAVAILABLE_TEXT.aShare),
-    buildAsiaSectionFromMarketTable(data, date, HK_INDEX_NAMES, "hk", "港股", CLOSED_TEXT.hk, UNAVAILABLE_TEXT.hk),
-  ];
-  return `${[buildSummary(sections, "A股与港股市场"), ...sections.map(section => section.markdown)].join("\n\n").trim()}\n`;
-}
-
 function indexStructure(rows: { name: string; pct: number }[]): string {
   const sorted = rows.toSorted((a, b) => b.pct - a.pct);
   const strongest = sorted[0];
@@ -902,23 +894,6 @@ async function buildCryptoSection(): Promise<MarketSection> {
   }
 }
 
-function buildSummary(sections: MarketSection[], scope: string): string {
-  const openSections = sections.filter(section => section.open);
-  const closedSections = sections.filter(section => !section.open);
-  const paragraphs: string[] = [];
-
-  if (openSections.length) paragraphs.push(`${scope}可复核状态：${openSections.map(section => section.summary).join("；")}。`);
-  if (closedSections.length) paragraphs.push(`${closedSections.map(section => section.summary).join("；")}。`);
-  if (!openSections.length && closedSections.length) paragraphs.push(`${scope}未产生或未获取到完整可用数据，日报以休市状态、数据边界和可用报价为主。`);
-  paragraphs.push("以上内容只描述已获取数据对应的市场状态与数据边界，不生成交易动作或资产配置结论。");
-
-  return ["## 总结", ...paragraphs].join("\n\n");
-}
-
-export async function generateAsiaMarketDaily(date = bjtDateString()): Promise<string> {
-  return buildAsiaMarketDailyFromTable(buildMarketTableData(date), date);
-}
-
 async function buildUsMarketSection(date: string): Promise<MarketSection> {
   const rows = await quoteRowsWithFallback(date, [EASTMONEY_INDEX_SECS.dji, EASTMONEY_INDEX_SECS.nasdaq, EASTMONEY_INDEX_SECS.spx], YAHOO_SYMBOLS.us);
   const [sectors, broadEtfs] = isWeekday(date)
@@ -929,21 +904,6 @@ async function buildUsMarketSection(date: string): Promise<MarketSection> {
     throw new MarketSourceUnavailableError("us-market-daily", section.summary || "美股市场未产生或未获取到完整常规收盘数据");
   }
   return section;
-}
-
-export async function generateUsMarketDaily(date = bjtDateString()): Promise<string> {
-  const sections = [await buildUsMarketSection(date)];
-  return `${[buildSummary(sections, "美股市场"), ...sections.map(section => section.markdown)].join("\n\n").trim()}\n`;
-}
-
-export async function generateCryptoMarketDaily(): Promise<string> {
-  const sections = [await buildCryptoSection()];
-  return `${[buildSummary(sections, "BTC 市场"), ...sections.map(section => section.markdown)].join("\n\n").trim()}\n`;
-}
-
-// 去掉开头的 `## 总结` 块，只留数据/证据段，作为资本市场日报某段给模型的 source。
-function stripSummaryBlock(markdown: string): string {
-  return markdown.replace(/^##\s+总结[\s\S]*?(?=\n##\s+)/, "").trim();
 }
 
 // 市场速览表与结构化证据之间的分隔符，供 composeFullCapitalMarket 提取确定性表格。
@@ -1009,34 +969,4 @@ export async function buildAllCapitalMarketSource(date: string): Promise<string>
   };
 
   return [tableBlock.trim(), structuredEvidenceBlock(evidence)].join(CAPITAL_MARKET_SOURCE_SEP);
-}
-
-// 保留旧接口供 CLI 调试用（market_table.py / generateAsiaMarketDaily 等单独调用）。
-export type MarketSegment = "us" | "asia" | "crypto";
-export async function buildCapitalSegmentSource(segment: MarketSegment, date = bjtDateString()): Promise<string> {
-  const full = segment === "us" ? await generateUsMarketDaily(date) : segment === "asia" ? await generateAsiaMarketDaily(date) : await generateCryptoMarketDaily();
-  return `${stripSummaryBlock(full)}\n`;
-}
-
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const args = parseArgs();
-  const date = stringArg(args, "date", bjtDateString());
-  const task = stringArg(args, "task", "asia-market-daily");
-  const generators: Record<string, () => Promise<string>> = {
-    "asia-market-daily": () => generateAsiaMarketDaily(date),
-    "us-market-daily": () => generateUsMarketDaily(date),
-    "crypto-market-daily": () => generateCryptoMarketDaily(),
-  };
-  const generator = generators[task];
-  if (!generator) {
-    writeStderr(`ERROR: unsupported market task: ${task}`);
-    process.exit(1);
-  }
-  generator()
-    .then(text => writeStdout(text))
-    .catch((error: unknown) => {
-      const message = error instanceof Error ? error.message : String(error);
-      writeStderr(`ERROR: ${message}`);
-      process.exit(1);
-    });
 }

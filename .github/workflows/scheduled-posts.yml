@@ -16,11 +16,7 @@ on:
         required: false
         type: string
       event_schedule:
-        description: "Optional cron string to reuse scheduled date/segment mapping."
-        required: false
-        type: string
-      market_segment:
-        description: "capital-market-daily only: which segment to generate (us | asia | crypto). asia also builds the market table."
+        description: "Optional cron string to reuse scheduled date mapping."
         required: false
         type: string
       force:
@@ -47,7 +43,6 @@ jobs:
       task: ${{ inputs.task }}
       date: ${{ inputs.date || '' }}
       event_schedule: ${{ inputs.event_schedule || '' }}
-      market_segment: ${{ inputs.market_segment || '' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || '' }}
       podcast_max_episodes: ${{ inputs.podcast_max_episodes || '10' }}

@@ -15,11 +15,7 @@ on:
         required: false
         type: string
       event_schedule:
-        description: "Original cron string, used only to preserve scheduled task date/segment mapping."
-        required: false
-        type: string
-      market_segment:
-        description: "capital-market-daily only: which segment to generate (us | asia | crypto). asia also builds the market table."
+        description: "Original cron string, used only to preserve scheduled task date mapping."
         required: false
         type: string
       force:
@@ -58,11 +54,7 @@ on:
         required: false
         type: string
       event_schedule:
-        description: "Optional cron string to reuse scheduled date/segment mapping."
-        required: false
-        type: string
-      market_segment:
-        description: "capital-market-daily only: which segment to generate (us | asia | crypto). asia also builds the market table."
+        description: "Optional cron string to reuse scheduled date mapping."
         required: false
         type: string
       force:
@@ -134,14 +126,14 @@ jobs:
           sudo apt-get install -y ffmpeg ca-certificates
 
       - name: "Setup Python for market table"
-        if: ${{ inputs.install_market_deps || inputs.task == 'all' || (inputs.task == 'capital-market-daily' && inputs.market_segment == 'asia') }}
+        if: ${{ inputs.install_market_deps || inputs.task == 'all' || inputs.task == 'capital-market-daily' }}
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
 
       - name: "Install AkShare for market table"
-        if: ${{ inputs.install_market_deps || inputs.task == 'all' || (inputs.task == 'capital-market-daily' && inputs.market_segment == 'asia') }}
+        if: ${{ inputs.install_market_deps || inputs.task == 'all' || inputs.task == 'capital-market-daily' }}
         run: pip install -r requirements.txt
 
       - name: "Generate scheduled content"
@@ -149,7 +141,6 @@ jobs:
           INPUT_TASK: ${{ inputs.task || '' }}
           INPUT_DATE: ${{ inputs.date || '' }}
           INPUT_FORCE: ${{ inputs.force || 'false' }}
-          INPUT_MARKET_SEGMENT: ${{ inputs.market_segment || '' }}
           EVENT_SCHEDULE: ${{ inputs.event_schedule || '' }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
@@ -195,9 +186,6 @@ jobs:
           fi
           if [ -n "$INPUT_DATE" ]; then
             args+=(--date "$INPUT_DATE")
-          fi
-          if [ -n "$INPUT_MARKET_SEGMENT" ]; then
-            args+=(--market-segment "$INPUT_MARKET_SEGMENT")
           fi
           if [ -n "$AI_MODEL" ]; then
             args+=(--model "$AI_MODEL")

@@ -56,16 +56,17 @@ const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
           aria-label={title}
           aria-controls="toc-dialog"
           aria-expanded="false"
-          class="border-border bg-surface hover:bg-surface-hover text-muted-foreground flex size-14 items-center justify-center rounded-full border shadow-xl transition-colors"
+          class="border-border bg-surface hover:bg-surface-hover text-muted-foreground grid size-14 place-items-center rounded-full border shadow-xl transition duration-200 active:scale-95"
         >
-          <IconMenuDeep class="size-6" />
+          <IconMenuDeep class="toc-icon toc-icon-menu col-start-1 row-start-1 size-6" />
+          <IconX class="toc-icon toc-icon-close col-start-1 row-start-1 size-6" />
         </button>
       </div>
 
       <dialog
         id="toc-dialog"
         aria-labelledby="toc-dialog-title"
-        class="border-border bg-surface text-foreground fixed inset-x-0 top-auto bottom-0 z-[60] m-0 hidden max-h-[min(34rem,75dvh)] w-full max-w-none flex-col rounded-t-lg border border-b-0 p-0 shadow-2xl backdrop:bg-black/40 xl:hidden [&[open]]:flex"
+        class="border-border bg-surface text-foreground fixed inset-x-0 top-auto bottom-0 z-[60] m-0 hidden max-h-[min(34rem,75dvh)] w-full max-w-none flex-col rounded-t-lg border border-b-0 p-0 shadow-2xl xl:hidden [&[open]]:flex"
       >
         <div class="border-border flex shrink-0 items-center justify-between border-b px-5 py-4">
           <h2
@@ -86,8 +87,12 @@ const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
         </div>
         <nav data-toc class="min-h-0 overflow-y-auto px-5 py-4">
           <ul class="text-muted-foreground space-y-1 text-sm">
-            {tocHeadings.map(heading => (
-              <li class:list={[{ "ps-3": heading.depth === 3 }]}>
+            {tocHeadings.map((heading, index) => (
+              <li
+                data-toc-item
+                style={`--toc-i:${Math.min(index, 9)}`}
+                class:list={[{ "ps-3": heading.depth === 3 }]}
+              >
                 <a
                   href={`#${heading.slug}`}
                   data-toc-slug={heading.slug}
@@ -103,6 +108,108 @@ const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
     </>
   )
 }
+
+<style is:global>
+  /* Bottom-sheet drawer: slide + fade on open/close.
+     `allow-discrete` lets `display`/`overlay` participate so the exit
+     animation plays before the dialog leaves the top layer. */
+  #toc-dialog {
+    transform: translateY(100%);
+    opacity: 0;
+    transition:
+      transform 200ms cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 200ms cubic-bezier(0.32, 0.72, 0, 1),
+      display 200ms allow-discrete,
+      overlay 200ms allow-discrete;
+  }
+
+  #toc-dialog[open] {
+    transform: translateY(0);
+    opacity: 1;
+    transition-duration: 260ms;
+  }
+
+  @starting-style {
+    #toc-dialog[open] {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+
+  #toc-dialog::backdrop {
+    background-color: rgb(0 0 0 / 0);
+    transition:
+      background-color 200ms ease,
+      display 200ms allow-discrete,
+      overlay 200ms allow-discrete;
+  }
+
+  #toc-dialog[open]::backdrop {
+    background-color: rgb(0 0 0 / 0.4);
+    transition-duration: 260ms;
+  }
+
+  @starting-style {
+    #toc-dialog[open]::backdrop {
+      background-color: rgb(0 0 0 / 0);
+    }
+  }
+
+  /* Entries fade in staggered; `--toc-i` is capped at 9 so long outlines
+     never trail more than ~180ms behind the sheet. */
+  @keyframes toc-item-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  #toc-dialog[open] [data-toc-item] {
+    animation: toc-item-in 240ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    animation-delay: calc(var(--toc-i, 0) * 20ms + 80ms);
+  }
+
+  /* Trigger icon cross-fades between the menu and close glyphs. */
+  #toc-trigger .toc-icon {
+    transition:
+      opacity 160ms ease,
+      transform 260ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  #toc-trigger .toc-icon-close {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.6);
+  }
+
+  #toc-trigger[aria-expanded="true"] .toc-icon-menu {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.6);
+  }
+
+  #toc-trigger[aria-expanded="true"] .toc-icon-close {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #toc-dialog,
+    #toc-dialog[open],
+    #toc-dialog::backdrop,
+    #toc-dialog[open]::backdrop,
+    #toc-trigger,
+    #toc-trigger .toc-icon {
+      transition-duration: 1ms;
+    }
+
+    #toc-dialog[open] [data-toc-item] {
+      animation: none;
+    }
+  }
+</style>
 
 <script is:inline data-astro-rerun>
   function initMobileToc() {

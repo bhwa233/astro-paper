@@ -337,11 +337,16 @@ test("parseResponsesSse throws on a failed response event", () => {
   assert.throws(() => parseResponsesSse(sse), /AI responses API error: quota exceeded/);
 });
 
-test("callBlogAi posts to /responses and decodes the SSE stream when apiStyle is responses", async () => {
+test("callBlogAi puts an explicit json instruction in Responses input when JSON mode is enabled", async () => {
   const originalFetch = globalThis.fetch;
   const calls: { url: string; body: Record<string, unknown> }[] = [];
   globalThis.fetch = (async (input, init) => {
-    calls.push({ url: String(input), body: JSON.parse(String(init?.body || "{}")) });
+    const body = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
+    const inputText = (body.input as { content: { text: string }[] }[] | undefined)?.[0]?.content?.[0]?.text || "";
+    if (body.text && !/json/i.test(inputText)) {
+      return new Response("Response input messages must contain the word 'json' in some form to use 'text.format' of type 'json_object'.", { status: 400 });
+    }
+    calls.push({ url: String(input), body });
     const sse = [
       `event: response.output_text.delta\ndata: ${JSON.stringify({ type: "response.output_text.delta", delta: "## 标题\n\n正文" })}`,
       `event: response.completed\ndata: ${JSON.stringify({ type: "response.completed", response: { output: [{ content: [{ type: "output_text", text: "## 标题\n\n正文" }] }] } })}`,
@@ -360,11 +365,34 @@ test("callBlogAi posts to /responses and decodes the SSE stream when apiStyle is
     assert.equal(content, "## 标题\n\n正文");
     assert.equal(calls.length, 1);
     assert.equal(calls[0].url, "https://www.right.codes/codex/v1/responses");
-    assert.deepEqual(calls[0].body.input, [{ role: "user", content: [{ type: "input_text", text: "hello" }] }]);
+    assert.deepEqual(calls[0].body.input, [{ role: "user", content: [{ type: "input_text", text: "hello\n\nReturn a valid json object only." }] }]);
     assert.deepEqual(calls[0].body.reasoning, { effort: "high" });
     assert.equal(calls[0].body.max_output_tokens, 8192);
     assert.deepEqual(calls[0].body.text, { format: { type: "json_object" } });
     assert.equal("messages" in calls[0].body, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("callBlogAi preserves a non-JSON Responses prompt", async () => {
+  const originalFetch = globalThis.fetch;
+  let requestBody: Record<string, unknown> | undefined;
+  globalThis.fetch = (async (_input, init) => {
+    requestBody = JSON.parse(String(init?.body || "{}"));
+    const sse = `event: response.completed\ndata: ${JSON.stringify({ type: "response.completed", response: { output: [{ content: [{ type: "output_text", text: "正文" }] }] } })}`;
+    return new Response(sse, { status: 200, headers: { "Content-Type": "text/event-stream" } });
+  }) as typeof fetch;
+  try {
+    await callBlogAi({
+      prompt: "preserve this prompt",
+      apiKey: "key",
+      baseUrl: "https://www.right.codes/codex/v1",
+      model: "gpt-5.6-terra",
+      apiStyle: "responses",
+    });
+    assert.deepEqual(requestBody?.input, [{ role: "user", content: [{ type: "input_text", text: "preserve this prompt" }] }]);
+    assert.equal("text" in (requestBody || {}), false);
   } finally {
     globalThis.fetch = originalFetch;
   }

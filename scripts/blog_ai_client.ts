@@ -22,6 +22,13 @@ function systemPrompt(jsonMode: boolean): string {
   return jsonMode ? SYSTEM_PROMPT_JSON : SYSTEM_PROMPT_MARKDOWN;
 }
 
+function responsesInputPrompt(prompt: string, jsonMode: boolean): string {
+  if (!jsonMode) return prompt;
+  // Some Responses-compatible providers validate JSON-mode instructions in input,
+  // not only in the top-level instructions field.
+  return `${prompt}\n\nReturn a valid json object only.`;
+}
+
 export type AiCallResult = {
   content: string;
   config: AiConfig;
@@ -158,7 +165,7 @@ export async function callBlogAi({
           instructions: systemPrompt(jsonMode),
           // Some provider backends strictly require the list form and reject a bare string
           // with HTTP 400 "Input must be a list".
-          input: [{ role: "user", content: [{ type: "input_text", text: prompt }] }],
+          input: [{ role: "user", content: [{ type: "input_text", text: responsesInputPrompt(prompt, jsonMode) }] }],
           reasoning: { effort: "high" },
           max_output_tokens: maxTokens,
           ...(jsonMode ? { text: { format: { type: "json_object" } } } : {}),

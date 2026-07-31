@@ -165,7 +165,7 @@ export async function callBlogAi({
           instructions: systemPrompt(jsonMode),
           // Some provider backends strictly require the list form and reject a bare string
           // with HTTP 400 "Input must be a list".
-          input: [{ role: "user", content: [{ type: "input_text", text: responsesInputPrompt(prompt, jsonMode) }] }],
+          input: [{ role: "user", content: responsesInputPrompt(prompt, jsonMode) }],
           reasoning: { effort: "high" },
           max_output_tokens: maxTokens,
           ...(jsonMode ? { text: { format: { type: "json_object" } } } : {}),

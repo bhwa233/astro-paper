@@ -366,9 +366,7 @@ test("callBlogAi puts an explicit json instruction in Responses input when JSON 
   globalThis.fetch = (async (input, init) => {
     const body = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
     const inputText = (body.input as { content: string }[] | undefined)?.[0]?.content || "";
-    if (body.text && !/^Return a valid json object only\./i.test(inputText)) {
-      return new Response("Response input messages must contain the word 'json' in some form to use 'text.format' of type 'json_object'.", { status: 400 });
-    }
+    assert.match(inputText, /^Return a valid json object only\./i);
     calls.push({ url: String(input), body });
     const sse = [
       `event: response.output_text.delta\ndata: ${JSON.stringify({ type: "response.output_text.delta", delta: "## 标题\n\n正文" })}`,
@@ -391,7 +389,7 @@ test("callBlogAi puts an explicit json instruction in Responses input when JSON 
     assert.deepEqual(calls[0].body.input, [{ role: "user", content: "Return a valid json object only.\n\nhello" }]);
     assert.deepEqual(calls[0].body.reasoning, { effort: "high" });
     assert.equal(calls[0].body.max_output_tokens, 8192);
-    assert.deepEqual(calls[0].body.text, { format: { type: "json_object" } });
+    assert.equal("text" in calls[0].body, false);
     assert.equal("messages" in calls[0].body, false);
   } finally {
     globalThis.fetch = originalFetch;

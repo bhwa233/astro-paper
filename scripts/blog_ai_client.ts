@@ -168,7 +168,6 @@ export async function callBlogAi({
           input: [{ role: "user", content: responsesInputPrompt(prompt, jsonMode) }],
           reasoning: { effort: "high" },
           max_output_tokens: maxTokens,
-          ...(jsonMode ? { text: { format: { type: "json_object" } } } : {}),
         }
       : {
           model,

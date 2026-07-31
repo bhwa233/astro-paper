@@ -552,6 +552,24 @@
       "title": "See You at Work Tomorrow!",
       "archivedAt": "2026-07-25",
       "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-25.md"
+    },
+    {
+      "key": "show:296206:season:1",
+      "mediaType": "show",
+      "tmdbId": 296206,
+      "seasonNumber": 1,
+      "title": "Agent Kim Reactivated",
+      "archivedAt": "2026-07-31",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-31.md"
+    },
+    {
+      "key": "show:295780:season:1",
+      "mediaType": "show",
+      "tmdbId": 295780,
+      "seasonNumber": 1,
+      "title": "Life, Larry and the Pursuit of Unhappiness: An Almost History of America",
+      "archivedAt": "2026-07-31",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-31.md"
     }
   ]
 }

@@ -18,6 +18,7 @@ import {
   selectTopCommented,
 } from "../scripts/hn_top20_source.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
+import { parseRedditItemSummary, redditMarkdownFromItemSummaries } from "../scripts/reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson, parseGitHubTrendingFacts } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
@@ -1593,8 +1594,8 @@ test("HN source verifier accepts legitimate double-brace examples from source ar
   assert.equal(verifyResultJson(repo, resultJson), 1);
 });
 
-test("Reddit source API contract requires an intact, current Top 40 source", () => {
-  const items = Array.from({ length: 40 }, (_, index) => {
+test("Reddit source API contract accepts an intact, current variable-size v2 source", () => {
+  const items = Array.from({ length: 2 }, (_, index) => {
     const rank = index + 1;
     return [
       `${rank}. [r/AskReddit] Fixture post ${rank}`,
@@ -1602,16 +1603,17 @@ test("Reddit source API contract requires an intact, current Top 40 source", () 
       "- 来源：r/AskReddit",
       `- 帖子链接：https://www.reddit.com/r/AskReddit/comments/fixture${rank}/`,
       "- 正文：Fixture body",
-      "- 热门评论：This is a sufficiently detailed fixture comment for the source contract.",
+      "- 顶层高赞回答（按赞数排序，共 1 条）：",
+      "  1. [100 赞] This is a sufficiently detailed fixture comment for the source contract.",
       "",
     ].join("\n");
   }).join("\n");
   const source = `${items}\n===ARCHIVE_PAYLOAD===\n${JSON.stringify({ items: [] })}\n`;
   const payload = {
-    contract_version: "reddit-top20-source.v1",
+    contract_version: "reddit-top20-source.v2",
     archive_date: "2099-01-02",
     fetched_at: "2099-01-02T08:00:00Z",
-    item_count: 40,
+    item_count: 2,
     source_sha256: createHash("sha256").update(source, "utf8").digest("hex"),
     source,
   };
@@ -1624,5 +1626,35 @@ test("Reddit source API contract requires an intact, current Top 40 source", () 
   assert.throws(
     () => parseRedditSourceApiResponse({ ...payload, archive_date: "2099-01-01" }, "2099-01-02"),
     /does not match requested date/,
+  );
+});
+
+test("Reddit item summaries compose one integrated summary without emitting comment excerpts", () => {
+  const source = [
+    "1. 🔴 今日 Reddit 热门帖子 Top 2",
+    "",
+    "1. [r/AskReddit] Original question one",
+    "- ⭐ 300 points · 120 评论",
+    "- 来源：r/AskReddit",
+    "- 帖子链接：https://www.reddit.com/r/AskReddit/comments/one/",
+    "- 中文标题：第一个问题",
+    "- 综合摘要：这是只保留贴子核心与高赞观点的完整中文概括。",
+    "",
+    "2. [r/explainlikeimfive] Original question two",
+    "- ⭐ 200 points · 140 评论",
+    "- 来源：r/explainlikeimfive",
+    "- 帖子链接：https://www.reddit.com/r/explainlikeimfive/comments/two/",
+    "- 中文标题：第二个问题",
+    "- 综合摘要：这是另一条不展示原始回复的中文综合摘要。",
+  ].join("\n");
+
+  const markdown = redditMarkdownFromItemSummaries(source);
+
+  assert.match(markdown, /- 总结：这是只保留贴子核心/);
+  assert.match(markdown, /- 帖子：https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/one\//);
+  assert.doesNotMatch(markdown, /Original question/);
+  assert.throws(
+    () => parseRedditItemSummary('{"rank":2,"title_zh":"错误排名","summary":"这是一段中文总结。"}', 1),
+    /rank mismatch/,
   );
 });

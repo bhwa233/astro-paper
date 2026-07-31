@@ -2,6 +2,7 @@
 // 事实字段（热度/来源/帖子链接）一律取自脚本抓取的 source，
 // 由这里确定性地组装成 archive 层可消费的中间契约 Markdown。
 import { ARCHIVE_PAYLOAD_MARKER, hasChinese, looksLowSignal } from "./astro_paper_archive.ts";
+import { parseModelJsonObject } from "./compose_common.ts";
 
 export type RedditModelItem = {
   rank: number;
@@ -79,6 +80,42 @@ export function parseRedditModelJson(raw: string, expectedCount?: number): Reddi
   });
 }
 
+export function parseRedditItemSummary(raw: string, expectedRank: number): RedditModelItem {
+  const payload = parseModelJsonObject(raw, "Reddit item summary");
+  const rank = Number(payload.rank);
+  const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
+  const summary = String(payload.summary || "").replace(/\s+/g, " ").trim();
+  if (rank !== expectedRank) throw new Error(`Reddit item summary rank mismatch: ${rank} vs ${expectedRank}`);
+  if (!titleZh || !hasChinese(titleZh)) throw new Error(`Reddit item ${expectedRank} needs a Chinese title`);
+  if (!summary || !hasChinese(summary) || looksLowSignal(summary)) {
+    throw new Error(`Reddit item ${expectedRank} has empty or low-signal summary`);
+  }
+  return { rank, title_zh: titleZh, summary };
+}
+
+function sourceBlocks(source: string): string[] {
+  const markerIndex = source.indexOf(ARCHIVE_PAYLOAD_MARKER);
+  const body = markerIndex >= 0 ? source.slice(0, markerIndex) : source;
+  return body
+    .split(/(?=^\d+\.\s*\[r\/)/gm)
+    .map(block => block.trim())
+    .filter(block => /^\d+\.\s*\[r\//.test(block));
+}
+
+export function parseRedditItemSummaries(source: string): RedditModelItem[] {
+  const blocks = sourceBlocks(source);
+  if (!blocks.length) throw new Error("Reddit combined source has no item blocks");
+  return blocks.map((block, index) => {
+    const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
+    if (!Number.isInteger(rank) || rank !== index + 1) throw new Error(`Reddit combined source item ${index + 1} has invalid rank`);
+    const bullets = extractBullets(block);
+    return parseRedditItemSummary(
+      JSON.stringify({ rank, title_zh: bulletValue(bullets, "中文标题"), summary: bulletValue(bullets, "综合摘要") }),
+      rank,
+    );
+  });
+}
+
 export function composeRedditBody(modelItems: RedditModelItem[], facts: RedditSourceFact[]): string {
   if (!facts.length) throw new Error("Reddit source produced no items to compose");
   const byRank = new Map(modelItems.map(item => [item.rank, item]));
@@ -99,4 +136,8 @@ export function redditMarkdownFromModelJson(raw: string, source: string): string
   const facts = parseSourceFacts(source);
   const items = parseRedditModelJson(raw, facts.length);
   return composeRedditBody(items, facts);
+}
+
+export function redditMarkdownFromItemSummaries(source: string): string {
+  return composeRedditBody(parseRedditItemSummaries(source), parseSourceFacts(source));
 }

@@ -11,7 +11,7 @@ import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, e
 import { type Task, isTaskInput, scheduledTaskInput, taskPostRelPath, taskTags, taskTitle, tasksForInput } from "./blog_tasks.ts";
 import { buildHnSource } from "./hn_top20_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
-import { parseSourceFacts as parseRedditSourceFacts, redditMarkdownFromModelJson } from "./reddit_top20_compose.ts";
+import { parseRedditItemSummaries, parseRedditItemSummary, parseSourceFacts as parseRedditSourceFacts, redditMarkdownFromItemSummaries, redditMarkdownFromModelJson, type RedditModelItem } from "./reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "./daily_digest_compose.ts";
@@ -251,7 +251,7 @@ type RedditSourceApiResponse = {
 };
 
 export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, date: string): string {
-  if (payload.contract_version !== "reddit-top20-source.v1") {
+  if (payload.contract_version !== "reddit-top20-source.v2") {
     throw new Error(`Reddit source API returned an unsupported contract: ${String(payload.contract_version)}`);
   }
   if (payload.archive_date !== date) {
@@ -268,8 +268,8 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
     throw new Error("Reddit source API source_sha256 does not match source content");
   }
   const facts = parseRedditSourceFacts(payload.source);
-  if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length !== 40) {
-    throw new Error(`Reddit source API expected 40 ranked items, received ${String(payload.item_count)}`);
+  if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > 40) {
+    throw new Error(`Reddit source API expected 1-40 ranked items, received ${String(payload.item_count)}`);
   }
   return payload.source;
 }
@@ -279,7 +279,7 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
   const token = process.env.REDDIT_SOURCE_API_TOKEN?.trim();
   if (!baseUrl) throw new Error("REDDIT_SOURCE_API_URL is required for reddit-top20 generation");
   if (!token) throw new Error("REDDIT_SOURCE_API_TOKEN is required for reddit-top20 generation");
-  const payload = await fetchJson<RedditSourceApiResponse>(`${baseUrl}/v1/reddit/top20-source`, {
+  const payload = await fetchJson<RedditSourceApiResponse>(`${baseUrl}/v2/reddit/top20-source`, {
     method: "POST",
     body: JSON.stringify({ archive_date: date }),
     headers: {
@@ -287,7 +287,7 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
       "Content-Type": "application/json",
     },
     timeoutMs: 90_000,
-    maxChars: 1_000_000,
+    maxChars: 3_000_000,
     throwOnMaxChars: true,
     retries: 2,
   });
@@ -605,6 +605,92 @@ async function buildCombinedTechDailySource({
   writeArtifact(artifactsDir, "tech-daily", "section-plan.json", JSON.stringify({ sections }, null, 2));
   const combined = formatCombinedTechDailySource(date, summaries, sections, header.match(/^抓取失败源：.+$/m)?.[0] || "");
   writeArtifact(artifactsDir, "tech-daily", "source.dynamic.md", combined);
+  return combined;
+}
+
+function redditSourceBlocks(source: string): string[] {
+  const markerIndex = source.indexOf("===ARCHIVE_PAYLOAD===");
+  const body = markerIndex >= 0 ? source.slice(0, markerIndex) : source;
+  return body
+    .split(/(?=^\d+\.\s*\[r\/)/gm)
+    .map(block => block.trim())
+    .filter(block => /^\d+\.\s*\[r\//.test(block));
+}
+
+function redditRetryDelayMs(attempt: number): number {
+  const base = retryDelayMs(attempt);
+  return base > 0 ? base + Math.floor(Math.random() * 1000) : 0;
+}
+
+async function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditModelItem> {
+  const attempts = retryAttempts();
+  let lastError = "";
+  let attemptPrompt = prompt;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    await sleep(redditRetryDelayMs(attempt));
+    try {
+      const response = await callAi(attemptPrompt, model, true);
+      const summary = parseRedditItemSummary(response.content, rank);
+      writeArtifact(artifactsDir, "reddit-top20", `item-${String(rank).padStart(2, "0")}-summary.json`, response.content);
+      return summary;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+      writeArtifact(artifactsDir, "reddit-top20", `item-${String(rank).padStart(2, "0")}-error-attempt-${attempt}.txt`, lastError);
+      if (attempt < attempts) {
+        attemptPrompt = `${prompt.trim()}\n\n上一轮输出无法解析为规定的 JSON，原因：${lastError}\n请重新返回完整、合法且字段齐全的 JSON 对象，不要输出解释或代码围栏。`;
+        writeStderr(`WARN: Reddit item ${rank} attempt ${attempt}/${attempts} failed; retrying: ${lastError}`);
+      }
+    }
+  }
+  throw new Error(`Reddit item ${rank} failed after ${attempts} attempts: ${lastError}`);
+}
+
+async function buildCombinedRedditSource({
+  source,
+  date,
+  repo,
+  model,
+  promptDir,
+  artifactsDir,
+}: {
+  source: string;
+  date: string;
+  repo: string;
+  model: string;
+  promptDir: string;
+  artifactsDir: string;
+}): Promise<string> {
+  const blocks = redditSourceBlocks(source);
+  if (!blocks.length || blocks.length > 40) throw new Error(`Reddit source has an invalid number of item blocks: ${blocks.length}`);
+  writeArtifact(artifactsDir, "reddit-top20", "source.raw.md", source);
+  const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
+  const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, "reddit-item-summary"), "utf8");
+  const summaries: RedditModelItem[] = [];
+  // Process one post at a time to keep the detailed comment evidence in a bounded,
+  // independently retryable request rather than sending the entire Reddit batch.
+  for (const block of blocks) {
+    const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
+    if (!Number.isInteger(rank)) throw new Error("Reddit source item is missing rank");
+    const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block);
+    summaries.push(await summarizeRedditItem(prompt, rank, model, artifactsDir));
+  }
+  const byRank = new Map(summaries.map(summary => [summary.rank, summary]));
+  const firstBlockOffset = source.search(/^\d+\.\s*\[r\//m);
+  const header = firstBlockOffset >= 0 ? source.slice(0, firstBlockOffset).trimEnd() : "";
+  const combined = [
+    header,
+    "",
+    "每帖均由独立模型调用综合正文与按赞数排序的顶层回答；以下结果是最终文章唯一使用的语义证据。",
+    "",
+    ...blocks.flatMap(block => {
+      const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
+      const summary = byRank.get(rank);
+      if (!summary) throw new Error(`Reddit item summary missing rank ${rank}`);
+      const factLines = block.split("\n").filter(line => /^\d+\.\s*\[r\//.test(line) || /^- (?:⭐|来源：|帖子链接：)/.test(line));
+      return [...factLines, `- 中文标题：${summary.title_zh}`, `- 综合摘要：${summary.summary}`, ""];
+    }),
+  ].join("\n");
+  writeArtifact(artifactsDir, "reddit-top20", "source.dynamic.md", combined);
   return combined;
 }
 
@@ -1014,13 +1100,29 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     const itemCount = countNumberedBlocks(source);
     if (itemCount < 1) return [skippedLowQuality(task, date, "tech-daily has no high-quality daily items")];
   }
+  if (useAi && task === "reddit-top20" && !mockResponseDir) {
+    source = await buildCombinedRedditSource({ source, date: contentDate, repo, model, promptDir, artifactsDir });
+  }
   if (useAi && isMagazineTask(task) && !mockResponseDir) {
     source = await buildCombinedMagazineSource({ config: magazineConfig(task), source, date: contentDate, repo, model, promptDir, artifactsDir });
   }
   let body = source;
   let description: string | undefined;
   let generation: ResultItem["generation"];
-  if (isMagazineTask(task)) {
+  if (task === "reddit-top20" && useAi && !mockResponseDir) {
+    const summaries = parseRedditItemSummaries(source);
+    body = redditMarkdownFromItemSummaries(source);
+    description = summaries[0]?.summary.slice(0, 60);
+    const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
+    const itemConfig = envAiConfig({ model });
+    generation = {
+      ai_model: itemConfig.model,
+      ai_base_url: itemConfig.baseUrl,
+      ai_fallback_used: false,
+      source_artifact: sourceArtifact,
+      mocked_ai: false,
+    };
+  } else if (isMagazineTask(task)) {
     // The issue post is a deterministic aggregation of the per-article summaries; no issue-level AI call.
     const composed = economistWeeklyMarkdown(source);
     body = composed.markdown;

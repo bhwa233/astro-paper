@@ -26,7 +26,7 @@ function responsesInputPrompt(prompt: string, jsonMode: boolean): string {
   if (!jsonMode) return prompt;
   // Some Responses-compatible providers validate JSON-mode instructions in input,
   // not only in the top-level instructions field.
-  return `${prompt}\n\nReturn a valid json object only.`;
+  return `Return a valid json object only.\n\n${prompt}`;
 }
 
 export type AiCallResult = {

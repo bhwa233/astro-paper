@@ -366,7 +366,7 @@ test("callBlogAi puts an explicit json instruction in Responses input when JSON 
   globalThis.fetch = (async (input, init) => {
     const body = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
     const inputText = (body.input as { content: string }[] | undefined)?.[0]?.content || "";
-    if (body.text && !/json/i.test(inputText)) {
+    if (body.text && !/^Return a valid json object only\./i.test(inputText)) {
       return new Response("Response input messages must contain the word 'json' in some form to use 'text.format' of type 'json_object'.", { status: 400 });
     }
     calls.push({ url: String(input), body });
@@ -388,7 +388,7 @@ test("callBlogAi puts an explicit json instruction in Responses input when JSON 
     assert.equal(content, "## 标题\n\n正文");
     assert.equal(calls.length, 1);
     assert.equal(calls[0].url, "https://www.right.codes/codex/v1/responses");
-    assert.deepEqual(calls[0].body.input, [{ role: "user", content: "hello\n\nReturn a valid json object only." }]);
+    assert.deepEqual(calls[0].body.input, [{ role: "user", content: "Return a valid json object only.\n\nhello" }]);
     assert.deepEqual(calls[0].body.reasoning, { effort: "high" });
     assert.equal(calls[0].body.max_output_tokens, 8192);
     assert.deepEqual(calls[0].body.text, { format: { type: "json_object" } });

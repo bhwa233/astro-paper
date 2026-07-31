@@ -112,12 +112,12 @@ function assertHnTitleUsesChinese(title: string): void {
   if (!hasChinese(title)) throw new Error(`HN item title should use a Chinese title: ${title}`);
 }
 
-function formatHnTop10(text: string): { markdown: string; ogImage: string } {
+function formatHnTop20(text: string): { markdown: string; ogImage: string } {
   const { body, items: payloadItems } = extractPayload(text);
   const blocks = body
     .split(/(?=^\d+\.\s*🔥?\s+)/gm)
     .map(block => block.trim())
-    .filter(block => /^\d+\.\s*🔥?\s+/.test(block) && !/今日 HackerNews 热门文章 Top 10/.test(block));
+    .filter(block => /^\d+\.\s*🔥?\s+/.test(block) && !/今日 HackerNews 热门文章 Top 20/.test(block));
   const formattedItems: { topic: string; block: string }[] = [];
   blocks.forEach((block, index) => {
     const rank = index + 1;
@@ -416,7 +416,7 @@ export function archivePost({
     return { task, path: relPath, title, created: false, skipped: true, updated_at_bjt: bjtTimestamp(), commit: "", push: "", tags: taskTags(task) };
   }
   const formatted: { markdown: string; ogImage: string; description?: string } =
-    task === "hn-top10" ? formatHnTop10(body) :
+    task === "hn-top20" ? formatHnTop20(body) :
     task === "reddit-top20" ? { markdown: formatRedditTop20(body), ogImage: "" } :
     isPodcastArticleTask(task) ? { ...formatPodcastEpisode(body), ogImage: "" } :
     task === "tech-daily" ? { markdown: formatTechDaily(body), ogImage: "" } :

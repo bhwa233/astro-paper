@@ -1,6 +1,6 @@
 # 任务
 
-你要根据脚本抓取的 Hacker News 证据，生成可交给 Astro archive 层归档的中文 HN Top 10 Markdown。
+你要根据脚本抓取的 Hacker News 证据，生成可交给 Astro archive 层归档的中文 HN Top 20 Markdown。
 
 - 任务：{task}
 - 日期：{date}
@@ -38,7 +38,7 @@ JSON 结构必须严格如下（`items` 覆盖输入证据里的全部条目，`
 ```
 
 - `rank` 必须与输入证据里对应条目的编号一致，且覆盖全部条目，不遗漏、不新增。
-- 不要输出「今日 HackerNews 热门文章 Top 10」这类总览条目；证据里的总览行不算条目。
+- 不要输出「今日 HackerNews 热门文章 Top 20」这类总览条目；证据里的总览行不算条目。
 
 # 标题翻译要求
 

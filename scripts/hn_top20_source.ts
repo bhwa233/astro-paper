@@ -6,7 +6,7 @@ import { compact, fetchJson, fetchText, stripHtml, writeStderr, writeStdout } fr
 const HN_TOP_STORIES_URL = "https://hacker-news.firebaseio.com/v0/topstories.json";
 const hnApiItem = (id: number) => `https://hacker-news.firebaseio.com/v0/item/${id}.json`;
 
-type HnItem = {
+export type HnItem = {
   id?: number;
   title?: string;
   url?: string;
@@ -17,6 +17,10 @@ type HnItem = {
   deleted?: boolean;
   dead?: boolean;
 };
+
+export const HN_CANDIDATE_COUNT = 60;
+export const HN_SELECTION_COUNT = 20;
+export const HN_MIN_ORIGINAL_EVIDENCE_COUNT = 12;
 
 export type HnPayloadItem = {
   rank: number;
@@ -48,7 +52,7 @@ export function classify(title = ""): string {
   return "技术 / 观察";
 }
 
-export async function fetchTopIds(n = 30): Promise<number[]> {
+export async function fetchTopIds(n = HN_CANDIDATE_COUNT): Promise<number[]> {
   const ids = await fetchJson<number[]>(HN_TOP_STORIES_URL, { timeoutMs: 20_000 });
   return ids.slice(0, n);
 }
@@ -166,19 +170,23 @@ function evidenceCounts(text: string): { original: number; comments: number } {
   return { original, comments };
 }
 
+export function selectTopCommented(items: HnItem[]): HnItem[] {
+  return items
+    .filter(item => !item.deleted && !item.dead)
+    .sort((a, b) => (b.descendants ?? 0) - (a.descendants ?? 0))
+    .slice(0, HN_SELECTION_COUNT);
+}
+
 export async function buildHnSource(): Promise<string> {
-  // Phase 1: fetch top 30 metadata in parallel, sort by comment count, keep top 10
-  const topIds = await fetchTopIds(30);
+  // Phase 1: fetch top 60 metadata in parallel, sort by comment count, keep top 20
+  const topIds = await fetchTopIds(HN_CANDIDATE_COUNT);
   const rawItems = await Promise.all(
     topIds.map(id => fetchJson<HnItem>(hnApiItem(id), { timeoutMs: 12_000 }).catch(() => null))
   );
-  const sorted = rawItems
-    .filter((item): item is HnItem => item !== null && !item.deleted && !item.dead)
-    .sort((a, b) => (b.descendants ?? 0) - (a.descendants ?? 0))
-    .slice(0, 10);
+  const sorted = selectTopCommented(rawItems.filter((item): item is HnItem => item !== null));
 
-  // Phase 2: fetch original excerpts + comments for top 10
-  const lines = ["1. 🔥 今日 HackerNews 热门文章 Top 10", ""];
+  // Phase 2: fetch original excerpts + comments for top 20
+  const lines = ["1. 🔥 今日 HackerNews 热门文章 Top 20", ""];
   const items: HnPayloadItem[] = [];
   for (const [index, item] of sorted.entries()) {
     const rank = index + 1;
@@ -201,7 +209,7 @@ export async function buildHnSource(): Promise<string> {
   }
   const body = lines.join("\n");
   const counts = evidenceCounts(body);
-  if (counts.original < 6) throw new Error(`low-signal HN source output: original=${counts.original}, comments=${counts.comments}`);
+  if (counts.original < HN_MIN_ORIGINAL_EVIDENCE_COUNT) throw new Error(`low-signal HN source output: original=${counts.original}, comments=${counts.comments}`);
   lines.push("===ARCHIVE_PAYLOAD===", JSON.stringify({ items }, null, 2));
   return `${lines.join("\n").trim()}\n`;
 }

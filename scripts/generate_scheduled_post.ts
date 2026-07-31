@@ -9,7 +9,7 @@ import { validateMarkdown, renderPrompt, resolvePromptFile } from "./ai_blog_wri
 import { type AiCallResult, callBlogAiWithFailover, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
 import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, fetchJson, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { type Task, isTaskInput, scheduledTaskInput, taskPostRelPath, taskTags, taskTitle, tasksForInput } from "./blog_tasks.ts";
-import { buildHnSource } from "./hn_top10_source.ts";
+import { buildHnSource } from "./hn_top20_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import { parseSourceFacts as parseRedditSourceFacts, redditMarkdownFromModelJson } from "./reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
@@ -296,7 +296,7 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
 
 // capital-market-daily 不在此表：见 JSON_COMPOSERS 里的 composeFullCapitalMarket。
 const SOURCE_BUILDERS: Partial<Record<Task, (date: string) => Promise<string>>> = {
-  "hn-top10": () => buildHnSource(),
+  "hn-top20": () => buildHnSource(),
   "reddit-top20": fetchRedditSourceFromApi,
   "github-trending-daily": date => buildGitHubTrendingDailySource(date, { dataDir: path.join(repoRoot(), "data/github-trending") }),
   "daily-podcasts": date => buildDailyPodcastSource(date),
@@ -812,7 +812,7 @@ export function validateGeneratedMarkdownForTask(markdown: string, task: Task, d
 // JSON 组装家族：模型只返回语义字段，事实由 source 提供，规则层确定性组装成既有中间契约 Markdown。
 // 新增任务只需在此登记一个 composer；其余任务保持模型直接产出 Markdown 的原路径。
 const JSON_COMPOSERS: Partial<Record<Task, (rawJson: string, source: string) => string>> = {
-  "hn-top10": hnMarkdownFromModelJson,
+  "hn-top20": hnMarkdownFromModelJson,
   "reddit-top20": redditMarkdownFromModelJson,
   "github-trending-daily": githubTrendingMarkdownFromModelJson,
   "mdblist-weekly": mdblistMarkdownFromModelJson,

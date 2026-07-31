@@ -9,7 +9,14 @@ import AdmZip from "adm-zip";
 import { archivePost } from "../scripts/astro_paper_archive.ts";
 import { chatCompletionsUrl, renderPrompt } from "../scripts/ai_blog_writer.ts";
 import { DEFAULT_AI_BASE_URL, DEFAULT_AI_MODEL, callBlogAi, callBlogAiWithFailover, isTransientAiError, parseResponsesSse, responsesUrl } from "../scripts/blog_ai_client.ts";
-import { buildPayload, classify } from "../scripts/hn_top10_source.ts";
+import {
+  buildPayload,
+  classify,
+  HN_CANDIDATE_COUNT,
+  HN_MIN_ORIGINAL_EVIDENCE_COUNT,
+  HN_SELECTION_COUNT,
+  selectTopCommented,
+} from "../scripts/hn_top20_source.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
 import { githubTrendingMarkdownFromModelJson, parseGitHubTrendingFacts } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
@@ -133,12 +140,12 @@ test("BJT archive dates use UTC instants for Beijing midnight", () => {
 
 test("AI writer renders prompts and normalizes chat completions URLs", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "prompt-"));
-  fs.writeFileSync(path.join(dir, "hn-top10.md"), "task={task}\ndate={date}\nsource={source_text}");
-  const prompt = renderPrompt({ task: "hn-top10", date: "2099-01-02", sourceText: "hello", promptDir: dir });
-  assert.equal(prompt, "task=hn-top10\ndate=2099-01-02\nsource=hello");
+  fs.writeFileSync(path.join(dir, "hn-top20.md"), "task={task}\ndate={date}\nsource={source_text}");
+  const prompt = renderPrompt({ task: "hn-top20", date: "2099-01-02", sourceText: "hello", promptDir: dir });
+  assert.equal(prompt, "task=hn-top20\ndate=2099-01-02\nsource=hello");
   fs.writeFileSync(path.join(dir, "_common-article-rules.md"), "common rules");
-  const promptWithCommon = renderPrompt({ task: "hn-top10", date: "2099-01-02", sourceText: "hello", promptDir: dir });
-  assert.equal(promptWithCommon, "common rules\n\ntask=hn-top10\ndate=2099-01-02\nsource=hello");
+  const promptWithCommon = renderPrompt({ task: "hn-top20", date: "2099-01-02", sourceText: "hello", promptDir: dir });
+  assert.equal(promptWithCommon, "common rules\n\ntask=hn-top20\ndate=2099-01-02\nsource=hello");
   assert.equal(chatCompletionsUrl("https://api.example.com/v1"), "https://api.example.com/v1/chat/completions");
   assert.equal(chatCompletionsUrl("https://api.example.com/v1/chat/completions"), "https://api.example.com/v1/chat/completions");
   assert.equal(DEFAULT_AI_BASE_URL, "https://www.right.codes/codex/v1");
@@ -165,6 +172,22 @@ test("blog source evidence keeps long text sentinels instead of truncating", () 
 
   const readme = sanitizeReadmeText(`# Heading\n\n${"readme ".repeat(400)} README_TAIL_SENTINEL`);
   assert.match(readme, /README TAIL SENTINEL/);
+});
+
+test("HN selects the 20 most-commented active stories from 60 candidates", () => {
+  assert.equal(HN_CANDIDATE_COUNT, 60);
+  assert.equal(HN_SELECTION_COUNT, 20);
+  assert.equal(HN_MIN_ORIGINAL_EVIDENCE_COUNT, 12);
+  const candidates = Array.from({ length: HN_CANDIDATE_COUNT }, (_, index) => ({
+    id: index + 1,
+    title: `Story ${index + 1}`,
+    descendants: index + 1,
+    dead: false,
+  }));
+  candidates[59].dead = true;
+  const selected = selectTopCommented(candidates);
+  assert.equal(selected.length, HN_SELECTION_COUNT);
+  assert.deepEqual(selected.map(item => item.id), Array.from({ length: 20 }, (_, index) => 59 - index));
 });
 
 test("GitHub Trending README sanitizer removes template delimiters from evidence", () => {
@@ -936,7 +959,7 @@ test("archive and verifier accept generated HN, podcast notes, and retained dige
 - 内容总结：文章解释了浏览器同源策略与 CORS 预检机制之间的关系，并指出很多后端开发者把跨域报错误解成服务端权限问题。作者用请求头、凭证模式和常见配置误区串起了 CORS 的真实执行路径。
 - 评论总结：评论区主要补充了反向代理、CDN 和本地开发场景下最容易踩坑的缓存与凭证问题，也有人强调把通配配置当万能解法会埋下安全隐患。
   `;
-  const hn = archivePost({ task: "hn-top10", date: "2099-01-02", repo, body: hnBody, force: true });
+  const hn = archivePost({ task: "hn-top20", date: "2099-01-02", repo, body: hnBody, force: true });
   const podcastBody = `${fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-ai-responses/daily-podcasts.md"), "utf8")}
 
 这期还谈到产品布局和值得关注的设计工作流，这些是产品访谈里的正常语义，不应被市场日报的投顾口吻过滤误伤。
@@ -1081,7 +1104,7 @@ test("Economist archive accepts more than ten complete articles", () => {
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), "astro-paper-economist-all-"));
   const issueDate = contentDateForTask("economist-weekly", "2099-01-09", source);
   assert.equal(issueDate, "2099-01-02");
-  assert.equal(contentDateForTask("hn-top10", "2099-01-09", source), "2099-01-09");
+  assert.equal(contentDateForTask("hn-top20", "2099-01-09", source), "2099-01-09");
   const result = archivePost({ task: "economist-weekly", date: issueDate, repo, body, force: true });
   const article = fs.readFileSync(path.join(repo, result.path), "utf8");
   assert.equal(result.path, "src/content/posts/zh-cn/经济学人-2099-01-02.md");
@@ -1093,7 +1116,7 @@ test("Economist archive accepts more than ten complete articles", () => {
 });
 
 test("HN compose parses source facts from markdown blocks", () => {
-  const source = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-sources/hn-top10.md"), "utf8");
+  const source = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-sources/hn-top20.md"), "utf8");
   const facts = parseSourceFacts(source);
   assert.equal(facts.length, 1);
   assert.deepEqual(facts[0], {
@@ -1106,7 +1129,7 @@ test("HN compose parses source facts from markdown blocks", () => {
 });
 
 test("HN compose takes facts from source, not from the model", () => {
-  const source = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-sources/hn-top10.md"), "utf8");
+  const source = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-sources/hn-top20.md"), "utf8");
   // 模型 JSON 只带语义字段；即使模型试图塞链接也不该出现在成品里。
   const modelJson = JSON.stringify({
     items: [
@@ -1126,7 +1149,7 @@ test("HN compose takes facts from source, not from the model", () => {
   assert.doesNotMatch(markdown, /evil\.example\.com/);
 
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), "astro-paper-hn-json-"));
-  const result = archivePost({ task: "hn-top10", date: "2099-01-02", repo, body: markdown, force: true });
+  const result = archivePost({ task: "hn-top20", date: "2099-01-02", repo, body: markdown, force: true });
   const article = fs.readFileSync(path.join(repo, result.path), "utf8");
   assert.match(article, /^## 1\. 开发者终于开始测试自动化契约/m);
   assert.match(article, /https:\/\/example\.com\/automation-contracts/);
@@ -1538,7 +1561,7 @@ test("HN source verifier accepts legitimate double-brace examples from source ar
 - 内容总结：Pandoc Lua 过滤器允许用户直接操作文档 AST，并用内置 Lua 解释器减少传统 JSON filter 的序列化开销。文章展示了如何匹配元素、替换节点以及编写宏替换逻辑。
 - 评论总结：评论主要讨论 Pandoc 功能边界和过滤器文档兼容性，也有人提到 Lua 过滤器在复杂文档转换中的实用价值。
 `;
-  const result = archivePost({ task: "hn-top10", date: "2099-01-02", repo, body, force: true });
+  const result = archivePost({ task: "hn-top20", date: "2099-01-02", repo, body, force: true });
   const sourcePath = path.join(repo, "hn-source.md");
   fs.writeFileSync(
     sourcePath,

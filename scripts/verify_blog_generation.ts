@@ -72,7 +72,7 @@ function verifySourceContract(repo: string, task: string, sourceArtifact: string
   if (task === "capital-market-daily") {
     return;
   }
-  if (task === "hn-top10") {
+  if (task === "hn-top20") {
     requireTerms(relPath, source, ["HN 讨论", "原文"]);
     return;
   }

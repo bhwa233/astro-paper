@@ -8,10 +8,10 @@ export type BlogTaskInfo = {
 };
 
 export const BLOG_TASKS = {
-  "hn-top10": {
-    titlePrefix: "HackerNews Top 10",
+  "hn-top20": {
+    titlePrefix: "HackerNews Top 20",
     tag: "HackerNews",
-    description: "每日 Hacker News 热门文章 Top 10 中文整理，按当天归档并覆盖更新。",
+    description: "每日 Hacker News 热门文章 Top 20 中文整理，按当天归档并覆盖更新。",
     fileName: "hackernews-{date}.md",
   },
   "capital-market-daily": {
@@ -102,7 +102,7 @@ export const TASKS = Object.keys(BLOG_TASKS) as Task[];
 export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset?: number; dateTimeZone?: string }> = {
   "30 0 * * *": { task: "tech-daily", dateTimeZone: "America/Los_Angeles" },
   "30 1 * * *": { task: "daily-podcasts" },
-  "0 6 * * *": { task: "hn-top10", dateTimeZone: "America/Los_Angeles" },
+  "0 6 * * *": { task: "hn-top20", dateTimeZone: "America/Los_Angeles" },
   "0 2 * * 1": { task: "xyzrank-top-episodes", dateTimeZone: "Asia/Shanghai" },
   // 资本市场日报：UTC 22:00 美股收盘后，一次性拉取全部市场数据、一次 AI 调用生成完整日报。
   // dateOffset: -1 是因为 UTC 22:00 在上海已是次日 06:00，-1 天才能得到当天交易日的日期。

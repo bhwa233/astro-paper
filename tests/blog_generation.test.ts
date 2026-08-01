@@ -8,7 +8,7 @@ import AdmZip from "adm-zip";
 
 import { archivePost } from "../scripts/astro_paper_archive.ts";
 import { chatCompletionsUrl, renderPrompt } from "../scripts/ai_blog_writer.ts";
-import { DEFAULT_AI_BASE_URL, DEFAULT_AI_MODEL, callBlogAi, callBlogAiWithFailover, isTransientAiError, parseResponsesSse, responsesUrl } from "../scripts/blog_ai_client.ts";
+import { DEFAULT_AI_BASE_URL, DEFAULT_AI_MODEL, callBlogAi, callBlogAiWithFailover, isCooldownAiError, isTransientAiError, parseResponsesSse, parseRetryAfterMs, resetCooldownWaitBudget, responsesUrl } from "../scripts/blog_ai_client.ts";
 import {
   buildPayload,
   classify,
@@ -305,6 +305,94 @@ test("isTransientAiError classifies dropped connections, timeouts and 5xx/429 as
   assert.equal(isTransientAiError("AI provider HTTP 429: slow down"), true);
   assert.equal(isTransientAiError("AI provider HTTP 400: bad request"), false);
   assert.equal(isTransientAiError("AI response missing message content: {}"), false);
+});
+
+test("isCooldownAiError separates provider cooldown from ordinary transient failures", () => {
+  assert.equal(isCooldownAiError('AI provider HTTP 429: {"error":{"code":"model_cooldown"}}'), true);
+  assert.equal(isCooldownAiError("AI request failed: AI responses API error: All credentials for model gpt-5.6-terra are cooling down via provider codex"), true);
+  assert.equal(isCooldownAiError("AI provider HTTP 503: overloaded"), false);
+  assert.equal(isCooldownAiError("AI request failed: fetch failed"), false);
+});
+
+test("parseRetryAfterMs reads delta-seconds and HTTP dates", () => {
+  assert.equal(parseRetryAfterMs("90"), 90_000);
+  assert.equal(parseRetryAfterMs(null), 0);
+  assert.equal(parseRetryAfterMs("0"), 0);
+  const now = Date.parse("2026-08-01T00:00:00Z");
+  assert.equal(parseRetryAfterMs("Sat, 01 Aug 2026 00:02:00 GMT", now), 120_000);
+  assert.equal(parseRetryAfterMs("Sat, 01 Aug 2026 00:00:00 GMT", now + 5_000), 0); // already past
+});
+
+test("AI client retries a cooling-down model on the minute-scale budget", async () => {
+  const originalFetch = globalThis.fetch;
+  const previousBase = process.env.AI_COOLDOWN_RETRY_DELAY_MS;
+  const previousMax = process.env.AI_COOLDOWN_RETRY_MAX_DELAY_MS;
+  process.env.AI_COOLDOWN_RETRY_DELAY_MS = "1";
+  process.env.AI_COOLDOWN_RETRY_MAX_DELAY_MS = "1";
+  resetCooldownWaitBudget();
+  const calls: string[] = [];
+  globalThis.fetch = (async (input: string | URL | Request) => {
+    calls.push(String(input));
+    if (calls.length < 3) {
+      return new Response(JSON.stringify({ error: { message: "All credentials for model primary-model are cooling down", code: "model_cooldown" } }), { status: 429 });
+    }
+    return new Response(JSON.stringify({ choices: [{ message: { content: "## 标题\n\n" + "有效正文".repeat(80) } }] }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const result = await callBlogAiWithFailover({
+      prompt: "hello",
+      primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model", apiStyle: "chat" },
+      fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash", apiStyle: "chat" },
+    });
+    assert.equal(result.usedFallback, false);
+    assert.equal(result.config.model, "primary-model");
+    assert.equal(calls.length, 3); // cooldown retries outlive the 3-attempt transient budget
+    assert.match(result.primaryError || "", /model_cooldown/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    resetCooldownWaitBudget();
+    if (previousBase === undefined) delete process.env.AI_COOLDOWN_RETRY_DELAY_MS;
+    else process.env.AI_COOLDOWN_RETRY_DELAY_MS = previousBase;
+    if (previousMax === undefined) delete process.env.AI_COOLDOWN_RETRY_MAX_DELAY_MS;
+    else process.env.AI_COOLDOWN_RETRY_MAX_DELAY_MS = previousMax;
+  }
+});
+
+test("AI client stops retrying a cooling-down model once the wait budget is spent", async () => {
+  const originalFetch = globalThis.fetch;
+  const previousBase = process.env.AI_COOLDOWN_RETRY_DELAY_MS;
+  const previousMax = process.env.AI_COOLDOWN_RETRY_MAX_DELAY_MS;
+  const previousBudget = process.env.AI_COOLDOWN_TOTAL_BUDGET_MS;
+  process.env.AI_COOLDOWN_RETRY_DELAY_MS = "1";
+  process.env.AI_COOLDOWN_RETRY_MAX_DELAY_MS = "1";
+  process.env.AI_COOLDOWN_TOTAL_BUDGET_MS = "1"; // room for one 1ms wait, not two
+  resetCooldownWaitBudget();
+  const calls: string[] = [];
+  globalThis.fetch = (async (input: string | URL | Request) => {
+    calls.push(String(input));
+    return new Response(JSON.stringify({ error: { code: "model_cooldown" } }), { status: 429 });
+  }) as typeof fetch;
+  try {
+    await assert.rejects(
+      () =>
+        callBlogAiWithFailover({
+          prompt: "hello",
+          primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model", apiStyle: "chat" },
+          fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash", apiStyle: "chat" },
+        }),
+      /AI provider HTTP 429/,
+    );
+    assert.equal(calls.length, 2); // first failure waits, second exhausts the budget
+  } finally {
+    globalThis.fetch = originalFetch;
+    resetCooldownWaitBudget();
+    if (previousBase === undefined) delete process.env.AI_COOLDOWN_RETRY_DELAY_MS;
+    else process.env.AI_COOLDOWN_RETRY_DELAY_MS = previousBase;
+    if (previousMax === undefined) delete process.env.AI_COOLDOWN_RETRY_MAX_DELAY_MS;
+    else process.env.AI_COOLDOWN_RETRY_MAX_DELAY_MS = previousMax;
+    if (previousBudget === undefined) delete process.env.AI_COOLDOWN_TOTAL_BUDGET_MS;
+    else process.env.AI_COOLDOWN_TOTAL_BUDGET_MS = previousBudget;
+  }
 });
 
 test("AI client retries the primary on a transient drop before using fallback", async () => {

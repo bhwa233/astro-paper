@@ -1,4 +1,4 @@
-import { clipText } from "./blog_common.ts";
+import { clipText, writeStderr } from "./blog_common.ts";
 
 export const DEFAULT_AI_BASE_URL = "https://www.right.codes/codex/v1";
 export const DEFAULT_AI_MODEL = "gpt-5.6-terra";
@@ -65,6 +65,49 @@ export function isTransientAiError(message: string): boolean {
   if (/^AI provider HTTP (?:5\d\d|429)\b/.test(message)) return true;
   if (/^AI request failed:/.test(message)) return true; // network/TLS/connection layer
   return false;
+}
+
+// Cooldown = the provider parked the model/credentials for minutes ("All credentials for model X
+// are cooling down"). Seconds-scale retries never outlive it, so these get their own minute-scale
+// backoff. Some providers surface it as HTTP 429, others as an SSE error event with HTTP 200.
+export function isCooldownAiError(message: string): boolean {
+  if (/^AI provider HTTP 429\b/.test(message)) return true;
+  return /model_cooldown|cooling down|rate.?limit/i.test(message);
+}
+
+// Retry-After is either delta-seconds or an HTTP date.
+export function parseRetryAfterMs(value: string | null | undefined, nowMs = Date.now()): number {
+  const raw = (value || "").trim();
+  if (!raw) return 0;
+  const seconds = Number(raw);
+  if (Number.isFinite(seconds)) return seconds > 0 ? Math.round(seconds * 1000) : 0;
+  const at = Date.parse(raw);
+  return Number.isFinite(at) ? Math.max(0, at - nowMs) : 0;
+}
+
+type AiRetryableError = Error & { retryAfterMs?: number };
+
+function errorRetryAfterMs(error: unknown): number {
+  const value = (error as AiRetryableError | undefined)?.retryAfterMs;
+  return typeof value === "number" && value > 0 ? value : 0;
+}
+
+// Wait the provider's Retry-After when it sends one, else exponential from the base delay.
+// ±20% jitter keeps concurrent workflows from waking up together and re-triggering the cooldown.
+function cooldownDelayMs(retryIndex: number, retryAfterMs: number): number {
+  const baseDelayMs = envPositiveInt("AI_COOLDOWN_RETRY_DELAY_MS", 60_000);
+  const maxDelayMs = envPositiveInt("AI_COOLDOWN_RETRY_MAX_DELAY_MS", 300_000);
+  const planned = retryAfterMs > 0 ? Math.max(retryAfterMs, 1_000) : baseDelayMs * 2 ** retryIndex;
+  const jittered = Math.round(planned * (1 + (Math.random() * 0.4 - 0.2)));
+  return Math.min(Math.max(jittered, 1_000), maxDelayMs);
+}
+
+// Cooldown waiting is budgeted per process, not per call: `--task all` runs tasks sequentially, so
+// an unbudgeted per-task wait would multiply across the run.
+let cooldownWaitedMs = 0;
+
+export function resetCooldownWaitBudget(): void {
+  cooldownWaitedMs = 0;
 }
 
 function envApiStyle(name: string, fallback: AiApiStyle): AiApiStyle {
@@ -189,7 +232,12 @@ export async function callBlogAi({
       body: JSON.stringify(body),
     });
     const raw = await response.text();
-    if (!response.ok) throw new Error(`AI provider HTTP ${response.status}: ${clipText(raw, 1200)}`);
+    if (!response.ok) {
+      const failure: AiRetryableError = new Error(`AI provider HTTP ${response.status}: ${clipText(raw, 1200)}`);
+      const retryAfterMs = parseRetryAfterMs(response.headers.get("retry-after"));
+      if (retryAfterMs > 0) failure.retryAfterMs = retryAfterMs;
+      throw failure;
+    }
     let content: string | undefined;
     if (useResponses) {
       content = parseResponsesSse(raw);
@@ -298,16 +346,35 @@ export async function callBlogAiWithFailover({
   if (!primaryConfigError) {
     // Retry the primary target on transient failures (dropped connections under load, 5xx, 429)
     // before falling back — the provider drops a fraction of concurrent connections.
+    // Two retry budgets: seconds-scale for connection-level blips, minutes-scale for model cooldown.
     const attempts = envPositiveInt("AI_PRIMARY_RETRY_ATTEMPTS", 3);
     const baseDelayMs = envPositiveInt("AI_PRIMARY_RETRY_DELAY_MS", 800);
-    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const cooldownAttempts = envPositiveInt("AI_COOLDOWN_RETRY_ATTEMPTS", 4);
+    const cooldownBudgetMs = envPositiveInt("AI_COOLDOWN_TOTAL_BUDGET_MS", 900_000);
+    let transientRetries = 0;
+    let cooldownRetries = 0;
+    for (;;) {
       try {
         const content = await callBlogAi({ prompt, ...primaryConfig, timeoutMs, maxTokens, jsonMode });
-        return { content, config: primaryConfig, usedFallback: false, primaryError: attempt > 1 ? primaryError : undefined };
+        const retried = transientRetries > 0 || cooldownRetries > 0;
+        return { content, config: primaryConfig, usedFallback: false, primaryError: retried ? primaryError : undefined };
       } catch (error) {
         primaryError = error instanceof Error ? error.message : String(error);
-        if (attempt < attempts && isTransientAiError(primaryError)) {
-          await sleep(baseDelayMs * attempt);
+        if (isCooldownAiError(primaryError) && cooldownRetries < cooldownAttempts - 1) {
+          const delayMs = cooldownDelayMs(cooldownRetries, errorRetryAfterMs(error));
+          if (cooldownWaitedMs + delayMs > cooldownBudgetMs) {
+            writeStderr(`[ai] ${primaryConfig.model} cooldown wait budget exhausted (${Math.round(cooldownWaitedMs / 1000)}s used); giving up`);
+            break;
+          }
+          cooldownRetries += 1;
+          cooldownWaitedMs += delayMs;
+          writeStderr(`[ai] ${primaryConfig.model} cooling down; retry ${cooldownRetries}/${cooldownAttempts - 1} in ${Math.round(delayMs / 1000)}s`);
+          await sleep(delayMs);
+          continue;
+        }
+        if (isTransientAiError(primaryError) && transientRetries < attempts - 1) {
+          transientRetries += 1;
+          await sleep(baseDelayMs * transientRetries);
           continue;
         }
         break;
@@ -315,8 +382,9 @@ export async function callBlogAiWithFailover({
     }
   }
 
-  // Fallback is opt-in: when disabled, an exhausted primary fails the run instead of silently
-  // switching models. Re-enable with AI_FALLBACK_ENABLED=true.
+  // Fallback is opt-in and off by default, so local runs fail loudly instead of silently switching
+  // models. Publish workflows set AI_FALLBACK_ENABLED=true: a cooldown longer than the retry budget
+  // should still produce a post, and the switch is reported (WARN log + ai_fallback_used).
   if (!envBool("AI_FALLBACK_ENABLED", false)) {
     throw new Error(primaryError || primaryConfigError || "primary AI request failed");
   }

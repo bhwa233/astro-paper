@@ -1,6 +1,6 @@
 import { clipText, writeStderr } from "./blog_common.ts";
 
-export const DEFAULT_AI_BASE_URL = "https://www.right.codes/codex/v1";
+export const DEFAULT_AI_BASE_URL = "https://rightapi.ai/codex/v1";
 export const DEFAULT_AI_MODEL = "gpt-5.6-terra";
 export const DEFAULT_FALLBACK_AI_BASE_URL = "https://api.deepseek.com";
 export const DEFAULT_FALLBACK_AI_MODEL = "deepseek-v4-flash";

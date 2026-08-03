@@ -149,7 +149,7 @@ test("AI writer renders prompts and normalizes chat completions URLs", () => {
   assert.equal(promptWithCommon, "common rules\n\ntask=hn-top20\ndate=2099-01-02\nsource=hello");
   assert.equal(chatCompletionsUrl("https://api.example.com/v1"), "https://api.example.com/v1/chat/completions");
   assert.equal(chatCompletionsUrl("https://api.example.com/v1/chat/completions"), "https://api.example.com/v1/chat/completions");
-  assert.equal(DEFAULT_AI_BASE_URL, "https://www.right.codes/codex/v1");
+  assert.equal(DEFAULT_AI_BASE_URL, "https://rightapi.ai/codex/v1");
   assert.equal(DEFAULT_AI_MODEL, "gpt-5.6-terra");
 });
 

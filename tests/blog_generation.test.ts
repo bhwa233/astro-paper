@@ -18,7 +18,7 @@ import {
   selectTopCommented,
 } from "../scripts/hn_top20_source.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
-import { parseRedditItemSummary, redditMarkdownFromItemSummaries } from "../scripts/reddit_top20_compose.ts";
+import { parseRedditItemSummary, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson, parseGitHubTrendingFacts } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
@@ -1717,7 +1717,20 @@ test("Reddit source API contract accepts an intact, current variable-size v2 sou
   );
 });
 
-test("Reddit item summaries compose one integrated summary without emitting comment excerpts", () => {
+test("Reddit item summaries keep Markdown structure and reject thin or heading-laden output", () => {
+  const summaryOne = [
+    "帖子问的是哪些小习惯真正改善了一天的节奏，回答集中在可执行的细节上。",
+    "",
+    "**前一晚先定好第一件事**",
+    "",
+    "- 多数回答提到，睡前写下第二天最先处理的一件事，早上就不必在琐碎判断上消耗注意力。",
+    "- 也有人强调只写一件，写成清单反而会在早晨制造新的挑选负担，失去这个习惯本来的意义。",
+    "",
+    "少数回答持保留态度，提到轮班工作或需要照顾孩子的人很难有稳定的前置时间，把这类做法说成人人可用反而带来挫败感；也有人认为固定顺序本身比具体写在哪里更重要。",
+    "",
+    "另一簇回答把不看手机的十五分钟散步当作下班后的分界线，认为身体先离开工位，注意力才跟着切换；也有人用洗澡、遛狗或换一身衣服充当同样的信号。共同点是这段时间必须没有信息输入，一旦掏出手机，缓冲就立刻失效。",
+  ].join("\n");
+  const summaryTwo = `${"讨论落在散射机制上：水滴逐个透明，但光在大量水滴之间反复折射与反射，各波长被近乎均匀地散射，混合后进入视野就成了白色。".repeat(5)}也有人提醒这只是直观解释，真实的散射需要按水滴尺寸分布计算，不要把比喻当成物理机制本身，云变暗则取决于厚度与光程。`;
   const source = [
     "1. 🔴 今日 Reddit 热门帖子 Top 2",
     "",
@@ -1726,23 +1739,51 @@ test("Reddit item summaries compose one integrated summary without emitting comm
     "- 来源：r/AskReddit",
     "- 帖子链接：https://www.reddit.com/r/AskReddit/comments/one/",
     "- 中文标题：第一个问题",
-    "- 综合摘要：这是只保留贴子核心与高赞观点的完整中文概括。",
+    `- 综合摘要：${JSON.stringify(summaryOne)}`,
     "",
     "2. [r/explainlikeimfive] Original question two",
     "- ⭐ 200 points · 140 评论",
     "- 来源：r/explainlikeimfive",
     "- 帖子链接：https://www.reddit.com/r/explainlikeimfive/comments/two/",
     "- 中文标题：第二个问题",
-    "- 综合摘要：这是另一条不展示原始回复的中文综合摘要。",
+    `- 综合摘要：${JSON.stringify(summaryTwo)}`,
   ].join("\n");
 
   const markdown = redditMarkdownFromItemSummaries(source);
 
-  assert.match(markdown, /- 总结：这是只保留贴子核心/);
-  assert.match(markdown, /- 帖子：https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/one\//);
+  // 摘要是独立正文块，段落、加粗与列表都要活着穿过组装层。
+  assert.match(markdown, /^1\. 🔴 第一个问题$/m);
+  assert.match(markdown, /^- 帖子：https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/one\/$/m);
+  assert.match(markdown, /^\*\*前一晚先定好第一件事\*\*$/m);
+  assert.match(markdown, /^- 多数回答提到，睡前写下第二天/m);
   assert.doesNotMatch(markdown, /Original question/);
+  assert.equal(redditTop20Description([{ rank: 1, title_zh: "第一个问题", summary: summaryOne }]), "帖子问的是哪些小习惯真正改善了一天的节奏，回答集中在可执行的细节上。");
+
   assert.throws(
-    () => parseRedditItemSummary('{"rank":2,"title_zh":"错误排名","summary":"这是一段中文总结。"}', 1),
+    () => parseRedditItemSummary(JSON.stringify({ rank: 2, title_zh: "错误排名", summary: summaryOne }), 1),
     /rank mismatch/,
   );
+  assert.throws(
+    () => parseRedditItemSummary(JSON.stringify({ rank: 1, title_zh: "太短", summary: "这是一段中文总结。" }), 1),
+    /summary is too short/,
+  );
+  assert.throws(
+    () => parseRedditItemSummary(JSON.stringify({ rank: 1, title_zh: "带标题", summary: `## 小标题\n\n${summaryOne}` }), 1),
+    /must not use Markdown headings/,
+  );
+});
+
+test("Reddit archive formatting keeps summary lists out of the fact bullets", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-sources/reddit-top20.md"), "utf8");
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "reddit-archive-"));
+  const result = archivePost({ task: "reddit-top20", date: "2099-01-02", repo, body: redditMarkdownFromItemSummaries(source), force: true });
+  const markdown = fs.readFileSync(path.join(repo, result.path), "utf8");
+
+  assert.match(markdown, /^## 1\. 哪个小习惯让你的每天变得更好？$/m);
+  assert.match(markdown, /^- \*\*热度\*\*：4821 points · 916 评论$/m);
+  assert.match(markdown, /^- \*\*来源\*\*：\[r\/AskReddit\]\(https:\/\/www\.reddit\.com\/r\/AskReddit\/\)$/m);
+  // 摘要里的 "- " 列表项不能被当成事实字段吃掉，编号列表也不能触发新的帖子分块。
+  assert.match(markdown, /^- 也有人强调只写一件/m);
+  assert.match(markdown, /^1\. 云越厚，光在内部被散射的次数越多/m);
+  assert.equal((markdown.match(/^## \d+\. /gm) || []).length, 2);
 });

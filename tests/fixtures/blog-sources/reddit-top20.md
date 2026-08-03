@@ -1,37 +1,17 @@
-1. 🔴 今日 Reddit 热门帖子 Top 40
+1. 🔴 今日 Reddit 热门帖子 Top 2
+
+每帖均由独立模型调用综合正文与按赞数排序的顶层回答；以下结果是最终文章唯一使用的语义证据。
 
 1. [r/AskReddit] What small habit changed your day for the better?
 - ⭐ 4821 points · 916 评论
 - 来源：r/AskReddit
 - 帖子链接：https://www.reddit.com/r/AskReddit/comments/fixture1/
-- 正文：People describe tiny routines that make busy days more manageable.
-- 热门评论：Several people mention preparing tomorrow's first task the night before, while others value a short walk without their phone because it creates a clear boundary between work and rest.
+- 中文标题：哪个小习惯让你的每天变得更好？
+- 综合摘要："帖子问的是哪些几乎不占时间的小习惯真正改善了一天的节奏，回答集中在可执行的细节，而不是泛泛的自律口号。\n\n**前一晚先定好第一件事**\n\n- 多数回答提到，睡前用一两分钟写下第二天最先处理的一件事，早上就不必在琐碎判断上消耗注意力。\n- 有人把它写在便签上压在键盘下，避免一打开手机就被消息带走。\n- 也有人强调只写一件，写成清单反而会在早晨制造新的挑选负担。\n\n**在工作与休息之间留一段缓冲**\n\n有人把不看手机的十五分钟散步当作下班后的分界线，认为身体先离开工位，注意力才跟着切换；也有人用洗澡、遛狗或换衣服充当同样的信号。共同点是这段时间必须没有信息输入，一旦掏出手机，缓冲就失效了。\n\n少数回答持保留态度，提到轮班工作或带孩子的人很难有稳定的前置时间，把这类习惯说成人人可用，反而容易带来挫败感。"
 
 2. [r/explainlikeimfive] Why do clouds look white from the ground?
 - ⭐ 3670 points · 504 评论
 - 来源：r/explainlikeimfive
 - 帖子链接：https://www.reddit.com/r/explainlikeimfive/comments/fixture2/
-- 正文：The question asks why a cloud with water droplets does not look transparent.
-- 热门评论：The explanations compare the droplets to many tiny mirrors that scatter different colors together, while noting that thick storm clouds block more light and therefore appear darker.
-
-===ARCHIVE_PAYLOAD===
-{
-  "items": [
-    {
-      "rank": 1,
-      "subreddit": "AskReddit",
-      "title": "What small habit changed your day for the better?",
-      "score": 4821,
-      "numComments": 916,
-      "permalink": "/r/AskReddit/comments/fixture1/"
-    },
-    {
-      "rank": 2,
-      "subreddit": "explainlikeimfive",
-      "title": "Why do clouds look white from the ground?",
-      "score": 3670,
-      "numComments": 504,
-      "permalink": "/r/explainlikeimfive/comments/fixture2/"
-    }
-  ]
-}
+- 中文标题：为什么从地面看云朵是白色的？
+- 综合摘要："帖子问的是既然云由水滴构成、水本身透明，为什么从地面看云是白色的，讨论落在散射机制而不是云的成分上。\n\n多数回答把云里的水滴比作大量微小的散射点：单个水滴确实透明，但光在成千上万个水滴之间反复折射与反射，各个波长被近乎均匀地散射出来，混合后进入视野就是白色。有人补充说这和天空呈蓝色的机制不同，天空靠的是空气分子对短波长的选择性散射，而云中的水滴远大于可见光波长，对各色光一视同仁。\n\n关于云为什么会变暗，回答集中在厚度上：\n\n1. 云越厚，光在内部被散射的次数越多，能穿到底部的比例越低。\n2. 从下方看到的是被削弱后的余光，所以雨云显得发灰甚至近黑。\n3. 同一片云从飞机上方看仍然明亮刺眼，说明变暗只是观察位置和光程的结果。\n\n也有人提醒，这类比喻只是直观解释，真实的散射需要按水滴尺寸分布计算，不要把「小镜子」当成物理机制本身。"

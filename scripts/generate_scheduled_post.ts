@@ -11,7 +11,7 @@ import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, e
 import { type Task, isTaskInput, scheduledTaskInput, taskPostRelPath, taskTags, taskTitle, tasksForInput } from "./blog_tasks.ts";
 import { buildHnSource } from "./hn_top20_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
-import { parseRedditItemSummaries, parseRedditItemSummary, parseSourceFacts as parseRedditSourceFacts, redditMarkdownFromItemSummaries, redditMarkdownFromModelJson, type RedditModelItem } from "./reddit_top20_compose.ts";
+import { parseRedditItemSummaries, parseRedditItemSummary, parseSourceFacts as parseRedditSourceFacts, redditMarkdownFromItemSummaries, redditTop20Description, type RedditModelItem } from "./reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "./daily_digest_compose.ts";
@@ -37,7 +37,7 @@ import {
   type MagazineConfig,
 } from "./magazine.ts";
 import { appendMagazineIssue, magazineLedgerRelPath, parseMagazineIssueFromSource } from "./magazine_ledger.ts";
-import { parseModelJsonObject } from "./compose_common.ts";
+import { normalizeMarkdownBlock, parseModelJsonObject } from "./compose_common.ts";
 
 export type ResultItem = ReturnType<typeof archivePost> & {
   skip_reason?: string;
@@ -687,7 +687,8 @@ async function buildCombinedRedditSource({
       const summary = byRank.get(rank);
       if (!summary) throw new Error(`Reddit item summary missing rank ${rank}`);
       const factLines = block.split("\n").filter(line => /^\d+\.\s*\[r\//.test(line) || /^- (?:⭐|来源：|帖子链接：)/.test(line));
-      return [...factLines, `- 中文标题：${summary.title_zh}`, `- 综合摘要：${summary.summary}`, ""];
+      // 综合摘要是 Markdown；JSON 编码后其换行与列表才能挤进单行 bullet 载体。
+      return [...factLines, `- 中文标题：${summary.title_zh}`, `- 综合摘要：${JSON.stringify(summary.summary)}`, ""];
     }),
   ].join("\n");
   writeArtifact(artifactsDir, "reddit-top20", "source.dynamic.md", combined);
@@ -706,16 +707,6 @@ function economistSourceBlocks(source: string): string[] {
   return source.split(/(?=^##\s+\d+\.\s+)/gm).map(block => block.trim()).filter(block => /^##\s+\d+\.\s+/.test(block));
 }
 
-// content_summary is Markdown; preserve paragraph/list structure while tidying whitespace.
-function normalizeEconomistContentSummary(raw: unknown): string {
-  return String(raw || "")
-    .replace(/\r\n/g, "\n")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/[ \t]{2,}/g, " ")
-    .trim();
-}
-
 function economistRetryDelayMs(attempt: number): number {
   const base = retryDelayMs(attempt);
   return base > 0 ? base + Math.floor(Math.random() * 1000) : 0;
@@ -727,7 +718,7 @@ export function parseMagazineItemSummary(raw: string, rank: number, label = "\u6
   const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
   const oneSentenceSummary = String(payload.one_sentence_summary || "").replace(/\s+/g, " ").trim();
   const corePoint = String(payload.core_point || "").replace(/\s+/g, " ").trim();
-  const contentSummary = normalizeEconomistContentSummary(payload.content_summary);
+  const contentSummary = normalizeMarkdownBlock(payload.content_summary);
   if (responseRank !== rank) throw new Error(`${label} item summary rank mismatch: ${responseRank} vs ${rank}`);
   if (!titleZh || !/[\u3400-\u9fff]/.test(titleZh)) throw new Error(`${label} item ${rank} needs a Chinese title`);
   if (![oneSentenceSummary, corePoint, contentSummary].every(Boolean)) throw new Error(`${label} item ${rank} summary fields must not be empty`);
@@ -899,7 +890,6 @@ export function validateGeneratedMarkdownForTask(markdown: string, task: Task, d
 // 新增任务只需在此登记一个 composer；其余任务保持模型直接产出 Markdown 的原路径。
 const JSON_COMPOSERS: Partial<Record<Task, (rawJson: string, source: string) => string>> = {
   "hn-top20": hnMarkdownFromModelJson,
-  "reddit-top20": redditMarkdownFromModelJson,
   "github-trending-daily": githubTrendingMarkdownFromModelJson,
   "mdblist-weekly": mdblistMarkdownFromModelJson,
   "nyt-books-weekly": nytBooksMarkdownFromModelJson,
@@ -961,6 +951,13 @@ async function renderLiveAiMarkdownWithSourceValidation(
   throw new Error(`${artifactKey} AI generation failed after ${attempts} attempts: ${lastError}`);
 }
 
+// 播客文章族在生产路径由 buildDailyPodcastEpisodeArticle 统一渲染 daily-podcasts 提示词；
+// 没有专属提示词的播客任务在这里回退到同一份，避免为它单独维护一份不会被生产读到的副本。
+function promptTaskFor(task: Task, promptDir: string): Task {
+  if (!isPodcastArticleTask(task) || fs.existsSync(resolvePromptFile(promptDir, task))) return task;
+  return "daily-podcasts";
+}
+
 async function renderWithAi({
   task,
   date,
@@ -984,7 +981,7 @@ async function renderWithAi({
 }): Promise<{ markdown: string; description?: string; metadata: NonNullable<ResultItem["generation"]> }> {
   const sourceArtifact = writeArtifact(artifactsDir, artifactKey, "source.md", source);
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
-  const prompt = renderPrompt({ task, date, sourceText: source, promptDir: resolvedPromptDir });
+  const prompt = renderPrompt({ task: promptTaskFor(task, resolvedPromptDir), date, sourceText: source, promptDir: resolvedPromptDir });
   const promptArtifact = writeArtifact(artifactsDir, artifactKey, "prompt.md", prompt);
   const mockExt = usesJsonComposer(task) ? "json" : "md";
   const mockFile = mockResponseDir ? path.join(mockResponseDir, `${task}.${mockExt}`) : "";
@@ -1109,10 +1106,10 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   let body = source;
   let description: string | undefined;
   let generation: ResultItem["generation"];
-  if (task === "reddit-top20" && useAi && !mockResponseDir) {
-    const summaries = parseRedditItemSummaries(source);
+  if (task === "reddit-top20" && useAi) {
+    // 逐帖摘要已在上游生成完毕；整篇是它们的确定性聚合，没有整篇模型调用。
     body = redditMarkdownFromItemSummaries(source);
-    description = summaries[0]?.summary.slice(0, 60);
+    description = redditTop20Description(parseRedditItemSummaries(source));
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
     const itemConfig = envAiConfig({ model });
     generation = {
@@ -1120,7 +1117,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
       ai_base_url: itemConfig.baseUrl,
       ai_fallback_used: false,
       source_artifact: sourceArtifact,
-      mocked_ai: false,
+      mocked_ai: Boolean(mockResponseDir),
     };
   } else if (isMagazineTask(task)) {
     // The issue post is a deterministic aggregation of the per-article summaries; no issue-level AI call.

@@ -104,6 +104,17 @@ function normalizeParagraph(text: string): string {
   return sanitizeGeneratedText(text);
 }
 
+// Markdown 正文块：保留段落与列表结构，只压掉多余空白。
+// sanitizeGeneratedText 相反，它会把整块压成单行纯文本，只适合单句字段。
+export function normalizeMarkdownBlock(raw: unknown): string {
+  return String(raw || "")
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
 export function hasChinese(text: string): boolean {
   return /[\u3400-\u9fff]/.test(text);
 }
@@ -160,24 +171,27 @@ function formatRedditTop20(text: string): string {
     .filter(block => /^\d+\.\s*🔴\s+/.test(block));
   if (!blocks.length) throw new Error("Reddit Top 20 source produced no publishable items");
   const formatted = blocks.map(block => {
-    const rank = Number(block.match(/^(\d+)\.\s*🔴/)?.[1] ?? "0");
-    const title = block.match(/^\d+\.\s*🔴\s+(.+)$/m)?.[1]?.trim() ?? `帖子 ${rank}`;
+    const lines = block.split("\n");
+    const rank = Number(lines[0].match(/^(\d+)\.\s*🔴/)?.[1] ?? "0");
+    const title = lines[0].match(/^\d+\.\s*🔴\s+(.+)$/)?.[1]?.trim() ?? `帖子 ${rank}`;
     if (!hasChinese(title)) throw new Error(`Reddit Top 20 item title should use Chinese: ${title}`);
-    const bullets = extractBullets(block);
+    // 事实 bullet 是标题后紧邻的连续 "- " 行；其后整块都是保留段落与列表结构的 Markdown 摘要，
+    // 因此不能用 extractBullets 扫全块——摘要里的 "- " 列表项会被误当成事实字段。
+    let bodyStart = 1;
+    while (bodyStart < lines.length && lines[bodyStart].trim().startsWith("- ")) bodyStart += 1;
+    const bullets = extractBullets(lines.slice(1, bodyStart).join("\n"));
+    const summary = normalizeMarkdownBlock(lines.slice(bodyStart).join("\n"));
+    if (!summary) throw new Error(`Reddit Top 20 item ${rank} has an empty summary`);
     const points = bullets.find(b => b.startsWith("⭐"))?.replace(/^⭐\s*/, "") ?? "";
     const subreddit = bulletValue(bullets, "来源");
     const url = bulletValue(bullets, "帖子");
-    let summary = bulletValue(bullets, "总结");
-    summary = normalizeParagraph(summary);
-    if (!summary) return null;
     const out = [`## ${rank}. ${title}`, ""];
     if (points) out.push(`- **热度**：${points}`);
     if (subreddit) out.push(`- **来源**：[${subreddit}](https://www.reddit.com/${subreddit}/)`);
     if (url) out.push(`- **帖子**：${url}`);
     out.push("", summary, "");
     return out.join("\n").trim();
-  }).filter((b): b is string => b !== null);
-  if (!formatted.length) throw new Error("Reddit Top 20 produced no items after formatting");
+  });
   return `${formatted.join("\n\n")}\n`;
 }
 

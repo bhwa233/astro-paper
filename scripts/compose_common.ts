@@ -1,7 +1,18 @@
 // 各任务 compose 规则层共用的解析工具：source 编号块解析 + 模型 JSON 容错解析。
-import { hasChinese, looksLowSignal } from "./astro_paper_archive.ts";
+import { hasChinese, looksLowSignal, normalizeMarkdownBlock } from "./astro_paper_archive.ts";
 
-export { hasChinese, looksLowSignal };
+export { hasChinese, looksLowSignal, normalizeMarkdownBlock };
+
+// Markdown 正文以 JSON 字符串形式塞进单行 bullet 承载（换行被转义），解析时还原。
+export function decodeMarkdownBlock(value: string): string {
+  if (!value.startsWith("\"")) return value;
+  try {
+    const parsed = JSON.parse(value);
+    return typeof parsed === "string" ? parsed : value;
+  } catch {
+    return value;
+  }
+}
 
 export function extractBullets(block: string): string[] {
   return block

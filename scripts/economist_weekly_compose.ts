@@ -1,4 +1,4 @@
-import { bulletValue, extractBullets, hasChinese, looksLowSignal } from "./compose_common.ts";
+import { bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowSignal } from "./compose_common.ts";
 
 export type EconomistArticleSummary = {
   rank: number;
@@ -15,17 +15,6 @@ function sourceBlocks(source: string): string[] {
     .filter(block => /^##\s+\d+\.\s+/.test(block));
 }
 
-// content_summary is carried JSON-encoded (Markdown with escaped newlines) in the single-line bullet.
-function decodeContentSummary(value: string): string {
-  if (!value.startsWith("\"")) return value;
-  try {
-    const parsed = JSON.parse(value);
-    return typeof parsed === "string" ? parsed : value;
-  } catch {
-    return value;
-  }
-}
-
 export function parseEconomistArticleSummaries(source: string): EconomistArticleSummary[] {
   const ranks = new Set<number>();
   return sourceBlocks(source).map((block, index) => {
@@ -34,7 +23,7 @@ export function parseEconomistArticleSummaries(source: string): EconomistArticle
     const titleZh = bulletValue(bullets, "中文标题");
     const oneSentenceSummary = bulletValue(bullets, "一句话摘要");
     const corePoint = bulletValue(bullets, "核心观点");
-    const contentSummary = decodeContentSummary(bulletValue(bullets, "内容总结"));
+    const contentSummary = decodeMarkdownBlock(bulletValue(bullets, "内容总结"));
     if (!Number.isInteger(rank) || rank < 1 || ranks.has(rank)) throw new Error(`economist weekly article ${index + 1} has invalid or duplicate rank`);
     ranks.add(rank);
     if (!titleZh || !hasChinese(titleZh)) throw new Error(`economist weekly rank ${rank} needs a Chinese title`);

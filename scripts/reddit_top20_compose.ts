@@ -32,6 +32,18 @@ export function parseSourceFacts(source: string): RedditSourceFact[] {
   });
 }
 
+// 整帖都落在排除主题上时模型只返回 {rank, skip:true}，该帖整块不进文章。
+// 返回 null 表示丢弃；其余情况按正常摘要严格校验。
+export function parseRedditItemOutcome(raw: string, expectedRank: number): RedditModelItem | null {
+  const payload = parseModelJsonObject(raw, "Reddit item summary");
+  if (payload.skip === true) {
+    const rank = Number(payload.rank);
+    if (rank !== expectedRank) throw new Error(`Reddit item summary rank mismatch: ${rank} vs ${expectedRank}`);
+    return null;
+  }
+  return parseRedditItemSummary(raw, expectedRank);
+}
+
 export function parseRedditItemSummary(raw: string, expectedRank: number): RedditModelItem {
   const payload = parseModelJsonObject(raw, "Reddit item summary");
   const rank = Number(payload.rank);

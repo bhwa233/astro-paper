@@ -18,7 +18,7 @@ import {
   selectTopCommented,
 } from "../scripts/hn_top20_source.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
-import { parseRedditItemSummary, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
+import { parseRedditItemOutcome, parseRedditItemSummary, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson, parseGitHubTrendingFacts } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
@@ -1771,6 +1771,38 @@ test("Reddit item summaries keep Markdown structure and reject thin or heading-l
     () => parseRedditItemSummary(JSON.stringify({ rank: 1, title_zh: "带标题", summary: `## 小标题\n\n${summaryOne}` }), 1),
     /must not use Markdown headings/,
   );
+});
+
+test("Reddit item outcome drops excluded-topic posts and keeps ranks contiguous", () => {
+  const summary = `${"讨论落在散射机制上：水滴逐个透明，但光在大量水滴之间反复折射与反射，各波长被近乎均匀地散射，混合后进入视野就成了白色。".repeat(5)}也有人提醒这只是直观解释。`;
+
+  assert.equal(parseRedditItemOutcome(JSON.stringify({ rank: 3, skip: true }), 3), null);
+  assert.deepEqual(parseRedditItemOutcome(JSON.stringify({ rank: 3, title_zh: "第三个问题", summary }), 3), {
+    rank: 3,
+    title_zh: "第三个问题",
+    summary,
+  });
+  // skip 也必须对上排名，否则丢错帖子而不会被任何下游校验发现。
+  assert.throws(() => parseRedditItemOutcome(JSON.stringify({ rank: 2, skip: true }), 3), /rank mismatch/);
+
+  // 丢帖后组装层看到的是重新连续编号的 source，缺号会被判为契约损坏。
+  const gapped = [
+    "1. [r/AskReddit] Kept one",
+    "- ⭐ 300 points · 120 评论",
+    "- 来源：r/AskReddit",
+    "- 帖子链接：https://www.reddit.com/r/AskReddit/comments/one/",
+    "- 中文标题：第一个问题",
+    `- 综合摘要：${JSON.stringify(summary)}`,
+    "",
+    "3. [r/AskReddit] Kept three",
+    "- ⭐ 100 points · 90 评论",
+    "- 来源：r/AskReddit",
+    "- 帖子链接：https://www.reddit.com/r/AskReddit/comments/three/",
+    "- 中文标题：第三个问题",
+    `- 综合摘要：${JSON.stringify(summary)}`,
+  ].join("\n");
+  assert.throws(() => redditMarkdownFromItemSummaries(gapped), /item 2 has invalid rank/);
+  assert.doesNotThrow(() => redditMarkdownFromItemSummaries(gapped.replace(/^3\. /m, "2. ")));
 });
 
 test("Reddit archive formatting keeps summary lists out of the fact bullets", () => {

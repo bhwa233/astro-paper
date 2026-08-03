@@ -11,7 +11,7 @@ import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, e
 import { type Task, isTaskInput, scheduledTaskInput, taskPostRelPath, taskTags, taskTitle, tasksForInput } from "./blog_tasks.ts";
 import { buildHnSource } from "./hn_top20_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
-import { parseRedditItemSummaries, parseRedditItemSummary, parseSourceFacts as parseRedditSourceFacts, redditMarkdownFromItemSummaries, redditTop20Description, type RedditModelItem } from "./reddit_top20_compose.ts";
+import { parseRedditItemOutcome, parseRedditItemSummaries, parseSourceFacts as parseRedditSourceFacts, redditMarkdownFromItemSummaries, redditTop20Description, type RedditModelItem } from "./reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "./daily_digest_compose.ts";
@@ -622,7 +622,8 @@ function redditRetryDelayMs(attempt: number): number {
   return base > 0 ? base + Math.floor(Math.random() * 1000) : 0;
 }
 
-async function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditModelItem> {
+// 返回 null 表示模型判定整帖落在排除主题上，该帖不进文章。
+async function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditModelItem | null> {
   const attempts = retryAttempts();
   let lastError = "";
   let attemptPrompt = prompt;
@@ -630,7 +631,7 @@ async function summarizeRedditItem(prompt: string, rank: number, model: string, 
     await sleep(redditRetryDelayMs(attempt));
     try {
       const response = await callAi(attemptPrompt, model, true);
-      const summary = parseRedditItemSummary(response.content, rank);
+      const summary = parseRedditItemOutcome(response.content, rank);
       writeArtifact(artifactsDir, "reddit-top20", `item-${String(rank).padStart(2, "0")}-summary.json`, response.content);
       return summary;
     } catch (error) {
@@ -665,16 +666,24 @@ async function buildCombinedRedditSource({
   writeArtifact(artifactsDir, "reddit-top20", "source.raw.md", source);
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, "reddit-item-summary"), "utf8");
-  const summaries: RedditModelItem[] = [];
+  const kept: { block: string; summary: RedditModelItem }[] = [];
+  const dropped: number[] = [];
   // Process one post at a time to keep the detailed comment evidence in a bounded,
   // independently retryable request rather than sending the entire Reddit batch.
   for (const block of blocks) {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
     if (!Number.isInteger(rank)) throw new Error("Reddit source item is missing rank");
     const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block);
-    summaries.push(await summarizeRedditItem(prompt, rank, model, artifactsDir));
+    const summary = await summarizeRedditItem(prompt, rank, model, artifactsDir);
+    if (summary) kept.push({ block, summary });
+    else dropped.push(rank);
   }
-  const byRank = new Map(summaries.map(summary => [summary.rank, summary]));
+  if (dropped.length) {
+    // 静默截断会让「Top 40」看起来仍然完整，因此把丢弃的原始排名同时写进日志与产物。
+    writeStderr(`WARN: Reddit dropped ${dropped.length}/${blocks.length} posts on excluded topics: ranks ${dropped.join(", ")}`);
+    writeArtifact(artifactsDir, "reddit-top20", "dropped-items.json", JSON.stringify({ dropped, total: blocks.length }, null, 2));
+  }
+  if (!kept.length) throw new Error(`Reddit source has no publishable posts after dropping ${dropped.length} on excluded topics`);
   const firstBlockOffset = source.search(/^\d+\.\s*\[r\//m);
   const header = firstBlockOffset >= 0 ? source.slice(0, firstBlockOffset).trimEnd() : "";
   const combined = [
@@ -682,11 +691,13 @@ async function buildCombinedRedditSource({
     "",
     "每帖均由独立模型调用综合正文与按赞数排序的顶层回答；以下结果是最终文章唯一使用的语义证据。",
     "",
-    ...blocks.flatMap(block => {
-      const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
-      const summary = byRank.get(rank);
-      if (!summary) throw new Error(`Reddit item summary missing rank ${rank}`);
-      const factLines = block.split("\n").filter(line => /^\d+\.\s*\[r\//.test(line) || /^- (?:⭐|来源：|帖子链接：)/.test(line));
+    // 丢帖后排名必须重新连续编号：下游按块序号校验 rank，留空号会直接判为契约损坏。
+    ...kept.flatMap(({ block, summary }, index) => {
+      const rank = index + 1;
+      const factLines = block
+        .split("\n")
+        .filter(line => /^\d+\.\s*\[r\//.test(line) || /^- (?:⭐|来源：|帖子链接：)/.test(line))
+        .map(line => line.replace(/^\d+\.\s*(?=\[r\/)/, `${rank}. `));
       // 综合摘要是 Markdown；JSON 编码后其换行与列表才能挤进单行 bullet 载体。
       return [...factLines, `- 中文标题：${summary.title_zh}`, `- 综合摘要：${JSON.stringify(summary.summary)}`, ""];
     }),

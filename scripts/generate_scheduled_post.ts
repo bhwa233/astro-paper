@@ -378,7 +378,7 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    timeoutMs: 300_000,
+    timeoutMs: null,
     maxChars: 64_000_000,
     throwOnMaxChars: true,
     retries: 2,

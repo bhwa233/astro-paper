@@ -236,6 +236,21 @@ test("fetchText surfaces aborts as source-specific timeout errors", async () => 
   }
 });
 
+test("fetchText supports an explicit no-timeout mode", async () => {
+  const originalFetch = globalThis.fetch;
+  let signal: AbortSignal | null | undefined;
+  globalThis.fetch = (async (_input, init) => {
+    signal = init?.signal;
+    return new Response("ok", { status: 200 });
+  }) as typeof fetch;
+  try {
+    assert.equal(await fetchText("https://example.com/feed.xml", { timeoutMs: null, retries: 0 }), "ok");
+    assert.equal(signal, undefined);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("AI client fails over to deepseek when primary request fails", async () => {
   const originalFetch = globalThis.fetch;
   const previousAttempts = process.env.AI_PRIMARY_RETRY_ATTEMPTS;

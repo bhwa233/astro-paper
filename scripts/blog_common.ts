@@ -90,7 +90,7 @@ export function bjtTimestamp(date = new Date()): string {
 }
 
 export type FetchTextOptions = {
-  timeoutMs?: number;
+  timeoutMs?: number | null;
   headers?: Record<string, string>;
   maxChars?: number;
   throwOnMaxChars?: boolean;
@@ -144,14 +144,14 @@ export async function fetchText(
 ): Promise<string> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const controller = timeoutMs === null ? null : new AbortController();
+    const timer = timeoutMs === null ? undefined : setTimeout(() => controller!.abort(), timeoutMs);
     try {
       const response = await fetch(url, {
         method,
         body,
         redirect: "follow",
-        signal: controller.signal,
+        signal: controller?.signal,
         headers: {
           "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36",
           ...headers,
@@ -165,7 +165,7 @@ export async function fetchText(
       }
       return text;
     } catch (error) {
-      if (error instanceof Error && (error.name === "AbortError" || /operation was aborted/i.test(error.message))) {
+      if (timeoutMs !== null && error instanceof Error && (error.name === "AbortError" || /operation was aborted/i.test(error.message))) {
         error = new Error(`request timed out after ${timeoutMs}ms for ${url}`);
       }
       lastError = error;
@@ -175,7 +175,7 @@ export async function fetchText(
       }
       throw error;
     } finally {
-      clearTimeout(timer);
+      if (timer !== undefined) clearTimeout(timer);
     }
   }
   throw lastError;

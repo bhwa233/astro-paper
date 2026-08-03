@@ -1,4 +1,4 @@
-// Reddit Top 20 规则层：模型只返回语义 JSON（中文标题 + Markdown 综合摘要），
+// Reddit 分类精选规则层：模型只返回语义 JSON（中文标题 + Markdown 综合摘要），
 // 事实字段（热度/来源/帖子链接）一律取自脚本抓取的 source，
 // 由这里确定性地组装成 archive 层可消费的中间契约 Markdown。
 import { ARCHIVE_PAYLOAD_MARKER } from "./astro_paper_archive.ts";
@@ -6,6 +6,34 @@ import { bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowS
 
 // 单帖摘要下限；去掉空白后计长，避免模型退回一两句抽象概括。
 const SUMMARY_MIN_CHARS = 300;
+
+export const REDDIT_CATEGORIES = [
+  {
+    key: "knowledge",
+    title: "知识与解释",
+    fileNameSuffix: "knowledge",
+    subreddits: ["todayilearned", "explainlikeimfive"],
+  },
+  {
+    key: "life",
+    title: "人生与社会",
+    fileNameSuffix: "life",
+    subreddits: ["AskReddit", "TrueOffMyChest", "confessions", "changemyview", "GriefSupport", "tifu", "AmItheAsshole"],
+  },
+  {
+    key: "markets",
+    title: "市场与价值投资",
+    fileNameSuffix: "markets",
+    subreddits: ["personalfinance", "stocks", "ValueInvesting", "investing"],
+  },
+] as const;
+
+export type RedditCategoryKey = (typeof REDDIT_CATEGORIES)[number]["key"];
+
+const CATEGORY_BY_KEY = new Map<RedditCategoryKey, (typeof REDDIT_CATEGORIES)[number]>(REDDIT_CATEGORIES.map(category => [category.key, category]));
+const CATEGORY_BY_SUBREDDIT = new Map<string, RedditCategoryKey>(
+  REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
+);
 
 export type RedditModelItem = {
   rank: number;
@@ -15,18 +43,41 @@ export type RedditModelItem = {
 
 export type RedditSourceFact = {
   rank: number;
+  category: RedditCategoryKey;
   subreddit: string;
   points: string;
+  publishedAt: string;
   url: string;
 };
+
+export type RedditCategoryArticle = {
+  category: RedditCategoryKey;
+  title: string;
+  fileNameSuffix: string;
+  itemCount: number;
+  markdown: string;
+  description: string;
+};
+
+function redditCategory(value: string, subreddit: string): RedditCategoryKey {
+  const inferred = CATEGORY_BY_SUBREDDIT.get(subreddit.toLowerCase());
+  if (inferred && (!value || value === inferred)) return inferred;
+  if (CATEGORY_BY_KEY.has(value as RedditCategoryKey)) {
+    throw new Error(`Reddit source category ${value} does not match r/${subreddit || "(missing)"}`);
+  }
+  throw new Error(`Reddit source has an unsupported category/subreddit mapping: ${value || "(missing)"} / r/${subreddit || "(missing)"}`);
+}
 
 export function parseSourceFacts(source: string): RedditSourceFact[] {
   return sourceBlocks(source).map((block, index) => {
     const bullets = extractBullets(block);
+    const subreddit = block.match(/^\d+\.\s*\[r\/([^\]]+)\]/)?.[1] ?? "";
     return {
       rank: index + 1,
-      subreddit: block.match(/^\d+\.\s*\[r\/([^\]]+)\]/)?.[1] ?? "",
+      category: redditCategory(bulletValue(bullets, "栏目"), subreddit),
+      subreddit,
       points: bullets.find(b => b.startsWith("⭐"))?.replace(/^⭐\s*/, "").trim() ?? "",
+      publishedAt: bulletValue(bullets, "发布时间"),
       url: bulletValue(bullets, "帖子链接"),
     };
   });
@@ -117,4 +168,27 @@ export function redditTop20Description(items: RedditModelItem[]): string {
 
 export function redditMarkdownFromItemSummaries(source: string): string {
   return composeRedditBody(parseRedditItemSummaries(source), parseSourceFacts(source));
+}
+
+export function redditCategoryArticlesFromItemSummaries(source: string): RedditCategoryArticle[] {
+  const facts = parseSourceFacts(source);
+  const modelByRank = new Map(parseRedditItemSummaries(source).map(item => [item.rank, item]));
+  return REDDIT_CATEGORIES.flatMap(category => {
+    const sourceFacts = facts.filter(fact => fact.category === category.key);
+    if (!sourceFacts.length) return [];
+    const articleFacts = sourceFacts.map((fact, index) => ({ ...fact, rank: index + 1 }));
+    const articleItems = sourceFacts.map((fact, index) => {
+      const item = modelByRank.get(fact.rank);
+      if (!item) throw new Error(`Reddit model JSON is missing rank ${fact.rank}`);
+      return { ...item, rank: index + 1 };
+    });
+    return [{
+      category: category.key,
+      title: category.title,
+      fileNameSuffix: category.fileNameSuffix,
+      itemCount: articleItems.length,
+      markdown: composeRedditBody(articleItems, articleFacts),
+      description: redditTop20Description(articleItems),
+    }];
+  });
 }

@@ -18,7 +18,13 @@ import {
   selectTopCommented,
 } from "../scripts/hn_top20_source.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
-import { parseRedditItemOutcome, parseRedditItemSummary, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
+import {
+  parseRedditItemOutcome,
+  parseRedditItemSummary,
+  redditCategoryArticlesFromItemSummaries,
+  redditMarkdownFromItemSummaries,
+  redditTop20Description,
+} from "../scripts/reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson, parseGitHubTrendingFacts } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
@@ -1682,23 +1688,29 @@ test("HN source verifier accepts legitimate double-brace examples from source ar
   assert.equal(verifyResultJson(repo, resultJson), 1);
 });
 
-test("Reddit source API contract accepts an intact, current variable-size v2 source", () => {
+test("Reddit source API contract accepts an intact categorized v4 source", () => {
   const items = Array.from({ length: 2 }, (_, index) => {
     const rank = index + 1;
     return [
       `${rank}. [r/AskReddit] Fixture post ${rank}`,
       `- ⭐ ${100 - index} points · ${rank} 评论`,
       "- 来源：r/AskReddit",
+      "- 栏目：life",
+      "- 发布时间：2099-01-02T07:00:00Z",
       `- 帖子链接：https://www.reddit.com/r/AskReddit/comments/fixture${rank}/`,
+      "- 正文类型：作者正文",
+      "- 正文截断：否",
       "- 正文：Fixture body",
       "- 顶层高赞回答（按赞数排序，共 1 条）：",
       "  1. [100 赞] This is a sufficiently detailed fixture comment for the source contract.",
+      "    - 回复 [20 赞] This direct reply corrects or supports the parent comment.",
+      "- 高赞直接回复：共 1 条，已附在对应顶层评论下。",
       "",
     ].join("\n");
   }).join("\n");
   const source = `${items}\n===ARCHIVE_PAYLOAD===\n${JSON.stringify({ items: [] })}\n`;
   const payload = {
-    contract_version: "reddit-top20-source.v2",
+    contract_version: "reddit-top20-source.v4",
     archive_date: "2099-01-02",
     fetched_at: "2099-01-02T08:00:00Z",
     item_count: 2,
@@ -1714,6 +1726,34 @@ test("Reddit source API contract accepts an intact, current variable-size v2 sou
   assert.throws(
     () => parseRedditSourceApiResponse({ ...payload, archive_date: "2099-01-01" }, "2099-01-02"),
     /does not match requested date/,
+  );
+  assert.throws(
+    () => parseRedditSourceApiResponse({ ...payload, fetched_at: "2099-01-03T08:00:00Z" }, "2099-01-02"),
+    /outside the 24-hour publication window/,
+  );
+  const mismatchedSource = source.replace("- 栏目：life", "- 栏目：markets");
+  assert.throws(
+    () => parseRedditSourceApiResponse({
+      ...payload,
+      source: mismatchedSource,
+      source_sha256: createHash("sha256").update(mismatchedSource, "utf8").digest("hex"),
+    }, "2099-01-02"),
+    /does not match r\/AskReddit/,
+  );
+  const overLimitSource = `${Array.from({ length: 41 }, (_, index) => [
+    `${index + 1}. [r/AskReddit] Fixture post ${index + 1}`,
+    "- 来源：r/AskReddit",
+    "- 栏目：life",
+    "- 发布时间：2099-01-02T07:00:00Z",
+  ].join("\n")).join("\n\n")}\n\n===ARCHIVE_PAYLOAD===\n{"items": []}\n`;
+  assert.throws(
+    () => parseRedditSourceApiResponse({
+      ...payload,
+      item_count: 41,
+      source: overLimitSource,
+      source_sha256: createHash("sha256").update(overLimitSource, "utf8").digest("hex"),
+    }, "2099-01-02"),
+    /exceeds the 40-item limit/,
   );
 });
 
@@ -1818,4 +1858,29 @@ test("Reddit archive formatting keeps summary lists out of the fact bullets", ()
   assert.match(markdown, /^- 也有人强调只写一件/m);
   assert.match(markdown, /^1\. 云越厚，光在内部被散射的次数越多/m);
   assert.equal((markdown.match(/^## \d+\. /gm) || []).length, 2);
+});
+
+test("Reddit categorized articles split one source into independently ranked files", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/blog-sources/reddit-top20.md"), "utf8");
+  const articles = redditCategoryArticlesFromItemSummaries(source);
+
+  assert.deepEqual(articles.map(article => [article.category, article.itemCount]), [["knowledge", 1], ["life", 1]]);
+  assert.match(articles[0].markdown, /^1\. 🔴 为什么从地面看云朵是白色的？$/m);
+  assert.match(articles[1].markdown, /^1\. 🔴 哪个小习惯让你的每天变得更好？$/m);
+  assert.doesNotMatch(articles[0].markdown, /^2\. 🔴/m);
+
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "reddit-categories-"));
+  const results = articles.map(article => archivePost({
+    task: "reddit-top20",
+    date: "2099-01-02",
+    repo,
+    body: article.markdown,
+    force: true,
+    fileNameSuffix: article.fileNameSuffix,
+    titleSuffix: article.title,
+    description: article.description,
+  }));
+  assert.deepEqual(results.map(result => path.basename(result.path)), ["reddit-2099-01-02-knowledge.md", "reddit-2099-01-02-life.md"]);
+  assert.match(fs.readFileSync(path.join(repo, results[0].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜知识与解释"/);
+  assert.match(fs.readFileSync(path.join(repo, results[1].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜人生与社会"/);
 });

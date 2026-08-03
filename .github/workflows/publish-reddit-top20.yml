@@ -1,4 +1,4 @@
-name: Publish Reddit Top 20
+name: Publish Reddit Daily Categories
 
 permissions:
   contents: write
@@ -24,7 +24,7 @@ on:
 
 jobs:
   publish:
-    name: Publish Reddit Top 20
+    name: Publish Reddit Daily Categories
     permissions:
       contents: write
     uses: ./.github/workflows/blog-publish.yml

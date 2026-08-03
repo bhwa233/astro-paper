@@ -87,9 +87,9 @@ export const BLOG_TASKS = {
     fileName: "连线-{date}.md",
   },
   "reddit-top20": {
-    titlePrefix: "Reddit 热门",
+    titlePrefix: "Reddit 每日精选",
     tag: "Reddit热门",
-    description: "每日 Reddit 热门帖子中文整理，筛选评论不少于 100 的帖子，综合正文与顶层高赞回答。",
+    description: "每日 Reddit 分类精选，按知识、人生与市场三类分别整理最近 24 小时内评论不少于 100 的帖子。",
     fileName: "reddit-{date}.md",
   },
 } as const satisfies Record<string, BlogTaskInfo>;

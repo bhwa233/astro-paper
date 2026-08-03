@@ -476,7 +476,7 @@ test("callBlogAi puts an explicit json instruction in Responses input when JSON 
     assert.equal(calls.length, 1);
     assert.equal(calls[0].url, "https://www.right.codes/codex/v1/responses");
     assert.deepEqual(calls[0].body.input, [{ role: "user", content: "Return a valid json object only.\n\nhello" }]);
-    assert.deepEqual(calls[0].body.reasoning, { effort: "high" });
+    assert.deepEqual(calls[0].body.reasoning, { effort: "max" });
     assert.equal(calls[0].body.max_output_tokens, 8192);
     assert.equal("text" in calls[0].body, false);
     assert.equal("messages" in calls[0].body, false);

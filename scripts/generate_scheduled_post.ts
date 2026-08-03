@@ -268,6 +268,8 @@ type RedditSubredditStats = {
   error_code: string | null;
 };
 
+const MAX_REDDIT_SOURCE_ITEMS = REDDIT_CATEGORIES.reduce((total, category) => total + category.subreddits.length * 50, 0);
+
 function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
   if (!Array.isArray(value)) throw new Error("Reddit source API returned invalid subreddit_stats");
   const expected = new Map(
@@ -295,7 +297,7 @@ function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
     const shortlisted = record.shortlisted as number;
     const detailOk = record.detail_ok as number;
     const final = record.final as number;
-    if (listing > 50 || thresholdPass > listing || shortlisted > thresholdPass || shortlisted > 40 || detailOk > shortlisted || final !== detailOk) {
+    if (listing > 50 || thresholdPass > listing || shortlisted > thresholdPass || detailOk > shortlisted || final !== detailOk) {
       throw new Error(`Reddit source API r/${subreddit} has inconsistent funnel counts`);
     }
     const errorCode = record.error_code;
@@ -326,7 +328,7 @@ export function redditSubredditStatsLogLines(value: unknown): string[] {
 }
 
 export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, date: string): string {
-  if (payload.contract_version !== "reddit-top20-source.v4") {
+  if (payload.contract_version !== "reddit-top20-source.v5") {
     throw new Error(`Reddit source API returned an unsupported contract: ${String(payload.contract_version)}`);
   }
   if (payload.archive_date !== date) {
@@ -343,23 +345,18 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
     throw new Error("Reddit source API source_sha256 does not match source content");
   }
   const facts = parseRedditSourceFacts(payload.source);
-  if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > 120) {
-    throw new Error(`Reddit source API expected 1-120 ranked items, received ${String(payload.item_count)}`);
+  if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > MAX_REDDIT_SOURCE_ITEMS) {
+    throw new Error(`Reddit source API expected 1-${MAX_REDDIT_SOURCE_ITEMS} ranked items, received ${String(payload.item_count)}`);
   }
   const stats = parseRedditSubredditStats(payload.subreddit_stats);
-  const categoryCounts = new Map<string, number>();
   const subredditCounts = new Map<string, number>();
   for (const fact of facts) {
-    categoryCounts.set(fact.category, (categoryCounts.get(fact.category) || 0) + 1);
     const subreddit = fact.subreddit.toLowerCase();
     subredditCounts.set(subreddit, (subredditCounts.get(subreddit) || 0) + 1);
     const publishedAt = Date.parse(fact.publishedAt);
     if (!fact.publishedAt || Number.isNaN(publishedAt)) {
       throw new Error(`Reddit source API item ${fact.rank} has an invalid publication timestamp`);
     }
-  }
-  for (const [category, count] of categoryCounts) {
-    if (count > 40) throw new Error(`Reddit source API category ${category} exceeds the 40-item limit: ${count}`);
   }
   for (const stat of stats) {
     if (stat.final !== (subredditCounts.get(stat.subreddit.toLowerCase()) || 0)) {
@@ -382,7 +379,7 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
       "Content-Type": "application/json",
     },
     timeoutMs: 300_000,
-    maxChars: 10_000_000,
+    maxChars: 64_000_000,
     throwOnMaxChars: true,
     retries: 2,
   });
@@ -759,12 +756,12 @@ async function buildCombinedRedditSource({
   artifactsDir: string;
 }): Promise<string> {
   const blocks = redditSourceBlocks(source);
-  if (!blocks.length || blocks.length > 120) throw new Error(`Reddit source has an invalid number of item blocks: ${blocks.length}`);
+  if (!blocks.length || blocks.length > MAX_REDDIT_SOURCE_ITEMS) throw new Error(`Reddit source has an invalid number of item blocks: ${blocks.length}`);
   writeArtifact(artifactsDir, "reddit-top20", "source.raw.md", source);
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, "reddit-item-summary"), "utf8");
   // Each request still receives one bounded post block. Limited concurrency keeps a
-  // three-article day practical without turning the 120 summaries into one huge prompt.
+  // three-article day practical without turning all listing-window summaries into one huge prompt.
   const outcomes = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
     if (!Number.isInteger(rank)) throw new Error("Reddit source item is missing rank");
@@ -785,7 +782,7 @@ async function buildCombinedRedditSource({
   const combined = [
     header,
     "",
-    "每帖均由独立模型调用综合正文与按赞数排序的顶层回答；以下结果是最终文章唯一使用的语义证据。",
+    "每帖均由独立模型调用综合正文与 Reddit top 顺序的顶层回答；以下结果是最终文章唯一使用的语义证据。",
     "",
     // 丢帖后排名必须重新连续编号：下游按块序号校验 rank，留空号会直接判为契约损坏。
     ...kept.flatMap(({ block, summary }, index) => {

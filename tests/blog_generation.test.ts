@@ -1690,7 +1690,7 @@ test("HN source verifier accepts legitimate double-brace examples from source ar
   assert.equal(verifyResultJson(repo, resultJson), 1);
 });
 
-test("Reddit source API contract accepts an intact categorized v4 source", () => {
+test("Reddit source API contract accepts intact v5 sources with uncapped categories", () => {
   const items = Array.from({ length: 2 }, (_, index) => {
     const rank = index + 1;
     return [
@@ -1725,7 +1725,7 @@ test("Reddit source API contract accepts an intact categorized v4 source", () =>
     };
   }));
   const payload = {
-    contract_version: "reddit-top20-source.v4",
+    contract_version: "reddit-top20-source.v5",
     archive_date: "2099-01-02",
     fetched_at: "2099-01-02T08:00:00Z",
     item_count: 2,
@@ -1736,6 +1736,10 @@ test("Reddit source API contract accepts an intact categorized v4 source", () =>
 
   assert.equal(parseRedditSourceApiResponse(payload, "2099-01-02"), source);
   assert.match(redditSubredditStatsLogLines(subredditStats).find(line => line.includes("r/AskReddit")) || "", /listing=2.*final=2/);
+  assert.throws(
+    () => parseRedditSourceApiResponse({ ...payload, contract_version: "reddit-top20-source.v4" }, "2099-01-02"),
+    /unsupported contract/,
+  );
   assert.throws(
     () => parseRedditSourceApiResponse({ ...payload, source_sha256: "0".repeat(64) }, "2099-01-02"),
     /source_sha256 does not match/,
@@ -1770,14 +1774,22 @@ test("Reddit source API contract accepts an intact categorized v4 source", () =>
     "- 栏目：life",
     "- 发布时间：2099-01-02T07:00:00Z",
   ].join("\n")).join("\n\n")}\n\n===ARCHIVE_PAYLOAD===\n{"items": []}\n`;
-  assert.throws(
-    () => parseRedditSourceApiResponse({
+  const uncappedStats = subredditStats.map(stat => stat.subreddit === "AskReddit"
+    ? { ...stat, listing: 41, threshold_pass: 41, shortlisted: 41, detail_ok: 41, final: 41 }
+    : stat);
+  assert.equal(
+    parseRedditSourceApiResponse({
       ...payload,
       item_count: 41,
       source: overLimitSource,
       source_sha256: createHash("sha256").update(overLimitSource, "utf8").digest("hex"),
+      subreddit_stats: uncappedStats,
     }, "2099-01-02"),
-    /exceeds the 40-item limit/,
+    overLimitSource,
+  );
+  assert.throws(
+    () => parseRedditSourceApiResponse({ ...payload, contract_version: "reddit-top20-source.v6" }, "2099-01-02"),
+    /unsupported contract/,
   );
 });
 

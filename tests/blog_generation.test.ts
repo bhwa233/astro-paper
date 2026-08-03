@@ -19,6 +19,7 @@ import {
 } from "../scripts/hn_top20_source.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
 import {
+  REDDIT_CATEGORIES,
   parseRedditItemOutcome,
   parseRedditItemSummary,
   redditCategoryArticlesFromItemSummaries,
@@ -47,6 +48,7 @@ import {
   contentDateForTask,
   parseRedditSourceApiResponse,
   parseMagazineItemSummary,
+  redditSubredditStatsLogLines,
   settleDailyPodcastArticleResults,
 } from "../scripts/generate_scheduled_post.ts";
 
@@ -1709,6 +1711,19 @@ test("Reddit source API contract accepts an intact categorized v4 source", () =>
     ].join("\n");
   }).join("\n");
   const source = `${items}\n===ARCHIVE_PAYLOAD===\n${JSON.stringify({ items: [] })}\n`;
+  const subredditStats = REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => {
+    const final = subreddit === "AskReddit" ? 2 : 0;
+    return {
+      subreddit,
+      category: category.key,
+      listing: final,
+      threshold_pass: final,
+      shortlisted: final,
+      detail_ok: final,
+      final,
+      error_code: null,
+    };
+  }));
   const payload = {
     contract_version: "reddit-top20-source.v4",
     archive_date: "2099-01-02",
@@ -1716,9 +1731,11 @@ test("Reddit source API contract accepts an intact categorized v4 source", () =>
     item_count: 2,
     source_sha256: createHash("sha256").update(source, "utf8").digest("hex"),
     source,
+    subreddit_stats: subredditStats,
   };
 
   assert.equal(parseRedditSourceApiResponse(payload, "2099-01-02"), source);
+  assert.match(redditSubredditStatsLogLines(subredditStats).find(line => line.includes("r/AskReddit")) || "", /listing=2.*final=2/);
   assert.throws(
     () => parseRedditSourceApiResponse({ ...payload, source_sha256: "0".repeat(64) }, "2099-01-02"),
     /source_sha256 does not match/,
@@ -1727,9 +1744,16 @@ test("Reddit source API contract accepts an intact categorized v4 source", () =>
     () => parseRedditSourceApiResponse({ ...payload, archive_date: "2099-01-01" }, "2099-01-02"),
     /does not match requested date/,
   );
+  assert.equal(
+    parseRedditSourceApiResponse({ ...payload, fetched_at: "2099-01-03T08:00:00Z" }, "2099-01-02"),
+    source,
+  );
   assert.throws(
-    () => parseRedditSourceApiResponse({ ...payload, fetched_at: "2099-01-03T08:00:00Z" }, "2099-01-02"),
-    /outside the 24-hour publication window/,
+    () => parseRedditSourceApiResponse({
+      ...payload,
+      subreddit_stats: subredditStats.map(stat => stat.subreddit === "AskReddit" ? { ...stat, final: 1, detail_ok: 1 } : stat),
+    }, "2099-01-02"),
+    /final count does not match source items/,
   );
   const mismatchedSource = source.replace("- 栏目：life", "- 栏目：markets");
   assert.throws(

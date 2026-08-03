@@ -254,7 +254,76 @@ type RedditSourceApiResponse = {
   item_count?: unknown;
   source_sha256?: unknown;
   source?: unknown;
+  subreddit_stats?: unknown;
 };
+
+type RedditSubredditStats = {
+  subreddit: string;
+  category: string;
+  listing: number;
+  threshold_pass: number;
+  shortlisted: number;
+  detail_ok: number;
+  final: number;
+  error_code: string | null;
+};
+
+function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
+  if (!Array.isArray(value)) throw new Error("Reddit source API returned invalid subreddit_stats");
+  const expected = new Map(
+    REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
+  );
+  const seen = new Set<string>();
+  const stats = value.map((raw, index) => {
+    if (!raw || typeof raw !== "object") throw new Error(`Reddit source API subreddit_stats[${index}] is invalid`);
+    const record = raw as Record<string, unknown>;
+    const subreddit = typeof record.subreddit === "string" ? record.subreddit.trim() : "";
+    const key = subreddit.toLowerCase();
+    const category = typeof record.category === "string" ? record.category : "";
+    if (!expected.has(key) || expected.get(key) !== category || seen.has(key)) {
+      throw new Error(`Reddit source API has an invalid subreddit/category statistic: r/${subreddit || "(missing)"} / ${category || "(missing)"}`);
+    }
+    seen.add(key);
+    const counts = ["listing", "threshold_pass", "shortlisted", "detail_ok", "final"] as const;
+    for (const field of counts) {
+      if (typeof record[field] !== "number" || !Number.isInteger(record[field]) || record[field] < 0) {
+        throw new Error(`Reddit source API r/${subreddit} has invalid ${field}: ${String(record[field])}`);
+      }
+    }
+    const listing = record.listing as number;
+    const thresholdPass = record.threshold_pass as number;
+    const shortlisted = record.shortlisted as number;
+    const detailOk = record.detail_ok as number;
+    const final = record.final as number;
+    if (listing > 50 || thresholdPass > listing || shortlisted > thresholdPass || shortlisted > 40 || detailOk > shortlisted || final !== detailOk) {
+      throw new Error(`Reddit source API r/${subreddit} has inconsistent funnel counts`);
+    }
+    const errorCode = record.error_code;
+    if (errorCode !== null && typeof errorCode !== "string") {
+      throw new Error(`Reddit source API r/${subreddit} has invalid error_code`);
+    }
+    return {
+      subreddit,
+      category,
+      listing,
+      threshold_pass: thresholdPass,
+      shortlisted,
+      detail_ok: detailOk,
+      final,
+      error_code: errorCode,
+    };
+  });
+  if (seen.size !== expected.size || [...expected].some(([subreddit]) => !seen.has(subreddit))) {
+    throw new Error(`Reddit source API expected statistics for ${expected.size} fixed subreddits, received ${seen.size}`);
+  }
+  return stats;
+}
+
+export function redditSubredditStatsLogLines(value: unknown): string[] {
+  return parseRedditSubredditStats(value).map(stat =>
+    `[reddit-source] r/${stat.subreddit} category=${stat.category} listing=${stat.listing} threshold_pass=${stat.threshold_pass} shortlisted=${stat.shortlisted} detail_ok=${stat.detail_ok} final=${stat.final}${stat.error_code ? ` error_code=${stat.error_code}` : ""}`,
+  );
+}
 
 export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, date: string): string {
   if (payload.contract_version !== "reddit-top20-source.v4") {
@@ -277,17 +346,25 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
   if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > 120) {
     throw new Error(`Reddit source API expected 1-120 ranked items, received ${String(payload.item_count)}`);
   }
-  const fetchedAt = Date.parse(payload.fetched_at);
+  const stats = parseRedditSubredditStats(payload.subreddit_stats);
   const categoryCounts = new Map<string, number>();
+  const subredditCounts = new Map<string, number>();
   for (const fact of facts) {
     categoryCounts.set(fact.category, (categoryCounts.get(fact.category) || 0) + 1);
+    const subreddit = fact.subreddit.toLowerCase();
+    subredditCounts.set(subreddit, (subredditCounts.get(subreddit) || 0) + 1);
     const publishedAt = Date.parse(fact.publishedAt);
-    if (!fact.publishedAt || Number.isNaN(publishedAt) || publishedAt > fetchedAt || fetchedAt - publishedAt > 24 * 60 * 60 * 1000) {
-      throw new Error(`Reddit source API item ${fact.rank} is outside the 24-hour publication window`);
+    if (!fact.publishedAt || Number.isNaN(publishedAt)) {
+      throw new Error(`Reddit source API item ${fact.rank} has an invalid publication timestamp`);
     }
   }
   for (const [category, count] of categoryCounts) {
     if (count > 40) throw new Error(`Reddit source API category ${category} exceeds the 40-item limit: ${count}`);
+  }
+  for (const stat of stats) {
+    if (stat.final !== (subredditCounts.get(stat.subreddit.toLowerCase()) || 0)) {
+      throw new Error(`Reddit source API r/${stat.subreddit} final count does not match source items`);
+    }
   }
   return payload.source;
 }
@@ -309,7 +386,9 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
     throwOnMaxChars: true,
     retries: 2,
   });
-  return parseRedditSourceApiResponse(payload, date);
+  const source = parseRedditSourceApiResponse(payload, date);
+  redditSubredditStatsLogLines(payload.subreddit_stats).forEach(writeStdout);
+  return source;
 }
 
 // capital-market-daily 不在此表：见 JSON_COMPOSERS 里的 composeFullCapitalMarket。

@@ -12,7 +12,7 @@ export const REDDIT_CATEGORIES = [
     key: "knowledge",
     title: "知识与解释",
     fileNameSuffix: "knowledge",
-    subreddits: ["todayilearned", "explainlikeimfive"],
+    subreddits: ["explainlikeimfive"],
   },
   {
     key: "life",

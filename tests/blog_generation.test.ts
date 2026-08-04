@@ -47,6 +47,7 @@ import {
   type ResultItem,
   contentDateForTask,
   fetchRedditSourceFromApi,
+  generateJsonStageWithRetries,
   parseRedditSourceApiResponse,
   parseMagazineItemSummary,
   partitionRedditItemOutcomes,
@@ -221,6 +222,55 @@ test("AI client surfaces aborts as timeout errors", async () => {
     );
   } finally {
     globalThis.fetch = originalFetch;
+  }
+});
+
+test("JSON generation stages retry malformed output with JSON mode and retain diagnostics", async () => {
+  const originalFetch = globalThis.fetch;
+  const previousValues = Object.fromEntries(
+    ["AI_API_KEY", "AI_BASE_URL", "AI_MODEL", "AI_API_STYLE", "AI_FALLBACK_ENABLED", "AI_RETRY_ATTEMPTS", "AI_RETRY_DELAY_MS"].map(name => [name, process.env[name]]),
+  ) as Record<string, string | undefined>;
+  const artifactsDir = fs.mkdtempSync(path.join(os.tmpdir(), "astro-paper-json-stage-"));
+  const requestBodies: Record<string, unknown>[] = [];
+  let calls = 0;
+  process.env.AI_API_KEY = "test-key";
+  process.env.AI_BASE_URL = "https://api.example.com/v1";
+  process.env.AI_MODEL = "test-model";
+  process.env.AI_API_STYLE = "chat";
+  process.env.AI_FALLBACK_ENABLED = "false";
+  process.env.AI_RETRY_ATTEMPTS = "2";
+  process.env.AI_RETRY_DELAY_MS = "0";
+  globalThis.fetch = (async (_input, init) => {
+    requestBodies.push(JSON.parse(String(init?.body || "{}")) as Record<string, unknown>);
+    calls += 1;
+    const content = calls === 1 ? '{"summary":"unterminated}' : '{"summary":"valid"}';
+    return new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const result = await generateJsonStageWithRetries({
+      task: "tech-daily",
+      stage: "tech-daily item 7 summary",
+      artifactPrefix: "item-007-summary",
+      prompt: "Return one JSON object.",
+      model: "test-model",
+      artifactsDir,
+      parse: content => JSON.parse(content) as { summary: string },
+    });
+    assert.deepEqual(result, { summary: "valid" });
+    assert.equal(calls, 2);
+    assert.deepEqual(requestBodies.map(body => body.response_format), [{ type: "json_object" }, { type: "json_object" }]);
+    assert.match(String((requestBodies[1].messages as { content: string }[])[1].content), /无法通过 JSON 解析/);
+    assert.equal(fs.readFileSync(path.join(artifactsDir, "tech-daily-item-007-summary-response-attempt-1.json"), "utf8").trim(), '{"summary":"unterminated}');
+    assert.equal(fs.readFileSync(path.join(artifactsDir, "tech-daily-item-007-summary-response-attempt-2.json"), "utf8").trim(), '{"summary":"valid"}');
+    assert.match(fs.readFileSync(path.join(artifactsDir, "tech-daily-item-007-summary-error-attempt-1.txt"), "utf8"), /Unterminated string/);
+    assert.match(fs.readFileSync(path.join(artifactsDir, "tech-daily-item-007-summary-retry-prompt-attempt-2.md"), "utf8"), /完整、合法且字段齐全/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    fs.rmSync(artifactsDir, { recursive: true, force: true });
+    for (const [name, value] of Object.entries(previousValues)) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
   }
 });
 

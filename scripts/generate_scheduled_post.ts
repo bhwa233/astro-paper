@@ -546,6 +546,49 @@ function parseJsonObject(text: string): unknown {
   throw new Error("AI selector response did not contain a JSON object");
 }
 
+type JsonStageOptions<T> = {
+  task: string;
+  stage: string;
+  artifactPrefix: string;
+  prompt: string;
+  model: string;
+  artifactsDir: string;
+  parse: (content: string) => T;
+};
+
+// Intermediate AI stages are as vulnerable to truncated JSON as final article generation.
+// Keep every response and retry prompt so the CI artifact identifies the exact failed stage.
+export async function generateJsonStageWithRetries<T>({
+  task,
+  stage,
+  artifactPrefix,
+  prompt,
+  model,
+  artifactsDir,
+  parse,
+}: JsonStageOptions<T>): Promise<T> {
+  const attempts = retryAttempts();
+  let lastError = "";
+  let attemptPrompt = prompt;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    await sleep(retryDelayMs(attempt));
+    if (attempt > 1) writeArtifact(artifactsDir, task, `${artifactPrefix}-retry-prompt-attempt-${attempt}.md`, attemptPrompt);
+    try {
+      const response = await callAi(attemptPrompt, model, true);
+      writeArtifact(artifactsDir, task, `${artifactPrefix}-response-attempt-${attempt}.json`, response.content);
+      return parse(response.content);
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+      writeArtifact(artifactsDir, task, `${artifactPrefix}-error-attempt-${attempt}.txt`, lastError);
+      if (attempt < attempts) {
+        attemptPrompt = `${prompt.trim()}\n\n---\n\n上一轮 ${stage} 输出无法通过 JSON 解析或质量校验，原因：${lastError}\n请重新返回完整、合法且字段齐全的 JSON 对象，不要输出解释或代码围栏。`;
+        writeStderr(`WARN: ${stage} attempt ${attempt}/${attempts} failed; retrying with JSON validation feedback: ${lastError}`);
+      }
+    }
+  }
+  throw new Error(`${stage} failed after ${attempts} attempts: ${lastError}`);
+}
+
 function splitNumberedSource(source: string): { header: string; blocks: Map<number, string> } {
   const match = source.match(/^([\s\S]*?)(?=^##\s+\d+\.\s+)/m);
   const header = match ? match[1].trimEnd() : "";
@@ -660,9 +703,15 @@ async function summarizeDailyItem({
   const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, "daily-digest-item-summary"), "utf8");
   const prompt = template.replaceAll("{date}", date).replaceAll("{item_id}", String(meta.id)).replaceAll("{item_text}", meta.block.trim());
   writeArtifact(artifactsDir, "tech-daily", `item-${String(meta.id).padStart(3, "0")}-prompt.md`, prompt);
-  const response = await callAi(prompt, model);
-  writeArtifact(artifactsDir, "tech-daily", `item-${String(meta.id).padStart(3, "0")}-summary.json`, response.content);
-  return parseDailyItemSummaryResponse(response.content, meta);
+  return generateJsonStageWithRetries({
+    task: "tech-daily",
+    stage: `tech-daily item ${meta.id} summary`,
+    artifactPrefix: `item-${String(meta.id).padStart(3, "0")}-summary`,
+    prompt,
+    model,
+    artifactsDir,
+    parse: content => parseDailyItemSummaryResponse(content, meta),
+  });
 }
 
 function formatDailyItemCards(summaries: DailyItemSummary[]): string {
@@ -770,9 +819,15 @@ async function buildCombinedTechDailySource({
   const plannerTemplate = fs.readFileSync(resolvePromptFile(resolvedPromptDir, "daily-digest-section-planner"), "utf8");
   const plannerPrompt = plannerTemplate.replaceAll("{date}", date).replaceAll("{item_summaries}", summaryCards);
   writeArtifact(artifactsDir, "tech-daily", "section-planner-prompt.md", plannerPrompt);
-  const plannerResponse = await callAi(plannerPrompt, model);
-  writeArtifact(artifactsDir, "tech-daily", "section-planner-response.json", plannerResponse.content);
-  const sections = parseDailySectionPlan(plannerResponse.content, summaries);
+  const sections = await generateJsonStageWithRetries({
+    task: "tech-daily",
+    stage: "tech-daily section planner",
+    artifactPrefix: "section-planner",
+    prompt: plannerPrompt,
+    model,
+    artifactsDir,
+    parse: content => parseDailySectionPlan(content, summaries),
+  });
   writeArtifact(artifactsDir, "tech-daily", "section-plan.json", JSON.stringify({ sections }, null, 2));
   const combined = formatCombinedTechDailySource(date, summaries, sections, header.match(/^抓取失败源：.+$/m)?.[0] || "");
   writeArtifact(artifactsDir, "tech-daily", "source.dynamic.md", combined);

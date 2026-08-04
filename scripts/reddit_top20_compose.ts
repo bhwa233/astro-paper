@@ -12,13 +12,13 @@ export const REDDIT_CATEGORIES = [
     key: "knowledge",
     title: "知识与解释",
     fileNameSuffix: "knowledge",
-    subreddits: ["Damnthatsinteresting", "askscience", "explainlikeimfive", "todayilearned"],
+    subreddits: ["Damnthatsinteresting", "askscience", "explainlikeimfive", "todayilearned", "IAmA", "AMA"],
   },
   {
     key: "life",
     title: "人生与社会",
     fileNameSuffix: "life",
-    subreddits: ["AskReddit", "TrueOffMyChest", "confessions", "changemyview", "GriefSupport", "tifu", "AmItheAsshole", "IAmA", "AMA"],
+    subreddits: ["AskReddit", "TrueOffMyChest", "confessions", "changemyview", "GriefSupport", "tifu", "AmItheAsshole"],
   },
   {
     key: "markets",

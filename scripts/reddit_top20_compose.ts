@@ -24,7 +24,7 @@ export const REDDIT_CATEGORIES = [
     key: "markets",
     title: "市场与价值投资",
     fileNameSuffix: "markets",
-    subreddits: ["personalfinance", "stocks", "ValueInvesting", "investing"],
+    subreddits: ["stocks", "ValueInvesting", "investing"],
   },
 ] as const;
 

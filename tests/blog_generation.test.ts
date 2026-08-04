@@ -1707,7 +1707,7 @@ test("HN source verifier accepts legitimate double-brace examples from source ar
   assert.equal(verifyResultJson(repo, resultJson), 1);
 });
 
-test("Reddit source API contract accepts intact v5 sources with uncapped categories", () => {
+test("Reddit source API contract accepts intact v6 score-filtered sources with uncapped categories", () => {
   const items = Array.from({ length: 2 }, (_, index) => {
     const rank = index + 1;
     return [
@@ -1734,7 +1734,8 @@ test("Reddit source API contract accepts intact v5 sources with uncapped categor
       subreddit,
       category: category.key,
       listing: final,
-      threshold_pass: final,
+      score_pass: final,
+      min_score: 100,
       shortlisted: final,
       detail_ok: final,
       final,
@@ -1742,7 +1743,7 @@ test("Reddit source API contract accepts intact v5 sources with uncapped categor
     };
   }));
   const payload = {
-    contract_version: "reddit-top20-source.v5",
+    contract_version: "reddit-top20-source.v6",
     archive_date: "2099-01-02",
     fetched_at: "2099-01-02T08:00:00Z",
     item_count: 2,
@@ -1792,7 +1793,7 @@ test("Reddit source API contract accepts intact v5 sources with uncapped categor
     "- 发布时间：2099-01-02T07:00:00Z",
   ].join("\n")).join("\n\n")}\n\n===ARCHIVE_PAYLOAD===\n{"items": []}\n`;
   const uncappedStats = subredditStats.map(stat => stat.subreddit === "AskReddit"
-    ? { ...stat, listing: 41, threshold_pass: 41, shortlisted: 41, detail_ok: 41, final: 41 }
+    ? { ...stat, listing: 41, score_pass: 41, shortlisted: 41, detail_ok: 41, final: 41 }
     : stat);
   assert.equal(
     parseRedditSourceApiResponse({
@@ -1805,12 +1806,12 @@ test("Reddit source API contract accepts intact v5 sources with uncapped categor
     overLimitSource,
   );
   assert.throws(
-    () => parseRedditSourceApiResponse({ ...payload, contract_version: "reddit-top20-source.v6" }, "2099-01-02"),
+    () => parseRedditSourceApiResponse({ ...payload, contract_version: "reddit-top20-source.v7" }, "2099-01-02"),
     /unsupported contract/,
   );
 });
 
-test("Reddit source fetch submits one job then polls until its v5 result is ready", async () => {
+test("Reddit source fetch submits its editorial configuration then polls until its v6 result is ready", async () => {
   const source = [
     "1. [r/AskReddit] Fixture post",
     "- 来源：r/AskReddit",
@@ -1822,7 +1823,7 @@ test("Reddit source fetch submits one job then polls until its v5 result is read
     "",
   ].join("\n");
   const payload = {
-    contract_version: "reddit-top20-source.v5",
+    contract_version: "reddit-top20-source.v6",
     archive_date: "2099-01-02",
     fetched_at: "2099-01-02T08:00:00Z",
     item_count: 1,
@@ -1832,7 +1833,8 @@ test("Reddit source fetch submits one job then polls until its v5 result is read
       subreddit,
       category: category.key,
       listing: subreddit === "AskReddit" ? 1 : 0,
-      threshold_pass: subreddit === "AskReddit" ? 1 : 0,
+      score_pass: subreddit === "AskReddit" ? 1 : 0,
+      min_score: 100,
       shortlisted: subreddit === "AskReddit" ? 1 : 0,
       detail_ok: subreddit === "AskReddit" ? 1 : 0,
       final: subreddit === "AskReddit" ? 1 : 0,
@@ -1843,14 +1845,14 @@ test("Reddit source fetch submits one job then polls until its v5 result is read
   const previousUrl = process.env.REDDIT_SOURCE_API_URL;
   const previousToken = process.env.REDDIT_SOURCE_API_TOKEN;
   const previousPollInterval = process.env.REDDIT_SOURCE_POLL_INTERVAL_MS;
-  const requests: Array<{ url: string; method: string }> = [];
+  const requests: Array<{ url: string; method: string; body?: string }> = [];
   process.env.REDDIT_SOURCE_API_URL = "https://source.example/";
   process.env.REDDIT_SOURCE_API_TOKEN = "test-token";
   process.env.REDDIT_SOURCE_POLL_INTERVAL_MS = "1";
   globalThis.fetch = (async (input, init) => {
     const url = String(input);
     const method = init?.method || "GET";
-    requests.push({ url, method });
+    requests.push({ url, method, body: typeof init?.body === "string" ? init.body : undefined });
     const job = {
       id: "reddit_test",
       archive_date: "2099-01-02",
@@ -1863,8 +1865,16 @@ test("Reddit source fetch submits one job then polls until its v5 result is read
   try {
     assert.equal(await fetchRedditSourceFromApi("2099-01-02"), source);
     assert.deepEqual(requests, [
-      { url: "https://source.example/v2/reddit/top20-source/jobs", method: "POST" },
-      { url: "https://source.example/v2/reddit/top20-source/jobs/reddit_test", method: "GET" },
+      {
+        url: "https://source.example/v2/reddit/top20-source/jobs",
+        method: "POST",
+        body: JSON.stringify({
+          archive_date: "2099-01-02",
+          min_score: 100,
+          categories: REDDIT_CATEGORIES.map(category => ({ key: category.key, subreddits: [...category.subreddits] })),
+        }),
+      },
+      { url: "https://source.example/v2/reddit/top20-source/jobs/reddit_test", method: "GET", body: undefined },
     ]);
   } finally {
     globalThis.fetch = originalFetch;

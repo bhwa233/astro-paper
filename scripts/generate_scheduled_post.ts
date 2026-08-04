@@ -271,7 +271,8 @@ type RedditSubredditStats = {
   subreddit: string;
   category: string;
   listing: number;
-  threshold_pass: number;
+  score_pass: number;
+  min_score: number;
   shortlisted: number;
   detail_ok: number;
   final: number;
@@ -279,6 +280,7 @@ type RedditSubredditStats = {
 };
 
 const MAX_REDDIT_SOURCE_ITEMS = REDDIT_CATEGORIES.reduce((total, category) => total + category.subreddits.length * 50, 0);
+const REDDIT_MIN_POST_SCORE = 100;
 
 function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
   if (!Array.isArray(value)) throw new Error("Reddit source API returned invalid subreddit_stats");
@@ -296,18 +298,22 @@ function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
       throw new Error(`Reddit source API has an invalid subreddit/category statistic: r/${subreddit || "(missing)"} / ${category || "(missing)"}`);
     }
     seen.add(key);
-    const counts = ["listing", "threshold_pass", "shortlisted", "detail_ok", "final"] as const;
+    const counts = ["listing", "score_pass", "shortlisted", "detail_ok", "final"] as const;
     for (const field of counts) {
       if (typeof record[field] !== "number" || !Number.isInteger(record[field]) || record[field] < 0) {
         throw new Error(`Reddit source API r/${subreddit} has invalid ${field}: ${String(record[field])}`);
       }
     }
     const listing = record.listing as number;
-    const thresholdPass = record.threshold_pass as number;
+    const scorePass = record.score_pass as number;
+    const minScore = record.min_score;
+    if (typeof minScore !== "number" || !Number.isInteger(minScore) || minScore !== REDDIT_MIN_POST_SCORE) {
+      throw new Error(`Reddit source API r/${subreddit} has invalid min_score: ${String(minScore)}`);
+    }
     const shortlisted = record.shortlisted as number;
     const detailOk = record.detail_ok as number;
     const final = record.final as number;
-    if (listing > 50 || thresholdPass > listing || shortlisted > thresholdPass || detailOk > shortlisted || final !== detailOk) {
+    if (listing > 50 || scorePass > listing || shortlisted > scorePass || detailOk > shortlisted || final !== detailOk) {
       throw new Error(`Reddit source API r/${subreddit} has inconsistent funnel counts`);
     }
     const errorCode = record.error_code;
@@ -318,7 +324,8 @@ function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
       subreddit,
       category,
       listing,
-      threshold_pass: thresholdPass,
+      score_pass: scorePass,
+      min_score: minScore,
       shortlisted,
       detail_ok: detailOk,
       final,
@@ -333,12 +340,12 @@ function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
 
 export function redditSubredditStatsLogLines(value: unknown): string[] {
   return parseRedditSubredditStats(value).map(stat =>
-    `[reddit-source] r/${stat.subreddit} category=${stat.category} listing=${stat.listing} threshold_pass=${stat.threshold_pass} shortlisted=${stat.shortlisted} detail_ok=${stat.detail_ok} final=${stat.final}${stat.error_code ? ` error_code=${stat.error_code}` : ""}`,
+    `[reddit-source] r/${stat.subreddit} category=${stat.category} listing=${stat.listing} min_score=${stat.min_score} score_pass=${stat.score_pass} shortlisted=${stat.shortlisted} detail_ok=${stat.detail_ok} final=${stat.final}${stat.error_code ? ` error_code=${stat.error_code}` : ""}`,
   );
 }
 
 export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, date: string): string {
-  if (payload.contract_version !== "reddit-top20-source.v5") {
+  if (payload.contract_version !== "reddit-top20-source.v6") {
     throw new Error(`Reddit source API returned an unsupported contract: ${String(payload.contract_version)}`);
   }
   if (payload.archive_date !== date) {
@@ -424,7 +431,14 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
   };
   let payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v2/reddit/top20-source/jobs`, {
     method: "POST",
-    body: JSON.stringify({ archive_date: date }),
+    body: JSON.stringify({
+      archive_date: date,
+      min_score: REDDIT_MIN_POST_SCORE,
+      categories: REDDIT_CATEGORIES.map(category => ({
+        key: category.key,
+        subreddits: [...category.subreddits],
+      })),
+    }),
     ...request,
   });
   let previousState = "";

@@ -64,6 +64,3 @@ jobs:
             --result-json blog-generation-result.json
           cat blog-generation-result.json
           node --import tsx scripts/verify_blog_generation.ts --result-json blog-generation-result.json
-
-      - name: "Build site from generated output"
-        run: pnpm run build

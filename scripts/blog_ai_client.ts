@@ -106,10 +106,6 @@ function cooldownDelayMs(retryIndex: number, retryAfterMs: number): number {
 // an unbudgeted per-task wait would multiply across the run.
 let cooldownWaitedMs = 0;
 
-export function resetCooldownWaitBudget(): void {
-  cooldownWaitedMs = 0;
-}
-
 function envApiStyle(name: string, fallback: AiApiStyle): AiApiStyle {
   const value = (process.env[name] || "").trim().toLowerCase();
   return value === "responses" || value === "chat" ? value : fallback;

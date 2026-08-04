@@ -1,5 +1,10 @@
 overrides:
-  vite: 7.3.5
+  # @playform/compress declares `astro: "*"` as a regular dependency rather than a
+  # peer, so it pulls a second, older Astro into the tree. Without this override the
+  # 6.x copy stays installed and its advisories remain open.
+  astro: ^7.1.6
+  # Astro 7 depends on vite ^8.0.13; the previous 7.3.5 pin blocked the upgrade.
+  vite: ^8.2.0
   esbuild: 0.28.1
   # js-yaml <4.3.0: quadratic CPU via YAML merge-key chains (GHSA-52cp-r559-cp3m).
   # Astro's internal-helpers still resolve 4.2.0, so force the floor here.

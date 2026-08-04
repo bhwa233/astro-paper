@@ -5,7 +5,7 @@ import test from "node:test";
 
 import { archivePost } from "../scripts/astro_paper_archive.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
-import { githubTrendingMarkdownFromModelJson, parseGitHubTrendingFacts, parseGitHubTrendingModelJson } from "../scripts/github_trending_compose.ts";
+import { parseGitHubTrendingFacts, parseGitHubTrendingModelJson } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "../scripts/daily_digest_compose.ts";
 import { economistWeeklyMarkdown, parseEconomistArticleSummaries } from "../scripts/economist_weekly_compose.ts";

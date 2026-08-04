@@ -20,13 +20,14 @@
   },
   "dependencies": {
     "@appnest/masonry-layout": "2.2.3",
-    "@astrojs/mdx": "^6.0.3",
+    "@astrojs/markdown-satteri": "^0.3.5",
+    "@astrojs/mdx": "^7.0.5",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@mozilla/readability": "^0.6.0",
     "@tailwindcss/vite": "^4.3.3",
     "adm-zip": "^0.6.0",
-    "astro": "^6.4.8",
+    "astro": "^7.1.6",
     "dayjs": "^1.11.21",
     "fast-xml-parser": "^5.10.1",
     "jsdom": "^29.1.1",
@@ -61,6 +62,6 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tsx": "^4.23.5",
     "typescript": "^6.0.3",
-    "vite": "7.3.5"
+    "vite": "^8.2.0"
   }
 }

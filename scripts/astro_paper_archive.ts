@@ -195,22 +195,6 @@ function formatRedditTop20(text: string): string {
   return `${formatted.join("\n\n")}\n`;
 }
 
-function formatCapitalMarketDaily(body: string): { markdown: string; ogImage: string } {
-  const normalized = normalizeMarkdown(body);
-  const requiredHeadings = ["## 市场速览", "## 今日总览", "## 美股", "## A股", "## 港股", "## 比特币"];
-  for (const heading of requiredHeadings) {
-    if (!normalized.includes(heading)) throw new Error(`capital-market-daily missing required section: ${heading}`);
-  }
-  const headings = normalized.match(/^##\s+.+$/gm) || [];
-  const positions = requiredHeadings.map(required => headings.findIndex(heading => heading.startsWith(required)));
-  if (positions.some((position, index) => position !== index)) throw new Error("capital-market-daily sections are not in the required order");
-  for (const title of ["今日总览", "美股", "A股", "港股", "比特币"]) {
-    const matches = normalized.match(new RegExp(`^#{2,6}\\s+${title}\\s*$`, "gm")) || [];
-    if (matches.length !== 1) throw new Error(`capital-market-daily must contain exactly one ${title} heading`);
-  }
-  return { markdown: `${normalized.trim()}\n`, ogImage: "" };
-}
-
 function normalizedPodcastBlocks(markdown: string): string[] {
   return markdown
     .split(/\n{2,}/)
@@ -438,7 +422,6 @@ export function archivePost({
     task === "mdblist-weekly" ? { markdown: formatMdblistWeekly(body), ogImage: "" } :
     task === "nyt-books-weekly" ? formatNytBooksWeekly(body) :
     isMagazineTask(task) ? formatMagazineWeekly(body) :
-    task === "capital-market-daily" ? formatCapitalMarketDaily(body) :
     (() => { throw new Error(`no archive formatter for task: ${task}`); })();
   const description = formatted.description ?? providedDescription ?? info.description;
   fs.mkdirSync(path.dirname(absPath), { recursive: true });

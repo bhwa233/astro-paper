@@ -1,9 +1,4 @@
 overrides:
-  # @playform/compress declares `astro: "*"` as a regular dependency rather than a
-  # peer, so it pulls a second, older Astro into the tree. Without this override the
-  # 6.x copy stays installed and its advisories remain open.
-  astro: ^7.1.6
-  # Astro 7 depends on vite ^8.0.13; the previous 7.3.5 pin blocked the upgrade.
   vite: ^8.2.0
   esbuild: 0.28.1
   # js-yaml <4.3.0: quadratic CPU via YAML merge-key chains (GHSA-52cp-r559-cp3m).
@@ -18,12 +13,6 @@ overrides:
   "@typescript-eslint/types": 8.65.0
   "@typescript-eslint/scope-manager": 8.65.0
   "@typescript-eslint/visitor-keys": 8.65.0
-  # @playform/compress pins svgo 4.0.1, which leaves some executable scripts
-  # intact after removeScripts (GHSA-2p49-hgcm-8545).
-  svgo: ^4.0.2
-  # sharp <0.35.0 inherits libvips CVE-2026-33327 et al (GHSA-f88m-g3jw-g9cj).
-  # astro and @playform/compress still resolve 0.34.5 for their image services.
-  sharp: ^0.35.0
 
 allowBuilds:
   esbuild: true

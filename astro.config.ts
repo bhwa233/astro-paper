@@ -7,7 +7,6 @@ import {
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import compress from "@playform/compress";
 import { unified } from "@astrojs/markdown-remark";
 import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
@@ -18,6 +17,7 @@ import {
   transformerNotationHighlight,
   transformerNotationWordHighlight,
 } from "@shikijs/transformers";
+import compressHtml from "./src/integrations/compressHtml";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
 import { getSitemapLastmodForUrl } from "./src/utils/sitemapLastmod";
 import { transformerFileName } from "./src/utils/transformers/fileName";
@@ -61,9 +61,9 @@ export default defineConfig({
         lastmod: getSitemapLastmodForUrl(item.url),
       }),
     }),
-    // Runs last: minifies built HTML/CSS/JS/SVG in dist. Images are left to
-    // astro:assets + sharp (OG PNGs are already optimized).
-    compress({ Image: false }),
+    // Runs last: minifies built HTML in dist. CSS and JS are already minified by
+    // Vite, and images are left to astro:assets + sharp.
+    compressHtml(),
   ],
   i18n: {
     locales: [...LOCALES],

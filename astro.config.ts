@@ -7,17 +7,14 @@ import {
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import { unified } from "@astrojs/markdown-remark";
-import remarkToc from "remark-toc";
-import remarkCollapse from "remark-collapse";
-import rehypeCallouts from "rehype-callouts";
-import rehypeExternalLinks from "rehype-external-links";
+import { satteri } from "@astrojs/markdown-satteri";
 import {
   transformerNotationDiff,
   transformerNotationHighlight,
   transformerNotationWordHighlight,
 } from "@shikijs/transformers";
 import compressHtml from "./src/integrations/compressHtml";
+import externalLinks from "./src/plugins/externalLinks";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
 import { getSitemapLastmodForUrl } from "./src/utils/sitemapLastmod";
 import { transformerFileName } from "./src/utils/transformers/fileName";
@@ -73,21 +70,14 @@ export default defineConfig({
     },
   },
   markdown: {
-    processor: unified({
-      remarkPlugins: [
-        remarkToc,
-        [remarkCollapse, { test: "Table of contents" }],
-      ],
-      rehypePlugins: [
-        rehypeCallouts,
-        [
-          rehypeExternalLinks,
-          {
-            target: "_blank",
-            rel: ["noopener", "noreferrer"],
-          },
-        ],
-      ],
+    processor: satteri({
+      hastPlugins: [externalLinks()],
+      features: {
+        // Astro has already extracted frontmatter before Markdown rendering.
+        frontmatter: false,
+        // Preserve CLI flags and URLs containing consecutive hyphens.
+        smartPunctuation: { dashes: false },
+      },
     }),
     shikiConfig: {
       themes: { light: "min-light", dark: "night-owl" },

@@ -1,9 +1,17 @@
 overrides:
   vite: 7.3.5
   esbuild: 0.28.1
-  js-yaml: 4.2.0
+  # js-yaml <4.3.0: quadratic CPU via YAML merge-key chains (GHSA-52cp-r559-cp3m).
+  # Astro's internal-helpers still resolve 4.2.0, so force the floor here.
+  js-yaml: ^4.3.0
   yaml: ^2.8.3
-  brace-expansion: ^5.0.6
+  brace-expansion: ^5.0.7
+  # @playform/compress pins svgo 4.0.1, which leaves some executable scripts
+  # intact after removeScripts (GHSA-2p49-hgcm-8545).
+  svgo: ^4.0.2
+  # sharp <0.35.0 inherits libvips CVE-2026-33327 et al (GHSA-f88m-g3jw-g9cj).
+  # astro and @playform/compress still resolve 0.34.5 for their image services.
+  sharp: ^0.35.0
 
 allowBuilds:
   esbuild: true

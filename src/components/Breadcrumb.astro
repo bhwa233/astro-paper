@@ -57,6 +57,11 @@ if (breadcrumbList[0] === "tags" && !isNaN(Number(breadcrumbList[2]))) {
 }
 ---
 
+<!--
+  The `{" "}` before each &raquo; is load-bearing. Breadcrumb segments are inline
+  elements separated only by markup whitespace, and Astro's default
+  `compressHTML: 'jsx'` strips that whitespace, rendering "Home»Posts".
+-->
 <nav class="app-layout mt-8 mb-1" aria-label="breadcrumb">
   <ul
     class="text-muted-foreground [&>li:not(:last-child)>a]:hover:text-foreground text-sm [&>li]:inline"
@@ -64,7 +69,7 @@ if (breadcrumbList[0] === "tags" && !isNaN(Number(breadcrumbList[2]))) {
     <li>
       <a href={getRelativeLocaleUrl(locale, "")} class="text-muted-foreground">
         {t.nav.home}
-      </a>
+      </a>{" "}
       <span aria-hidden="true" class="text-muted-foreground">&raquo;</span>
     </li>
     {
@@ -89,7 +94,7 @@ if (breadcrumbList[0] === "tags" && !isNaN(Number(breadcrumbList[2]))) {
               class="text-muted-foreground capitalize"
             >
               {navLabels[breadcrumb] ?? decodeSegment(breadcrumb)}
-            </a>
+            </a>{" "}
             <span aria-hidden="true" class="text-muted-foreground">
               &raquo;
             </span>

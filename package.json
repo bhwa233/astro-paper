@@ -1,5 +1,6 @@
 {
   "name": "astro-paper-v6",
+  "license": "PolyForm-Noncommercial-1.0.0 AND MIT",
   "type": "module",
   "version": "6.1.0",
   "engines": {

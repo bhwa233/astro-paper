@@ -49,6 +49,7 @@ import {
   fetchRedditSourceFromApi,
   parseRedditSourceApiResponse,
   parseMagazineItemSummary,
+  partitionRedditItemOutcomes,
   redditSubredditStatsLogLines,
   settleDailyPodcastArticleResults,
 } from "../scripts/generate_scheduled_post.ts";
@@ -1962,6 +1963,19 @@ test("Reddit item outcome drops excluded-topic posts and keeps ranks contiguous"
   ].join("\n");
   assert.throws(() => redditMarkdownFromItemSummaries(gapped), /item 2 has invalid rank/);
   assert.doesNotThrow(() => redditMarkdownFromItemSummaries(gapped.replace(/^3\. /m, "2. ")));
+});
+
+test("Reddit keeps valid summaries when another post exhausts its retries", () => {
+  const summary = `${"讨论落在散射机制上：水滴逐个透明，但光在大量水滴之间反复折射与反射，各波长被近乎均匀地散射，混合后进入视野就成了白色。".repeat(5)}也有人提醒这只是直观解释。`;
+  const outcomes = partitionRedditItemOutcomes([
+    { block: "1. [r/explainlikeimfive] Kept", rank: 1, summary: { rank: 1, title_zh: "保留的帖子", summary } },
+    { block: "2. [r/explainlikeimfive] Failed", rank: 2, summary: null, error: "Reddit item 2 has empty or low-signal summary" },
+    { block: "3. [r/explainlikeimfive] Excluded", rank: 3, summary: null },
+  ]);
+
+  assert.deepEqual(outcomes.kept.map(item => item.rank), [1]);
+  assert.deepEqual(outcomes.excluded, [3]);
+  assert.deepEqual(outcomes.failed, [{ rank: 2, error: "Reddit item 2 has empty or low-signal summary" }]);
 });
 
 test("Reddit archive formatting keeps summary lists out of the fact bullets", () => {

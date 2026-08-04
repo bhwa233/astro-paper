@@ -779,8 +779,31 @@ function redditRetryDelayMs(attempt: number): number {
   return base > 0 ? base + Math.floor(Math.random() * 1000) : 0;
 }
 
-// 返回 null 表示模型判定整帖落在排除主题上，该帖不进文章。
-async function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditModelItem | null> {
+type RedditItemSummaryOutcome = {
+  summary: RedditModelItem | null;
+  error?: string;
+};
+
+export type RedditItemProcessingOutcome = RedditItemSummaryOutcome & {
+  block: string;
+  rank: number;
+};
+
+export function partitionRedditItemOutcomes(outcomes: RedditItemProcessingOutcome[]): {
+  kept: Array<RedditItemProcessingOutcome & { summary: RedditModelItem }>;
+  excluded: number[];
+  failed: Array<{ rank: number; error: string }>;
+} {
+  const kept = outcomes.filter((outcome): outcome is RedditItemProcessingOutcome & { summary: RedditModelItem } => outcome.summary !== null);
+  const excluded = outcomes.filter(outcome => outcome.summary === null && !outcome.error).map(outcome => outcome.rank);
+  const failed = outcomes
+    .filter((outcome): outcome is RedditItemProcessingOutcome & { summary: null; error: string } => outcome.summary === null && Boolean(outcome.error))
+    .map(outcome => ({ rank: outcome.rank, error: outcome.error }));
+  return { kept, excluded, failed };
+}
+
+// summary 为 null 表示模型判定整帖落在排除主题上；error 则表示重试后仍无法产出可用摘要。
+async function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditItemSummaryOutcome> {
   const attempts = retryAttempts();
   let lastError = "";
   let attemptPrompt = prompt;
@@ -790,7 +813,7 @@ async function summarizeRedditItem(prompt: string, rank: number, model: string, 
       const response = await callAi(attemptPrompt, model, true);
       const summary = parseRedditItemOutcome(response.content, rank);
       writeArtifact(artifactsDir, "reddit-top20", `item-${String(rank).padStart(2, "0")}-summary.json`, response.content);
-      return summary;
+      return { summary };
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error);
       writeArtifact(artifactsDir, "reddit-top20", `item-${String(rank).padStart(2, "0")}-error-attempt-${attempt}.txt`, lastError);
@@ -800,7 +823,7 @@ async function summarizeRedditItem(prompt: string, rank: number, model: string, 
       }
     }
   }
-  throw new Error(`Reddit item ${rank} failed after ${attempts} attempts: ${lastError}`);
+  return { summary: null, error: `Reddit item ${rank} failed after ${attempts} attempts: ${lastError}` };
 }
 
 async function buildCombinedRedditSource({
@@ -829,17 +852,17 @@ async function buildCombinedRedditSource({
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
     if (!Number.isInteger(rank)) throw new Error("Reddit source item is missing rank");
     const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block);
-    const summary = await summarizeRedditItem(prompt, rank, model, artifactsDir);
-    return { block, rank, summary };
+    const outcome = await summarizeRedditItem(prompt, rank, model, artifactsDir);
+    return { block, rank, ...outcome };
   });
-  const kept = outcomes.filter((outcome): outcome is { block: string; rank: number; summary: RedditModelItem } => outcome.summary !== null);
-  const dropped = outcomes.filter(outcome => outcome.summary === null).map(outcome => outcome.rank);
-  if (dropped.length) {
+  const { kept, excluded, failed } = partitionRedditItemOutcomes(outcomes);
+  if (excluded.length || failed.length) {
     // 静默截断会让栏目数量看起来仍然完整，因此把丢弃的原始排名同时写进日志与产物。
-    writeStderr(`WARN: Reddit dropped ${dropped.length}/${blocks.length} posts on excluded topics: ranks ${dropped.join(", ")}`);
-    writeArtifact(artifactsDir, "reddit-top20", "dropped-items.json", JSON.stringify({ dropped, total: blocks.length }, null, 2));
+    if (excluded.length) writeStderr(`WARN: Reddit excluded ${excluded.length}/${blocks.length} posts by topic: ranks ${excluded.join(", ")}`);
+    if (failed.length) writeStderr(`WARN: Reddit skipped ${failed.length}/${blocks.length} posts after summary retries: ranks ${failed.map(item => item.rank).join(", ")}`);
+    writeArtifact(artifactsDir, "reddit-top20", "dropped-items.json", JSON.stringify({ excluded, failed, total: blocks.length }, null, 2));
   }
-  if (!kept.length) throw new Error(`Reddit source has no publishable posts after dropping ${dropped.length} on excluded topics`);
+  if (!kept.length) throw new Error(`Reddit source has no publishable posts after excluding ${excluded.length} posts and skipping ${failed.length} failed summaries`);
   const firstBlockOffset = source.search(/^\d+\.\s*\[r\//m);
   const header = firstBlockOffset >= 0 ? source.slice(0, firstBlockOffset).trimEnd() : "";
   const combined = [

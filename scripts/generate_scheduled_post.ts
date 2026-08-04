@@ -257,6 +257,16 @@ type RedditSourceApiResponse = {
   subreddit_stats?: unknown;
 };
 
+type RedditSourceJobApiResponse = {
+  id?: unknown;
+  archive_date?: unknown;
+  state?: unknown;
+  result?: unknown;
+  error_code?: unknown;
+  error_message?: unknown;
+  retryable?: unknown;
+};
+
 type RedditSubredditStats = {
   subreddit: string;
   category: string;
@@ -366,26 +376,79 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
   return payload.source;
 }
 
+function parseRedditSourceJobResponse(payload: RedditSourceJobApiResponse, date: string): {
+  id: string;
+  state: "queued" | "running" | "ready" | "failed";
+  result: RedditSourceApiResponse | null;
+  error: string;
+} {
+  if (typeof payload.id !== "string" || !payload.id.trim()) {
+    throw new Error("Reddit source job response is missing id");
+  }
+  if (payload.archive_date !== date) {
+    throw new Error(`Reddit source job date ${String(payload.archive_date)} does not match requested date ${date}`);
+  }
+  if (payload.state !== "queued" && payload.state !== "running" && payload.state !== "ready" && payload.state !== "failed") {
+    throw new Error(`Reddit source job returned an unsupported state: ${String(payload.state)}`);
+  }
+  const result = payload.result && typeof payload.result === "object" && !Array.isArray(payload.result)
+    ? payload.result as RedditSourceApiResponse
+    : null;
+  const code = typeof payload.error_code === "string" && payload.error_code.trim() ? payload.error_code.trim() : "REDDIT_SOURCE_JOB_FAILED";
+  const message = typeof payload.error_message === "string" && payload.error_message.trim() ? payload.error_message.trim() : "Reddit source job failed without details";
+  return { id: payload.id, state: payload.state, result, error: `${code}: ${message}` };
+}
+
+function redditSourcePollIntervalMs(): number {
+  return envPositiveInt("REDDIT_SOURCE_POLL_INTERVAL_MS", 5_000);
+}
+
+function redditSourceRequestTimeoutMs(): number {
+  return envPositiveInt("REDDIT_SOURCE_REQUEST_TIMEOUT_MS", 30_000);
+}
+
 export async function fetchRedditSourceFromApi(date: string): Promise<string> {
   const baseUrl = process.env.REDDIT_SOURCE_API_URL?.trim().replace(/\/+$/, "");
   const token = process.env.REDDIT_SOURCE_API_TOKEN?.trim();
   if (!baseUrl) throw new Error("REDDIT_SOURCE_API_URL is required for reddit-top20 generation");
   if (!token) throw new Error("REDDIT_SOURCE_API_TOKEN is required for reddit-top20 generation");
-  const payload = await fetchJson<RedditSourceApiResponse>(`${baseUrl}/v2/reddit/top20-source`, {
-    method: "POST",
-    body: JSON.stringify({ archive_date: date }),
+  const request = {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    timeoutMs: null,
+    timeoutMs: redditSourceRequestTimeoutMs(),
     maxChars: 64_000_000,
     throwOnMaxChars: true,
     retries: 2,
+  };
+  let payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v2/reddit/top20-source/jobs`, {
+    method: "POST",
+    body: JSON.stringify({ archive_date: date }),
+    ...request,
   });
-  const source = parseRedditSourceApiResponse(payload, date);
-  redditSubredditStatsLogLines(payload.subreddit_stats).forEach(writeStdout);
-  return source;
+  let previousState = "";
+
+  for (;;) {
+    const job = parseRedditSourceJobResponse(payload, date);
+    if (job.state !== previousState) {
+      writeStdout(`[reddit-source] job=${job.id} state=${job.state}\n`);
+      previousState = job.state;
+    }
+    if (job.state === "failed") throw new Error(`Reddit source job ${job.id} failed: ${job.error}`);
+    if (job.state === "ready") {
+      if (!job.result) throw new Error(`Reddit source job ${job.id} completed without a source result`);
+      const source = parseRedditSourceApiResponse(job.result, date);
+      redditSubredditStatsLogLines(job.result.subreddit_stats).forEach(line => writeStdout(`${line}\n`));
+      return source;
+    }
+
+    await sleep(redditSourcePollIntervalMs());
+    payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v2/reddit/top20-source/jobs/${encodeURIComponent(job.id)}`, {
+      method: "GET",
+      ...request,
+    });
+  }
 }
 
 // capital-market-daily 不在此表：见 JSON_COMPOSERS 里的 composeFullCapitalMarket。

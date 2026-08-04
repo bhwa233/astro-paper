@@ -46,6 +46,7 @@ import { verifyResultJson } from "../scripts/verify_blog_generation.ts";
 import {
   type ResultItem,
   contentDateForTask,
+  fetchRedditSourceFromApi,
   parseRedditSourceApiResponse,
   parseMagazineItemSummary,
   redditSubredditStatsLogLines,
@@ -1806,6 +1807,73 @@ test("Reddit source API contract accepts intact v5 sources with uncapped categor
     () => parseRedditSourceApiResponse({ ...payload, contract_version: "reddit-top20-source.v6" }, "2099-01-02"),
     /unsupported contract/,
   );
+});
+
+test("Reddit source fetch submits one job then polls until its v5 result is ready", async () => {
+  const source = [
+    "1. [r/AskReddit] Fixture post",
+    "- 来源：r/AskReddit",
+    "- 栏目：life",
+    "- 发布时间：2099-01-02T07:00:00Z",
+    "",
+    "===ARCHIVE_PAYLOAD===",
+    '{"items": []}',
+    "",
+  ].join("\n");
+  const payload = {
+    contract_version: "reddit-top20-source.v5",
+    archive_date: "2099-01-02",
+    fetched_at: "2099-01-02T08:00:00Z",
+    item_count: 1,
+    source_sha256: createHash("sha256").update(source, "utf8").digest("hex"),
+    source,
+    subreddit_stats: REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => ({
+      subreddit,
+      category: category.key,
+      listing: subreddit === "AskReddit" ? 1 : 0,
+      threshold_pass: subreddit === "AskReddit" ? 1 : 0,
+      shortlisted: subreddit === "AskReddit" ? 1 : 0,
+      detail_ok: subreddit === "AskReddit" ? 1 : 0,
+      final: subreddit === "AskReddit" ? 1 : 0,
+      error_code: null,
+    }))),
+  };
+  const originalFetch = globalThis.fetch;
+  const previousUrl = process.env.REDDIT_SOURCE_API_URL;
+  const previousToken = process.env.REDDIT_SOURCE_API_TOKEN;
+  const previousPollInterval = process.env.REDDIT_SOURCE_POLL_INTERVAL_MS;
+  const requests: Array<{ url: string; method: string }> = [];
+  process.env.REDDIT_SOURCE_API_URL = "https://source.example/";
+  process.env.REDDIT_SOURCE_API_TOKEN = "test-token";
+  process.env.REDDIT_SOURCE_POLL_INTERVAL_MS = "1";
+  globalThis.fetch = (async (input, init) => {
+    const url = String(input);
+    const method = init?.method || "GET";
+    requests.push({ url, method });
+    const job = {
+      id: "reddit_test",
+      archive_date: "2099-01-02",
+      state: url.endsWith("/jobs") ? "running" : "ready",
+      result: url.endsWith("/jobs") ? null : payload,
+    };
+    return new Response(JSON.stringify(job), { status: url.endsWith("/jobs") ? 202 : 200 });
+  }) as typeof fetch;
+
+  try {
+    assert.equal(await fetchRedditSourceFromApi("2099-01-02"), source);
+    assert.deepEqual(requests, [
+      { url: "https://source.example/v2/reddit/top20-source/jobs", method: "POST" },
+      { url: "https://source.example/v2/reddit/top20-source/jobs/reddit_test", method: "GET" },
+    ]);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousUrl === undefined) delete process.env.REDDIT_SOURCE_API_URL;
+    else process.env.REDDIT_SOURCE_API_URL = previousUrl;
+    if (previousToken === undefined) delete process.env.REDDIT_SOURCE_API_TOKEN;
+    else process.env.REDDIT_SOURCE_API_TOKEN = previousToken;
+    if (previousPollInterval === undefined) delete process.env.REDDIT_SOURCE_POLL_INTERVAL_MS;
+    else process.env.REDDIT_SOURCE_POLL_INTERVAL_MS = previousPollInterval;
+  }
 });
 
 test("Reddit item summaries keep Markdown structure and reject thin or heading-laden output", () => {

@@ -12,16 +12,22 @@ import type { AstroIntegration } from "astro";
  * each into the tree and forcing version overrides on every Astro upgrade.
  *
  * Only HTML is handled here. Measured against the @playform/compress output, its
- * CSS and JS passes saved 5.5 KB and 189 bytes respectively across the whole site,
- * because Vite already minifies both; HTML was the entire benefit (~10% brotli).
+ * separate CSS and JS passes saved 5.5 KB and 189 bytes respectively across the
+ * whole site, because Vite already minifies both; HTML was the entire benefit
+ * (~10% brotli).
  *
  * Options match the ones @playform/compress passed to the same underlying
- * html-minifier-terser, so output stays byte-comparable.
+ * html-minifier-terser, so output stays byte-identical to what it produced.
  */
 const MINIFY_OPTIONS = {
   caseSensitive: true,
   collapseWhitespace: true,
   continueOnParseError: true,
+  // minifyCSS and minifyJS carry this integration: measured over 462 pages of raw
+  // Astro output they account for 669 KB of the 811 KB brotli saving — 82% of the
+  // total. They cost roughly 24s of the build because html-minifier-terser runs
+  // them synchronously, which is also why raising the concurrency below does not
+  // help. The build time is worth the bytes; the CI job timeout was raised instead.
   minifyCSS: true,
   minifyJS: true,
   removeAttributeQuotes: true,

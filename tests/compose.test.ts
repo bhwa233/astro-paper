@@ -10,8 +10,6 @@ import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "../scripts/daily_digest_compose.ts";
 import { economistWeeklyMarkdown, parseEconomistArticleSummaries } from "../scripts/economist_weekly_compose.ts";
 import { magazineConfig, parseMagazineEpub } from "../scripts/magazine.ts";
-import { composeFullCapitalMarket } from "../scripts/market_compose.ts";
-import { CAPITAL_MARKET_SOURCE_SEP } from "../scripts/market_daily_source.ts";
 import { parseRedditItemOutcome, parseRedditItemSummary, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
 import { parseMagazineItemSummary, partitionRedditItemOutcomes } from "../scripts/generate_scheduled_post.ts";
 import { composeFixtureBody } from "./helpers/compose-fixture.ts";
@@ -245,64 +243,6 @@ test("daily digest compose rejects external, ambiguous, and duplicate source lin
   );
   // The same source cannot back two items.
   assert.throws(compose([good, { ...good, title_zh: "另一个标题" }]), /reuses source link/);
-});
-
-// -------------------------------------------------------------- Capital market
-
-function capitalMarketSourceFixture(): string {
-  const table = `## 市场速览（2099-01-06）
-
-| 分类 | 品种 | 最新 | 当日 | 今年以来 |
-| :-- | :-- | --: | --: | --: |
-| 美股 | 标普500 | 7000.00 | +1.30% | +8.00% |`;
-  const evidence = {
-    schema_version: 1,
-    date: "2099-01-06",
-    market_overview: { rows: [{ name: "标普500", latest: 7000, daily_change: "+1.30%" }] },
-    markets: {
-      us: { status: "open", direction: "up", strongest_index: "纳指", weakest_index: "道指" },
-      ashare: { status: "open", direction: "down", strongest_index: "上证指数", weakest_index: "创业板指数" },
-      hk: { status: "open", direction: "mixed", strongest_index: "恒生科技指数", weakest_index: "国企指数" },
-      crypto: { status: "open", direction: "up", spot: { change_24h_pct: 1.41 } },
-    },
-  };
-  return `${table}${CAPITAL_MARKET_SOURCE_SEP}## 结构化市场证据\n\n\`\`\`json\n${JSON.stringify(evidence, null, 2)}\n\`\`\``;
-}
-
-const VALID_MARKET_SECTIONS = {
-  description: "全球市场表现不一，成长风格相对活跃。",
-  overview: "2099年1月6日，美股走强，A股回落，港股分化，比特币反弹。",
-  us: "美股主要指数同涨，风险偏好有所改善。行业表现仍有差异，不能据此推断真实资金流。",
-  ashare: "A股主要指数同跌，宽基整体承压。指数表现不能代表所有成分股。",
-  hk: "港股主要指数涨跌分化，市场缺少一致方向。",
-  crypto: "比特币现货反弹，但衍生品结构仍显示谨慎情绪。",
-};
-
-test("composeFullCapitalMarket puts the deterministic table first and uses complete AI sections", () => {
-  const markdown = composeFullCapitalMarket(JSON.stringify(VALID_MARKET_SECTIONS), capitalMarketSourceFixture());
-  assert.ok(markdown.indexOf("## 市场速览") < markdown.indexOf("## 今日总览"));
-  assert.equal((markdown.match(/^## A股$/gm) || []).length, 1);
-  assert.doesNotMatch(markdown, /^### A股$/m);
-  assert.doesNotThrow(() => archivePost({ task: "capital-market-daily", date: "2099-01-06", repo: tempDir("capital-market"), body: markdown, force: true }));
-});
-
-// The AI prose must never contradict the deterministic evidence table sitting directly above it.
-test("composeFullCapitalMarket validates AI prose against the structured evidence", () => {
-  for (const [name, sections, expected] of [
-    ["missing section", { ...VALID_MARKET_SECTIONS, crypto: undefined }, /crypto is empty/],
-    // Evidence says every US index rose; "分化" is a direct contradiction.
-    ["direction contradiction", { ...VALID_MARKET_SECTIONS, us: "美股三大指数走势分化，科技方向相对活跃。" }, /us prose contradicts source direction up/],
-    // Evidence names 纳指 strongest and 道指 weakest.
-    ["inverted strongest/weakest", { ...VALID_MARKET_SECTIONS, us: "美股主要指数整体上涨，道指相对更强。" }, /us prose describes the weakest index as strongest/],
-  ] as const) {
-    assert.throws(() => composeFullCapitalMarket(JSON.stringify(sections), capitalMarketSourceFixture()), expected, name);
-  }
-
-  // A number that appears only in prose (not in the evidence table) is allowed — the model may
-  // legitimately cite a figure the table does not carry.
-  assert.doesNotThrow(() =>
-    composeFullCapitalMarket(JSON.stringify({ ...VALID_MARKET_SECTIONS, us: "美股主要指数同涨，其中一个指数上涨 9.99%。" }), capitalMarketSourceFixture()),
-  );
 });
 
 // --------------------------------------------------------------------- Reddit

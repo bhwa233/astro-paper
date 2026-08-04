@@ -14,12 +14,6 @@ export const BLOG_TASKS = {
     description: "每日 Hacker News 热门文章 Top 20 中文整理，按当天归档并覆盖更新。",
     fileName: "hackernews-{date}.md",
   },
-  "capital-market-daily": {
-    titlePrefix: "资本市场日报",
-    tag: "资本市场日报",
-    description: "每日资本市场日报，一篇汇总美股、A股/港股与比特币三段行情，按交易日增量拼合。",
-    fileName: "资本市场日报-{date}.md",
-  },
   "github-trending-daily": {
     titlePrefix: "GitHub 项目日报",
     tag: "GitHub项目日报",
@@ -104,9 +98,6 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "30 1 * * *": { task: "daily-podcasts" },
   "0 6 * * *": { task: "hn-top20", dateTimeZone: "America/Los_Angeles" },
   "0 2 * * 1": { task: "xyzrank-top-episodes", dateTimeZone: "Asia/Shanghai" },
-  // 资本市场日报：UTC 22:00 美股收盘后，一次性拉取全部市场数据、一次 AI 调用生成完整日报。
-  // dateOffset: -1 是因为 UTC 22:00 在上海已是次日 06:00，-1 天才能得到当天交易日的日期。
-  "0 22 * * 1-5": { task: "capital-market-daily", dateTimeZone: "Asia/Shanghai", dateOffset: -1 },
   "0 23 * * *": { task: "github-trending-daily", dateTimeZone: "America/Los_Angeles" },
   "0 2 * * 5": { task: "mdblist-weekly", dateTimeZone: "Asia/Shanghai" },
   "0 2 * * 0": { task: "nyt-books-weekly", dateTimeZone: "Asia/Shanghai" },

@@ -11,7 +11,6 @@ import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
 import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
 import { buildXyzRankTopEpisodesSource } from "../scripts/xyzrank_top_episodes_source.ts";
 import { dedupeItems, eventFamilyKey } from "../scripts/daily_digest_source.ts";
-import { articleConflictsWithIndexSnapshot } from "../scripts/market_daily_source.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
 import { buildMdblistWeeklySource, latestStartedSeasonNumber, selectUnrecommendedMdblistCandidates } from "../scripts/mdblist_weekly_source.ts";
 import { REDDIT_CATEGORIES } from "../scripts/reddit_top20_compose.ts";
@@ -152,14 +151,6 @@ test("daily digest source dedupes post-quantum executive order coverage", () => 
   assert.equal(eventFamilyKey(ars), "post-quantum-executive-order");
   assert.equal(eventFamilyKey(cloudflare), "post-quantum-executive-order");
   assert.equal(dedupeItems([ars, cloudflare]).length, 1);
-});
-
-test("Yahoo Finance article evidence is rejected when index moves conflict with closing data", () => {
-  const snapshot = { dji: 0.35, nasdaq: -0.43, spx: -0.1 };
-  const conflicting = "The S&P 500 Index today is down -1.26%, the Dow Jones Industrial Average is down -0.30%, and the Nasdaq 100 Index is down -2.69%.";
-  const compatible = "The S&P 500 Index closed down -0.10%, the Dow Jones Industrial Average gained +0.35%, and the Nasdaq 100 Index slipped -0.43%.";
-  assert.equal(articleConflictsWithIndexSnapshot(conflicting, snapshot), true);
-  assert.equal(articleConflictsWithIndexSnapshot(compatible, snapshot), false);
 });
 
 // ------------------------------------------------------------------- Podcasts

@@ -23,8 +23,6 @@ import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "./daily_digest_compose.ts";
 import { type Episode, PodcastSourceInsufficientEpisodesError, buildDailyPodcastEpisodeArticle, buildDailyPodcastSource, fetchAppleTopPodcastEpisodeList, fetchDailyPodcastEpisodes, geminiArticleBaseUrl, geminiArticleModel } from "./foreign_tech_podcast_source.ts";
 import { appendSummarizedEpisode } from "./podcast_ledger.ts";
-import { MarketSourceUnavailableError, buildAllCapitalMarketSource } from "./market_daily_source.ts";
-import { composeFullCapitalMarket } from "./market_compose.ts";
 import { buildDailyDigestSource } from "./daily_digest_source.ts";
 import { buildGitHubTrendingDailySource } from "./github_trending_daily_source.ts";
 import { buildXyzRankTopEpisodesSource, fetchXyzRankTopEpisodes } from "./xyzrank_top_episodes_source.ts";
@@ -217,7 +215,6 @@ function isPodcastArticleTask(task: Task): boolean {
 }
 
 function shouldSkipSourceUnavailable(error: unknown, task: Task): boolean {
-  if (error instanceof MarketSourceUnavailableError && error.task === task) return true;
   if (error instanceof NytBooksNoNewReleasesError) return task === "nyt-books-weekly";
   if (error instanceof MagazineIssueUnavailableError || error instanceof MagazineIssueAlreadyArchivedError) return isMagazineTask(task);
   if (!(error instanceof PodcastSourceInsufficientEpisodesError)) return false;
@@ -465,7 +462,6 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
   }
 }
 
-// capital-market-daily 不在此表：见 JSON_COMPOSERS 里的 composeFullCapitalMarket。
 const SOURCE_BUILDERS: Partial<Record<Task, (date: string) => Promise<string>>> = {
   "hn-top20": () => buildHnSource(),
   "reddit-top20": fetchRedditSourceFromApi,
@@ -477,7 +473,6 @@ const SOURCE_BUILDERS: Partial<Record<Task, (date: string) => Promise<string>>> 
 
 async function sourceForTask(task: Task, date: string, sourceFixtureDir = "", repo = repoRoot()): Promise<string> {
   if (sourceFixtureDir) return fixtureSource(task, sourceFixtureDir);
-  if (task === "capital-market-daily") return buildAllCapitalMarketSource(date);
   if (task === "mdblist-weekly") {
     return buildMdblistWeeklySource(date, undefined, {
       ledgerFile: path.join(repo, MDBLIST_LEDGER_REL_PATH),
@@ -1153,7 +1148,6 @@ const JSON_COMPOSERS: Partial<Record<Task, (rawJson: string, source: string) => 
   "mdblist-weekly": mdblistMarkdownFromModelJson,
   "nyt-books-weekly": nytBooksMarkdownFromModelJson,
   "tech-daily": (raw, src) => dailyDigestMarkdownFromModelJson(raw, src),
-  "capital-market-daily": composeFullCapitalMarket,
 };
 
 export function usesJsonComposer(task: Task): boolean {

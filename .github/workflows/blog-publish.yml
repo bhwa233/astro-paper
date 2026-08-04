@@ -37,11 +37,6 @@ on:
         required: false
         type: boolean
         default: false
-      install_market_deps:
-        description: "Install Python and AkShare requirements before generation."
-        required: false
-        type: boolean
-        default: false
   workflow_dispatch:
     inputs:
       task:
@@ -73,11 +68,6 @@ on:
         default: "10"
       install_ffmpeg:
         description: "Install ffmpeg and certificates before generation."
-        required: false
-        type: boolean
-        default: false
-      install_market_deps:
-        description: "Install Python and AkShare requirements before generation."
         required: false
         type: boolean
         default: false
@@ -124,17 +114,6 @@ jobs:
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y ffmpeg ca-certificates
-
-      - name: "Setup Python for market table"
-        if: ${{ inputs.install_market_deps || inputs.task == 'all' || inputs.task == 'capital-market-daily' }}
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: pip
-
-      - name: "Install AkShare for market table"
-        if: ${{ inputs.install_market_deps || inputs.task == 'all' || inputs.task == 'capital-market-daily' }}
-        run: pip install -r requirements.txt
 
       - name: "Generate scheduled content"
         env:

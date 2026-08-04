@@ -47,5 +47,4 @@ jobs:
       ai_model: ${{ inputs.ai_model || '' }}
       podcast_max_episodes: ${{ inputs.podcast_max_episodes || '10' }}
       install_ffmpeg: ${{ inputs.task == 'daily-podcasts' || inputs.task == 'xyzrank-top-episodes' || inputs.task == 'all' }}
-      install_market_deps: ${{ inputs.task == 'capital-market-daily' || inputs.task == 'all' }}
     secrets: inherit

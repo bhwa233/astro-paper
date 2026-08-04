@@ -16,7 +16,9 @@ jobs:
   build:
     name: Lint, format, and build site
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    # The site build grows with the post archive; at 3 minutes this job was already
+    # finishing at ~2m30 and was cancelled once with every step green. Keep headroom.
+    timeout-minutes: 8
 
     steps:
       - name: "Checkout repository"

@@ -92,6 +92,7 @@ export function bjtTimestamp(date = new Date()): string {
 export type FetchTextOptions = {
   timeoutMs?: number | null;
   headers?: Record<string, string>;
+  acceptedContentTypes?: RegExp;
   maxChars?: number;
   throwOnMaxChars?: boolean;
   retries?: number;
@@ -134,6 +135,7 @@ export async function fetchText(
   {
     timeoutMs = 20_000,
     headers = {},
+    acceptedContentTypes,
     maxChars = 1_000_000,
     throwOnMaxChars = false,
     retries = 2,
@@ -158,6 +160,9 @@ export async function fetchText(
         },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
+      if (acceptedContentTypes && !acceptedContentTypes.test(response.headers.get("content-type") || "")) {
+        throw new Error(`unexpected content type ${response.headers.get("content-type") || "(missing)"} for ${url}`);
+      }
       const text = await response.text();
       if (text.length > maxChars) {
         if (throwOnMaxChars) throw new Error(`response exceeded ${maxChars} characters for ${url}`);

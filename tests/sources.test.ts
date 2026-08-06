@@ -4,7 +4,18 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import { buildPayload, classify, HN_CANDIDATE_COUNT, HN_MIN_ORIGINAL_EVIDENCE_COUNT, HN_SELECTION_COUNT, selectTopCommented } from "../scripts/hn_top20_source.ts";
+import {
+  buildPayload,
+  classify,
+  fetchOriginalExcerpt,
+  HN_CANDIDATE_COUNT,
+  HN_COMMENT_EXCERPT_MAX_CHARS,
+  HN_MIN_ORIGINAL_EVIDENCE_COUNT,
+  HN_ORIGINAL_EXCERPT_MAX_CHARS,
+  HN_SELF_TEXT_MAX_CHARS,
+  HN_SELECTION_COUNT,
+  selectTopCommented,
+} from "../scripts/hn_top20_source.ts";
 import { buildGitHubTrendingDailySource, parseGitHubTrendingHtml, sanitizeReadmeText } from "../scripts/github_trending_daily_source.ts";
 import { FEEDS, buildForeignTechPodcastSource } from "../scripts/foreign_tech_podcast_source.ts";
 import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
@@ -88,6 +99,48 @@ test("HN source payload carries original and comment evidence", () => {
   assert.equal(classify("A new open model benchmark"), "AI / 模型");
   assert.match(payload.original_excerpt, /browsers enforce CORS/);
   assert.match(payload.hn_comment_excerpt, /reverse proxies/);
+});
+
+test("HN ignores binary original URLs and bounds per-story evidence", async () => {
+  const oversizedHtml = `<html><body><article><p>${"useful HTML evidence ".repeat(40)}</p></article>${"irrelevant page chrome ".repeat(3_000)}</body></html>`;
+  let pdfBodyRead = false;
+  await withMocks(
+    {
+      fetch: async input => {
+        const url = String(input);
+        if (url.endsWith("BradburyStories(1).pdf")) {
+          const response = new Response(null, {
+            status: 200,
+            headers: { "content-type": "application/pdf" },
+          });
+          Object.defineProperty(response, "text", {
+            value: async () => {
+              pdfBodyRead = true;
+              return "%PDF-1.4\n".repeat(500_000);
+            },
+          });
+          return response;
+        }
+        return new Response(oversizedHtml, { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+      },
+    },
+    async () => {
+      assert.equal(await fetchOriginalExcerpt("https://example.com/BradburyStories(1).pdf"), "");
+      assert.equal(pdfBodyRead, false, "PDF body must not be decoded");
+      const excerpt = await fetchOriginalExcerpt("https://example.com/oversized-article");
+      assert.ok(excerpt.length <= HN_ORIGINAL_EXCERPT_MAX_CHARS);
+      assert.match(excerpt, /useful HTML evidence/);
+    },
+  );
+
+  const payload = buildPayload(
+    { id: 456, title: "Oversized source", url: "https://example.com/oversized", text: "self text ".repeat(3_000) },
+    1,
+    { originalExcerpt: "original evidence ".repeat(3_000), commentExcerpt: "comment evidence ".repeat(3_000) },
+  );
+  assert.ok(payload.original_excerpt.length <= HN_ORIGINAL_EXCERPT_MAX_CHARS);
+  assert.ok(payload.hn_comment_excerpt.length <= HN_COMMENT_EXCERPT_MAX_CHARS);
+  assert.ok(payload.source_text.length <= HN_SELF_TEXT_MAX_CHARS);
 });
 
 // ------------------------------------------------------------ GitHub Trending

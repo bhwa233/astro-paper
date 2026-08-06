@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from "jsdom";
-import { compact, fetchJson, fetchText, stripHtml, writeStderr, writeStdout } from "./blog_common.ts";
+import { clipText, compact, fetchJson, fetchText, stripHtml, writeStderr, writeStdout } from "./blog_common.ts";
 
 const HN_TOP_STORIES_URL = "https://hacker-news.firebaseio.com/v0/topstories.json";
 const hnApiItem = (id: number) => `https://hacker-news.firebaseio.com/v0/item/${id}.json`;
@@ -21,6 +21,14 @@ export type HnItem = {
 export const HN_CANDIDATE_COUNT = 60;
 export const HN_SELECTION_COUNT = 20;
 export const HN_MIN_ORIGINAL_EVIDENCE_COUNT = 12;
+export const HN_ORIGINAL_EXCERPT_MAX_CHARS = 8_000;
+export const HN_COMMENT_EXCERPT_MAX_CHARS = 4_000;
+export const HN_SELF_TEXT_MAX_CHARS = 3_000;
+export const HN_TITLE_MAX_CHARS = 500;
+export const HN_URL_MAX_CHARS = 2_000;
+export const HN_SOURCE_MAX_CHARS = 650_000;
+
+const HTML_CONTENT_TYPE = /^(?:text\/html|application\/xhtml\+xml)(?:\s*;|$)/i;
 
 export type HnPayloadItem = {
   rank: number;
@@ -62,7 +70,7 @@ function readableFromHtml(html: string, url: string): string {
   const reader = new Readability(dom.window.document, { keepClasses: false });
   const article = reader.parse();
   const text = article?.textContent ? compact(article.textContent) : "";
-  return text.length >= 160 ? text : "";
+  return text.length >= 160 ? clipText(text, HN_ORIGINAL_EXCERPT_MAX_CHARS) : "";
 }
 
 async function githubExcerpt(url: string): Promise<string> {
@@ -100,12 +108,16 @@ export async function fetchOriginalExcerpt(url: string): Promise<string> {
   if (!url || !/^https?:\/\//i.test(url) || url.includes("news.ycombinator.com")) return "";
   try {
     const github = await githubExcerpt(url);
-    if (github) return github;
+    if (github) return clipText(github, HN_ORIGINAL_EXCERPT_MAX_CHARS);
   } catch {
     // fall through to generic readability
   }
   try {
-    const html = await fetchText(url, { timeoutMs: 14_000, maxChars: 1_200_000, throwOnMaxChars: true });
+    const html = await fetchText(url, {
+      timeoutMs: 14_000,
+      acceptedContentTypes: HTML_CONTENT_TYPE,
+      maxChars: HN_ORIGINAL_EXCERPT_MAX_CHARS,
+    });
     return readableFromHtml(html, url);
   } catch {
     return "";
@@ -138,25 +150,26 @@ export async function fetchCommentExcerpt(item: HnItem, { topLimit = 8, repliesP
       if (reply.length >= 40) snippets.push(reply);
     }
   }
-  return compact(snippets.join(" / "));
+  return clipText(snippets.join(" / "), HN_COMMENT_EXCERPT_MAX_CHARS);
 }
 
 export function buildPayload(item: HnItem, rank: number, { originalExcerpt = "", commentExcerpt = "" } = {}): HnPayloadItem {
   const id = Number(item.id || 0);
-  const title = compact(item.title || `Item ${id || rank}`);
-  const url = item.url || `https://news.ycombinator.com/item?id=${id}`;
+  const hnLink = `https://news.ycombinator.com/item?id=${id}`;
+  const title = clipText(item.title || `Item ${id || rank}`, HN_TITLE_MAX_CHARS);
+  const url = typeof item.url === "string" && item.url.trim().length <= HN_URL_MAX_CHARS ? item.url.trim() : hnLink;
   return {
     rank,
     id,
     title,
     url,
-    hn_link: `https://news.ycombinator.com/item?id=${id}`,
+    hn_link: hnLink,
     topic: classify(title),
     score: Number(item.score || 0),
     comments: Number(item.descendants || 0),
-    source_text: stripHtml(item.text || ""),
-    original_excerpt: compact(originalExcerpt),
-    hn_comment_excerpt: compact(commentExcerpt),
+    source_text: clipText(stripHtml(item.text || ""), HN_SELF_TEXT_MAX_CHARS),
+    original_excerpt: clipText(originalExcerpt, HN_ORIGINAL_EXCERPT_MAX_CHARS),
+    hn_comment_excerpt: clipText(commentExcerpt, HN_COMMENT_EXCERPT_MAX_CHARS),
   };
 }
 
@@ -191,19 +204,18 @@ export async function buildHnSource(): Promise<string> {
   for (const [index, item] of sorted.entries()) {
     const rank = index + 1;
     const id = Number(item.id || 0);
-    const title = compact(item.title || `Item ${id}`);
     const url = item.url || `https://news.ycombinator.com/item?id=${id}`;
     const [originalExcerpt, commentExcerpt] = await Promise.all([fetchOriginalExcerpt(url), fetchCommentExcerpt(item)]);
     const payload = buildPayload(item, rank, { originalExcerpt, commentExcerpt });
     items.push(payload);
     lines.push(
-      `${rank}. 🔥 ${title}`,
+      `${rank}. 🔥 ${payload.title}`,
       `- ⭐ ${payload.score} points · ${payload.comments} 评论`,
       `- 主题：${payload.topic}`,
-      `- 原文：${url}`,
+      `- 原文：${payload.url}`,
       `- HN 讨论：${payload.hn_link}`,
-      `- 原文正文：${originalExcerpt || payload.source_text || "未抓取到可读正文；只能依据标题、链接和 HN 讨论保守处理。"}`,
-      `- HN 评论样本：${commentExcerpt || "暂无足够长的可读评论样本；评论总结必须保守。"}`,
+      `- 原文正文：${payload.original_excerpt || payload.source_text || "未抓取到可读正文；只能依据标题、链接和 HN 讨论保守处理。"}`,
+      `- HN 评论样本：${payload.hn_comment_excerpt || "暂无足够长的可读评论样本；评论总结必须保守。"}`,
       "",
     );
   }
@@ -211,7 +223,9 @@ export async function buildHnSource(): Promise<string> {
   const counts = evidenceCounts(body);
   if (counts.original < HN_MIN_ORIGINAL_EVIDENCE_COUNT) throw new Error(`low-signal HN source output: original=${counts.original}, comments=${counts.comments}`);
   lines.push("===ARCHIVE_PAYLOAD===", JSON.stringify({ items }, null, 2));
-  return `${lines.join("\n").trim()}\n`;
+  const source = `${lines.join("\n").trim()}\n`;
+  if (source.length > HN_SOURCE_MAX_CHARS) throw new Error(`HN source exceeded ${HN_SOURCE_MAX_CHARS} characters after excerpt bounds`);
+  return source;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

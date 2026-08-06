@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import { buildPayload, classify, HN_CANDIDATE_COUNT, HN_MIN_ORIGINAL_EVIDENCE_COUNT, HN_SELECTION_COUNT, selectTopCommented } from "../scripts/hn_top20_source.ts";
+import { buildPayload, classify, HN_CANDIDATE_COUNT, HN_MIN_ORIGINAL_EVIDENCE_COUNT, HN_SELECTION_COUNT, selectTopCommented } from "../scripts/hn_top10_source.ts";
 import { buildGitHubTrendingDailySource, parseGitHubTrendingHtml, sanitizeReadmeText } from "../scripts/github_trending_daily_source.ts";
 import { FEEDS, buildForeignTechPodcastSource } from "../scripts/foreign_tech_podcast_source.ts";
 import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
@@ -54,17 +54,17 @@ test("blog source evidence keeps long text sentinels and strips template delimit
   assert.doesNotMatch(withDelimiters, /\{\{[^}]+\}\}/);
 });
 
-test("HN selects the 20 most-commented active stories from 60 candidates", () => {
-  assert.equal(HN_CANDIDATE_COUNT, 60);
-  assert.equal(HN_SELECTION_COUNT, 20);
-  assert.equal(HN_MIN_ORIGINAL_EVIDENCE_COUNT, 12);
+test("HN selects the 10 most-commented active stories from 30 candidates", () => {
+  assert.equal(HN_CANDIDATE_COUNT, 30);
+  assert.equal(HN_SELECTION_COUNT, 10);
+  assert.equal(HN_MIN_ORIGINAL_EVIDENCE_COUNT, 6);
   const candidates = Array.from({ length: HN_CANDIDATE_COUNT }, (_, index) => ({ id: index + 1, title: `Story ${index + 1}`, descendants: index + 1, dead: false }));
-  candidates[59].dead = true;
+  candidates[29].dead = true;
   const selected = selectTopCommented(candidates);
   assert.equal(selected.length, HN_SELECTION_COUNT);
   assert.deepEqual(
     selected.map(item => item.id),
-    Array.from({ length: 20 }, (_, index) => 59 - index),
+    Array.from({ length: 10 }, (_, index) => 29 - index),
   );
 });
 

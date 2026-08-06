@@ -1,4 +1,4 @@
-// HN Top20 规则层：模型只返回语义 JSON（中文标题 + 两段总结），
+// HN Top10 规则层：模型只返回语义 JSON（中文标题 + 两段总结），
 // 事实字段（热度/主题/原文/HN 讨论链接）一律取自脚本抓取的 source，
 // 由这里确定性地组装成 archive 层可消费的中间契约 Markdown。
 import { ARCHIVE_PAYLOAD_MARKER, hasChinese, looksLowSignal } from "./astro_paper_archive.ts";
@@ -40,7 +40,7 @@ export function parseSourceFacts(source: string): HnSourceFact[] {
   const blocks = body
     .split(/(?=^\d+\.\s*🔥?\s+)/gm)
     .map(block => block.trim())
-    .filter(block => /^\d+\.\s*🔥?\s+/.test(block) && !/今日 HackerNews 热门文章 Top 20/.test(block));
+    .filter(block => /^\d+\.\s*🔥?\s+/.test(block) && !/今日 HackerNews 热门文章 Top 10/.test(block));
   const facts: HnSourceFact[] = [];
   blocks.forEach((block, index) => {
     const bullets = extractBullets(block);
@@ -91,7 +91,7 @@ export function parseHnModelJson(raw: string, expectedCount?: number): HnModelIt
   });
 }
 
-// 按 rank join 事实 + 语义，输出 archive 层 `formatHnTop20` 直接消费的中间契约 Markdown。
+// 按 rank join 事实 + 语义，输出 archive 层 `formatHnTop10` 直接消费的中间契约 Markdown。
 export function composeHnBody(modelItems: HnModelItem[], facts: HnSourceFact[]): string {
   if (!facts.length) throw new Error("HN source produced no items to compose");
   const byRank = new Map(modelItems.map(item => [item.rank, item]));

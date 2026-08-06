@@ -1,4 +1,4 @@
-name: Publish HN Top 20
+name: Publish HN Top 10
 
 permissions:
   contents: write
@@ -24,12 +24,12 @@ on:
 
 jobs:
   publish:
-    name: Publish HN Top 20
+    name: Publish HN Top 10
     permissions:
       contents: write
     uses: ./.github/workflows/blog-publish.yml
     with:
-      task: hn-top20
+      task: hn-top10
       date: ${{ inputs.date || '' }}
       event_schedule: ${{ github.event.schedule || '0 6 * * *' }}
       force: ${{ inputs.force || false }}

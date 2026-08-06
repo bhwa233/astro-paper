@@ -18,9 +18,9 @@ export type HnItem = {
   dead?: boolean;
 };
 
-export const HN_CANDIDATE_COUNT = 60;
-export const HN_SELECTION_COUNT = 20;
-export const HN_MIN_ORIGINAL_EVIDENCE_COUNT = 12;
+export const HN_CANDIDATE_COUNT = 30;
+export const HN_SELECTION_COUNT = 10;
+export const HN_MIN_ORIGINAL_EVIDENCE_COUNT = 6;
 
 export type HnPayloadItem = {
   rank: number;
@@ -178,15 +178,15 @@ export function selectTopCommented(items: HnItem[]): HnItem[] {
 }
 
 export async function buildHnSource(): Promise<string> {
-  // Phase 1: fetch top 60 metadata in parallel, sort by comment count, keep top 20
+  // Phase 1: fetch top 30 metadata in parallel, sort by comment count, keep top 10
   const topIds = await fetchTopIds(HN_CANDIDATE_COUNT);
   const rawItems = await Promise.all(
     topIds.map(id => fetchJson<HnItem>(hnApiItem(id), { timeoutMs: 12_000 }).catch(() => null))
   );
   const sorted = selectTopCommented(rawItems.filter((item): item is HnItem => item !== null));
 
-  // Phase 2: fetch original excerpts + comments for top 20
-  const lines = ["1. 🔥 今日 HackerNews 热门文章 Top 20", ""];
+  // Phase 2: fetch original excerpts + comments for top 10
+  const lines = ["1. 🔥 今日 HackerNews 热门文章 Top 10", ""];
   const items: HnPayloadItem[] = [];
   for (const [index, item] of sorted.entries()) {
     const rank = index + 1;

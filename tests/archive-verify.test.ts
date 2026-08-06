@@ -33,7 +33,7 @@ test("archive and verifier accept generated HN, podcast notes, and retained dige
 - 内容总结：文章解释了浏览器同源策略与 CORS 预检机制之间的关系，并指出很多后端开发者把跨域报错误解成服务端权限问题。作者用请求头、凭证模式和常见配置误区串起了 CORS 的真实执行路径。
 - 评论总结：评论区主要补充了反向代理、CDN 和本地开发场景下最容易踩坑的缓存与凭证问题，也有人强调把通配配置当万能解法会埋下安全隐患。
   `;
-  const hn = archivePost({ task: "hn-top20", date: "2099-01-02", repo, body: hnBody, force: true });
+  const hn = archivePost({ task: "hn-top10", date: "2099-01-02", repo, body: hnBody, force: true });
 
   // Product/design vocabulary in a podcast note must not trip the market-report advisory filter.
   const podcastBody = `${fixture("blog-ai-responses/daily-podcasts.md")}
@@ -111,7 +111,7 @@ test("Economist archive accepts more than ten complete articles", () => {
   // Weekly issues archive under the issue date parsed from source, not the run date.
   const issueDate = contentDateForTask("economist-weekly", "2099-01-09", source);
   assert.equal(issueDate, "2099-01-02");
-  assert.equal(contentDateForTask("hn-top20", "2099-01-09", source), "2099-01-09");
+  assert.equal(contentDateForTask("hn-top10", "2099-01-09", source), "2099-01-09");
 
   const repo = tempDir("economist-all");
   const result = archivePost({ task: "economist-weekly", date: issueDate, repo, body: economistWeeklyMarkdown(source).markdown, force: true });
@@ -151,7 +151,7 @@ test("HN source verifier accepts legitimate double-brace examples from source ar
 - 内容总结：Pandoc Lua 过滤器允许用户直接操作文档 AST，并用内置 Lua 解释器减少传统 JSON filter 的序列化开销。文章展示了如何匹配元素、替换节点以及编写宏替换逻辑。
 - 评论总结：评论主要讨论 Pandoc 功能边界和过滤器文档兼容性，也有人提到 Lua 过滤器在复杂文档转换中的实用价值。
 `;
-  const result = archivePost({ task: "hn-top20", date: "2099-01-02", repo, body, force: true });
+  const result = archivePost({ task: "hn-top10", date: "2099-01-02", repo, body, force: true });
 
   // `{{helloworld}}` is real content quoted from the source article, not a leaked prompt template.
   const sourcePath = path.join(repo, "hn-source.md");

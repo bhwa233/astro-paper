@@ -69,7 +69,7 @@ function verifySourceContract(repo: string, task: string, sourceArtifact: string
   const relPath = path.relative(repo, sourcePath) || sourceArtifact;
   if (source.trim().length < 80) throw new Error(`${relPath} source is too short to support generation`);
 
-  if (task === "hn-top20") {
+  if (task === "hn-top10") {
     requireTerms(relPath, source, ["HN 讨论", "原文"]);
     return;
   }

@@ -8,10 +8,10 @@ export type BlogTaskInfo = {
 };
 
 export const BLOG_TASKS = {
-  "hn-top20": {
-    titlePrefix: "HackerNews Top 20",
+  "hn-top10": {
+    titlePrefix: "HackerNews Top 10",
     tag: "HackerNews",
-    description: "每日 Hacker News 热门文章 Top 20 中文整理，按当天归档并覆盖更新。",
+    description: "每日 Hacker News 热门文章 Top 10 中文整理，按当天归档并覆盖更新。",
     fileName: "hackernews-{date}.md",
   },
   "github-trending-daily": {
@@ -96,7 +96,7 @@ export const TASKS = Object.keys(BLOG_TASKS) as Task[];
 export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset?: number; dateTimeZone?: string }> = {
   "30 0 * * *": { task: "tech-daily", dateTimeZone: "America/Los_Angeles" },
   "30 1 * * *": { task: "daily-podcasts" },
-  "0 6 * * *": { task: "hn-top20", dateTimeZone: "America/Los_Angeles" },
+  "0 6 * * *": { task: "hn-top10", dateTimeZone: "America/Los_Angeles" },
   "0 2 * * 1": { task: "xyzrank-top-episodes", dateTimeZone: "Asia/Shanghai" },
   "0 23 * * *": { task: "github-trending-daily", dateTimeZone: "America/Los_Angeles" },
   "0 2 * * 5": { task: "mdblist-weekly", dateTimeZone: "Asia/Shanghai" },

@@ -93,7 +93,7 @@ test("Economist compose aggregates per-article summaries with no issue-level sec
 // ----------------------------------------------------- Facts come from source
 
 test("HN compose parses source facts from markdown blocks", () => {
-  const facts = parseSourceFacts(fixture("blog-sources/hn-top20.md"));
+  const facts = parseSourceFacts(fixture("blog-sources/hn-top10.md"));
   assert.equal(facts.length, 1);
   assert.deepEqual(facts[0], {
     rank: 1,
@@ -105,7 +105,7 @@ test("HN compose parses source facts from markdown blocks", () => {
 });
 
 test("HN compose takes facts from source, not from the model", () => {
-  const source = fixture("blog-sources/hn-top20.md");
+  const source = fixture("blog-sources/hn-top10.md");
   // The model JSON only carries semantic fields. Even when it smuggles in a URL, it must not reach the post.
   const modelJson = JSON.stringify({
     items: [
@@ -125,7 +125,7 @@ test("HN compose takes facts from source, not from the model", () => {
   assert.doesNotMatch(markdown, /evil\.example\.com/);
 
   const repo = tempDir("hn-json");
-  const article = archivePost({ task: "hn-top20", date: "2099-01-02", repo, body: markdown, force: true });
+  const article = archivePost({ task: "hn-top10", date: "2099-01-02", repo, body: markdown, force: true });
   const published = fs.readFileSync(path.join(repo, article.path), "utf8");
   assert.match(published, /^## 1\. 开发者终于开始测试自动化契约/m);
   assert.match(published, /https:\/\/example\.com\/automation-contracts/);

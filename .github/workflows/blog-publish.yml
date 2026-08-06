@@ -43,7 +43,7 @@ on:
         description: "Post task to generate. Valid values are defined in scripts/blog_tasks.ts; use all or daily-digests for grouped runs."
         type: string
         required: true
-        default: hn-top20
+        default: hn-top10
       date:
         description: "Archive date in Asia/Shanghai, YYYY-MM-DD. Empty = today or scheduled offset."
         required: false

@@ -12,7 +12,7 @@ export const REDDIT_CATEGORIES = [
     key: "life",
     title: "人生与社会",
     fileNameSuffix: "life",
-    subreddits: ["AskReddit", "confessions", "changemyview", "GriefSupport", "tifu"],
+    subreddits: ["AskReddit", "confessions", "changemyview", "tifu"],
   },
   {
     key: "markets",

@@ -16,6 +16,7 @@ import { buildMdblistWeeklySource, latestStartedSeasonNumber, selectUnrecommende
 import { REDDIT_CATEGORIES } from "../scripts/reddit_top20_compose.ts";
 import {
   type ResultItem,
+  type RedditSourcePolicy,
   fetchRedditSourceFromApi,
   parseRedditSourceApiResponse,
   redditSubredditStatsLogLines,
@@ -636,14 +637,36 @@ test("mdblist source builder applies the previous-month window and locally enfor
 
 // --------------------------------------------------------------------- Reddit
 
-function redditSourceItem(rank: number, category = "life"): string {
+const REDDIT_POLICY_RESPONSE = {
+  detail_comment_limit: 100,
+  direct_reply_limit: 10,
+  listing_limit: 50,
+  listing_period: "day",
+  listing_sort: "top",
+  max_comment_chars: 800,
+  max_post_body_chars: 4000,
+  min_score: 20,
+  requires_top_level_comment: true,
+  top_level_comment_limit: 50,
+  version: "reddit-source-policy.v1",
+} as const;
+
+const REDDIT_POLICY = {
+  version: "reddit-source-policy.v1",
+  minScore: 20,
+  listingLimit: 50,
+} satisfies RedditSourcePolicy;
+
+function redditSourceItem(
+  rank: number,
+  { subreddit = "AskReddit", points = 101 - rank }: { subreddit?: string; points?: number } = {},
+): string {
   return [
-    `${rank}. [r/AskReddit] Fixture post ${rank}`,
-    `- ⭐ ${101 - rank} points · ${rank} 评论`,
-    "- 来源：r/AskReddit",
-    `- 栏目：${category}`,
+    `${rank}. [r/${subreddit}] Fixture post ${rank}`,
+    `- ⭐ ${points} points · ${rank} 评论`,
+    `- 来源：r/${subreddit}`,
     "- 发布时间：2099-01-02T07:00:00Z",
-    `- 帖子链接：https://www.reddit.com/r/AskReddit/comments/fixture${rank}/`,
+    `- 帖子链接：https://www.reddit.com/r/${subreddit}/comments/fixture${rank}/`,
     "- 正文类型：作者正文",
     "- 正文截断：否",
     "- 正文：Fixture body",
@@ -655,46 +678,49 @@ function redditSourceItem(rank: number, category = "life"): string {
   ].join("\n");
 }
 
-function redditStats(askRedditFinal: number) {
+function redditStats(finalBySubreddit: Record<string, number>) {
   return REDDIT_CATEGORIES.flatMap(category =>
     category.subreddits.map(subreddit => {
-      const final = subreddit === "AskReddit" ? askRedditFinal : 0;
-      return { subreddit, category: category.key, listing: final, score_pass: final, min_score: 100, shortlisted: final, detail_ok: final, final, error_code: null };
+      const final = finalBySubreddit[subreddit] || 0;
+      return { subreddit, listing: final, score_pass: final, min_score: 20, shortlisted: final, detail_ok: final, final, error_code: null };
     }),
   );
 }
 
-function redditPayload(source: string, itemCount: number, askRedditFinal: number) {
+function redditPayload(source: string, itemCount: number, finalBySubreddit: Record<string, number>) {
   return {
-    contract_version: "reddit-top20-source.v6",
+    contract_version: "reddit-top20-source.v7",
     archive_date: "2099-01-02",
     fetched_at: "2099-01-02T08:00:00Z",
     item_count: itemCount,
     source_sha256: createHash("sha256").update(source, "utf8").digest("hex"),
     source,
-    subreddit_stats: redditStats(askRedditFinal),
+    policy: REDDIT_POLICY_RESPONSE,
+    policy_sha256: createHash("sha256").update(JSON.stringify(REDDIT_POLICY_RESPONSE), "utf8").digest("hex"),
+    subreddit_stats: redditStats(finalBySubreddit),
   };
 }
 
-test("Reddit source API contract accepts intact v6 score-filtered sources with uncapped categories", () => {
+test("Reddit source API contract accepts intact v7 server-policy sources", () => {
   const source = `${[1, 2].map(rank => redditSourceItem(rank)).join("\n")}\n===ARCHIVE_PAYLOAD===\n${JSON.stringify({ items: [] })}\n`;
-  const payload = redditPayload(source, 2, 2);
+  const payload = redditPayload(source, 2, { AskReddit: 2 });
 
   assert.equal(parseRedditSourceApiResponse(payload, "2099-01-02"), source);
-  assert.match(redditSubredditStatsLogLines(payload.subreddit_stats).find(line => line.includes("r/AskReddit")) || "", /listing=2.*final=2/);
+  assert.match(redditSubredditStatsLogLines(payload.subreddit_stats, REDDIT_POLICY).find(line => line.includes("r/AskReddit")) || "", /category=life.*listing=2.*min_score=20.*final=2/);
   // fetched_at may drift past the archive date without invalidating the payload.
   assert.equal(parseRedditSourceApiResponse({ ...payload, fetched_at: "2099-01-03T08:00:00Z" }, "2099-01-02"), source);
 
   for (const [name, mutate, expected] of [
-    ["older contract version", (p: typeof payload) => ({ ...p, contract_version: "reddit-top20-source.v4" }), /unsupported contract/],
-    ["newer contract version", (p: typeof payload) => ({ ...p, contract_version: "reddit-top20-source.v7" }), /unsupported contract/],
+    ["older contract version", (p: typeof payload) => ({ ...p, contract_version: "reddit-top20-source.v6" }), /unsupported contract/],
+    ["newer contract version", (p: typeof payload) => ({ ...p, contract_version: "reddit-top20-source.v8" }), /unsupported contract/],
     ["tampered source body", (p: typeof payload) => ({ ...p, source_sha256: "0".repeat(64) }), /source_sha256 does not match/],
+    ["tampered policy", (p: typeof payload) => ({ ...p, policy_sha256: "0".repeat(64) }), /policy_sha256 does not match/],
     ["wrong archive date", (p: typeof payload) => ({ ...p, archive_date: "2099-01-01" }), /does not match requested date/],
     [
-      "retired knowledge category",
+      "unrequested subreddit",
       (p: typeof payload) => {
-        const retired = p.source.replaceAll("r/AskReddit", "r/explainlikeimfive").replaceAll("- 栏目：life", "- 栏目：knowledge");
-        return { ...p, source: retired, source_sha256: createHash("sha256").update(retired, "utf8").digest("hex") };
+        const unexpected = p.source.replaceAll("r/AskReddit", "r/explainlikeimfive");
+        return { ...p, source: unexpected, source_sha256: createHash("sha256").update(unexpected, "utf8").digest("hex") };
       },
       /unsupported category\/subreddit mapping/,
     ],
@@ -703,28 +729,20 @@ test("Reddit source API contract accepts intact v6 score-filtered sources with u
       (p: typeof payload) => ({ ...p, subreddit_stats: p.subreddit_stats.map(stat => (stat.subreddit === "AskReddit" ? { ...stat, final: 1, detail_ok: 1 } : stat)) }),
       /final count does not match source items/,
     ],
-    [
-      "an item whose 栏目 contradicts its subreddit",
-      (p: typeof payload) => {
-        const mismatched = p.source.replace("- 栏目：life", "- 栏目：markets");
-        return { ...p, source: mismatched, source_sha256: createHash("sha256").update(mismatched, "utf8").digest("hex") };
-      },
-      /does not match r\/AskReddit/,
-    ],
   ] as const) {
     assert.throws(() => parseRedditSourceApiResponse(mutate(payload), "2099-01-02"), expected, name);
   }
 
-  // Categories are uncapped: 41 items from one subreddit is legitimate as long as the stats agree.
+  // Subreddits are uncapped below the service's declared listing limit.
   const overLimitSource = `${Array.from({ length: 41 }, (_, index) =>
-    [`${index + 1}. [r/AskReddit] Fixture post ${index + 1}`, "- 来源：r/AskReddit", "- 栏目：life", "- 发布时间：2099-01-02T07:00:00Z"].join("\n"),
+    [`${index + 1}. [r/AskReddit] Fixture post ${index + 1}`, "- 来源：r/AskReddit", "- 发布时间：2099-01-02T07:00:00Z"].join("\n"),
   ).join("\n\n")}\n\n===ARCHIVE_PAYLOAD===\n{"items": []}\n`;
-  assert.equal(parseRedditSourceApiResponse(redditPayload(overLimitSource, 41, 41), "2099-01-02"), overLimitSource);
+  assert.equal(parseRedditSourceApiResponse(redditPayload(overLimitSource, 41, { AskReddit: 41 }), "2099-01-02"), overLimitSource);
 });
 
-test("Reddit source fetch submits its editorial configuration then polls until its v6 result is ready", async () => {
-  const source = ["1. [r/AskReddit] Fixture post", "- 来源：r/AskReddit", "- 栏目：life", "- 发布时间：2099-01-02T07:00:00Z", "", "===ARCHIVE_PAYLOAD===", '{"items": []}', ""].join("\n");
-  const payload = redditPayload(source, 1, 1);
+test("Reddit source fetch sends one subreddit-list request to the v7 service", async () => {
+  const source = `${redditSourceItem(1, { subreddit: "IAmA", points: 20 })}\n===ARCHIVE_PAYLOAD===\n${JSON.stringify({ items: [] })}\n`;
+  const payload = redditPayload(source, 1, { IAmA: 1 });
   const requests: { url: string; method: string; body?: string }[] = [];
 
   const fetched = await withMocks(
@@ -742,16 +760,12 @@ test("Reddit source fetch submits its editorial configuration then polls until i
   );
 
   assert.equal(fetched, source);
-  assert.deepEqual(requests, [
-    {
-      url: "https://source.example/v2/reddit/top20-source/jobs",
-      method: "POST",
-      body: JSON.stringify({
-        archive_date: "2099-01-02",
-        min_score: 100,
-        categories: REDDIT_CATEGORIES.map(category => ({ key: category.key, subreddits: [...category.subreddits] })),
-      }),
-    },
-    { url: "https://source.example/v2/reddit/top20-source/jobs/reddit_test", method: "GET", body: undefined },
+  assert.deepEqual(JSON.parse(requests.find(request => request.body)?.body || "{}"), {
+    archive_date: "2099-01-02",
+    subreddits: REDDIT_CATEGORIES.flatMap(category => category.subreddits),
+  });
+  assert.deepEqual(requests.map(request => request.url), [
+    "https://source.example/v3/reddit/top20-source/jobs",
+    "https://source.example/v3/reddit/top20-source/jobs/reddit_test",
   ]);
 });

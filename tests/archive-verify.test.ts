@@ -186,7 +186,8 @@ test("Reddit archive formatting keeps summary lists out of the fact bullets", ()
 });
 
 test("Reddit categorized articles split one source into independently ranked files", () => {
-  const articles = redditCategoryArticlesFromItemSummaries(fixture("blog-sources/reddit-top20.md"));
+  const categoryFreeSource = fixture("blog-sources/reddit-top20.md").replace(/^- 栏目：.*\n/gm, "");
+  const articles = redditCategoryArticlesFromItemSummaries(categoryFreeSource);
   assert.deepEqual(
     articles.map(article => [article.category, article.itemCount]),
     [

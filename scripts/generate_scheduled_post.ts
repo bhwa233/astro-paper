@@ -251,6 +251,8 @@ type RedditSourceApiResponse = {
   item_count?: unknown;
   source_sha256?: unknown;
   source?: unknown;
+  policy?: unknown;
+  policy_sha256?: unknown;
   subreddit_stats?: unknown;
 };
 
@@ -276,10 +278,63 @@ type RedditSubredditStats = {
   error_code: string | null;
 };
 
-const MAX_REDDIT_SOURCE_ITEMS = REDDIT_CATEGORIES.reduce((total, category) => total + category.subreddits.length * 50, 0);
-const REDDIT_MIN_POST_SCORE = 100;
+export type RedditSourcePolicy = {
+  version: "reddit-source-policy.v1";
+  minScore: number;
+  listingLimit: number;
+};
 
-function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
+const MAX_REDDIT_SOURCE_ITEMS = 2_000;
+const REDDIT_SUBREDDITS = REDDIT_CATEGORIES.flatMap(category => category.subreddits);
+
+function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourcePolicy {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Reddit source API returned an invalid policy");
+  const record = value as Record<string, unknown>;
+  const integerFields = [
+    "min_score",
+    "listing_limit",
+    "top_level_comment_limit",
+    "direct_reply_limit",
+    "detail_comment_limit",
+    "max_post_body_chars",
+    "max_comment_chars",
+  ] as const;
+  for (const field of integerFields) {
+    if (typeof record[field] !== "number" || !Number.isInteger(record[field]) || record[field] < (field === "min_score" || field === "direct_reply_limit" ? 0 : 1)) {
+      throw new Error(`Reddit source API policy has invalid ${field}: ${String(record[field])}`);
+    }
+  }
+  if (
+    record.version !== "reddit-source-policy.v1" ||
+    record.listing_sort !== "top" ||
+    record.listing_period !== "day" ||
+    record.requires_top_level_comment !== true
+  ) {
+    throw new Error("Reddit source API returned an unsupported policy");
+  }
+  const normalized = {
+    detail_comment_limit: record.detail_comment_limit,
+    direct_reply_limit: record.direct_reply_limit,
+    listing_limit: record.listing_limit,
+    listing_period: record.listing_period,
+    listing_sort: record.listing_sort,
+    max_comment_chars: record.max_comment_chars,
+    max_post_body_chars: record.max_post_body_chars,
+    min_score: record.min_score,
+    requires_top_level_comment: record.requires_top_level_comment,
+    top_level_comment_limit: record.top_level_comment_limit,
+    version: record.version,
+  };
+  const actualSha256 = createHash("sha256").update(JSON.stringify(normalized), "utf8").digest("hex");
+  if (sha256 !== actualSha256) throw new Error("Reddit source API policy_sha256 does not match policy");
+  return {
+    version: "reddit-source-policy.v1",
+    minScore: record.min_score as number,
+    listingLimit: record.listing_limit as number,
+  };
+}
+
+function parseRedditSubredditStats(value: unknown, policy: RedditSourcePolicy): RedditSubredditStats[] {
   if (!Array.isArray(value)) throw new Error("Reddit source API returned invalid subreddit_stats");
   const expected = new Map(
     REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
@@ -290,9 +345,9 @@ function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
     const record = raw as Record<string, unknown>;
     const subreddit = typeof record.subreddit === "string" ? record.subreddit.trim() : "";
     const key = subreddit.toLowerCase();
-    const category = typeof record.category === "string" ? record.category : "";
-    if (!expected.has(key) || expected.get(key) !== category || seen.has(key)) {
-      throw new Error(`Reddit source API has an invalid subreddit/category statistic: r/${subreddit || "(missing)"} / ${category || "(missing)"}`);
+    const category = expected.get(key) || "";
+    if (!category || seen.has(key)) {
+      throw new Error(`Reddit source API has an invalid subreddit statistic: r/${subreddit || "(missing)"}`);
     }
     seen.add(key);
     const counts = ["listing", "score_pass", "shortlisted", "detail_ok", "final"] as const;
@@ -304,13 +359,13 @@ function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
     const listing = record.listing as number;
     const scorePass = record.score_pass as number;
     const minScore = record.min_score;
-    if (typeof minScore !== "number" || !Number.isInteger(minScore) || minScore !== REDDIT_MIN_POST_SCORE) {
+    if (typeof minScore !== "number" || !Number.isInteger(minScore) || minScore !== policy.minScore) {
       throw new Error(`Reddit source API r/${subreddit} has invalid min_score: ${String(minScore)}`);
     }
     const shortlisted = record.shortlisted as number;
     const detailOk = record.detail_ok as number;
     const final = record.final as number;
-    if (listing > 50 || scorePass > listing || shortlisted > scorePass || detailOk > shortlisted || final !== detailOk) {
+    if (listing > policy.listingLimit || scorePass > listing || shortlisted > scorePass || detailOk > shortlisted || final !== detailOk) {
       throw new Error(`Reddit source API r/${subreddit} has inconsistent funnel counts`);
     }
     const errorCode = record.error_code;
@@ -335,14 +390,14 @@ function parseRedditSubredditStats(value: unknown): RedditSubredditStats[] {
   return stats;
 }
 
-export function redditSubredditStatsLogLines(value: unknown): string[] {
-  return parseRedditSubredditStats(value).map(stat =>
+export function redditSubredditStatsLogLines(value: unknown, policy: RedditSourcePolicy): string[] {
+  return parseRedditSubredditStats(value, policy).map(stat =>
     `[reddit-source] r/${stat.subreddit} category=${stat.category} listing=${stat.listing} min_score=${stat.min_score} score_pass=${stat.score_pass} shortlisted=${stat.shortlisted} detail_ok=${stat.detail_ok} final=${stat.final}${stat.error_code ? ` error_code=${stat.error_code}` : ""}`,
   );
 }
 
 export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, date: string): string {
-  if (payload.contract_version !== "reddit-top20-source.v6") {
+  if (payload.contract_version !== "reddit-top20-source.v7") {
     throw new Error(`Reddit source API returned an unsupported contract: ${String(payload.contract_version)}`);
   }
   if (payload.archive_date !== date) {
@@ -358,14 +413,20 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
   if (payload.source_sha256 !== sourceHash) {
     throw new Error("Reddit source API source_sha256 does not match source content");
   }
+  const policy = parseRedditSourcePolicy(payload.policy, payload.policy_sha256);
   const facts = parseRedditSourceFacts(payload.source);
-  if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > MAX_REDDIT_SOURCE_ITEMS) {
-    throw new Error(`Reddit source API expected 1-${MAX_REDDIT_SOURCE_ITEMS} ranked items, received ${String(payload.item_count)}`);
+  const maxItems = REDDIT_SUBREDDITS.length * policy.listingLimit;
+  if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > maxItems) {
+    throw new Error(`Reddit source API expected 1-${maxItems} ranked items, received ${String(payload.item_count)}`);
   }
-  const stats = parseRedditSubredditStats(payload.subreddit_stats);
+  const expectedSubreddits = new Set(REDDIT_SUBREDDITS.map(subreddit => subreddit.toLowerCase()));
+  const stats = parseRedditSubredditStats(payload.subreddit_stats, policy);
   const subredditCounts = new Map<string, number>();
   for (const fact of facts) {
     const subreddit = fact.subreddit.toLowerCase();
+    if (!expectedSubreddits.has(subreddit)) {
+      throw new Error(`Reddit source API item ${fact.rank} returned unrequested subreddit r/${fact.subreddit}`);
+    }
     subredditCounts.set(subreddit, (subredditCounts.get(subreddit) || 0) + 1);
     const publishedAt = Date.parse(fact.publishedAt);
     if (!fact.publishedAt || Number.isNaN(publishedAt)) {
@@ -426,15 +487,11 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
     throwOnMaxChars: true,
     retries: 2,
   };
-  let payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v2/reddit/top20-source/jobs`, {
+  let payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v3/reddit/top20-source/jobs`, {
     method: "POST",
     body: JSON.stringify({
       archive_date: date,
-      min_score: REDDIT_MIN_POST_SCORE,
-      categories: REDDIT_CATEGORIES.map(category => ({
-        key: category.key,
-        subreddits: [...category.subreddits],
-      })),
+      subreddits: REDDIT_SUBREDDITS,
     }),
     ...request,
   });
@@ -450,12 +507,13 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
     if (job.state === "ready") {
       if (!job.result) throw new Error(`Reddit source job ${job.id} completed without a source result`);
       const source = parseRedditSourceApiResponse(job.result, date);
-      redditSubredditStatsLogLines(job.result.subreddit_stats).forEach(line => writeStdout(`${line}\n`));
+      const policy = parseRedditSourcePolicy(job.result.policy, job.result.policy_sha256);
+      redditSubredditStatsLogLines(job.result.subreddit_stats, policy).forEach(line => writeStdout(`${line}\n`));
       return source;
     }
 
     await sleep(redditSourcePollIntervalMs());
-    payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v2/reddit/top20-source/jobs/${encodeURIComponent(job.id)}`, {
+    payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v3/reddit/top20-source/jobs/${encodeURIComponent(job.id)}`, {
       method: "GET",
       ...request,
     });

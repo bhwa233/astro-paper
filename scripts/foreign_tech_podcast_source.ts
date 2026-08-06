@@ -17,6 +17,8 @@ type FeedSource = {
   appleUrl?: string;
   genres?: string[];
   artworkUrl?: string;
+  storefront?: string;
+  region?: string;
 };
 
 export type Episode = {
@@ -39,6 +41,8 @@ export type Episode = {
   appleId?: string;
   appleUrl?: string;
   genres?: string[];
+  storefront?: string;
+  region?: string;
 };
 
 type AppleTopShow = {
@@ -48,6 +52,8 @@ type AppleTopShow = {
   url: string;
   genres: string[];
   rank: number;
+  storefront: string;
+  region: string;
 };
 
 type AppleLookupResult = {
@@ -186,6 +192,8 @@ function parseFeed(feed: FeedSource, xml: string): Episode[] {
         appleId: feed.appleId,
         appleUrl: feed.appleUrl,
         genres: feed.genres,
+        storefront: feed.storefront,
+        region: feed.region,
       };
     })
     .filter(episode => episode.title && episode.description && episode.date && episode.link && (episode.audioUrl || episode.transcriptUrl));
@@ -354,14 +362,35 @@ function appleTopPodcastsMaxEpisodes(): number {
   return envNumber("APPLE_TOP_PODCASTS_MAX_EPISODES", 999);
 }
 
-function appleStorefront(): string {
-  return (process.env.APPLE_PODCASTS_STOREFRONT || "us").toLowerCase();
+type AppleStorefront = { code: string; region: string };
+
+// 默认抓取的 Apple Podcasts 榜单地区。区名用于给候选清单打地区标签。
+const APPLE_DEFAULT_STOREFRONTS: AppleStorefront[] = [
+  { code: "us", region: "美国" },
+  { code: "jp", region: "日本" },
+  { code: "kr", region: "韩国" },
+  { code: "hk", region: "香港" },
+  { code: "tw", region: "台湾" },
+];
+
+const APPLE_REGION_NAMES: Record<string, string> = Object.fromEntries(
+  APPLE_DEFAULT_STOREFRONTS.map(storefront => [storefront.code, storefront.region]),
+);
+
+function appleRegionName(code: string): string {
+  return APPLE_REGION_NAMES[code] || code.toUpperCase();
 }
 
-async function fetchAppleTopShows(): Promise<AppleTopShow[]> {
-  const storefront = appleStorefront();
-  const count = appleTopPodcastsCount();
-  const url = `https://rss.applemarketingtools.com/api/v2/${storefront}/podcasts/top/${count}/podcasts.json`;
+// 地区列表来源优先级：APPLE_PODCASTS_STOREFRONTS（逗号列表）> 单数 APPLE_PODCASTS_STOREFRONT（向后兼容）> 默认多区。
+function appleStorefronts(): AppleStorefront[] {
+  const raw = (process.env.APPLE_PODCASTS_STOREFRONTS || process.env.APPLE_PODCASTS_STOREFRONT || "").trim();
+  if (!raw) return APPLE_DEFAULT_STOREFRONTS;
+  const codes = [...new Set(raw.split(",").map(code => code.trim().toLowerCase()).filter(Boolean))];
+  return codes.length ? codes.map(code => ({ code, region: appleRegionName(code) })) : APPLE_DEFAULT_STOREFRONTS;
+}
+
+async function fetchAppleTopShows(storefront: string, region: string, count: number): Promise<AppleTopShow[]> {
+  const url = `https://rss.marketingtools.apple.com/api/v2/${storefront}/podcasts/top/${count}/podcasts.json`;
   const text = await fetchText(url, { timeoutMs: 20_000, maxChars: 500_000, throwOnMaxChars: true });
   const payload = JSON.parse(text) as { feed?: { results?: unknown[] } };
   const results = payload.feed?.results || [];
@@ -378,14 +407,44 @@ async function fetchAppleTopShows(): Promise<AppleTopShow[]> {
         url: String(row.url || ""),
         genres,
         rank: index + 1,
+        storefront,
+        region,
       };
     })
     .filter(show => show.id && show.name && show.url);
 }
 
+// 跨区合并：按 id 去重，同一节目在多区上榜时只保留首次出现（地区顺序优先），出一篇。
+// 不做排序或总量截断——最终转写篇数由下游 appleTopPodcastsMaxEpisodes 上限控制。
+function mergeAppleStorefrontShows(perRegion: AppleTopShow[][]): AppleTopShow[] {
+  const seen = new Set<string>();
+  const merged: AppleTopShow[] = [];
+  for (const list of perRegion) {
+    for (const show of list) {
+      if (seen.has(show.id)) continue;
+      seen.add(show.id);
+      merged.push(show);
+    }
+  }
+  return merged;
+}
+
+async function fetchAppleTopShowsAllStorefronts(): Promise<AppleTopShow[]> {
+  const storefronts = appleStorefronts();
+  const count = appleTopPodcastsCount();
+  const settled = await Promise.allSettled(storefronts.map(storefront => fetchAppleTopShows(storefront.code, storefront.region, count)));
+  const perRegion = settled.map((result, index) => {
+    if (result.status === "fulfilled") return result.value;
+    const storefront = storefronts[index];
+    const message = result.reason instanceof Error ? result.reason.message : String(result.reason);
+    writeStderr(`WARN: Apple Top Shows storefront ${storefront.code}: ${message}`);
+    return [];
+  });
+  return mergeAppleStorefrontShows(perRegion);
+}
+
 async function lookupApplePodcast(show: AppleTopShow): Promise<FeedSource | null> {
-  const storefront = appleStorefront();
-  const url = `https://itunes.apple.com/lookup?id=${encodeURIComponent(show.id)}&country=${encodeURIComponent(storefront)}&entity=podcast`;
+  const url = `https://itunes.apple.com/lookup?id=${encodeURIComponent(show.id)}&country=${encodeURIComponent(show.storefront)}&entity=podcast`;
   const text = await fetchText(url, { timeoutMs: 20_000, maxChars: 300_000, throwOnMaxChars: true });
   const payload = JSON.parse(text) as { results?: AppleLookupResult[] };
   const result = (payload.results || []).find(item => item.feedUrl) || payload.results?.[0];
@@ -400,6 +459,8 @@ async function lookupApplePodcast(show: AppleTopShow): Promise<FeedSource | null
     appleUrl: result.collectionViewUrl || show.url,
     genres,
     artworkUrl: result.artworkUrl600 || result.artworkUrl100 || undefined,
+    storefront: show.storefront,
+    region: show.region,
   };
 }
 
@@ -408,7 +469,7 @@ function episodeAlreadySeen(seen: Set<string>, episode: Episode): boolean {
 }
 
 async function fetchAppleTopPodcastEpisodes(date: string, force = false): Promise<Episode[]> {
-  const shows = await fetchAppleTopShows();
+  const shows = await fetchAppleTopShowsAllStorefronts();
   const seen = force ? new Set<string>() : loadSummarizedFingerprints();
   const selected: Episode[] = [];
   let skippedDuplicates = 0;
@@ -417,7 +478,7 @@ async function fetchAppleTopPodcastEpisodes(date: string, force = false): Promis
     try {
       const feed = await lookupApplePodcast(show);
       if (!feed) {
-        writeStderr(`WARN: Apple Top Shows #${show.rank} ${show.name}: lookup did not return feedUrl`);
+        writeStderr(`WARN: Apple Top Shows ${show.region} #${show.rank} ${show.name}: lookup did not return feedUrl`);
         continue;
       }
       const xml = await fetchText(feed.url, { timeoutMs: 25_000, maxChars: 8_000_000, throwOnMaxChars: true });
@@ -430,14 +491,14 @@ async function fetchAppleTopPodcastEpisodes(date: string, force = false): Promis
       const episode = candidates.find(candidate => !episodeAlreadySeen(seen, candidate));
       if (!episode) {
         skippedDuplicates += candidates.length ? 1 : 0;
-        writeStderr(`WARN: Apple Top Shows #${show.rank} ${feed.show}: no recent unarchived episode in ${maxWindowDays()}d window`);
+        writeStderr(`WARN: Apple Top Shows ${show.region} #${show.rank} ${feed.show}: no recent unarchived episode in ${maxWindowDays()}d window`);
         continue;
       }
       for (const fingerprint of podcastFingerprints(episode)) seen.add(fingerprint);
       selected.push(episode);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      writeStderr(`WARN: Apple Top Shows #${show.rank} ${show.name}: ${message}`);
+      writeStderr(`WARN: Apple Top Shows ${show.region} #${show.rank} ${show.name}: ${message}`);
     }
   }
   if (skippedDuplicates) writeStderr(`skipped ${skippedDuplicates} Apple Top Shows duplicate/latest episode(s) already present in archive history`);
@@ -792,7 +853,7 @@ function podcastSourceMarkdown(episodes: Episode[], sourceIntro: string, writing
   ];
   for (const [index, episode] of episodes.entries()) {
     const metadata = [
-      episode.chartRank ? `- Apple Top Shows 排名：#${episode.chartRank}` : "",
+      episode.chartRank ? `- Apple Top Shows${episode.region ? ` · ${episode.region}` : ""} 排名：#${episode.chartRank}` : "",
       episode.appleId ? `- Apple ID：${episode.appleId}` : "",
       episode.appleUrl ? `- Apple 页面：${episode.appleUrl}` : "",
       episode.genres?.length ? `- Apple 分类：${episode.genres.join(" / ")}` : "",
@@ -937,7 +998,9 @@ async function prepareEpisodeAudioParts(episode: Episode, tmpDir: string, index:
 }
 
 function episodeAudioMetadataBlock(episode: Episode, index: number): string {
-  const rankLabel = episode.source.includes("XYZ Rank") ? "XYZ Rank 热门单集排名" : "Apple Top Shows 排名";
+  const rankLabel = episode.source.includes("XYZ Rank")
+    ? "XYZ Rank 热门单集排名"
+    : `Apple Top Shows${episode.region ? ` · ${episode.region}` : ""} 排名`;
   const metadata = [
     episode.chartRank ? `- ${rankLabel}：#${episode.chartRank}` : "",
     `- 节目：${episode.show}`,

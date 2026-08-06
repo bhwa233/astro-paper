@@ -247,7 +247,7 @@ test("daily digest compose rejects external, ambiguous, and duplicate source lin
 
 // --------------------------------------------------------------------- Reddit
 
-const REDDIT_LONG_SUMMARY = `${"讨论落在散射机制上：水滴逐个透明，但光在大量水滴之间反复折射与反射，各波长被近乎均匀地散射，混合后进入视野就成了白色。".repeat(5)}也有人提醒这只是直观解释。`;
+const REDDIT_LONG_SUMMARY = `${"讨论集中在长期计划上：先明确资金用途与时间，再根据风险承受能力选择简单、分散且费用透明的组合，通过定期投入减少情绪化决策。".repeat(5)}也有人提醒应急资金和高利率债务需要优先处理。`;
 
 test("Reddit item summaries keep Markdown structure and reject thin or heading-laden output", () => {
   const summaryOne = [
@@ -272,10 +272,10 @@ test("Reddit item summaries keep Markdown structure and reject thin or heading-l
     "- 中文标题：第一个问题",
     `- 综合摘要：${JSON.stringify(summaryOne)}`,
     "",
-    "2. [r/explainlikeimfive] Original question two",
+    "2. [r/investing] Original question two",
     "- ⭐ 200 points · 140 评论",
-    "- 来源：r/explainlikeimfive",
-    "- 帖子链接：https://www.reddit.com/r/explainlikeimfive/comments/two/",
+    "- 来源：r/investing",
+    "- 帖子链接：https://www.reddit.com/r/investing/comments/two/",
     "- 中文标题：第二个问题",
     `- 综合摘要：${JSON.stringify(REDDIT_LONG_SUMMARY)}`,
   ].join("\n");
@@ -325,9 +325,9 @@ test("Reddit item outcome drops excluded-topic posts and keeps ranks contiguous"
 
 test("Reddit keeps valid summaries when another post exhausts its retries", () => {
   const outcomes = partitionRedditItemOutcomes([
-    { block: "1. [r/explainlikeimfive] Kept", rank: 1, summary: { rank: 1, title_zh: "保留的帖子", summary: REDDIT_LONG_SUMMARY } },
-    { block: "2. [r/explainlikeimfive] Failed", rank: 2, summary: null, error: "Reddit item 2 has empty or low-signal summary" },
-    { block: "3. [r/explainlikeimfive] Excluded", rank: 3, summary: null },
+    { block: "1. [r/investing] Kept", rank: 1, summary: { rank: 1, title_zh: "保留的帖子", summary: REDDIT_LONG_SUMMARY } },
+    { block: "2. [r/investing] Failed", rank: 2, summary: null, error: "Reddit item 2 has empty or low-signal summary" },
+    { block: "3. [r/investing] Excluded", rank: 3, summary: null },
   ]);
   assert.deepEqual(
     outcomes.kept.map(item => item.rank),

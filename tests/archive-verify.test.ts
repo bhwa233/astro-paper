@@ -181,8 +181,8 @@ test("Reddit archive formatting keeps summary lists out of the fact bullets", ()
   // "- " list items inside a summary must not be swallowed as fact fields, and a numbered list
   // inside the summary must not start a new post block.
   assert.match(markdown, /^- 也有人强调只写一件/m);
-  assert.match(markdown, /^1\. 云越厚，光在内部被散射的次数越多/m);
-  assert.equal((markdown.match(/^## \d+\. /gm) || []).length, 2);
+  assert.match(markdown, /^1\. 写清投资目标和预计使用资金的时间/m);
+  assert.equal((markdown.match(/^## \d+\. /gm) || []).length, 3);
 });
 
 test("Reddit categorized articles split one source into independently ranked files", () => {
@@ -190,13 +190,15 @@ test("Reddit categorized articles split one source into independently ranked fil
   assert.deepEqual(
     articles.map(article => [article.category, article.itemCount]),
     [
-      ["knowledge", 1],
       ["life", 1],
+      ["markets", 1],
+      ["ama", 1],
     ],
   );
   // Each category restarts at rank 1.
-  assert.match(articles[0].markdown, /^1\. 🔴 为什么从地面看云朵是白色的？$/m);
-  assert.match(articles[1].markdown, /^1\. 🔴 哪个小习惯让你的每天变得更好？$/m);
+  assert.match(articles[0].markdown, /^1\. 🔴 哪个小习惯让你的每天变得更好？$/m);
+  assert.match(articles[1].markdown, /^1\. 🔴 新手应该怎样建立长期投资计划？$/m);
+  assert.match(articles[2].markdown, /^1\. 🔴 我做了十五年紧急调度员，欢迎提问$/m);
   assert.doesNotMatch(articles[0].markdown, /^2\. 🔴/m);
 
   const repo = tempDir("reddit-categories");
@@ -214,8 +216,9 @@ test("Reddit categorized articles split one source into independently ranked fil
   );
   assert.deepEqual(
     results.map(result => path.basename(result.path)),
-    ["reddit-2099-01-02-knowledge.md", "reddit-2099-01-02-life.md"],
+    ["reddit-2099-01-02-life.md", "reddit-2099-01-02-markets.md", "reddit-2099-01-02-ama.md"],
   );
-  assert.match(fs.readFileSync(path.join(repo, results[0].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜知识与解释"/);
-  assert.match(fs.readFileSync(path.join(repo, results[1].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜人生与社会"/);
+  assert.match(fs.readFileSync(path.join(repo, results[0].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜人生与社会"/);
+  assert.match(fs.readFileSync(path.join(repo, results[1].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜市场与价值投资"/);
+  assert.match(fs.readFileSync(path.join(repo, results[2].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜人物与问答"/);
 });

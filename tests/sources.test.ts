@@ -691,6 +691,14 @@ test("Reddit source API contract accepts intact v6 score-filtered sources with u
     ["tampered source body", (p: typeof payload) => ({ ...p, source_sha256: "0".repeat(64) }), /source_sha256 does not match/],
     ["wrong archive date", (p: typeof payload) => ({ ...p, archive_date: "2099-01-01" }), /does not match requested date/],
     [
+      "retired knowledge category",
+      (p: typeof payload) => {
+        const retired = p.source.replaceAll("r/AskReddit", "r/explainlikeimfive").replaceAll("- 栏目：life", "- 栏目：knowledge");
+        return { ...p, source: retired, source_sha256: createHash("sha256").update(retired, "utf8").digest("hex") };
+      },
+      /unsupported category\/subreddit mapping/,
+    ],
+    [
       "stats that undercount the source items",
       (p: typeof payload) => ({ ...p, subreddit_stats: p.subreddit_stats.map(stat => (stat.subreddit === "AskReddit" ? { ...stat, final: 1, detail_ok: 1 } : stat)) }),
       /final count does not match source items/,

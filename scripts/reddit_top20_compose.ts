@@ -9,22 +9,22 @@ const SUMMARY_MIN_CHARS = 300;
 
 export const REDDIT_CATEGORIES = [
   {
-    key: "knowledge",
-    title: "知识与解释",
-    fileNameSuffix: "knowledge",
-    subreddits: ["Damnthatsinteresting", "askscience", "explainlikeimfive", "todayilearned", "IAmA", "AMA"],
-  },
-  {
     key: "life",
     title: "人生与社会",
     fileNameSuffix: "life",
-    subreddits: ["AskReddit", "TrueOffMyChest", "confessions", "changemyview", "GriefSupport", "tifu"],
+    subreddits: ["AskReddit", "confessions", "changemyview", "GriefSupport", "tifu"],
   },
   {
     key: "markets",
     title: "市场与价值投资",
     fileNameSuffix: "markets",
     subreddits: ["stocks", "ValueInvesting", "investing", "wallstreetbets"],
+  },
+  {
+    key: "ama",
+    title: "人物与问答",
+    fileNameSuffix: "ama",
+    subreddits: ["IAmA", "AMA", "casualiama"],
   },
 ] as const;
 

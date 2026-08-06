@@ -104,15 +104,47 @@ function normalizeParagraph(text: string): string {
   return sanitizeGeneratedText(text);
 }
 
+// CommonMark 右向定界规则：闭合的 **（含 * __ _）若紧邻标点、又紧跟非空白非标点
+// 字符，就不构成 right-flanking，无法闭合，整段被当作字面量星号。中文句子常以 。！？
+// 结尾紧接下一句、中间无空格，正好命中，导致 `**要点。**后文` 里的加粗失效。
+// 把贴着闭合标记的尾随标点移到标记外部（`**要点**。后文`），让加粗正常闭合。
+const EMPHASIS_TRAIL_PUNCT = "。！？；：，、．….!?;:";
+// 其后若已是这些标点，本就满足 right-flanking、能正常闭合，无需改写。
+const EMPHASIS_FOLLOW_PUNCT = EMPHASIS_TRAIL_PUNCT + "）】」』〉》”’\"')]}";
+
+function escapeCharClass(chars: string): string {
+  return chars.replace(/[\]\\^-]/g, "\\$&");
+}
+
+const EMPHASIS_BOUNDARY_RE = new RegExp(
+  "(`+[^`\\n]*`+)" + // 行内代码：原样保留，避免误伤其中标点
+    // (?<![*_]) 与后面排除 *_：避免从 ** 连续星号里切走单个 *，否则会把
+    // 已正常闭合（如后接空格/行尾）的加粗拆坏。
+    "|(?<![*_])(\\*\\*|__|\\*|_)([^*_\\n]+?)([" +
+    escapeCharClass(EMPHASIS_TRAIL_PUNCT) +
+    "]+)\\2(?=[^\\s*_" +
+    escapeCharClass(EMPHASIS_FOLLOW_PUNCT) +
+    "])",
+  "g"
+);
+
+export function fixEmphasisPunctuationBoundary(text: string): string {
+  return text.replace(EMPHASIS_BOUNDARY_RE, (match, code, open, inner, punct) =>
+    code !== undefined ? code : `${open}${inner}${open}${punct}`
+  );
+}
+
 // Markdown 正文块：保留段落与列表结构，只压掉多余空白。
 // sanitizeGeneratedText 相反，它会把整块压成单行纯文本，只适合单句字段。
 export function normalizeMarkdownBlock(raw: unknown): string {
-  return String(raw || "")
-    .replace(/\r\n/g, "\n")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/[ \t]{2,}/g, " ")
-    .trim();
+  return fixEmphasisPunctuationBoundary(
+    String(raw || "")
+      .replace(/\r\n/g, "\n")
+      .replace(/[ \t]+\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/[ \t]{2,}/g, " ")
+      .trim()
+  );
 }
 
 export function hasChinese(text: string): boolean {

@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import { archivePost } from "../scripts/astro_paper_archive.ts";
+import { archivePost, normalizeMarkdownBlock } from "../scripts/astro_paper_archive.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
 import { parseGitHubTrendingFacts, parseGitHubTrendingModelJson } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
@@ -296,6 +296,21 @@ test("Reddit item summaries keep Markdown structure and reject thin or heading-l
   ] as const) {
     assert.throws(() => parseRedditItemSummary(JSON.stringify(payload), 1), expected, name);
   }
+});
+
+test("normalizeMarkdownBlock moves trailing punctuation out of emphasis so CJK bold closes", () => {
+  // CommonMark right-flanking: a closing ** glued to punctuation and immediately
+  // followed by a non-space char cannot close, leaving literal asterisks. The
+  // normalizer relocates the punctuation past the markers to fix it.
+  assert.equal(normalizeMarkdownBlock("**幻想生物占据主流。**最高赞选择龙"), "**幻想生物占据主流**。最高赞选择龙");
+  assert.equal(normalizeMarkdownBlock("**hello.**world"), "**hello**.world");
+  assert.equal(normalizeMarkdownBlock("**要点？！**继续"), "**要点**？！继续");
+  assert.equal(normalizeMarkdownBlock("**a。**b 和 **c！**d"), "**a**。b 和 **c**！d");
+  // Already-correct or unaffected forms are left untouched.
+  assert.equal(normalizeMarkdownBlock("**要点。** 有人形容"), "**要点。** 有人形容");
+  assert.equal(normalizeMarkdownBlock("**要点**，后文"), "**要点**，后文");
+  assert.equal(normalizeMarkdownBlock("以句号结尾 **要点。**"), "以句号结尾 **要点。**");
+  assert.equal(normalizeMarkdownBlock("行内代码 `a。**b` 保留"), "行内代码 `a。**b` 保留");
 });
 
 test("Reddit item outcome drops excluded-topic posts and keeps ranks contiguous", () => {

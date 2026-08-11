@@ -7,6 +7,7 @@ import { archivePost } from "../scripts/astro_paper_archive.ts";
 import { bjtArchiveInstant } from "../scripts/blog_common.ts";
 import { taskTitle } from "../scripts/blog_tasks.ts";
 import { economistWeeklyMarkdown } from "../scripts/economist_weekly_compose.ts";
+import { nytBooksMarkdownFromModelJson } from "../scripts/nyt_books_compose.ts";
 import { redditCategoryArticlesFromItemSummaries, redditMarkdownFromItemSummaries } from "../scripts/reddit_top20_compose.ts";
 import { verifyResultJson } from "../scripts/verify_blog_generation.ts";
 import { contentDateForTask } from "../scripts/generate_scheduled_post.ts";
@@ -34,6 +35,18 @@ test("magazine tasks use the selected reading-guide titles", () => {
 test("NYT book selections use an ISO week label", () => {
   assert.equal(taskTitle("nyt-books-weekly", "2026-08-09"), "纽约时报书单精选｜2026年第32周");
   assert.equal(taskTitle("nyt-books-weekly", "2021-01-01"), "纽约时报书单精选｜2020年第53周");
+});
+
+test("NYT book metadata uses a WeChat-stable information block", () => {
+  const markdown = nytBooksMarkdownFromModelJson(
+    fixture("blog-ai-responses/nyt-books-weekly.json"),
+    fixture("blog-sources/nyt-books-weekly.md"),
+  );
+
+  assert.match(markdown, /^> \*\*作者：\*\*/m);
+  assert.match(markdown, /^> \*\*类型：\*\*/m);
+  assert.doesNotMatch(markdown, /^- 作者：/m);
+  assert.doesNotMatch(markdown, /^- 类型：/m);
 });
 
 test("archive and verifier accept generated HN, podcast notes, and retained digests", () => {

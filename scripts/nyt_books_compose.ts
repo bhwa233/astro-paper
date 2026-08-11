@@ -89,8 +89,9 @@ function composeWork(model: NytBookModelItem, fact: NytBookFact): string {
   lines.push(
     "#### 基本信息",
     "",
-    `- 作者：${fact.author || "未标明"}`,
-    `- 类型：${model.genre_zh}`,
+    `> **作者：** ${fact.author || "未标明"}`,
+    ">",
+    `> **类型：** ${model.genre_zh}`,
     "",
     "#### 内容简介",
     "",

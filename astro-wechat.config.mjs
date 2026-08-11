@@ -6,5 +6,6 @@ export default {
   defaultCover: "/default-og.jpg",
   theme: "doocs-default",
   eligibleTags: ["技术日报", "每周图书推荐"],
+  remoteImageHosts: ["static01.nyt.com"],
   ledgerPath: ".astro-wechat/ledger.json",
 };

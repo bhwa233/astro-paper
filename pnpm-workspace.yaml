@@ -21,4 +21,4 @@ allowBuilds:
 # This first-party package is published immediately before the scheduled
 # workflow consumes it. Keep the release-age exception pinned to this version.
 minimumReleaseAgeExclude:
-  - '@lxw15337674/astro-wechat@0.1.4'
+  - '@lxw15337674/astro-wechat@0.1.5'

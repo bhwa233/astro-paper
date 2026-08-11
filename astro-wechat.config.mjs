@@ -5,6 +5,6 @@ export default {
   defaultAuthor: "bhwa233",
   defaultCover: "/default-og.jpg",
   theme: "doocs-default",
-  eligibleTags: ["技术日报"],
+  eligibleTags: ["技术日报", "每周图书推荐"],
   ledgerPath: ".astro-wechat/ledger.json",
 };

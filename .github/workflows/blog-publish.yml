@@ -290,9 +290,9 @@ jobs:
           NODE
 
   sync-wechat:
-    name: Sync technical daily to WeChat
+    name: Sync selected article to WeChat
     needs: generate
-    if: ${{ needs.generate.result == 'success' && inputs.task == 'tech-daily' && inputs.sync_wechat }}
+    if: ${{ needs.generate.result == 'success' && (inputs.task == 'tech-daily' || inputs.task == 'nyt-books-weekly') && inputs.sync_wechat }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: wechat-production
@@ -327,8 +327,10 @@ jobs:
       - name: "Install dependencies"
         run: pnpm install --frozen-lockfile
 
-      - name: "Select generated technical daily"
+      - name: "Select generated WeChat article"
         id: source
+        env:
+          WECHAT_TASK: ${{ inputs.task }}
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
@@ -336,11 +338,11 @@ jobs:
 
           const resultPath = "scheduled-posts-generation-artifacts/scheduled-posts-result.json";
           const payload = JSON.parse(fs.readFileSync(resultPath, "utf8"));
-          const item = (payload.results || []).find(result => result.task === "tech-daily");
+          const item = (payload.results || []).find(result => result.task === process.env.WECHAT_TASK);
           const output = process.env.GITHUB_OUTPUT;
           if (!item || item.failed || !item.path || /[\0\r\n]/.test(item.path)) {
             fs.appendFileSync(output, "path=\n");
-            console.log("No publishable technical daily was generated.");
+            console.log("No publishable WeChat article was generated.");
             process.exit(0);
           }
           fs.appendFileSync(output, `path=${item.path}\n`);

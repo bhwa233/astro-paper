@@ -69,7 +69,7 @@ export default defineConfig({
       defaultAuthor: config.site.author,
       defaultCover: "/default-og.jpg",
       theme: "doocs-default",
-      eligibleTags: ["技术日报"],
+      eligibleTags: ["技术日报", "每周图书推荐"],
       failOnInvalid: true,
     }),
   ],

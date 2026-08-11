@@ -68,6 +68,10 @@ test("archive and verifier accept generated HN, podcast notes, and retained dige
   assert.equal(techDaily.title, "技术日报");
   assert.match(fs.readFileSync(path.join(repo, techDaily.path), "utf8"), /^wechat:\n  enabled: true$/m);
 
+  const nytBooks = archivePost({ task: "nyt-books-weekly", date: "2099-01-04", repo, body: composeFixtureBody("nyt-books-weekly"), force: true });
+  assert.equal(nytBooks.title, "纽约时报书单精选｜2099年第1周");
+  assert.match(fs.readFileSync(path.join(repo, nytBooks.path), "utf8"), /^wechat:\n  enabled: true$/m);
+
   const artifactsDir = path.join(repo, "blog-generation-artifacts", "xyzrank-top-episodes");
   fs.mkdirSync(artifactsDir, { recursive: true });
   fs.copyFileSync(fixturePath("blog-sources/xyzrank-top-episodes.md"), path.join(artifactsDir, "source.fixture.md"));

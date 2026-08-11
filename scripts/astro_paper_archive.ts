@@ -466,7 +466,7 @@ export function archivePost({
       description,
       tags: taskTags(task),
       ogImage: formatted.ogImage || ogImage,
-      wechatEnabled: task === "tech-daily",
+      wechatEnabled: task === "tech-daily" || task === "nyt-books-weekly",
     })}${formatted.markdown.trim()}\n`,
     "utf8",
   );

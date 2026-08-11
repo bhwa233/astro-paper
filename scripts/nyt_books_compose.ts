@@ -1,14 +1,21 @@
-// NYT 每周图书规则层：模型只返回语义字段（中文书名/类型/内容简介/推荐理由），
+// NYT 每周图书规则层：模型只返回语义字段（中文书名/类型/内容简介），
 // 事实字段（原书名、作者、封面、书评链接）一律取自 source。分节由 nyt_books_sections 集中配置。
 import { bulletValue, extractBullets, hasChinese, looksLowSignal, parseModelJsonObject } from "./compose_common.ts";
 import { NYT_BOOK_SECTIONS } from "./nyt_books_sections.ts";
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 export type NytBookModelItem = {
   rank: number;
   title_zh: string;
   genre_zh: string;
   summary: string;
-  recommendation: string;
 };
 
 export type NytBookFact = {
@@ -63,11 +70,8 @@ function validateModelItems(rawItems: unknown, label: string): NytBookModelItem[
     const genreZh = String(item.genre_zh || "").trim();
     if (!genreZh) throw new Error(`nyt-books ${label} rank ${rank} is missing genre_zh`);
     const summary = String(item.summary || "").trim();
-    const recommendation = String(item.recommendation || "").trim();
-    for (const [field, value] of [["summary", summary], ["recommendation", recommendation]] as const) {
-      if (!value || looksLowSignal(value)) throw new Error(`nyt-books ${label} rank ${rank} has empty or low-signal ${field}`);
-    }
-    return { rank, title_zh: titleZh, genre_zh: genreZh, summary, recommendation };
+    if (!summary || looksLowSignal(summary)) throw new Error(`nyt-books ${label} rank ${rank} has empty or low-signal summary`);
+    return { rank, title_zh: titleZh, genre_zh: genreZh, summary };
   });
 }
 
@@ -86,22 +90,12 @@ export function parseNytBookModelJson(raw: string): Record<string, NytBookModelI
 function composeWork(model: NytBookModelItem, fact: NytBookFact): string {
   const lines = [`### ${model.title_zh}（${fact.original_title}）`, ""];
   if (fact.cover && fact.cover !== "-") lines.push(`![${model.title_zh}](${fact.cover})`, "");
+  const review = fact.review_link ? `<br><br>书评链接：${escapeHtml(fact.review_link)}` : "";
+  // A single compact block avoids dozens of repeatedly styled heading and
+  // paragraph nodes when a full weekly list contains many books.
   lines.push(
-    "#### 基本信息",
-    "",
-    `> **作者：** ${fact.author || "未标明"}`,
-    ">",
-    `> **类型：** ${model.genre_zh}`,
-    "",
-    "#### 内容简介",
-    "",
-    model.summary,
-    "",
-    "#### 推荐理由",
-    "",
-    model.recommendation,
+    `<div style="margin:0 8px 1.5em">作者：${escapeHtml(fact.author || "未标明")} ｜ 类型：${escapeHtml(model.genre_zh)}<br><br>${escapeHtml(model.summary)}${review}</div>`,
   );
-  if (fact.review_link) lines.push("", `> 延伸阅读：[纽约时报书评](${fact.review_link})`);
   return lines.join("\n");
 }
 

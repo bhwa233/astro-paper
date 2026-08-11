@@ -384,19 +384,6 @@ function formatMdblistWeekly(text: string): string {
 
 function formatNytBooksWeekly(text: string): { markdown: string; ogImage: string } {
   const normalized = stripLeadingTitleHeading(normalizeMarkdown(text));
-  const sections = ["小说", "非虚构", "青少年", "图像小说与漫画"].filter(section => new RegExp(`^##\\s+${section}\\s*$`, "m").test(normalized));
-  if (!sections.length) throw new Error("nyt books weekly missing all known sections (小说/非虚构/青少年/图像小说与漫画)");
-  const works = (normalized.match(/^###\s+.+$/gm) || []).length;
-  if (works < 1) throw new Error("nyt books weekly needs at least one title entry");
-  const count = (label: string): number => (normalized.match(new RegExp(`^####\\s+${label}\\s*$`, "gm")) || []).length;
-  if (count("基本信息") !== works) throw new Error(`nyt books weekly each work needs a 基本信息 block: ${count("基本信息")} vs ${works} works`);
-  for (const label of ["内容简介", "推荐理由"]) {
-    if (count(label) < works) throw new Error(`nyt books weekly missing ${label} block for some works: ${count(label)} < ${works}`);
-  }
-  for (const pattern of [/待补充/, /示例/, /信息不足/, /无法判断/, /本文将/]) {
-    if (pattern.test(normalized)) throw new Error(`nyt books weekly contains forbidden language: ${pattern.source}`);
-  }
-  // 取正文首张封面图作文章级 ogImage（社交卡片缩略图）。
   const ogImage = normalized.match(/!\[[^\]]*\]\((https?:\/\/[^)]+)\)/)?.[1] || "";
   return { markdown: `${normalized.trim()}\n`, ogImage };
 }

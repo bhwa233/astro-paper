@@ -11,9 +11,6 @@ import {
 const NYT_BOOKS_API = "https://api.nytimes.com/svc/books/v3";
 // 只推「本周首次上榜」的真·新书：weeks_on_list==1 排除回榜老书。
 const MAX_WEEKS_ON_LIST = 1;
-// 公众号正文的内联样式会放大每本书的 HTML 体积。每类取前三本，既保留四类书单的
-// 覆盖面，也确保完整的每周精选能落在微信 20,000 字符正文限制内。
-const MAX_BOOKS_PER_SECTION = 3;
 
 type NytBook = {
   rank?: number;
@@ -164,7 +161,6 @@ function selectSection(
   const selected: NytBookCandidate[] = [];
   for (const list of section.lists) {
     for (const book of overview.get(list) || []) {
-      if (selected.length >= MAX_BOOKS_PER_SECTION) return selected;
       if (!isNewRelease(book)) continue;
       const id = bookId(book);
       if (!id) continue; // 畅销书基本都有 ISBN，缺失无法稳定去重，跳过。

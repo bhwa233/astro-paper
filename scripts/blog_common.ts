@@ -106,12 +106,14 @@ export function frontmatter({
   description,
   tags,
   ogImage = "",
+  wechatEnabled = false,
 }: {
   title: string;
   date: string;
   description: string;
   tags: string[];
   ogImage?: string;
+  wechatEnabled?: boolean;
 }): string {
   const lines = [
     "---",
@@ -125,6 +127,7 @@ export function frontmatter({
     ...tags.map(tag => `  - ${tag}`),
   ];
   if (ogImage) lines.push(`ogImage: "${ogImage}"`);
+  if (wechatEnabled) lines.push("wechat:", "  enabled: true");
   lines.push(`description: "${description.replaceAll('"', '\\"')}"`, "timezone: Asia/Shanghai", "---", "");
   return `${lines.join("\n")}\n`;
 }

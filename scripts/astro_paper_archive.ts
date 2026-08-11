@@ -460,7 +460,14 @@ export function archivePost({
   const existed = fs.existsSync(absPath);
   fs.writeFileSync(
     absPath,
-    `${frontmatter({ title, date, description, tags: taskTags(task), ogImage: formatted.ogImage || ogImage })}${formatted.markdown.trim()}\n`,
+    `${frontmatter({
+      title,
+      date,
+      description,
+      tags: taskTags(task),
+      ogImage: formatted.ogImage || ogImage,
+      wechatEnabled: task === "tech-daily",
+    })}${formatted.markdown.trim()}\n`,
     "utf8",
   );
   return { task, path: relPath, title, created: !existed, skipped: false, updated_at_bjt: bjtTimestamp(), commit: "", push: "", tags: taskTags(task) };

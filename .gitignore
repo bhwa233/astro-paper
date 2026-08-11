@@ -40,3 +40,7 @@ __pycache__/
 *.pyc
 
 tmp/
+
+# Astro WeChat previews are disposable. The ledger lives alongside this
+# directory and must remain tracked so drafts are never duplicated.
+.astro-wechat/preview/

@@ -37,6 +37,11 @@ on:
         required: false
         type: boolean
         default: false
+      sync_wechat:
+        description: "Synchronize a generated technical daily to the WeChat draft box."
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       task:
@@ -71,6 +76,11 @@ on:
         required: false
         type: boolean
         default: false
+      sync_wechat:
+        description: "Synchronize a generated technical daily to the WeChat draft box."
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: scheduled-posts-${{ github.ref }}
@@ -81,6 +91,8 @@ jobs:
     name: Publish scheduled blog posts
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    outputs:
+      generated_sha: ${{ steps.head.outputs.sha }}
 
     steps:
       - name: "Checkout repository"
@@ -251,6 +263,11 @@ jobs:
           echo "failed to push generated posts after 3 attempts" >&2
           exit 1
 
+      - name: "Record generated revision"
+        id: head
+        if: always()
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: "Report task-level generation failures"
         if: always()
         run: |
@@ -271,3 +288,136 @@ jobs:
           for (const item of failures) console.error(`- ${item.task}: ${item.error}`);
           process.exit(1);
           NODE
+
+  sync-wechat:
+    name: Sync technical daily to WeChat
+    needs: generate
+    if: ${{ needs.generate.result == 'success' && inputs.task == 'tech-daily' && inputs.sync_wechat }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: wechat-production
+    concurrency:
+      group: wechat-sync-${{ github.repository }}
+      cancel-in-progress: false
+
+    steps:
+      - name: "Checkout generated revision"
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.generate.outputs.generated_sha }}
+          fetch-depth: 0
+
+      - name: "Download generation result"
+        uses: actions/download-artifact@v8
+        with:
+          name: scheduled-posts-generation-artifacts
+          path: scheduled-posts-generation-artifacts
+
+      - name: "Install pnpm"
+        uses: pnpm/action-setup@v6
+        with:
+          version: "11.3.0"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: "Install dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "Select generated technical daily"
+        id: source
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+
+          const resultPath = "scheduled-posts-generation-artifacts/scheduled-posts-result.json";
+          const payload = JSON.parse(fs.readFileSync(resultPath, "utf8"));
+          const item = (payload.results || []).find(result => result.task === "tech-daily");
+          const output = process.env.GITHUB_OUTPUT;
+          if (!item || item.failed || !item.path || /[\0\r\n]/.test(item.path)) {
+            fs.appendFileSync(output, "path=\n");
+            console.log("No publishable technical daily was generated.");
+            process.exit(0);
+          }
+          fs.appendFileSync(output, `path=${item.path}\n`);
+          NODE
+
+      - name: "Dry-run WeChat synchronization"
+        id: dry-run
+        if: steps.source.outputs.path != ''
+        env:
+          ARTICLE_PATH: ${{ steps.source.outputs.path }}
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
+          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+        run: pnpm exec astro-wechat publish --dry-run --json -- "$ARTICLE_PATH" | tee wechat-dry-run.json
+
+      - name: "Approve planned draft creation"
+        id: decision
+        if: steps.source.outputs.path != ''
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+
+          const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
+          if (!Array.isArray(results) || results.length !== 1) {
+            throw new Error("WeChat dry-run must return exactly one result.");
+          }
+          const [result] = results;
+          if (result.status === "planned") {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, "publish=true\n");
+          } else if (result.status === "skipped") {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, "publish=false\n");
+          } else {
+            throw new Error(`WeChat dry-run did not produce a publishable result: ${result.errorMessage || result.status}`);
+          }
+          NODE
+
+      - name: "Create WeChat draft"
+        if: steps.decision.outputs.publish == 'true'
+        env:
+          ARTICLE_PATH: ${{ steps.source.outputs.path }}
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
+          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+        run: pnpm exec astro-wechat publish --json -- "$ARTICLE_PATH" | tee wechat-results.json
+
+      - name: "Commit WeChat ledger"
+        if: always() && steps.decision.outputs.publish == 'true'
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- .astro-wechat/ledger.json)" ]; then
+            echo "WeChat ledger is unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .astro-wechat/ledger.json
+          git commit -m "chore: update WeChat sync ledger [skip ci]"
+          for attempt in 1 2 3; do
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "push attempt ${attempt}/3 failed; retrying after remote refresh"
+            sleep $((attempt * 5))
+          done
+          echo "failed to push WeChat ledger after 3 attempts" >&2
+          exit 1
+
+      - name: "Upload WeChat synchronization results"
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wechat-sync-results
+          path: |
+            wechat-dry-run.json
+            wechat-results.json
+          if-no-files-found: ignore

@@ -52,6 +52,7 @@ test("archive and verifier accept generated HN, podcast notes, and retained dige
     fileNameSuffix: "01-jokes-aside",
   });
   const techDaily = archivePost({ task: "tech-daily", date: "2099-01-06", repo, body: composeFixtureBody("tech-daily"), force: true });
+  assert.match(fs.readFileSync(path.join(repo, techDaily.path), "utf8"), /^wechat:\n  enabled: true$/m);
 
   const artifactsDir = path.join(repo, "blog-generation-artifacts", "xyzrank-top-episodes");
   fs.mkdirSync(artifactsDir, { recursive: true });

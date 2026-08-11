@@ -25,6 +25,16 @@ const posts = defineCollection({
       hideEditPost: z.boolean().optional(),
       timezone: z.string().optional(),
       translationKey: z.string().optional(),
+      wechat: z
+        .object({
+          enabled: z.boolean().optional(),
+          title: z.string().optional(),
+          cover: z.string().optional(),
+          author: z.string().optional(),
+          digest: z.string().optional(),
+          sourceURL: z.string().url().optional(),
+        })
+        .optional(),
     }),
 });
 

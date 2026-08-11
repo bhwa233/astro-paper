@@ -8,6 +8,7 @@ import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { satteri } from "@astrojs/markdown-satteri";
+import astroWechat from "@lxw15337674/astro-wechat/integration";
 import {
   transformerNotationDiff,
   transformerNotationHighlight,
@@ -61,6 +62,15 @@ export default defineConfig({
     // Runs last: minifies built HTML in dist. CSS and JS are already minified by
     // Vite, and images are left to astro:assets + sharp.
     compressHtml(),
+    astroWechat({
+      contentDir: "src/content/posts",
+      siteUrl: config.site.url,
+      permalinkPattern: "/posts/:slug/",
+      defaultAuthor: config.site.author,
+      defaultCover: "/default-og.jpg",
+      eligibleTags: ["技术日报"],
+      failOnInvalid: true,
+    }),
   ],
   i18n: {
     locales: [...LOCALES],

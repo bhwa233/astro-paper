@@ -51,7 +51,7 @@ export const BLOG_TASKS = {
     fileName: "每周影视推荐-{date}.md",
   },
   "nyt-books-weekly": {
-    titlePrefix: "每周图书推荐",
+    titlePrefix: "纽约时报书单精选",
     tag: "每周图书推荐",
     description: "每周图书推荐专栏，基于纽约时报畅销书榜（小说与非虚构）筛选本周新上榜的图书并补充中文导读。",
     fileName: "每周图书推荐-{date}.md",
@@ -125,8 +125,21 @@ export function taskTags(task: Task): string[] {
   return [taskInfo(task).tag];
 }
 
-export function taskTitle(task: Task): string {
-  return taskInfo(task).titlePrefix;
+export function taskTitle(task: Task, date: string): string {
+  const titlePrefix = taskInfo(task).titlePrefix;
+  return task === "nyt-books-weekly" ? `${titlePrefix}｜${isoWeekLabel(date)}` : titlePrefix;
+}
+
+function isoWeekLabel(date: string): string {
+  const [year, month, day] = date.split("-").map(Number);
+  const value = new Date(Date.UTC(year, month - 1, day));
+  const isoDay = value.getUTCDay() || 7;
+  value.setUTCDate(value.getUTCDate() + 4 - isoDay);
+
+  const isoYear = value.getUTCFullYear();
+  const isoYearStart = new Date(Date.UTC(isoYear, 0, 1));
+  const week = Math.ceil(((value.getTime() - isoYearStart.getTime()) / 86_400_000 + 1) / 7);
+  return `${isoYear}年第${week}周`;
 }
 
 export function taskPostRelPath(task: Task, date: string): string {

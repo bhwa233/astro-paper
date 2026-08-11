@@ -25,10 +25,15 @@ test("BJT archive dates use UTC instants for Beijing midnight", () => {
 });
 
 test("magazine tasks use the selected reading-guide titles", () => {
-  assert.equal(taskTitle("economist-weekly"), "经济学人精选导读");
-  assert.equal(taskTitle("new-yorker-weekly"), "纽约客精选导读");
-  assert.equal(taskTitle("atlantic-monthly"), "大西洋月刊精选导读");
-  assert.equal(taskTitle("wired-monthly"), "连线精选导读");
+  assert.equal(taskTitle("economist-weekly", "2026-08-09"), "经济学人精选导读");
+  assert.equal(taskTitle("new-yorker-weekly", "2026-08-09"), "纽约客精选导读");
+  assert.equal(taskTitle("atlantic-monthly", "2026-08-09"), "大西洋月刊精选导读");
+  assert.equal(taskTitle("wired-monthly", "2026-08-09"), "连线精选导读");
+});
+
+test("NYT book selections use an ISO week label", () => {
+  assert.equal(taskTitle("nyt-books-weekly", "2026-08-09"), "纽约时报书单精选｜2026年第32周");
+  assert.equal(taskTitle("nyt-books-weekly", "2021-01-01"), "纽约时报书单精选｜2020年第53周");
 });
 
 test("archive and verifier accept generated HN, podcast notes, and retained digests", () => {

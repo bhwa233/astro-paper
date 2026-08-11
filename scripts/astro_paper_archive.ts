@@ -440,7 +440,7 @@ export function archivePost({
   if (!isTask(task)) throw new Error(`unsupported task: ${task}`);
   const info = taskInfo(task);
   const relPath = fileNameSuffix ? taskPostRelPath(task, `${date}-${fileNameSuffix}`) : taskPostRelPath(task, date);
-  const title = isPodcastArticleTask(task) ? podcastEpisodeTitle(body) || taskTitle(task) : titleSuffix ? `${taskTitle(task)}｜${titleSuffix}` : taskTitle(task);
+  const title = isPodcastArticleTask(task) ? podcastEpisodeTitle(body) || taskTitle(task, date) : titleSuffix ? `${taskTitle(task, date)}｜${titleSuffix}` : taskTitle(task, date);
   const absPath = path.join(repo, relPath);
   if (!force && fs.existsSync(absPath)) {
     return { task, path: relPath, title, created: false, skipped: true, updated_at_bjt: bjtTimestamp(), commit: "", push: "", tags: taskTags(task) };

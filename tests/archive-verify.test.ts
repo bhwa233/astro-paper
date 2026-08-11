@@ -5,6 +5,7 @@ import test from "node:test";
 
 import { archivePost } from "../scripts/astro_paper_archive.ts";
 import { bjtArchiveInstant } from "../scripts/blog_common.ts";
+import { taskTitle } from "../scripts/blog_tasks.ts";
 import { economistWeeklyMarkdown } from "../scripts/economist_weekly_compose.ts";
 import { redditCategoryArticlesFromItemSummaries, redditMarkdownFromItemSummaries } from "../scripts/reddit_top20_compose.ts";
 import { verifyResultJson } from "../scripts/verify_blog_generation.ts";
@@ -21,6 +22,13 @@ function writeResultJson(repo: string, date: string, results: unknown[]): string
 test("BJT archive dates use UTC instants for Beijing midnight", () => {
   assert.equal(bjtArchiveInstant("2026-06-22"), "2026-06-21T16:00:00Z");
   assert.equal(bjtArchiveInstant("2099-01-02"), "2099-01-01T16:00:00Z");
+});
+
+test("magazine tasks use the selected reading-guide titles", () => {
+  assert.equal(taskTitle("economist-weekly"), "经济学人精选导读");
+  assert.equal(taskTitle("new-yorker-weekly"), "纽约客精选导读");
+  assert.equal(taskTitle("atlantic-monthly"), "大西洋月刊精选导读");
+  assert.equal(taskTitle("wired-monthly"), "连线精选导读");
 });
 
 test("archive and verifier accept generated HN, podcast notes, and retained digests", () => {
@@ -119,7 +127,7 @@ test("Economist archive accepts more than ten complete articles", () => {
   const result = archivePost({ task: "economist-weekly", date: issueDate, repo, body: economistWeeklyMarkdown(source).markdown, force: true });
   const article = fs.readFileSync(path.join(repo, result.path), "utf8");
   assert.equal(result.path, "src/content/posts/zh-cn/经济学人-2099-01-02.md");
-  assert.equal(result.title, "经济学人本期导读");
+  assert.equal(result.title, "经济学人精选导读");
   assert.match(article, /pubDatetime: 2099-01-01T16:00:00Z/);
   assert.equal((article.match(/^##\s+第\d+篇中文标题$/gm) || []).length, 12);
   assert.match(article, /- \*\*要点\*\*：/);

@@ -52,6 +52,7 @@ test("archive and verifier accept generated HN, podcast notes, and retained dige
     fileNameSuffix: "01-jokes-aside",
   });
   const techDaily = archivePost({ task: "tech-daily", date: "2099-01-06", repo, body: composeFixtureBody("tech-daily"), force: true });
+  assert.equal(techDaily.title, "技术日报");
   assert.match(fs.readFileSync(path.join(repo, techDaily.path), "utf8"), /^wechat:\n  enabled: true$/m);
 
   const artifactsDir = path.join(repo, "blog-generation-artifacts", "xyzrank-top-episodes");
@@ -118,7 +119,7 @@ test("Economist archive accepts more than ten complete articles", () => {
   const result = archivePost({ task: "economist-weekly", date: issueDate, repo, body: economistWeeklyMarkdown(source).markdown, force: true });
   const article = fs.readFileSync(path.join(repo, result.path), "utf8");
   assert.equal(result.path, "src/content/posts/zh-cn/经济学人-2099-01-02.md");
-  assert.equal(result.title, "经济学人本期导读｜2099-01-02");
+  assert.equal(result.title, "经济学人本期导读");
   assert.match(article, /pubDatetime: 2099-01-01T16:00:00Z/);
   assert.equal((article.match(/^##\s+第\d+篇中文标题$/gm) || []).length, 12);
   assert.match(article, /- \*\*要点\*\*：/);
@@ -220,7 +221,7 @@ test("Reddit categorized articles split one source into independently ranked fil
     results.map(result => path.basename(result.path)),
     ["reddit-2099-01-02-life.md", "reddit-2099-01-02-markets.md", "reddit-2099-01-02-ama.md"],
   );
-  assert.match(fs.readFileSync(path.join(repo, results[0].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜人生与社会"/);
-  assert.match(fs.readFileSync(path.join(repo, results[1].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜市场与价值投资"/);
-  assert.match(fs.readFileSync(path.join(repo, results[2].path), "utf8"), /title: "Reddit 每日精选｜2099-01-02｜人物与问答"/);
+  assert.match(fs.readFileSync(path.join(repo, results[0].path), "utf8"), /title: "Reddit 每日精选｜人生与社会"/);
+  assert.match(fs.readFileSync(path.join(repo, results[1].path), "utf8"), /title: "Reddit 每日精选｜市场与价值投资"/);
+  assert.match(fs.readFileSync(path.join(repo, results[2].path), "utf8"), /title: "Reddit 每日精选｜人物与问答"/);
 });

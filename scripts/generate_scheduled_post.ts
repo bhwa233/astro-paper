@@ -63,8 +63,8 @@ function offsetDate(days: number, timeZone?: string): string {
   return timeZone ? dateStringInTimeZone(date, timeZone) : bjtDateString(date);
 }
 
-function titleForVariant(task: Task, date: string, titleSuffix = ""): string {
-  return titleSuffix ? `${taskTitle(task, date)}｜${titleSuffix}` : taskTitle(task, date);
+function titleForVariant(task: Task, titleSuffix = ""): string {
+  return titleSuffix ? `${taskTitle(task)}｜${titleSuffix}` : taskTitle(task);
 }
 
 function variantPostRelPath(task: Task, date: string, fileNameSuffix = ""): string {
@@ -82,7 +82,7 @@ function skippedExistingVariant(task: Task, repo: string, date: string, fileName
   return {
     task,
     path: relPath,
-    title: titleForVariant(task, date, titleSuffix),
+    title: titleForVariant(task, titleSuffix),
     created: false,
     skipped: true,
     updated_at_bjt: "",
@@ -152,7 +152,7 @@ function skippedLowQuality(task: Task, date: string, reason: string): ResultItem
   return {
     task,
     path: "",
-    title: taskTitle(task, date),
+    title: taskTitle(task),
     created: false,
     skipped: true,
     updated_at_bjt: "",
@@ -226,7 +226,7 @@ function failedTask(task: Task, date: string, error: unknown): ResultItem {
   return {
     task,
     path: "",
-    title: taskTitle(task, date),
+    title: taskTitle(task),
     created: false,
     skipped: false,
     failed: true,
@@ -1377,7 +1377,7 @@ async function generatePodcastArticles({ task, repo, date, force, promptDir, art
     } catch (error) {
       const failed = failedTask(task, date, error);
       failed.path = variantPostRelPath(task, date, fileNameSuffix);
-      failed.title = titleForVariant(task, date);
+      failed.title = titleForVariant(task);
       results.push(failed);
       writeStderr(`ERROR: ${artifactKey} generation failed: ${failed.error}`);
     }

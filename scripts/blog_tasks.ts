@@ -125,8 +125,8 @@ export function taskTags(task: Task): string[] {
   return [taskInfo(task).tag];
 }
 
-export function taskTitle(task: Task, date: string): string {
-  return `${taskInfo(task).titlePrefix}｜${date}`;
+export function taskTitle(task: Task): string {
+  return taskInfo(task).titlePrefix;
 }
 
 export function taskPostRelPath(task: Task, date: string): string {

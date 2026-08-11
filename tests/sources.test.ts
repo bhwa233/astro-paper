@@ -180,7 +180,7 @@ function podcastResult(overrides: Partial<ResultItem>): ResultItem {
   return {
     task: "daily-podcasts",
     path: "",
-    title: "每日播客笔记｜2099-01-02",
+    title: "每日播客笔记",
     created: false,
     skipped: false,
     updated_at_bjt: "",

@@ -4,6 +4,7 @@ export default {
   permalinkPattern: "/posts/:slug/",
   defaultAuthor: "bhwa233",
   defaultCover: "/default-og.jpg",
+  theme: "doocs-default",
   eligibleTags: ["技术日报"],
   ledgerPath: ".astro-wechat/ledger.json",
 };

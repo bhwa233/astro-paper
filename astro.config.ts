@@ -68,6 +68,7 @@ export default defineConfig({
       permalinkPattern: "/posts/:slug/",
       defaultAuthor: config.site.author,
       defaultCover: "/default-og.jpg",
+      theme: "doocs-default",
       eligibleTags: ["技术日报"],
       failOnInvalid: true,
     }),

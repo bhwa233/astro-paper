@@ -1,5 +1,5 @@
-// NYT 每周图书规则层：模型只返回语义字段（中文书名/类型/内容简介），
-// 事实字段（原书名、作者、封面）一律取自 source。分节由 nyt_books_sections 集中配置。
+// NYT 每周图书规则层：模型只返回语义字段（中文书名/类型/内容简介/推荐理由/书评译文），
+// 事实字段（原书名、作者、封面、豆瓣中译名）一律取自 source。分节由 nyt_books_sections 集中配置。
 import { bulletValue, extractBullets, hasChinese, looksLowSignal, parseModelJsonObject } from "./compose_common.ts";
 import { NYT_BOOK_SECTIONS } from "./nyt_books_sections.ts";
 
@@ -8,6 +8,8 @@ export type NytBookModelItem = {
   title_zh: string;
   genre_zh: string;
   summary: string;
+  recommendation: string;
+  praise: string;
 };
 
 export type NytBookFact = {
@@ -15,6 +17,7 @@ export type NytBookFact = {
   original_title: string;
   author: string;
   cover: string;
+  title_zh_official: string;
 };
 
 function parseSectionFacts(sectionText: string): NytBookFact[] {
@@ -24,11 +27,14 @@ function parseSectionFacts(sectionText: string): NytBookFact[] {
     .filter(block => /^##\s+\d+\.\s+/.test(block));
   return blocks.map((block, index) => {
     const bullets = extractBullets(block);
+    const titleZh = bulletValue(bullets, "中文书名");
     return {
       rank: index + 1,
       original_title: bulletValue(bullets, "原书名") || block.match(/^##\s+\d+\.\s+(.+)$/m)?.[1]?.trim() || "",
       author: bulletValue(bullets, "作者"),
       cover: bulletValue(bullets, "封面"),
+      // 豆瓣中译名命中率低（新书基本为 "-"），拿不到就回落模型翻译。
+      title_zh_official: titleZh && titleZh !== "-" ? titleZh : "",
     };
   });
 }
@@ -60,7 +66,13 @@ function validateModelItems(rawItems: unknown, label: string): NytBookModelItem[
     if (!genreZh) throw new Error(`nyt-books ${label} rank ${rank} is missing genre_zh`);
     const summary = String(item.summary || "").trim();
     if (!summary || looksLowSignal(summary)) throw new Error(`nyt-books ${label} rank ${rank} has empty or low-signal summary`);
-    return { rank, title_zh: titleZh, genre_zh: genreZh, summary };
+    const recommendation = String(item.recommendation || "").trim();
+    if (!recommendation || looksLowSignal(recommendation)) {
+      throw new Error(`nyt-books ${label} rank ${rank} has empty or low-signal recommendation`);
+    }
+    // 书评是可选证据：证据里没有引文时模型应输出空串，不能自己编一条。
+    const praise = String(item.praise || "").trim();
+    return { rank, title_zh: titleZh, genre_zh: genreZh, summary, recommendation, praise };
   });
 }
 
@@ -78,14 +90,18 @@ export function parseNytBookModelJson(raw: string): Record<string, NytBookModelI
 
 function composeWork(model: NytBookModelItem, fact: NytBookFact): string {
   const hardBreak = "\\";
-  const lines = [`### ${model.title_zh}（${fact.original_title}）`, ""];
-  if (fact.cover && fact.cover !== "-") lines.push(`![${model.title_zh}](${fact.cover})`, "");
+  // 有官方中译名就用官方名，模型翻的名字只作兜底。
+  const title = fact.title_zh_official || model.title_zh;
+  const lines = [`### ${title}（${fact.original_title}）`, ""];
+  if (fact.cover && fact.cover !== "-") lines.push(`![${title}](${fact.cover})`, "");
   lines.push(
     `作者：${fact.author || "未标明"}${hardBreak}`,
     `类型：${model.genre_zh}${hardBreak}`,
     `内容简介：${hardBreak}`,
     model.summary,
   );
+  lines.push("", `推荐理由：${hardBreak}`, model.recommendation);
+  if (model.praise) lines.push("", `书评：${hardBreak}`, model.praise);
   return lines.join("\n");
 }
 

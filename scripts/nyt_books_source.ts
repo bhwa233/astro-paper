@@ -1,5 +1,8 @@
 #!/usr/bin/env tsx
 import { bjtTimestamp, clipText, compact, fetchJson, parseArgs, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { splitBookBlurb } from "./book_blurb.ts";
+import { fetchDoubanChineseTitle } from "./douban_books.ts";
+import { fetchGoogleBookInfo } from "./google_books.ts";
 import { NYT_BOOK_SECTIONS, type NytBookSection } from "./nyt_books_sections.ts";
 import {
   type NytBookRecommendation,
@@ -32,7 +35,10 @@ type NytOverviewResponse = {
   fault?: { faultstring?: string };
 };
 
-export type NytBookCandidate = { book: NytBook; recommendation: NytBookRecommendation };
+// 证据层补齐的字段：简介来自 Google Books，荣誉/书评从出版社文案里拆出，中文书名来自豆瓣。
+type NytBookEnrichment = { honors: string[]; praise: string[]; titleZh: string };
+
+export type NytBookCandidate = { book: NytBook; recommendation: NytBookRecommendation; enrichment: NytBookEnrichment };
 
 // 抛出后由 generate_scheduled_post 识别为「本周无新书」跳过，而不是记为失败。
 export class NytBooksNoNewReleasesError extends Error {
@@ -48,52 +54,31 @@ function apiKey(): string {
   return key;
 }
 
-// OpenLibrary 免密钥兜底：NYT overview 对新书常缺 description，靠书名硬编简介会得到空话。
-const OPEN_LIBRARY_API = "https://openlibrary.org";
 const MIN_SYNOPSIS_CHARS = 60;
 
-type OpenLibraryDescription = string | { value?: string } | undefined;
-type OpenLibraryEdition = { description?: OpenLibraryDescription; works?: { key?: string }[] };
-type OpenLibraryWork = { description?: OpenLibraryDescription };
+// 逐本补证据：Google Books 提供出版社文案（简介 + 荣誉 + 书评引文），豆瓣提供中译名。
+// 顺序执行避免打爆 Google 配额（默认 1000 次/天）与触发豆瓣反爬；两者均失败静默。
+async function enrichCandidates(candidates: NytBookCandidate[]): Promise<void> {
+  for (const candidate of candidates) {
+    const { book, enrichment } = candidate;
+    const title = compact(book.title || "");
+    const author = compact(book.author || "");
 
-function readDescription(value: OpenLibraryDescription): string {
-  if (typeof value === "string") return compact(value);
-  if (value && typeof value.value === "string") return compact(value.value);
-  return "";
-}
-
-// 两跳：edition 有简介直接用；没有就跟到 work（简介多挂在 work 上）。失败静默返回空，回落到占位。
-async function fetchOpenLibrarySynopsis(isbn: string): Promise<string> {
-  const id = compact(isbn);
-  if (!id) return "";
-  try {
-    const edition = await fetchJson<OpenLibraryEdition>(`${OPEN_LIBRARY_API}/isbn/${id}.json`, {
-      headers: { accept: "application/json" },
-      retries: 1,
-    });
-    const editionDesc = readDescription(edition.description);
-    if (editionDesc.length >= MIN_SYNOPSIS_CHARS) return editionDesc;
-    const workKey = compact(edition.works?.[0]?.key || "");
-    if (workKey) {
-      const work = await fetchJson<OpenLibraryWork>(`${OPEN_LIBRARY_API}${workKey}.json`, {
-        headers: { accept: "application/json" },
-        retries: 1,
-      });
-      const workDesc = readDescription(work.description);
-      if (workDesc.length >= MIN_SYNOPSIS_CHARS) return workDesc;
+    // NYT 的 description 是一句话导语，荣誉与书评只有出版社文案里有，所以每本都查。
+    const info = await fetchGoogleBookInfo(bookId(book), title, author);
+    if (info) {
+      const blurb = splitBookBlurb(info.description);
+      enrichment.honors = blurb.honors;
+      enrichment.praise = blurb.praise;
+      // 只有拆出的正文足够长才替换 NYT 简介，避免整段都是引文时正文被清空。
+      const nytSynopsis = compact(book.description || "");
+      if (blurb.synopsis.length >= MIN_SYNOPSIS_CHARS && blurb.synopsis.length > nytSynopsis.length) {
+        book.description = blurb.synopsis;
+      }
     }
-    return editionDesc; // 可能是短简介或空串
-  } catch {
-    return ""; // 未收录 / 限流 / 网络故障：不阻断生成
-  }
-}
 
-// 逐本补简介：仅对 NYT 未给 description 的书发请求，顺序执行避免打爆 OpenLibrary。
-async function enrichSynopses(candidates: NytBookCandidate[]): Promise<void> {
-  for (const { book } of candidates) {
-    if (compact(book.description || "")) continue;
-    const synopsis = await fetchOpenLibrarySynopsis(bookId(book));
-    if (synopsis) book.description = synopsis;
+    const match = await fetchDoubanChineseTitle(title);
+    if (match) enrichment.titleZh = match.titleZh;
   }
 }
 
@@ -131,17 +116,22 @@ function coverUrl(book: NytBook): string {
   return compact(book.book_image || "") || "-";
 }
 
+// 荣誉与书评分行给出，别和简介混在一起：模型看到整段营销文案会把书评人的主观评价
+// 当成客观事实写进内容简介。
 function sourceBlock(candidate: NytBookCandidate, index: number, section: NytBookSection): string {
-  const { book, recommendation } = candidate;
+  const { book, recommendation, enrichment } = candidate;
   const title = compact(book.title || `未命名图书 ${index + 1}`);
   return [
     `## ${index + 1}. ${title}`,
     `- 原书名：${title}`,
+    `- 中文书名：${enrichment.titleZh || "-"}`,
     `- 榜单类型：${section.label}`,
     `- ISBN：${recommendation.bookId}`,
     `- 作者：${compact(book.author || "-") || "-"}`,
     `- 封面：${coverUrl(book)}`,
     `- 简介(EN)：${compact(book.description || "") ? clipText(book.description || "", 400) : "-"}`,
+    `- 荣誉(EN)：${enrichment.honors.length ? clipText(enrichment.honors.join(" / "), 240) : "-"}`,
+    `- 书评(EN)：${enrichment.praise.length ? clipText(enrichment.praise.join(" | "), 400) : "-"}`,
   ].join("\n");
 }
 
@@ -162,7 +152,11 @@ function selectSection(
       if (blockedKeys.has(key) || blockedTitleAuthor.has(taKey)) continue;
       blockedKeys.add(key);
       blockedTitleAuthor.add(taKey);
-      selected.push({ book, recommendation: { key, listType: section.key, bookId: id, title: compact(book.title || "") } });
+      selected.push({
+        book,
+        recommendation: { key, listType: section.key, bookId: id, title: compact(book.title || "") },
+        enrichment: { honors: [], praise: [], titleZh: "" },
+      });
     }
   }
   return selected;
@@ -188,8 +182,8 @@ export async function buildNytBooksWeeklySource(
   if (!total) {
     throw new NytBooksNoNewReleasesError(`NYT books lists have no brand-new (week 1) unrecommended titles for ${date}`);
   }
-  // NYT 常缺 description，先用 OpenLibrary 补齐再渲染，避免模型靠书名编空话。
-  await enrichSynopses(selections.flat());
+  // NYT 常缺 description，先用 Google Books 补齐并拆出荣誉/书评再渲染，避免模型靠书名编空话。
+  await enrichCandidates(selections.flat());
   const sections = NYT_BOOK_SECTIONS.map((section, index) => renderSection(section, selections[index]));
   const sourceLists = [...new Set(NYT_BOOK_SECTIONS.flatMap(section => section.lists))].join(", ");
   return [
@@ -202,6 +196,9 @@ export async function buildNytBooksWeeklySource(
     `筛选口径：仅保留本周首次上榜（上榜周数 = ${MAX_WEEKS_ON_LIST}）且未推荐过的图书，跨榜按 ISBN 与书名作者去重`,
     "",
     "数据说明：榜单代表纽约时报统计的近期销量热度。请据证据翻译改写，不要编造作者、情节或评分。",
+    "字段说明：「简介」为剧情正文；「荣誉」为媒体书单与榜单头衔；「书评」为出版社文案中带署名的评论引文，",
+    "三者已在证据层拆开，写作时不要互相混用，尤其不要把书评人的主观评价写成客观事实。",
+    "「中文书名」来自豆瓣中译本，为「-」时由你自行翻译。",
     "",
     ...sections.flatMap(section => section.blocks),
   ].join("\n");

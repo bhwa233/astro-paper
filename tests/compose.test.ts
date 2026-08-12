@@ -156,6 +156,15 @@ test("mdblist compose takes poster and IMDb rating from source", () => {
   assert.match(markdown, /- IMDb 评分：8\.1/);
 });
 
+test("NYT books compose uses portable nested Markdown sections", () => {
+  const markdown = composeFixtureBody("nyt-books-weekly");
+  assert.match(markdown, /^#### 基本信息\n\n- 作者：Mara Okonjo$/m);
+  assert.match(markdown, /^#### 内容简介$/m);
+  assert.match(markdown, /^#### 荣誉$/m);
+  assert.match(markdown, /^#### 书评$/m);
+  assert.doesNotMatch(markdown, /\\$/m);
+});
+
 test("mdblist compose requires every selected candidate exactly once", () => {
   const source = fixture("blog-sources/mdblist-weekly.md");
   const raw = JSON.parse(fixture("blog-ai-responses/mdblist-weekly.json"));

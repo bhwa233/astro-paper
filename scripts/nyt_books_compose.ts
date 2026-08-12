@@ -1,5 +1,7 @@
-// NYT 每周图书规则层：模型只返回语义字段（中文书名/类型/内容简介/推荐理由/书评译文），
+// NYT 每周图书规则层：模型只返回语义字段（中文书名/类型/内容简介，以及荣誉与书评的译文），
 // 事实字段（原书名、作者、封面、豆瓣中译名）一律取自 source。分节由 nyt_books_sections 集中配置。
+//
+// 荣誉与书评只做翻译、不做生成：证据缺失时对应段落整块不渲染，宁可空着也不让模型自拟推荐语。
 import { bulletValue, extractBullets, hasChinese, looksLowSignal, parseModelJsonObject } from "./compose_common.ts";
 import { NYT_BOOK_SECTIONS } from "./nyt_books_sections.ts";
 
@@ -8,7 +10,7 @@ export type NytBookModelItem = {
   title_zh: string;
   genre_zh: string;
   summary: string;
-  recommendation: string;
+  honors: string;
   praise: string;
 };
 
@@ -66,13 +68,10 @@ function validateModelItems(rawItems: unknown, label: string): NytBookModelItem[
     if (!genreZh) throw new Error(`nyt-books ${label} rank ${rank} is missing genre_zh`);
     const summary = String(item.summary || "").trim();
     if (!summary || looksLowSignal(summary)) throw new Error(`nyt-books ${label} rank ${rank} has empty or low-signal summary`);
-    const recommendation = String(item.recommendation || "").trim();
-    if (!recommendation || looksLowSignal(recommendation)) {
-      throw new Error(`nyt-books ${label} rank ${rank} has empty or low-signal recommendation`);
-    }
-    // 书评是可选证据：证据里没有引文时模型应输出空串，不能自己编一条。
+    // 荣誉与书评都是可选证据：source 里为「-」时模型应输出空串，不能自己补一条。
+    const honors = String(item.honors || "").trim();
     const praise = String(item.praise || "").trim();
-    return { rank, title_zh: titleZh, genre_zh: genreZh, summary, recommendation, praise };
+    return { rank, title_zh: titleZh, genre_zh: genreZh, summary, honors, praise };
   });
 }
 
@@ -100,7 +99,7 @@ function composeWork(model: NytBookModelItem, fact: NytBookFact): string {
     `内容简介：${hardBreak}`,
     model.summary,
   );
-  lines.push("", `推荐理由：${hardBreak}`, model.recommendation);
+  if (model.honors) lines.push("", `荣誉：${hardBreak}`, model.honors);
   if (model.praise) lines.push("", `书评：${hardBreak}`, model.praise);
   return lines.join("\n");
 }

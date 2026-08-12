@@ -28,6 +28,14 @@ export function doubanLookupEnabled(): boolean {
   return compact(process.env.DOUBAN_LOOKUP || "1") !== "0";
 }
 
+// 失败静默会掩盖「被反爬拦了」和「本来就没有中译本」的区别，两者在证据里都是空。
+// 计数器让生成日志能区分：requests 有量而 failures 也有量 = 被拦；failures=0 而 matches=0 = 确实没有。
+const stats = { requests: 0, failures: 0, matches: 0 };
+
+export function doubanStatsLine(): string {
+  return `[douban] requests=${stats.requests} failures=${stats.failures} matches=${stats.matches}`;
+}
+
 function hasChineseChars(text: string): boolean {
   return /[一-鿿]/.test(text);
 }
@@ -67,6 +75,7 @@ function suggestUrl(query: string): string {
 }
 
 async function suggest(query: string): Promise<DoubanSuggestItem[]> {
+  stats.requests += 1;
   try {
     const items = await fetchJson<DoubanSuggestItem[]>(suggestUrl(query), {
       headers: { accept: "application/json", referer: "https://book.douban.com/" },
@@ -75,6 +84,7 @@ async function suggest(query: string): Promise<DoubanSuggestItem[]> {
     });
     return Array.isArray(items) ? items : [];
   } catch {
+    stats.failures += 1;
     return [];
   }
 }
@@ -107,6 +117,7 @@ function parseOtherEditionIds(html: string): string[] {
 }
 
 async function fetchSubject(id: string): Promise<DoubanSubject | null> {
+  stats.requests += 1;
   try {
     const html = await fetchText(`${DOUBAN_SUBJECT_URL}/${id}/`, {
       headers: { referer: "https://book.douban.com/" },
@@ -120,6 +131,7 @@ async function fetchSubject(id: string): Promise<DoubanSubject | null> {
       otherEditionIds: parseOtherEditionIds(html),
     };
   } catch {
+    stats.failures += 1;
     return null;
   }
 }
@@ -149,8 +161,14 @@ export async function fetchDoubanChineseTitle(title: string): Promise<DoubanBook
   let fallback: DoubanBookMatch | null = null;
   const accept = (titleZh: string, originalTitle: string, id: string): DoubanBookMatch | null => {
     if (!hasChineseChars(titleZh) || !titlesAlign(originalTitle, name)) return null;
-    if (isSimplified(titleZh)) return { titleZh, id };
-    fallback = fallback || { titleZh: toSimplified(titleZh), id };
+    if (isSimplified(titleZh)) {
+      stats.matches += 1;
+      return { titleZh, id };
+    }
+    if (!fallback) {
+      stats.matches += 1;
+      fallback = { titleZh: toSimplified(titleZh), id };
+    }
     return null;
   };
 

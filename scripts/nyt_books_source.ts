@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 import { bjtTimestamp, clipText, compact, fetchJson, parseArgs, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { splitBookBlurb } from "./book_blurb.ts";
-import { fetchDoubanChineseTitle } from "./douban_books.ts";
+import { doubanStatsLine, fetchDoubanChineseTitle } from "./douban_books.ts";
 import { fetchGoogleBookInfo } from "./google_books.ts";
 import { NYT_BOOK_SECTIONS, type NytBookSection } from "./nyt_books_sections.ts";
 import {
@@ -80,6 +80,8 @@ async function enrichCandidates(candidates: NytBookCandidate[]): Promise<void> {
     const match = await fetchDoubanChineseTitle(title);
     if (match) enrichment.titleZh = match.titleZh;
   }
+  // 走 stderr，不污染 stdout 上的候选源正文。
+  writeStderr(doubanStatsLine());
 }
 
 // overview.json 一次返回全部活跃榜单，避开 NYT 5 次/分钟的逐榜限流。

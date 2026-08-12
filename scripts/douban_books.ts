@@ -5,6 +5,7 @@
 //
 // 现实预期：NYT 新书当周基本没有中译本，命中率接近 0；老书才有戏。因此全程失败静默，
 // 拿不到就留空，交回模型翻译。GitHub 托管 runner 是境外机房 IP，被拒的概率不低。
+import * as OpenCC from "opencc-js";
 import { compact, fetchJson, fetchText } from "./blog_common.ts";
 
 const DOUBAN_SUGGEST_API = "https://book.douban.com/j/subject_suggest";
@@ -29,6 +30,14 @@ export function doubanLookupEnabled(): boolean {
 
 function hasChineseChars(text: string): boolean {
   return /[一-鿿]/.test(text);
+}
+
+const toSimplified = OpenCC.Converter({ from: "tw", to: "cn" });
+
+// 站点是 zh-cn，港台版书名要转简体（《婚禮之徒》→《婚礼之徒》）。
+// 转换只在没有简体版条目时兜底，所以优先级判断放在调用方。
+function isSimplified(text: string): boolean {
+  return toSimplified(text) === text;
 }
 
 // 比对用的归一化：只留字母数字，避免副标题标点、大小写、连字符造成的假阴性。
@@ -136,6 +145,15 @@ export async function fetchDoubanChineseTitle(title: string): Promise<DoubanBook
     return fetchSubject(id);
   };
 
+  // 港台版先收着：简体版存在就用简体版，只有一版繁体时才转换。
+  let fallback: DoubanBookMatch | null = null;
+  const accept = (titleZh: string, originalTitle: string, id: string): DoubanBookMatch | null => {
+    if (!hasChineseChars(titleZh) || !titlesAlign(originalTitle, name)) return null;
+    if (isSimplified(titleZh)) return { titleZh, id };
+    fallback = fallback || { titleZh: toSimplified(titleZh), id };
+    return null;
+  };
+
   for (const query of suggestQueries(name)) {
     for (const item of await suggest(query)) {
       if (compact(item.type || "") !== "b") continue;
@@ -146,19 +164,17 @@ export async function fetchDoubanChineseTitle(title: string): Promise<DoubanBook
       if (!subject) continue;
 
       // 补全接口偶尔直接给出中译本（Sapiens 就是），能自证就不用再跳。
-      if (hasChineseChars(subject.titleZh) && titlesAlign(subject.originalTitle, name)) {
-        return { titleZh: subject.titleZh, id };
-      }
+      const direct = accept(subject.titleZh, subject.originalTitle, id);
+      if (direct) return direct;
       // 命中的是英文原版：确认确实是同一本，再逐个看它的其它版本。
       if (!titlesAlign(subject.titleZh, name)) continue;
       for (const editionId of subject.otherEditionIds) {
         const edition = await fetchOnce(editionId);
         if (!edition) continue;
-        if (hasChineseChars(edition.titleZh) && titlesAlign(edition.originalTitle, name)) {
-          return { titleZh: edition.titleZh, id: editionId };
-        }
+        const match = accept(edition.titleZh, edition.originalTitle, editionId);
+        if (match) return match;
       }
     }
   }
-  return null;
+  return fallback;
 }

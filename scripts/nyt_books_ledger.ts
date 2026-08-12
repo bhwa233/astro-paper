@@ -4,7 +4,7 @@ import { compact, ensureDir, repoRoot } from "./blog_common.ts";
 import { bulletValue, extractBullets } from "./compose_common.ts";
 import { NYT_BOOK_SECTIONS, sectionByLabel } from "./nyt_books_sections.ts";
 
-// listType 取分节 key（fiction / nonfiction / young_adult / graphic）；仅作元数据，去重靠 ISBN key。
+// listType 取分节 key（fiction / nonfiction / young_adult）；仅作元数据，去重靠 ISBN key。
 export type NytBookListType = string;
 
 export type NytBookRecommendation = {

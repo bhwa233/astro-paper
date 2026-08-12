@@ -24,11 +24,6 @@ export const NYT_BOOK_SECTIONS: NytBookSection[] = [
     label: "青少年",
     lists: ["young-adult-hardcover", "young-adult-paperback-monthly", "series-books"],
   },
-  {
-    key: "graphic",
-    label: "图像小说与漫画",
-    lists: ["graphic-books-and-manga"],
-  },
 ];
 
 export function sectionByLabel(label: string): NytBookSection {

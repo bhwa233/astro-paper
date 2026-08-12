@@ -2,7 +2,7 @@
 
 来源：纽约时报畅销书榜 overview（小说 / 非虚构 / 青少年 / 图像小说与漫画）
 接口：https://api.nytimes.com/svc/books/v3/lists/overview.json
-聚合榜单：combined-print-and-e-book-fiction, hardcover-fiction, trade-fiction-paperback, combined-print-and-e-book-nonfiction, hardcover-nonfiction, paperback-nonfiction-monthly, advice-how-to-and-miscellaneous, business-books, young-adult-hardcover, young-adult-paperback-monthly, series-books, graphic-books-and-manga
+聚合榜单：combined-print-and-e-book-fiction, hardcover-fiction, trade-fiction-paperback, combined-print-and-e-book-nonfiction, hardcover-nonfiction, paperback-nonfiction-monthly, advice-how-to-and-miscellaneous, business-books, young-adult-hardcover, young-adult-paperback-monthly, series-books
 抓取时间：2099-01-02 08:00:00 CST
 筛选口径：仅保留本周首次上榜（上榜周数 = 1）且未推荐过的图书，跨榜按 ISBN 与书名作者去重
 
@@ -57,18 +57,5 @@
 - 作者：Tomas Beck
 - 封面：-
 - 简介(EN)：Two students running an unlicensed radio station from a school basement discover their broadcasts are being logged by someone who has been listening for years.
-- 荣誉(EN)：-
-- 书评(EN)：-
-
-# 图像小说与漫画候选
-
-## 1. Night Shift Botany
-- 原书名：Night Shift Botany
-- 中文书名：-
-- 榜单类型：图像小说与漫画
-- ISBN：9780000000401
-- 作者：Rui Sasaki
-- 封面：https://storage.googleapis.com/du-prd/books/images/9780000000401.jpg
-- 简介(EN)：A wordless graphic novel following a hospital groundskeeper who tends a courtyard garden between rounds, told across a single year of night shifts.
 - 荣誉(EN)：-
 - 书评(EN)：-

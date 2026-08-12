@@ -70,50 +70,94 @@ async function suggest(query: string): Promise<DoubanSuggestItem[]> {
   }
 }
 
-/**
- * 详情页核对「原作名」。豆瓣中译本条目会登记英文原名，两边主标题一致才认。
- * 页面拿不到或没有该字段时返回 false——宁可留空，也不要挂错书。
- */
-async function matchesOriginalTitle(id: string, englishTitle: string): Promise<boolean> {
+// 单次生成里最多访问的详情页数，防止某本书的版本列表很长时把请求量放大。
+const MAX_SUBJECT_FETCHES = 4;
+
+type DoubanSubject = {
+  titleZh: string;
+  originalTitle: string;
+  otherEditionIds: string[];
+};
+
+function titlesAlign(original: string, englishTitle: string): boolean {
+  const wanted = normalizeTitle(englishTitle);
+  const got = normalizeTitle(original);
+  if (!wanted || !got) return false;
+  if (got.startsWith(wanted) || wanted.startsWith(got)) return true;
+  // 副标题差异：主标题相同也算命中（Salt vs Salt: A World History）。
+  return normalizeTitle(mainTitle(original)) === normalizeTitle(mainTitle(englishTitle));
+}
+
+// 「这本书的其他版本」区块里只有出版社和年份，书名要跟进各版本页面才拿得到。
+function parseOtherEditionIds(html: string): string[] {
+  const at = html.indexOf("这本书的其他版本");
+  if (at < 0) return [];
+  const block = html.slice(at, at + 3_000);
+  const ids = [...block.matchAll(/book\.douban\.com\/subject\/(\d+)\//g)].map(match => match[1]);
+  return [...new Set(ids)];
+}
+
+async function fetchSubject(id: string): Promise<DoubanSubject | null> {
   try {
     const html = await fetchText(`${DOUBAN_SUBJECT_URL}/${id}/`, {
       headers: { referer: "https://book.douban.com/" },
-      retries: 0,
+      retries: 0, // 反爬敏感，不重试，失败即放弃
       timeoutMs: 12_000,
       maxChars: 400_000,
     });
-    const original = compact(html.match(/原作名:<\/span>([^<]+)/)?.[1] || "");
-    if (!original) return false;
-    const wanted = normalizeTitle(englishTitle);
-    const got = normalizeTitle(original);
-    if (!wanted || !got) return false;
-    if (got.startsWith(wanted) || wanted.startsWith(got)) return true;
-    // 副标题差异：主标题相同也算命中（Salt vs Salt: A World History）。
-    return normalizeTitle(mainTitle(original)) === normalizeTitle(mainTitle(englishTitle));
+    return {
+      titleZh: compact(html.match(/<span property="v:itemreviewed">([^<]+)/)?.[1] || ""),
+      originalTitle: compact(html.match(/原作名:<\/span>([^<]+)/)?.[1] || ""),
+      otherEditionIds: parseOtherEditionIds(html),
+    };
   } catch {
-    return false;
+    return null;
   }
 }
 
 /**
- * 用英文书名查中译本。只接受标题含中文、且详情页「原作名」与英文书名对得上的条目。
- * 作者名不参与校验：中译本条目的作者是译名（如「[以色列] 尤瓦尔·赫拉利」），无法与英文原名比对。
+ * 用英文书名查中译本。
+ *
+ * 补全接口用英文名查，返回的几乎总是英文原版条目（查 Outliers 只返回英文版 3134517，
+ * 中译本《异类》只有用中文名才搜得到），所以命中英文条目时要再跟一跳「这本书的其他版本」。
+ *
+ * 无论走哪条路，最终都要求落地条目「标题含中文」且「原作名」与英文书名对得上。
+ * 作者名不参与校验：中译本的作者字段是译名（如「[以色列] 尤瓦尔·赫拉利」），没法跟英文原名比。
  */
 export async function fetchDoubanChineseTitle(title: string): Promise<DoubanBookMatch | null> {
   if (!doubanLookupEnabled()) return null;
   const name = compact(title);
   if (!name) return null;
 
-  const seen = new Set<string>();
+  const visited = new Set<string>();
+  const fetchOnce = async (id: string): Promise<DoubanSubject | null> => {
+    if (visited.has(id) || visited.size >= MAX_SUBJECT_FETCHES) return null;
+    visited.add(id);
+    return fetchSubject(id);
+  };
+
   for (const query of suggestQueries(name)) {
     for (const item of await suggest(query)) {
       if (compact(item.type || "") !== "b") continue;
-      const titleZh = compact(item.title || "");
       const id = compact(item.id || "");
-      if (!id || seen.has(id)) continue;
-      seen.add(id);
-      if (!titleZh || !hasChineseChars(titleZh)) continue; // 英文原版条目对中文读者没意义
-      if (await matchesOriginalTitle(id, name)) return { titleZh, id };
+      if (!id) continue;
+
+      const subject = await fetchOnce(id);
+      if (!subject) continue;
+
+      // 补全接口偶尔直接给出中译本（Sapiens 就是），能自证就不用再跳。
+      if (hasChineseChars(subject.titleZh) && titlesAlign(subject.originalTitle, name)) {
+        return { titleZh: subject.titleZh, id };
+      }
+      // 命中的是英文原版：确认确实是同一本，再逐个看它的其它版本。
+      if (!titlesAlign(subject.titleZh, name)) continue;
+      for (const editionId of subject.otherEditionIds) {
+        const edition = await fetchOnce(editionId);
+        if (!edition) continue;
+        if (hasChineseChars(edition.titleZh) && titlesAlign(edition.originalTitle, name)) {
+          return { titleZh: edition.titleZh, id: editionId };
+        }
+      }
     }
   }
   return null;

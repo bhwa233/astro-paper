@@ -23,8 +23,6 @@ type NytBook = {
   book_image?: string;
   primary_isbn13?: string;
   primary_isbn10?: string;
-  book_review_link?: string;
-  sunday_review_link?: string;
 };
 
 type NytOverviewList = { list_name_encoded?: string; books?: NytBook[] };
@@ -129,10 +127,6 @@ function titleAuthorKey(book: NytBook): string {
   return `${compact(book.title || "").toLowerCase()}|${compact(book.author || "").toLowerCase()}`;
 }
 
-function reviewLink(book: NytBook): string {
-  return compact(book.book_review_link || book.sunday_review_link || "");
-}
-
 function coverUrl(book: NytBook): string {
   return compact(book.book_image || "") || "-";
 }
@@ -146,7 +140,6 @@ function sourceBlock(candidate: NytBookCandidate, index: number, section: NytBoo
     `- 榜单类型：${section.label}`,
     `- ISBN：${recommendation.bookId}`,
     `- 作者：${compact(book.author || "-") || "-"}`,
-    `- 书评链接：${reviewLink(book) || "-"}`,
     `- 封面：${coverUrl(book)}`,
     `- 简介(EN)：${compact(book.description || "") ? clipText(book.description || "", 400) : "-"}`,
   ].join("\n");

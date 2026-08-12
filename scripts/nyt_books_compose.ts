@@ -1,15 +1,7 @@
 // NYT 每周图书规则层：模型只返回语义字段（中文书名/类型/内容简介），
-// 事实字段（原书名、作者、封面、书评链接）一律取自 source。分节由 nyt_books_sections 集中配置。
+// 事实字段（原书名、作者、封面）一律取自 source。分节由 nyt_books_sections 集中配置。
 import { bulletValue, extractBullets, hasChinese, looksLowSignal, parseModelJsonObject } from "./compose_common.ts";
 import { NYT_BOOK_SECTIONS } from "./nyt_books_sections.ts";
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
 
 export type NytBookModelItem = {
   rank: number;
@@ -22,7 +14,6 @@ export type NytBookFact = {
   rank: number;
   original_title: string;
   author: string;
-  review_link: string;
   cover: string;
 };
 
@@ -33,12 +24,10 @@ function parseSectionFacts(sectionText: string): NytBookFact[] {
     .filter(block => /^##\s+\d+\.\s+/.test(block));
   return blocks.map((block, index) => {
     const bullets = extractBullets(block);
-    const link = bulletValue(bullets, "书评链接");
     return {
       rank: index + 1,
       original_title: bulletValue(bullets, "原书名") || block.match(/^##\s+\d+\.\s+(.+)$/m)?.[1]?.trim() || "",
       author: bulletValue(bullets, "作者"),
-      review_link: link && link !== "-" ? link : "",
       cover: bulletValue(bullets, "封面"),
     };
   });
@@ -88,13 +77,14 @@ export function parseNytBookModelJson(raw: string): Record<string, NytBookModelI
 }
 
 function composeWork(model: NytBookModelItem, fact: NytBookFact): string {
+  const hardBreak = "\\";
   const lines = [`### ${model.title_zh}（${fact.original_title}）`, ""];
   if (fact.cover && fact.cover !== "-") lines.push(`![${model.title_zh}](${fact.cover})`, "");
-  const review = fact.review_link ? `<br><br>书评链接：${escapeHtml(fact.review_link)}` : "";
-  // A single compact block avoids dozens of repeatedly styled heading and
-  // paragraph nodes when a full weekly list contains many books.
   lines.push(
-    `<div style="margin:0 8px 1.5em">作者：${escapeHtml(fact.author || "未标明")} ｜ 类型：${escapeHtml(model.genre_zh)}<br><br>${escapeHtml(model.summary)}${review}</div>`,
+    `作者：${fact.author || "未标明"}${hardBreak}`,
+    `类型：${model.genre_zh}${hardBreak}`,
+    `内容简介：${hardBreak}`,
+    model.summary,
   );
   return lines.join("\n");
 }

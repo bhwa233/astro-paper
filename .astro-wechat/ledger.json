@@ -24,6 +24,18 @@
       "mediaId": "lAMaLd-mzPj_bm0zorBkNEeYPEQT8gbmLuhs8Om5JN5O-Dgt1ah2yAirm-pOmXKG",
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNH9E5QDA8RLpVLPHKzFRbL-KDf4sNS9e6s4UiD58tm5h",
       "coverContentHash": "541c4404e1c32850"
+    },
+    "https://blog.bhwa233.com/posts/%E6%AF%8F%E5%91%A8%E5%9B%BE%E4%B9%A6%E6%8E%A8%E8%8D%90-2026-08-12/": {
+      "sourceId": "https://blog.bhwa233.com/posts/%E6%AF%8F%E5%91%A8%E5%9B%BE%E4%B9%A6%E6%8E%A8%E8%8D%90-2026-08-12/",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/%E6%AF%8F%E5%91%A8%E5%9B%BE%E4%B9%A6%E6%8E%A8%E8%8D%90-2026-08-12/",
+      "contentHash": "840fa04b3e31b9c969f674d5108d4421ec1355d53293399eb4c0d495d6332b49",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-12T01:15:33.941Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNDA-j612QuptwVq1Js8g6Do0dpkCfabBFOiHOaI4mK0d",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNJ-XCZ-7qLx1IiolR1Rx4KElqZKCLqJ78wgCx4TSpt37",
+      "coverContentHash": "78d0b40158b26f80"
     }
   }
 }

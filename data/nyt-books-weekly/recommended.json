@@ -520,6 +520,142 @@
       "title": "THE ADVENTURE ZONE: STORY AND SONG",
       "archivedAt": "2026-08-09",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-09.md"
+    },
+    {
+      "key": "book:9781464237843",
+      "listType": "fiction",
+      "bookId": "9781464237843",
+      "title": "JUST FOR THE PLOT",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780593832479",
+      "listType": "fiction",
+      "bookId": "9780593832479",
+      "title": "GETTING AWAY WITH MURDER",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780593820261",
+      "listType": "fiction",
+      "bookId": "9780593820261",
+      "title": "CARL'S DOOMSDAY SCENARIO",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780593820285",
+      "listType": "fiction",
+      "bookId": "9780593820285",
+      "title": "THE DUNGEON ANARCHIST'S COOKBOOK",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9781250899552",
+      "listType": "fiction",
+      "bookId": "9781250899552",
+      "title": "THE WEDDING PEOPLE",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9781250394866",
+      "listType": "nonfiction",
+      "bookId": "9781250394866",
+      "title": "THE OTHERS",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9781637749289",
+      "listType": "nonfiction",
+      "bookId": "9781637749289",
+      "title": "BLIZZARD OF LIES",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9781668213179",
+      "listType": "nonfiction",
+      "bookId": "9781668213179",
+      "title": "NOTHING LEFT",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780593854297",
+      "listType": "nonfiction",
+      "bookId": "9780593854297",
+      "title": "A MARRIAGE AT SEA",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780743247542",
+      "listType": "nonfiction",
+      "bookId": "9780743247542",
+      "title": "THE GLASS CASTLE",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780316017930",
+      "listType": "nonfiction",
+      "bookId": "9780316017930",
+      "title": "OUTLIERS",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780593230275",
+      "listType": "nonfiction",
+      "bookId": "9780593230275",
+      "title": "CASTE",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780679763888",
+      "listType": "nonfiction",
+      "bookId": "9780679763888",
+      "title": "THE WARMTH OF OTHER SUNS",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9798217036370",
+      "listType": "nonfiction",
+      "bookId": "9798217036370",
+      "title": "HOW LUCKY AM I",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9781628606515",
+      "listType": "nonfiction",
+      "bookId": "9781628606515",
+      "title": "STAY OFF MY KITCHEN TABLE",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9781546137757",
+      "listType": "graphic",
+      "bookId": "9781546137757",
+      "title": "I SURVIVED THE BOMBING OF PEARL HARBOR, 1941",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780063288096",
+      "listType": "graphic",
+      "bookId": "9780063288096",
+      "title": "APHMAU: SEARCHING FOR HOME",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     }
   ]
 }

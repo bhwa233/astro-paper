@@ -42,6 +42,8 @@ function titleCaseRunLength(text: string, maxTokens: number): number {
   let kept = 0;
   for (let i = 0; i < tokens.length && i < maxTokens; i += 1) {
     const token = tokens[i];
+    // 引号是硬边界：多条书评首尾相接时，署名会一路吃进下一条引文的开头。
+    if (/["“”]/.test(token)) break;
     const bare = token.replace(/^[^\w#(]+/, "");
     if (i >= STARTER_MIN_INDEX && SENTENCE_STARTERS.has(bare.replace(/[^A-Za-z]/g, ""))) break;
     if (isCapitalized(bare)) {
@@ -53,6 +55,8 @@ function titleCaseRunLength(text: string, maxTokens: number): number {
     if (CONNECTORS.has(bare.toLowerCase()) && next && isCapitalized(next.replace(/^[^\w#(]+/, ""))) continue;
     break;
   }
+  // 串尾若是正文起句词（"… —Bill Bryson An enthralling…"），连它一起丢掉。
+  while (kept > 1 && SENTENCE_STARTERS.has(tokens[kept - 1].replace(/[^A-Za-z]/g, ""))) kept -= 1;
   if (!kept) return 0;
   // 把前 kept 个 token 还原成原文长度（保留 token 之间的原始空白）。
   let cursor = 0;

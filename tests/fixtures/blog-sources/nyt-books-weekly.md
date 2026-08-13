@@ -1,6 +1,6 @@
 # 每周图书推荐候选源｜2099-01-02
 
-来源：纽约时报畅销书榜 overview（小说 / 非虚构 / 青少年 / 图像小说与漫画）
+来源：纽约时报畅销书榜 overview（小说 / 非虚构 / 青少年）
 接口：https://api.nytimes.com/svc/books/v3/lists/overview.json
 聚合榜单：combined-print-and-e-book-fiction, hardcover-fiction, trade-fiction-paperback, combined-print-and-e-book-nonfiction, hardcover-nonfiction, paperback-nonfiction-monthly, advice-how-to-and-miscellaneous, business-books, young-adult-hardcover, young-adult-paperback-monthly, series-books
 抓取时间：2099-01-02 08:00:00 CST
@@ -9,13 +9,11 @@
 数据说明：榜单代表纽约时报统计的近期销量热度。请据证据翻译改写，不要编造作者、情节或评分。
 字段说明：「简介」为剧情正文；「荣誉」为媒体书单与榜单头衔；「书评」为出版社文案中带署名的评论引文，
 三者已在证据层拆开，写作时不要互相混用，尤其不要把书评人的主观评价写成客观事实。
-「中文书名」来自豆瓣中译本，为「-」时由你自行翻译。
 
 # 小说候选
 
 ## 1. The Salt Archive
 - 原书名：The Salt Archive
-- 中文书名：-
 - 榜单类型：小说
 - ISBN：9780000000101
 - 作者：Mara Okonjo
@@ -25,7 +23,6 @@
 - 书评(EN)：A patient, exacting novel about the paperwork of memory. —— Harbour Review
 ## 2. Winter Tenants
 - 原书名：Winter Tenants
-- 中文书名：-
 - 榜单类型：小说
 - ISBN：9780000000102
 - 作者：Idris Vahl
@@ -38,7 +35,6 @@
 
 ## 1. The Grid Beneath
 - 原书名：The Grid Beneath
-- 中文书名：脚下的电网
 - 榜单类型：非虚构
 - ISBN：9780000000201
 - 作者：Priya Raghunathan
@@ -51,7 +47,6 @@
 
 ## 1. Signal Practice
 - 原书名：Signal Practice
-- 中文书名：-
 - 榜单类型：青少年
 - ISBN：9780000000301
 - 作者：Tomas Beck

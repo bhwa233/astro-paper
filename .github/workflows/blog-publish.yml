@@ -144,8 +144,6 @@ jobs:
           GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}
           MDBLIST_API_KEY: ${{ secrets.MDBLIST_API_KEY }}
           NYT_API_KEY: ${{ secrets.NYT_API_KEY }}
-          # 豆瓣中译名查询为可选增强，境外 runner 被拒时置 0 关闭。
-          DOUBAN_LOOKUP: ${{ vars.DOUBAN_LOOKUP || '1' }}
           REDDIT_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
           REDDIT_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
           REDDIT_AI_CONCURRENCY: 3

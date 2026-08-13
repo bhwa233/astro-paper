@@ -1,5 +1,5 @@
 // NYT 每周图书规则层：模型只返回语义字段（中文书名/类型/内容简介，以及荣誉与书评的译文），
-// 事实字段（原书名、作者、封面、豆瓣中译名）一律取自 source。分节由 nyt_books_sections 集中配置。
+// 事实字段（原书名、作者、封面）一律取自 source。分节由 nyt_books_sections 集中配置。
 //
 // 荣誉与书评只做翻译、不做生成：证据缺失时对应段落整块不渲染，宁可空着也不让模型自拟推荐语。
 import { bulletValue, extractBullets, hasChinese, looksLowSignal, parseModelJsonObject } from "./compose_common.ts";
@@ -19,7 +19,6 @@ export type NytBookFact = {
   original_title: string;
   author: string;
   cover: string;
-  title_zh_official: string;
 };
 
 function parseSectionFacts(sectionText: string): NytBookFact[] {
@@ -29,14 +28,11 @@ function parseSectionFacts(sectionText: string): NytBookFact[] {
     .filter(block => /^##\s+\d+\.\s+/.test(block));
   return blocks.map((block, index) => {
     const bullets = extractBullets(block);
-    const titleZh = bulletValue(bullets, "中文书名");
     return {
       rank: index + 1,
       original_title: bulletValue(bullets, "原书名") || block.match(/^##\s+\d+\.\s+(.+)$/m)?.[1]?.trim() || "",
       author: bulletValue(bullets, "作者"),
       cover: bulletValue(bullets, "封面"),
-      // 豆瓣中译名命中率低（新书基本为 "-"），拿不到就回落模型翻译。
-      title_zh_official: titleZh && titleZh !== "-" ? titleZh : "",
     };
   });
 }
@@ -88,8 +84,7 @@ export function parseNytBookModelJson(raw: string): Record<string, NytBookModelI
 }
 
 function composeWork(model: NytBookModelItem, fact: NytBookFact): string {
-  // 有官方中译名就用官方名，模型翻的名字只作兜底。
-  const title = fact.title_zh_official || model.title_zh;
+  const title = model.title_zh;
   const lines = [`### ${title}（${fact.original_title}）`, ""];
   if (fact.cover && fact.cover !== "-") lines.push(`![${title}](${fact.cover})`, "");
   lines.push(

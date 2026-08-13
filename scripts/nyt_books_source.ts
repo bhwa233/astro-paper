@@ -1,7 +1,6 @@
 #!/usr/bin/env tsx
 import { bjtTimestamp, clipText, compact, fetchJson, parseArgs, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { splitBookBlurb } from "./book_blurb.ts";
-import { doubanStatsLine, fetchDoubanChineseTitle } from "./douban_books.ts";
 import { fetchGoogleBookInfo } from "./google_books.ts";
 import { NYT_BOOK_SECTIONS, type NytBookSection } from "./nyt_books_sections.ts";
 import {
@@ -35,8 +34,8 @@ type NytOverviewResponse = {
   fault?: { faultstring?: string };
 };
 
-// 证据层补齐的字段：简介来自 Google Books，荣誉/书评从出版社文案里拆出，中文书名来自豆瓣。
-type NytBookEnrichment = { honors: string[]; praise: string[]; titleZh: string };
+// 证据层补齐的字段：简介来自 Google Books，荣誉与书评从同一段出版社文案里拆出。
+type NytBookEnrichment = { honors: string[]; praise: string[] };
 
 export type NytBookCandidate = { book: NytBook; recommendation: NytBookRecommendation; enrichment: NytBookEnrichment };
 
@@ -56,8 +55,8 @@ function apiKey(): string {
 
 const MIN_SYNOPSIS_CHARS = 60;
 
-// 逐本补证据：Google Books 提供出版社文案（简介 + 荣誉 + 书评引文），豆瓣提供中译名。
-// 顺序执行避免打爆 Google 配额（默认 1000 次/天）与触发豆瓣反爬；两者均失败静默。
+// 逐本补证据：Google Books 提供出版社文案（简介 + 荣誉 + 书评引文）。
+// 顺序执行避免打爆配额（默认 1000 次/天）；失败静默，不阻断生成。
 async function enrichCandidates(candidates: NytBookCandidate[]): Promise<void> {
   for (const candidate of candidates) {
     const { book, enrichment } = candidate;
@@ -76,12 +75,7 @@ async function enrichCandidates(candidates: NytBookCandidate[]): Promise<void> {
         book.description = blurb.synopsis;
       }
     }
-
-    const match = await fetchDoubanChineseTitle(title);
-    if (match) enrichment.titleZh = match.titleZh;
   }
-  // 走 stderr，不污染 stdout 上的候选源正文。
-  writeStderr(doubanStatsLine());
 }
 
 // overview.json 一次返回全部活跃榜单，避开 NYT 5 次/分钟的逐榜限流。
@@ -126,7 +120,6 @@ function sourceBlock(candidate: NytBookCandidate, index: number, section: NytBoo
   return [
     `## ${index + 1}. ${title}`,
     `- 原书名：${title}`,
-    `- 中文书名：${enrichment.titleZh || "-"}`,
     `- 榜单类型：${section.label}`,
     `- ISBN：${recommendation.bookId}`,
     `- 作者：${compact(book.author || "-") || "-"}`,
@@ -157,7 +150,7 @@ function selectSection(
       selected.push({
         book,
         recommendation: { key, listType: section.key, bookId: id, title: compact(book.title || "") },
-        enrichment: { honors: [], praise: [], titleZh: "" },
+        enrichment: { honors: [], praise: [] },
       });
     }
   }
@@ -191,7 +184,7 @@ export async function buildNytBooksWeeklySource(
   return [
     `# 每周图书推荐候选源｜${date}`,
     "",
-    "来源：纽约时报畅销书榜 overview（小说 / 非虚构 / 青少年 / 图像小说与漫画）",
+    `来源：纽约时报畅销书榜 overview（${NYT_BOOK_SECTIONS.map(section => section.label).join(" / ")}）`,
     `接口：${NYT_BOOKS_API}/lists/overview.json`,
     `聚合榜单：${sourceLists}`,
     `抓取时间：${bjtTimestamp()}`,
@@ -200,7 +193,6 @@ export async function buildNytBooksWeeklySource(
     "数据说明：榜单代表纽约时报统计的近期销量热度。请据证据翻译改写，不要编造作者、情节或评分。",
     "字段说明：「简介」为剧情正文；「荣誉」为媒体书单与榜单头衔；「书评」为出版社文案中带署名的评论引文，",
     "三者已在证据层拆开，写作时不要互相混用，尤其不要把书评人的主观评价写成客观事实。",
-    "「中文书名」来自豆瓣中译本，为「-」时由你自行翻译。",
     "",
     ...sections.flatMap(section => section.blocks),
   ].join("\n");

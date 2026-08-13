@@ -264,6 +264,8 @@ type RedditSourceJobApiResponse = {
   error_code?: unknown;
   error_message?: unknown;
   retryable?: unknown;
+  deadline_at?: unknown;
+  progress?: unknown;
 };
 
 type RedditSubredditStats = {
@@ -282,6 +284,7 @@ export type RedditSourcePolicy = {
   version: "reddit-source-policy.v1";
   minScore: number;
   listingLimit: number;
+  maxDetailCandidates: number;
 };
 
 const MAX_REDDIT_SOURCE_ITEMS = 2_000;
@@ -293,6 +296,7 @@ function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourceP
   const integerFields = [
     "min_score",
     "listing_limit",
+    "max_detail_candidates",
     "top_level_comment_limit",
     "direct_reply_limit",
     "detail_comment_limit",
@@ -319,6 +323,7 @@ function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourceP
     listing_period: record.listing_period,
     listing_sort: record.listing_sort,
     max_comment_chars: record.max_comment_chars,
+    max_detail_candidates: record.max_detail_candidates,
     max_post_body_chars: record.max_post_body_chars,
     min_score: record.min_score,
     requires_top_level_comment: record.requires_top_level_comment,
@@ -331,6 +336,7 @@ function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourceP
     version: "reddit-source-policy.v1",
     minScore: record.min_score as number,
     listingLimit: record.listing_limit as number,
+    maxDetailCandidates: record.max_detail_candidates as number,
   };
 }
 
@@ -446,6 +452,7 @@ function parseRedditSourceJobResponse(payload: RedditSourceJobApiResponse, date:
   state: "queued" | "running" | "ready" | "failed";
   result: RedditSourceApiResponse | null;
   error: string;
+  progress: string;
 } {
   if (typeof payload.id !== "string" || !payload.id.trim()) {
     throw new Error("Reddit source job response is missing id");
@@ -461,7 +468,21 @@ function parseRedditSourceJobResponse(payload: RedditSourceJobApiResponse, date:
     : null;
   const code = typeof payload.error_code === "string" && payload.error_code.trim() ? payload.error_code.trim() : "REDDIT_SOURCE_JOB_FAILED";
   const message = typeof payload.error_message === "string" && payload.error_message.trim() ? payload.error_message.trim() : "Reddit source job failed without details";
-  return { id: payload.id, state: payload.state, result, error: `${code}: ${message}` };
+  const deadlineAt = typeof payload.deadline_at === "string" && !Number.isNaN(Date.parse(payload.deadline_at)) ? payload.deadline_at : "";
+  const progress = payload.progress && typeof payload.progress === "object" && !Array.isArray(payload.progress)
+    ? payload.progress as Record<string, unknown>
+    : null;
+  const phase = progress?.phase === "listing" || progress?.phase === "details" ? progress.phase : "";
+  const completed = typeof progress?.details_completed === "number" && Number.isInteger(progress.details_completed)
+    ? progress.details_completed
+    : null;
+  const total = typeof progress?.details_total === "number" && Number.isInteger(progress.details_total)
+    ? progress.details_total
+    : null;
+  const progressSummary = phase
+    ? ` phase=${phase}${completed !== null && total !== null ? ` details=${completed}/${total}` : ""}${deadlineAt ? ` deadline=${deadlineAt}` : ""}`
+    : deadlineAt ? ` deadline=${deadlineAt}` : "";
+  return { id: payload.id, state: payload.state, result, error: `${code}: ${message}`, progress: progressSummary };
 }
 
 function redditSourcePollIntervalMs(): number {
@@ -470,6 +491,10 @@ function redditSourcePollIntervalMs(): number {
 
 function redditSourceRequestTimeoutMs(): number {
   return envPositiveInt("REDDIT_SOURCE_REQUEST_TIMEOUT_MS", 30_000);
+}
+
+function redditSourcePollTimeoutMs(): number {
+  return envPositiveInt("REDDIT_SOURCE_POLL_TIMEOUT_MS", 25 * 60_000);
 }
 
 export async function fetchRedditSourceFromApi(date: string): Promise<string> {
@@ -496,12 +521,16 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
     ...request,
   });
   let previousState = "";
+  let previousProgress = "";
+  const pollTimeoutMs = redditSourcePollTimeoutMs();
+  const pollStartedAt = Date.now();
 
   for (;;) {
     const job = parseRedditSourceJobResponse(payload, date);
-    if (job.state !== previousState) {
-      writeStdout(`[reddit-source] job=${job.id} state=${job.state}\n`);
+    if (job.state !== previousState || job.progress !== previousProgress) {
+      writeStdout(`[reddit-source] job=${job.id} state=${job.state}${job.progress}\n`);
       previousState = job.state;
+      previousProgress = job.progress;
     }
     if (job.state === "failed") throw new Error(`Reddit source job ${job.id} failed: ${job.error}`);
     if (job.state === "ready") {
@@ -512,7 +541,12 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
       return source;
     }
 
-    await sleep(redditSourcePollIntervalMs());
+    const elapsedMs = Date.now() - pollStartedAt;
+    const remainingMs = pollTimeoutMs - elapsedMs;
+    if (remainingMs <= 0) {
+      throw new Error(`Reddit source job ${job.id} exceeded client poll timeout after ${pollTimeoutMs}ms; last state=${job.state}${job.progress}`);
+    }
+    await sleep(Math.min(redditSourcePollIntervalMs(), remainingMs));
     payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v3/reddit/top20-source/jobs/${encodeURIComponent(job.id)}`, {
       method: "GET",
       ...request,

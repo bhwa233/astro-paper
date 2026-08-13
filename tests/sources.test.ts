@@ -644,6 +644,7 @@ const REDDIT_POLICY_RESPONSE = {
   listing_period: "day",
   listing_sort: "top",
   max_comment_chars: 800,
+  max_detail_candidates: 30,
   max_post_body_chars: 4000,
   min_score: 20,
   requires_top_level_comment: true,
@@ -655,6 +656,7 @@ const REDDIT_POLICY = {
   version: "reddit-source-policy.v1",
   minScore: 20,
   listingLimit: 50,
+  maxDetailCandidates: 30,
 } satisfies RedditSourcePolicy;
 
 function redditSourceItem(

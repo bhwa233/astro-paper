@@ -522,6 +522,46 @@
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-09.md"
     },
     {
+      "key": "book:9780593854297",
+      "listType": "nonfiction",
+      "bookId": "9780593854297",
+      "title": "A MARRIAGE AT SEA",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780743247542",
+      "listType": "nonfiction",
+      "bookId": "9780743247542",
+      "title": "THE GLASS CASTLE",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780316017930",
+      "listType": "nonfiction",
+      "bookId": "9780316017930",
+      "title": "OUTLIERS",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780593230275",
+      "listType": "nonfiction",
+      "bookId": "9780593230275",
+      "title": "CASTE",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780679763888",
+      "listType": "nonfiction",
+      "bookId": "9780679763888",
+      "title": "THE WARMTH OF OTHER SUNS",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
       "key": "book:9781682816721",
       "listType": "fiction",
       "bookId": "9781682816721",
@@ -610,46 +650,6 @@
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-13.md"
     },
     {
-      "key": "book:9780593854297",
-      "listType": "nonfiction",
-      "bookId": "9780593854297",
-      "title": "A MARRIAGE AT SEA",
-      "archivedAt": "2026-08-12",
-      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
-    },
-    {
-      "key": "book:9780743247542",
-      "listType": "nonfiction",
-      "bookId": "9780743247542",
-      "title": "THE GLASS CASTLE",
-      "archivedAt": "2026-08-12",
-      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
-    },
-    {
-      "key": "book:9780316017930",
-      "listType": "nonfiction",
-      "bookId": "9780316017930",
-      "title": "OUTLIERS",
-      "archivedAt": "2026-08-12",
-      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
-    },
-    {
-      "key": "book:9780593230275",
-      "listType": "nonfiction",
-      "bookId": "9780593230275",
-      "title": "CASTE",
-      "archivedAt": "2026-08-12",
-      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
-    },
-    {
-      "key": "book:9780679763888",
-      "listType": "nonfiction",
-      "bookId": "9780679763888",
-      "title": "THE WARMTH OF OTHER SUNS",
-      "archivedAt": "2026-08-12",
-      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
-    },
-    {
       "key": "book:9780593735930",
       "listType": "nonfiction",
       "bookId": "9780593735930",
@@ -670,30 +670,6 @@
       "listType": "nonfiction",
       "bookId": "9798400509889",
       "title": "THE LIFE-CHANGING ART OF SELF-BRAIN SURGERY",
-      "archivedAt": "2026-08-13",
-      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-13.md"
-    },
-    {
-      "key": "book:9798217236237",
-      "listType": "young_adult",
-      "bookId": "9798217236237",
-      "title": "WINGS OF REVERIE",
-      "archivedAt": "2026-08-13",
-      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-13.md"
-    },
-    {
-      "key": "book:9781250404763",
-      "listType": "young_adult",
-      "bookId": "9781250404763",
-      "title": "IMMORTAL GAME",
-      "archivedAt": "2026-08-13",
-      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-13.md"
-    },
-    {
-      "key": "book:9780316587778",
-      "listType": "young_adult",
-      "bookId": "9780316587778",
-      "title": "CURSED BY THE DAWN",
       "archivedAt": "2026-08-13",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-13.md"
     }

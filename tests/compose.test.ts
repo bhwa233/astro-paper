@@ -156,13 +156,13 @@ test("mdblist compose takes poster and IMDb rating from source", () => {
   assert.match(markdown, /- IMDb 评分：8\.1/);
 });
 
-test("NYT books compose uses portable nested Markdown sections", () => {
+test("NYT books compose uses compact paragraphs for WeChat", () => {
   const markdown = composeFixtureBody("nyt-books-weekly");
-  assert.match(markdown, /^#### 基本信息\n\n- 作者：Mara Okonjo$/m);
-  assert.match(markdown, /^#### 内容简介$/m);
-  assert.match(markdown, /^#### 荣誉$/m);
-  assert.match(markdown, /^#### 书评$/m);
-  assert.doesNotMatch(markdown, /\\$/m);
+  assert.match(markdown, /^作者：Mara Okonjo\\\n类型：悬疑小说\\\n内容简介：\\\n/m);
+  assert.match(markdown, /^荣誉：\\\n/m);
+  assert.match(markdown, /^书评：\\\n/m);
+  assert.doesNotMatch(markdown, /^#### (基本信息|内容简介|荣誉|书评)$/m);
+  assert.doesNotMatch(markdown, /^- (作者|类型)：/m);
 });
 
 test("mdblist compose requires every selected candidate exactly once", () => {

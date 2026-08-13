@@ -522,66 +522,90 @@
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-09.md"
     },
     {
-      "key": "book:9781464237843",
+      "key": "book:9781682816721",
       "listType": "fiction",
-      "bookId": "9781464237843",
-      "title": "JUST FOR THE PLOT",
+      "bookId": "9781682816721",
+      "title": "ADVERSARY TO THE VILLAIN",
       "archivedAt": "2026-08-12",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     },
     {
-      "key": "book:9780593832479",
+      "key": "book:9798217044092",
       "listType": "fiction",
-      "bookId": "9780593832479",
-      "title": "GETTING AWAY WITH MURDER",
+      "bookId": "9798217044092",
+      "title": "THE UNKNOWN",
       "archivedAt": "2026-08-12",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     },
     {
-      "key": "book:9780593820261",
+      "key": "book:9780593723869",
       "listType": "fiction",
-      "bookId": "9780593820261",
+      "bookId": "9780593723869",
+      "title": "A TRADE OF BLOOD",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9781250367846",
+      "listType": "fiction",
+      "bookId": "9781250367846",
+      "title": "THE LION & THE DEATHLESS DARK",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9781538765142",
+      "listType": "fiction",
+      "bookId": "9781538765142",
+      "title": "YOU'LL BE SORRY",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780385551298",
+      "listType": "fiction",
+      "bookId": "9780385551298",
+      "title": "THE AMATEUR",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780593820278",
+      "listType": "fiction",
+      "bookId": "9780593820278",
       "title": "CARL'S DOOMSDAY SCENARIO",
       "archivedAt": "2026-08-12",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     },
     {
-      "key": "book:9780593820285",
+      "key": "book:9798256510381",
       "listType": "fiction",
-      "bookId": "9780593820285",
-      "title": "THE DUNGEON ANARCHIST'S COOKBOOK",
+      "bookId": "9798256510381",
+      "title": "DEATH ROW",
       "archivedAt": "2026-08-12",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     },
     {
-      "key": "book:9781250899552",
+      "key": "book:9780593685297",
       "listType": "fiction",
-      "bookId": "9781250899552",
-      "title": "THE WEDDING PEOPLE",
+      "bookId": "9780593685297",
+      "title": "THE WIDOW",
       "archivedAt": "2026-08-12",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     },
     {
-      "key": "book:9781250394866",
+      "key": "book:9781668214343",
       "listType": "nonfiction",
-      "bookId": "9781250394866",
-      "title": "THE OTHERS",
+      "bookId": "9781668214343",
+      "title": "YOUR FELLOW AMERICANS",
       "archivedAt": "2026-08-12",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     },
     {
-      "key": "book:9781637749289",
+      "key": "book:9780063455191",
       "listType": "nonfiction",
-      "bookId": "9781637749289",
-      "title": "BLIZZARD OF LIES",
-      "archivedAt": "2026-08-12",
-      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
-    },
-    {
-      "key": "book:9781668213179",
-      "listType": "nonfiction",
-      "bookId": "9781668213179",
-      "title": "NOTHING LEFT",
+      "bookId": "9780063455191",
+      "title": "WELCOME TO YOUR LIFE",
       "archivedAt": "2026-08-12",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     },
@@ -626,18 +650,50 @@
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     },
     {
-      "key": "book:9798217036370",
+      "key": "book:9780593735930",
       "listType": "nonfiction",
-      "bookId": "9798217036370",
-      "title": "HOW LUCKY AM I",
+      "bookId": "9780593735930",
+      "title": "YOU CAN DO BEAUTIFUL THINGS",
       "archivedAt": "2026-08-12",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     },
     {
-      "key": "book:9781628606515",
+      "key": "book:9781668082126",
       "listType": "nonfiction",
-      "bookId": "9781628606515",
-      "title": "STAY OFF MY KITCHEN TABLE",
+      "bookId": "9781668082126",
+      "title": "MORE, PLEASE!",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9798400509889",
+      "listType": "nonfiction",
+      "bookId": "9798400509889",
+      "title": "THE LIFE-CHANGING ART OF SELF-BRAIN SURGERY",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9798217236237",
+      "listType": "young_adult",
+      "bookId": "9798217236237",
+      "title": "WINGS OF REVERIE",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9781250404763",
+      "listType": "young_adult",
+      "bookId": "9781250404763",
+      "title": "IMMORTAL GAME",
+      "archivedAt": "2026-08-12",
+      "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
+    },
+    {
+      "key": "book:9780316587778",
+      "listType": "young_adult",
+      "bookId": "9780316587778",
+      "title": "CURSED BY THE DAWN",
       "archivedAt": "2026-08-12",
       "postPath": "src/content/posts/zh-cn/每周图书推荐-2026-08-12.md"
     }

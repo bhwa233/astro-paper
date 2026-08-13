@@ -19,11 +19,6 @@ export const NYT_BOOK_SECTIONS: NytBookSection[] = [
       "business-books",
     ],
   },
-  {
-    key: "young_adult",
-    label: "青少年",
-    lists: ["young-adult-hardcover", "young-adult-paperback-monthly", "series-books"],
-  },
 ];
 
 export function sectionByLabel(label: string): NytBookSection {

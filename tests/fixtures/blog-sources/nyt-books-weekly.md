@@ -1,8 +1,8 @@
 # 每周图书推荐候选源｜2099-01-02
 
-来源：纽约时报畅销书榜 overview（小说 / 非虚构 / 青少年）
+来源：纽约时报畅销书榜 overview（小说 / 非虚构）
 接口：https://api.nytimes.com/svc/books/v3/lists/overview.json
-聚合榜单：combined-print-and-e-book-fiction, hardcover-fiction, trade-fiction-paperback, combined-print-and-e-book-nonfiction, hardcover-nonfiction, paperback-nonfiction-monthly, advice-how-to-and-miscellaneous, business-books, young-adult-hardcover, young-adult-paperback-monthly, series-books
+聚合榜单：combined-print-and-e-book-fiction, hardcover-fiction, trade-fiction-paperback, combined-print-and-e-book-nonfiction, hardcover-nonfiction, paperback-nonfiction-monthly, advice-how-to-and-miscellaneous, business-books
 抓取时间：2099-01-02 08:00:00 CST
 筛选口径：仅保留本周首次上榜（上榜周数 = 1）且未推荐过的图书，跨榜按 ISBN 与书名作者去重
 
@@ -41,16 +41,4 @@
 - 封面：https://storage.googleapis.com/du-prd/books/images/9780000000201.jpg
 - 简介(EN)：A reported history of electrical transmission, arguing that the constraints shaping modern computing were set decades earlier by decisions about where to run high-voltage lines.
 - 荣誉(EN)：One of Meridian Magazine's 10 Best Technology Books of the Year
-- 书评(EN)：-
-
-# 青少年候选
-
-## 1. Signal Practice
-- 原书名：Signal Practice
-- 榜单类型：青少年
-- ISBN：9780000000301
-- 作者：Tomas Beck
-- 封面：-
-- 简介(EN)：Two students running an unlicensed radio station from a school basement discover their broadcasts are being logged by someone who has been listening for years.
-- 荣誉(EN)：-
 - 书评(EN)：-

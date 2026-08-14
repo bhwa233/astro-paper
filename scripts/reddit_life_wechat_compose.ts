@@ -72,7 +72,8 @@ export function parseRedditThreadSummary(raw: string, parentId: string): RedditT
   if (payload.parent_id !== parentId) throw new Error(`Reddit life thread summary parent mismatch: ${String(payload.parent_id)} vs ${parentId}`);
   return {
     parentId,
-    claims: chineseText(payload.claims, "thread claims"),
+    // 短评论可能只有一个完整判断；强行要求 20 个字符会把可用证据误判为模型故障。
+    claims: chineseText(payload.claims, "thread claims", 1),
     replyRelation: chineseText(payload.reply_relation, "thread reply relation", 8),
     minorityOrBoundary: normalizeMarkdownBlock(payload.minority_or_boundary),
   };

@@ -98,6 +98,28 @@ jobs:
             reddit-life-wechat-result.json
             reddit-life-wechat-artifacts/
           if-no-files-found: ignore
+      - name: Summarize Reddit life generation
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const summary = process.env.GITHUB_STEP_SUMMARY;
+          const lines = ["### Reddit life WeChat generation", ""];
+          if (fs.existsSync("reddit-life-wechat-result.json")) {
+            const result = JSON.parse(fs.readFileSync("reddit-life-wechat-result.json", "utf8"));
+            lines.push(`- Archive date: ${result.date}`);
+            lines.push(`- Status: ${result.status}`);
+            lines.push(`- Manifest: \`${result.manifestPath}\``);
+            lines.push(`- Generated files: ${(result.generatedPaths || []).length}`);
+          } else {
+            lines.push("- Generation did not produce a result JSON. Relevant diagnostics are in the uploaded artifact.");
+          }
+          const errors = fs.existsSync("reddit-life-wechat-artifacts")
+            ? fs.readdirSync("reddit-life-wechat-artifacts").filter(name => name.endsWith("-error-1.txt") || name.endsWith("-error-2.txt") || name.endsWith("-error-3.txt")).sort()
+            : [];
+          if (errors.length) lines.push(`- AI validation errors: ${errors.join(", ")}`);
+          fs.appendFileSync(summary, `${lines.join("\n")}\n`);
+          NODE
       - name: Commit archives and recommendation ledger
         run: |
           set -euo pipefail

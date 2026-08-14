@@ -98,10 +98,12 @@ async function jsonWithRetries<T>(label: string, prompt: string, model: string, 
     try {
       const result = await callBlogAiWithFailover({ prompt, primaryConfig: envAiConfig({ model }), fallbackConfig: envFallbackAiConfig(), jsonMode: true });
       writeArtifact(artifactsDir, `${artifactPrefix}-response-${attempt}.json`, result.content);
+      writeStderr(`[reddit-life-wechat] ${label}: accepted attempt ${attempt}/${attempts}${result.usedFallback ? " via fallback" : ""}`);
       return parse(result.content);
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error);
       writeArtifact(artifactsDir, `${artifactPrefix}-error-${attempt}.txt`, lastError);
+      writeStderr(`[reddit-life-wechat] ${label}: rejected attempt ${attempt}/${attempts}: ${lastError}`);
       if (attempt < attempts) await sleep((attempt - 1) * envPositiveInt("AI_RETRY_DELAY_MS", 1_000));
     }
   }
@@ -126,7 +128,9 @@ async function mapWithConcurrency<T, R>(items: T[], concurrency: number, mapper:
 async function composeArticle(candidate: RedditLifeCandidate, evidence: RedditLifeEvidence, date: string, repo: string, model: string, artifactsDir: string): Promise<string> {
   const promptDir = path.join(repo, "prompts/blog");
   const threadTemplate = fs.readFileSync(resolvePromptFile(promptDir, "reddit-life-wechat-thread-summary"), "utf8");
-  const summaries = await mapWithConcurrency(evidence.topComments, envPositiveInt("REDDIT_LIFE_WECHAT_AI_CONCURRENCY", 4, 8), async parent => {
+  const concurrency = envPositiveInt("REDDIT_LIFE_WECHAT_AI_CONCURRENCY", 4, 8);
+  writeStderr(`[reddit-life-wechat] rank=${candidate.rank} post=${candidate.postId}: ${evidence.topComments.length} top comments, ${evidence.replies.length} replies, AI concurrency=${concurrency}`);
+  const summaries = await mapWithConcurrency(evidence.topComments, concurrency, async parent => {
     const threadText = renderThreadEvidence(evidence, parent.id);
     const prompt = threadTemplate.replaceAll("{parent_id}", parent.id).replaceAll("{thread_text}", threadText);
     writeArtifact(artifactsDir, `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}-thread-${parent.id}-prompt.md`, prompt);
@@ -157,7 +161,9 @@ async function composeArticle(candidate: RedditLifeCandidate, evidence: RedditLi
     artifactsDir,
     `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}-article`,
   );
-  return renderRedditLifeWechatMarkdown(candidate, evidence, article, date);
+  const markdown = renderRedditLifeWechatMarkdown(candidate, evidence, article, date);
+  writeStderr(`[reddit-life-wechat] rank=${candidate.rank} post=${candidate.postId}: article ready (${markdown.length} chars)`);
+  return markdown;
 }
 
 export async function generateRedditLifeWechat({
@@ -182,6 +188,7 @@ export async function generateRedditLifeWechat({
   if (existing) {
     const generated = existing.posts.filter(post => post.status === "generated");
     if (generated.length) appendRedditLifeRecommendations(generated.map(recommendationForCandidate), { archivedAt: date, postPath: manifestRel }, path.join(repo, REDDIT_LIFE_WECHAT_LEDGER_REL_PATH));
+    writeStderr(`[reddit-life-wechat] archive=${date}: reused manifest (${existing.status}), generated=${generated.length}`);
     return { manifestPath: manifestRel, generatedPaths: generated.map(post => post.path!).filter(Boolean), status: existing.status };
   }
   const lifeArticlePath = taskPostRelPath("reddit-top20", date.replace(/$/, "-life"));
@@ -189,6 +196,7 @@ export async function generateRedditLifeWechat({
   if (!fs.existsSync(upstreamFile)) {
     const manifest: RedditLifeRunManifest = { version: 1, archiveDate: date, timeZone: "America/Los_Angeles", status: "upstream-empty", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, posts: [] };
     writeJson(manifestFile, manifest);
+    writeStderr(`[reddit-life-wechat] archive=${date}: upstream life article missing at ${lifeArticlePath}; wrote upstream-empty manifest`);
     return { manifestPath: manifestRel, generatedPaths: [], status: manifest.status };
   }
   const upstreamMarkdown = fs.readFileSync(upstreamFile, "utf8");
@@ -200,6 +208,7 @@ export async function generateRedditLifeWechat({
     historical.has(recommendationForCandidate(candidate).key) ? { ...candidate, status: "duplicate", reason: "already recommended" } : { ...candidate, status: "content-skipped", reason: "pending evidence" },
   );
   const newCandidates = candidates.filter(candidate => !historical.has(recommendationForCandidate(candidate).key));
+  writeStderr(`[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, candidates=${candidates.length}, duplicates=${candidates.length - newCandidates.length}, deep-fetch=${newCandidates.length}`);
   const evidence = newCandidates.length ? await fetchRedditPostDetailsFromApi(date, newCandidates.map(candidate => candidate.postId)) : [];
   writeArtifact(artifactsDir, "post-detail-evidence.json", JSON.stringify(evidence, null, 2));
   const evidenceById = new Map(evidence.map(item => [item.postId, item]));
@@ -210,6 +219,7 @@ export async function generateRedditLifeWechat({
     if (!detail || detail.status === "unavailable" || !detail.topComments.length) {
       entry.status = "content-skipped";
       entry.reason = "post unavailable or has no usable top-level comments";
+      writeStderr(`[reddit-life-wechat] rank=${candidate.rank} post=${candidate.postId}: content-skipped (${entry.reason})`);
       continue;
     }
     const markdown = await composeArticle(candidate, detail, date, repo, model, artifactsDir);
@@ -222,6 +232,7 @@ export async function generateRedditLifeWechat({
     entry.policySha256 = detail.policySha256;
     delete entry.reason;
     pendingFiles.push({ entry, markdown });
+    writeStderr(`[reddit-life-wechat] rank=${candidate.rank} post=${candidate.postId}: generated ${relPath}`);
   }
   const manifest: RedditLifeRunManifest = { version: 1, archiveDate: date, timeZone: "America/Los_Angeles", status: "processed", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, posts: entries };
   // Persist the immutable snapshot only after every non-duplicate candidate has reached a terminal outcome.
@@ -233,6 +244,7 @@ export async function generateRedditLifeWechat({
   writeJson(manifestFile, manifest);
   const generated = entries.filter(entry => entry.status === "generated");
   if (generated.length) appendRedditLifeRecommendations(generated.map(recommendationForCandidate), { archivedAt: date, postPath: manifestRel }, ledgerFile);
+  writeStderr(`[reddit-life-wechat] archive=${date}: complete generated=${generated.length}, duplicate=${entries.filter(entry => entry.status === "duplicate").length}, content-skipped=${entries.filter(entry => entry.status === "content-skipped").length}`);
   return { manifestPath: manifestRel, generatedPaths: generated.map(entry => entry.path!).filter(Boolean), status: manifest.status };
 }
 

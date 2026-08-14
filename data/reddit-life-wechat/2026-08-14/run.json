@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-14",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "ae47c349a353d63b4e34012345a2c5df746f6bde",
+    "workflowRun": "31791342600",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-14-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vn8yqz",
+      "title": "你工作中有哪些规定，纯粹是因为一个蠢人毁了所有人的福利？",
+      "subreddit": "AskReddit",
+      "points": "6816 points · 3423 评论",
+      "numComments": 3423,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vn8yqz/whats_a_rule_at_your_job_that_exists_purely/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-14/01-1vn8yqz.md",
+      "contentSha256": "5e8986b72c53f2c5308358595215219943ef2a2701e1b56b81baffe2ca4feee7",
+      "fetchedAt": "2026-08-14T09:52:18.327520Z",
+      "sourceSha256": "5d7c7825125053eabae0ebd04d1a9c68227093f2061badc64dd1b022ec45b435",
+      "policySha256": "17f31e1ad58ad12a305a08924d86c7ab1acba802ed44f5883ab246b5c15f7706"
+    },
+    {
+      "rank": 2,
+      "postId": "1vncevs",
+      "title": "有哪些看似寻常、却可能在未来十年彻底崩溃的行业？",
+      "subreddit": "AskReddit",
+      "points": "3581 points · 1481 评论",
+      "numComments": 1481,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vncevs/what_is_an_industry_hiding_in_plain_sight_that/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-14/02-1vncevs.md",
+      "contentSha256": "57ed61e97b553a87ba03a32a5fc4629bf7d93e960b98c9f1325707a69fc1926d",
+      "fetchedAt": "2026-08-14T09:52:18.327520Z",
+      "sourceSha256": "5d7c7825125053eabae0ebd04d1a9c68227093f2061badc64dd1b022ec45b435",
+      "policySha256": "17f31e1ad58ad12a305a08924d86c7ab1acba802ed44f5883ab246b5c15f7706"
+    },
+    {
+      "rank": 3,
+      "postId": "1vncuqs",
+      "title": "有哪些爱好原本便宜又好玩，却被网红带火后把价格彻底搞坏了？",
+      "subreddit": "AskReddit",
+      "points": "3437 points · 2027 评论",
+      "numComments": 2027,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vncuqs/what_is_a_hobby_that_used_to_be_cheap_and_fun/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-14/03-1vncuqs.md",
+      "contentSha256": "59259b713da1bfa8c09cd5008ff74c65c2c60e86808fcc16512bc89bc365f710",
+      "fetchedAt": "2026-08-14T09:52:18.327520Z",
+      "sourceSha256": "5d7c7825125053eabae0ebd04d1a9c68227093f2061badc64dd1b022ec45b435",
+      "policySha256": "17f31e1ad58ad12a305a08924d86c7ab1acba802ed44f5883ab246b5c15f7706"
+    }
+  ]
+}

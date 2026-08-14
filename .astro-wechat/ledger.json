@@ -72,6 +72,42 @@
       "mediaId": "lAMaLd-mzPj_bm0zorBkNKahUCRN0Gn_Gudl3nSWnm6_palqkCKwsEhbnkJQRoje",
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNHDi8F4E9gyjBj-tvJqU3pmGJvC0iacxlFcW3WAn0T0B",
       "coverContentHash": "d1584e38ace40475"
+    },
+    "https://www.reddit.com/r/AskReddit/comments/1vn8yqz/whats_a_rule_at_your_job_that_exists_purely/": {
+      "sourceId": "https://www.reddit.com/r/AskReddit/comments/1vn8yqz/whats_a_rule_at_your_job_that_exists_purely/",
+      "canonicalUrl": "https://www.reddit.com/r/AskReddit/comments/1vn8yqz/whats_a_rule_at_your_job_that_exists_purely/",
+      "contentHash": "8e255e73a0966d07722d8a01710a97c43844380ecfdf698060d9475d90177ede",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-14T10:19:29.953Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNB0U-j6QuwcKLnEJdz5kR9ZHlnUQSXf9WRhn5dgKFvkh",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNCqz_i6RKSLwWM6Qq5sG4KfU1q3-m0LbLAubaJ-eDPsr",
+      "coverContentHash": "07f07701f273c471"
+    },
+    "https://www.reddit.com/r/AskReddit/comments/1vncevs/what_is_an_industry_hiding_in_plain_sight_that/": {
+      "sourceId": "https://www.reddit.com/r/AskReddit/comments/1vncevs/what_is_an_industry_hiding_in_plain_sight_that/",
+      "canonicalUrl": "https://www.reddit.com/r/AskReddit/comments/1vncevs/what_is_an_industry_hiding_in_plain_sight_that/",
+      "contentHash": "f14f8d7362a527a33ec34d1796e8da79613a6edd29ff627dd65c420981b2b355",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-14T10:19:34.112Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNJZVgIUq85V5vmF2HLucM2EqXs3ZQnB1h7NZTurxtRGn",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNG9M3Ww2m41GlWs4eo-D5iQp1Uww6EN_yuQymeIboEXt",
+      "coverContentHash": "07f07701f273c471"
+    },
+    "https://www.reddit.com/r/AskReddit/comments/1vncuqs/what_is_a_hobby_that_used_to_be_cheap_and_fun/": {
+      "sourceId": "https://www.reddit.com/r/AskReddit/comments/1vncuqs/what_is_a_hobby_that_used_to_be_cheap_and_fun/",
+      "canonicalUrl": "https://www.reddit.com/r/AskReddit/comments/1vncuqs/what_is_a_hobby_that_used_to_be_cheap_and_fun/",
+      "contentHash": "9515015d6363ec49c57f2dd25fd406734aa39b0b9700f61ff6a506e344ab831f",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-14T10:19:38.596Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNBccSPVHlfX9UfNhaVnU0r0jzhcerS-TDGI5COc2c88s",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNKjygJgYno6txoeZMpeoawNZa73O87U_DS06orXz-iHu",
+      "coverContentHash": "07f07701f273c471"
     }
   }
 }

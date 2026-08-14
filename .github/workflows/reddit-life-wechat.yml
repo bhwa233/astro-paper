@@ -50,7 +50,6 @@ jobs:
         with:
           ref: ${{ inputs.upstream_sha }}
           fetch-depth: 0
-          submodules: recursive
       - name: Prepare writable archive branch
         env:
           UPSTREAM_SHA: ${{ inputs.upstream_sha }}

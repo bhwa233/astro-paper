@@ -89,6 +89,93 @@ test("AI client fails over to the fallback provider only when the primary is exh
   assert.deepEqual(retryCalls, ["https://primary.example.com/v1/chat/completions", "https://primary.example.com/v1/chat/completions"]);
 });
 
+test("Responses API accepts a completed non-streaming JSON response", async () => {
+  const content = await withMocks(
+    {
+      fetch: async () =>
+        new Response(
+          JSON.stringify({
+            object: "response",
+            status: "completed",
+            output: [
+              { type: "reasoning" },
+              { type: "message", content: [{ type: "output_text", text: "## 标题\n\n正文" }] },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+    },
+    () =>
+      callBlogAi({
+        prompt: "hello",
+        apiKey: "key",
+        baseUrl: "https://api.example.com/v1",
+        model: "test-model",
+        apiStyle: "responses",
+      }),
+  );
+
+  assert.equal(content, "## 标题\n\n正文");
+});
+
+test("Responses API accepts a completed JSON response with a mislabelled content type", async () => {
+  const content = await withMocks(
+    {
+      fetch: async () =>
+        new Response(
+          JSON.stringify({
+            object: "response",
+            status: "completed",
+            output: [
+              { type: "reasoning" },
+              { type: "message", content: [{ type: "output_text", text: "## 标题\n\n正文" }] },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "text/plain" } },
+        ),
+    },
+    () =>
+      callBlogAi({
+        prompt: "hello",
+        apiKey: "key",
+        baseUrl: "https://api.example.com/v1",
+        model: "test-model",
+        apiStyle: "responses",
+      }),
+  );
+
+  assert.equal(content, "## 标题\n\n正文");
+});
+
+test("Responses API surfaces provider errors from non-streaming JSON responses", async () => {
+  await withMocks(
+    {
+      fetch: async () =>
+        new Response(JSON.stringify({ object: "response", status: "failed", error: { message: "provider capacity exhausted" } }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    },
+    () =>
+      assert.rejects(
+        () =>
+          callBlogAi({
+            prompt: "hello",
+            apiKey: "key",
+            baseUrl: "https://api.example.com/v1",
+            model: "test-model",
+            apiStyle: "responses",
+          }),
+        error => {
+          assert.ok(error instanceof Error);
+          assert.doesNotMatch(error.message, /missing message content/);
+          assert.match(error.message, /AI responses API error: provider capacity exhausted/);
+          return true;
+        },
+      ),
+  );
+});
+
 // The /responses payload shape has caused repeated production breakage (input as string vs list,
 // JSON instruction placement, unsupported `text` field). This is the contract guard for it.
 test("Responses API contract: SSE parsing, payload shape, and JSON-mode instruction", async () => {

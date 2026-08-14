@@ -308,7 +308,7 @@ data/reddit-life-wechat/
 
 示例展示三个帖子均为新内容时的完整目录。存在历史重复或内容跳过时，对应 Markdown 不出现，但 `run.json` 仍记录该上游排名及处理状态。上游人生文章不存在时，该日期目录只有一个状态为 `upstream-empty` 的 `run.json`。
 
-该目录不在 Astro 的 `src/content/posts` 下，因此不会生成页面。原始来源 Markdown、评论证据、分块响应、重试错误和运行结果保存在 GitHub Actions artifact 中，不长期提交大量抓取文本。
+该目录不在 Astro 的 `src/content/posts` 下，因此不会生成页面。每个日期目录还长期保存 `upstream-life.md`（上游人生文章快照）和 `post-detail-evidence.json`（服务返回的原帖与评论证据），使最终文章可从原始来源审计和重放。分块响应、重试错误和运行日志仍保存在 GitHub Actions artifact 中。
 
 ### 10.2 run manifest
 
@@ -317,6 +317,7 @@ data/reddit-life-wechat/
 - manifest version
 - archive date 与时区
 - 上游 workflow run、生成提交 SHA 和人生文章相对路径
+- 原始来源快照路径：`upstream-life.md` 与 `post-detail-evidence.json`
 - 运行级状态：`processed` 或 `upstream-empty`
 - 1 到 3 个帖子按上游文章顺序排列的 post ID、标题、subreddit、热度、评论数和 permalink
 - 每帖处理状态：`generated`、`duplicate` 或 `content-skipped`
@@ -489,8 +490,8 @@ CI summary 至少展示：
 
 generation artifact 至少保存：
 
-- 上游人生文章副本与候选提取结果
-- 需要深抓帖子的原始证据
+- 上游人生文章副本与候选提取结果（同样长期存档）
+- 需要深抓帖子的原始证据（同样长期存档）
 - 来源 policy 和统计
 - 分块模型响应与最终模型响应
 - duplicate、content-skipped 状态及原因

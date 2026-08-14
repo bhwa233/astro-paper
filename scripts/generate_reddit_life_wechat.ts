@@ -39,6 +39,7 @@ export type RedditLifeRunManifest = {
   timeZone: "America/Los_Angeles";
   status: "processed" | "upstream-empty";
   upstream: { generatedSha: string; workflowRun: string; lifeArticlePath: string };
+  rawSources?: { upstreamLifeMarkdown: string; postDetailEvidence: string };
   posts: Entry[];
 };
 
@@ -210,7 +211,8 @@ export async function generateRedditLifeWechat({
   const newCandidates = candidates.filter(candidate => !historical.has(recommendationForCandidate(candidate).key));
   writeStderr(`[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, candidates=${candidates.length}, duplicates=${candidates.length - newCandidates.length}, deep-fetch=${newCandidates.length}`);
   const evidence = newCandidates.length ? await fetchRedditPostDetailsFromApi(date, newCandidates.map(candidate => candidate.postId)) : [];
-  writeArtifact(artifactsDir, "post-detail-evidence.json", JSON.stringify(evidence, null, 2));
+  const detailEvidenceJson = JSON.stringify(evidence, null, 2);
+  writeArtifact(artifactsDir, "post-detail-evidence.json", detailEvidenceJson);
   const evidenceById = new Map(evidence.map(item => [item.postId, item]));
   const pendingFiles: Array<{ entry: Entry; markdown: string }> = [];
   for (const candidate of newCandidates) {
@@ -234,13 +236,21 @@ export async function generateRedditLifeWechat({
     pendingFiles.push({ entry, markdown });
     writeStderr(`[reddit-life-wechat] rank=${candidate.rank} post=${candidate.postId}: generated ${relPath}`);
   }
-  const manifest: RedditLifeRunManifest = { version: 1, archiveDate: date, timeZone: "America/Los_Angeles", status: "processed", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, posts: entries };
+  const dayDir = path.join(ROOT_REL, date);
+  const rawSources = {
+    upstreamLifeMarkdown: path.join(dayDir, "upstream-life.md"),
+    postDetailEvidence: path.join(dayDir, "post-detail-evidence.json"),
+  };
+  const manifest: RedditLifeRunManifest = { version: 1, archiveDate: date, timeZone: "America/Los_Angeles", status: "processed", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, rawSources, posts: entries };
   // Persist the immutable snapshot only after every non-duplicate candidate has reached a terminal outcome.
   for (const file of pendingFiles) {
     const target = path.join(repo, file.entry.path!);
     ensureDir(path.dirname(target));
     fs.writeFileSync(target, file.markdown, "utf8");
   }
+  ensureDir(path.join(repo, dayDir));
+  fs.writeFileSync(path.join(repo, rawSources.upstreamLifeMarkdown), upstreamMarkdown, "utf8");
+  writeJson(path.join(repo, rawSources.postDetailEvidence), evidence);
   writeJson(manifestFile, manifest);
   const generated = entries.filter(entry => entry.status === "generated");
   if (generated.length) appendRedditLifeRecommendations(generated.map(recommendationForCandidate), { archivedAt: date, postPath: manifestRel }, ledgerFile);

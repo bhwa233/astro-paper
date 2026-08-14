@@ -8,6 +8,10 @@
     "workflowRun": "31791342600",
     "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-14-life.md"
   },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-14/upstream-life.md",
+    "postDetailEvidence": "data/reddit-life-wechat/2026-08-14/post-detail-evidence.json"
+  },
   "posts": [
     {
       "rank": 1,

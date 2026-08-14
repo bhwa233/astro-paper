@@ -35,3 +35,16 @@ jobs:
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || '' }}
     secrets: inherit
+
+  reddit-life-wechat:
+    name: Archive Reddit Life WeChat Drafts
+    needs: publish
+    permissions:
+      contents: write
+    uses: ./.github/workflows/reddit-life-wechat.yml
+    with:
+      date: ${{ inputs.date || '' }}
+      event_schedule: ${{ github.event.schedule || '0 8 * * *' }}
+      ai_model: ${{ inputs.ai_model || '' }}
+      upstream_sha: ${{ needs.publish.outputs.generated_sha }}
+    secrets: inherit

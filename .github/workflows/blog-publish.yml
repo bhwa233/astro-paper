@@ -5,6 +5,10 @@ permissions:
 
 on:
   workflow_call:
+    outputs:
+      generated_sha:
+        description: "The commit containing the generated archive."
+        value: ${{ jobs.generate.outputs.generated_sha }}
     inputs:
       task:
         description: "Post task to generate. Valid values are defined in scripts/blog_tasks.ts; use all or daily-digests for grouped runs."

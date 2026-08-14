@@ -9,6 +9,7 @@ import { buildPayload, classify, HN_CANDIDATE_COUNT, HN_SELECTION_COUNT, selectT
 import { parseGitHubTrendingHtml, sanitizeReadmeText } from "../scripts/github_trending_daily_source.ts";
 import { latestStartedSeasonNumber, previousMonthReleaseWindow, selectUnrecommendedMdblistCandidates } from "../scripts/mdblist_weekly_source.ts";
 import { fixture } from "./helpers/mocks.ts";
+import { parseRedditLifeCandidates } from "../scripts/reddit_life_wechat_compose.ts";
 
 function podcastResult(overrides: Partial<ResultItem>): ResultItem {
   return {
@@ -194,4 +195,17 @@ test("mdblist previous-month window clamps month ends and crosses year boundarie
   // 窗口跨月首：1 月 3 日往前一个月是 12 月 3 日，起点回到 11 月。
   assert.deepEqual(previousMonthReleaseWindow("2099-01-03"), { from: "2098-11-27", to: "2098-12-03" });
   assert.throws(() => previousMonthReleaseWindow("2099-02-30"), /invalid MDBList archive date/);
+});
+
+test("Reddit life handoff uses only the first three ordered posts and rejects broken ranks", () => {
+  const block = (rank: number, subreddit = "AskReddit") => [
+    `## ${rank}. 问题 ${rank}`,
+    `- **热度**：${100 - rank} points · ${rank * 10} 评论`,
+    `- **来源**：[r/${subreddit}](https://www.reddit.com/r/${subreddit}/)`,
+    `- **帖子**：https://www.reddit.com/r/${subreddit}/comments/post${rank}/`,
+  ].join("\n");
+  const candidates = parseRedditLifeCandidates([1, 2, 3, 4].map(rank => block(rank)).join("\n\n"));
+  assert.deepEqual(candidates.map(item => item.postId), ["post1", "post2", "post3"]);
+  assert.throws(() => parseRedditLifeCandidates(`${block(1)}\n\n${block(3)}`), /handoff contract/);
+  assert.throws(() => parseRedditLifeCandidates(block(1, "investing")), /unsupported subreddit/);
 });

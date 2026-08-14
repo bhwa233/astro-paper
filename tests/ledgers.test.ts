@@ -7,7 +7,9 @@ import test from "node:test";
 import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
 import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
-import { fixture, tempFile } from "./helpers/mocks.ts";
+import { fixture, tempDir, tempFile } from "./helpers/mocks.ts";
+import { appendRedditLifeRecommendations, loadRedditLifeRecommendationKeys, redditPostRecommendationKey } from "../scripts/reddit_life_wechat_ledger.ts";
+import { generateRedditLifeWechat, loadRedditLifeRunManifest } from "../scripts/generate_reddit_life_wechat.ts";
 
 test("podcast fingerprints ignore tracking parameters and upsert by episode identity", () => {
   assert.equal(normalizePodcastUrl("https://example.com/podcast/dev-platforms?utm_medium=social&uo=4&b=2&a=1#section"), "https://example.com/podcast/dev-platforms?a=1&b=2");
@@ -57,4 +59,26 @@ test("mdblist source evidence exposes the TMDB identities selected for the ledge
   assert.ok(selections.length >= 4, "selections: " + selections.length);
   assert.deepEqual(selections[0], { key: "movie:1339713", mediaType: "movie", tmdbId: 1339713, title: "Obsession" });
   assert.deepEqual(selections[3], { key: "show:94997:season:3", mediaType: "show", tmdbId: 94997, seasonNumber: 3, title: "House of the Dragon" });
+});
+
+test("Reddit life ledger rewrites the full same-day generated set without losing the first post", () => {
+  const file = tempFile("reddit-life-ledger", "recommended.json");
+  const meta = { archivedAt: "2099-01-02", postPath: "data/reddit-life-wechat/2099-01-02/run.json" };
+  const first = { key: redditPostRecommendationKey("abcde"), postId: "abcde", title: "第一个讨论" };
+  const second = { key: redditPostRecommendationKey("fghij"), postId: "fghij", title: "第二个讨论" };
+  appendRedditLifeRecommendations([first, second], meta, file);
+  appendRedditLifeRecommendations([first, second], meta, file);
+  assert.deepEqual(loadRedditLifeRecommendationKeys(file), new Set([first.key, second.key]));
+  fs.writeFileSync(file, "{");
+  assert.throws(() => loadRedditLifeRecommendationKeys(file), /invalid Reddit life WeChat recommendation ledger/);
+});
+
+test("Reddit life generator records an absent upstream article as a stable no-op manifest", async () => {
+  const repo = tempDir("reddit-life-upstream-empty");
+  const result = await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: "deadbeef" });
+  assert.equal(result.status, "upstream-empty");
+  assert.deepEqual(result.generatedPaths, []);
+  const manifest = loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`);
+  assert.deepEqual(manifest?.posts, []);
+  assert.equal(manifest?.upstream.generatedSha, "deadbeef");
 });

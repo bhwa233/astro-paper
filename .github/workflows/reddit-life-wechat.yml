@@ -1,0 +1,212 @@
+name: Archive Reddit Life WeChat Drafts
+
+permissions:
+  contents: write
+
+on:
+  workflow_call:
+    inputs:
+      date:
+        required: false
+        type: string
+      event_schedule:
+        required: false
+        type: string
+      ai_model:
+        required: false
+        type: string
+      upstream_sha:
+        description: "Committed result from the reddit-top20 parent workflow."
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      ai_model:
+        description: "Optional AI model override."
+        required: false
+        type: string
+      upstream_sha:
+        description: "Commit containing the upstream reddit-<date>-life.md."
+        required: true
+        type: string
+
+concurrency:
+  group: scheduled-posts-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  generate-and-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    outputs:
+      generated_sha: ${{ steps.head.outputs.sha }}
+      manifest_path: ${{ steps.generate.outputs.manifest_path }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.upstream_sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - name: Prepare writable archive branch
+        env:
+          UPSTREAM_SHA: ${{ inputs.upstream_sha }}
+        run: git checkout -B "${GITHUB_REF_NAME}" "$UPSTREAM_SHA"
+      - uses: pnpm/action-setup@v6
+        with:
+          version: "11.3.0"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Generate Reddit life WeChat archives
+        id: generate
+        env:
+          EVENT_SCHEDULE: ${{ inputs.event_schedule || '' }}
+          UPSTREAM_GENERATED_SHA: ${{ inputs.upstream_sha }}
+          INPUT_DATE: ${{ inputs.date || '' }}
+          INPUT_AI_MODEL: ${{ inputs.ai_model || '' }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
+          AI_MODEL: ${{ inputs.ai_model || 'gpt-5.6-luna' }}
+          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
+          AI_FALLBACK_BASE_URL: ${{ secrets.AI_FALLBACK_BASE_URL || 'https://api.deepseek.com' }}
+          AI_FALLBACK_MODEL: ${{ secrets.AI_FALLBACK_MODEL || 'deepseek-v4-flash' }}
+          REDDIT_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
+          REDDIT_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
+          REDDIT_SOURCE_POLL_TIMEOUT_MS: "1500000"
+        run: |
+          set -euo pipefail
+          args=(--upstream-sha "$UPSTREAM_GENERATED_SHA" --artifacts-dir reddit-life-wechat-artifacts)
+          if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
+          if [ -n "$INPUT_AI_MODEL" ]; then args+=(--model "$INPUT_AI_MODEL"); fi
+          node --import tsx scripts/generate_reddit_life_wechat.ts "${args[@]}" | tee reddit-life-wechat-result.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const result = JSON.parse(fs.readFileSync("reddit-life-wechat-result.json", "utf8"));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `manifest_path=${result.manifestPath}\n`);
+          NODE
+      - name: Upload generation artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reddit-life-wechat-generation
+          path: |
+            reddit-life-wechat-result.json
+            reddit-life-wechat-artifacts/
+          if-no-files-found: ignore
+      - name: Commit archives and recommendation ledger
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- data/reddit-life-wechat)" ]; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/reddit-life-wechat
+          git commit -m "feat(reddit): archive life WeChat drafts"
+          for attempt in 1 2 3; do
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
+            sleep $((attempt * 5))
+          done
+          exit 1
+      - id: head
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  sync-wechat:
+    needs: generate-and-archive
+    runs-on: ubuntu-latest
+    environment: wechat-production
+    concurrency:
+      group: wechat-sync-${{ github.repository }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.generate-and-archive.outputs.generated_sha }}
+          fetch-depth: 0
+      - name: Prepare writable ledger branch
+        env:
+          GENERATED_SHA: ${{ needs.generate-and-archive.outputs.generated_sha }}
+        run: git checkout -B "${GITHUB_REF_NAME}" "$GENERATED_SHA"
+      - uses: pnpm/action-setup@v6
+        with:
+          version: "11.3.0"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Collect generated draft paths
+        id: paths
+        env:
+          MANIFEST_PATH: ${{ needs.generate-and-archive.outputs.manifest_path }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
+          const paths = (manifest.posts || []).filter(post => post.status === "generated" && post.path).sort((a, b) => a.rank - b.rank).map(post => post.path);
+          fs.writeFileSync("reddit-life-wechat-paths.txt", paths.join("\n"));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
+          NODE
+      - name: Validate planned drafts
+        if: steps.paths.outputs.count != '0'
+        env:
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
+          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+        run: |
+          set -euo pipefail
+          mapfile -t paths < reddit-life-wechat-paths.txt
+          pnpm exec astro-wechat publish "${paths[@]}" --dry-run --json | tee wechat-dry-run.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
+          if (!Array.isArray(results) || results.some(item => item.status !== "planned" && !(item.status === "skipped" && item.skipReason === "already-synchronized"))) throw new Error(`Unexpected WeChat dry-run result: ${JSON.stringify(results)}`);
+          NODE
+      - name: Create drafts serially and retain partial ledger
+        if: steps.paths.outputs.count != '0'
+        id: publish
+        env:
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
+          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+        run: |
+          set +e
+          mapfile -t paths < reddit-life-wechat-paths.txt
+          pnpm exec astro-wechat publish "${paths[@]}" --json | tee wechat-results.json
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Commit WeChat ledger
+        if: always() && steps.paths.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- .astro-wechat/ledger.json)" ]; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .astro-wechat/ledger.json
+          git commit -m "chore: update WeChat sync ledger [skip ci]"
+          for attempt in 1 2 3; do
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
+            sleep $((attempt * 5))
+          done
+          exit 1
+      - name: Upload WeChat results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reddit-life-wechat-sync
+          path: |
+            wechat-dry-run.json
+            wechat-results.json
+          if-no-files-found: ignore
+      - name: Fail after retaining partial ledger
+        if: steps.publish.outputs.exit_code != '' && steps.publish.outputs.exit_code != '0'
+        run: exit 1

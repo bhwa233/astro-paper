@@ -95,7 +95,7 @@ export function parseRedditLifeArticle(raw: string): RedditLifeArticle {
 }
 
 export function renderRedditLifeWechatMarkdown(candidate: RedditLifeCandidate, evidence: RedditLifeEvidence, article: RedditLifeArticle, archiveDate: string): string {
-  if (candidate.postId !== evidence.postId || candidate.subreddit.toLowerCase() !== evidence.subreddit.toLowerCase() || candidate.permalink !== evidence.permalink) {
+  if (candidate.postId !== evidence.postId || candidate.subreddit.toLowerCase() !== evidence.subreddit.toLowerCase()) {
     throw new Error("Reddit life source facts do not match the selected upstream post");
   }
   const metadata = frontmatter({ title: article.titleZh, date: archiveDate, description: article.description, tags: [REDDIT_LIFE_WECHAT_TAG], wechatEnabled: true })

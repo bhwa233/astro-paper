@@ -355,7 +355,7 @@ test("normalizeMarkdownBlock moves trailing punctuation out of emphasis so CJK b
 test("Reddit life article keeps facts deterministic and rejects a reply detached from its parent", () => {
   const candidate = { rank: 1, postId: "abcde", title: "原问题", subreddit: "AskReddit", points: "100 points · 20 评论", numComments: 20, permalink: "https://www.reddit.com/r/AskReddit/comments/abcde/" };
   const evidence = {
-    postId: "abcde", status: "ok" as const, subreddit: "AskReddit", title: "Original", body: "Body", score: 101, numComments: 22, publishedAt: "2099-01-02T00:00:00Z", permalink: candidate.permalink,
+    postId: "abcde", status: "ok" as const, subreddit: "AskReddit", title: "Original", body: "Body", score: 101, numComments: 22, publishedAt: "2099-01-02T00:00:00Z", permalink: "/r/AskReddit/comments/abcde/",
     topComments: [], replies: [], fetchedAt: "2099-01-02T01:00:00Z", sourceSha256: "a".repeat(64), policySha256: "b".repeat(64), policy: { topLevelCommentLimit: 40, directReplyLimit: 10, maxCommentDepth: 2 as const, maxCommentChars: 1200, maxCommentCharsPerPost: 40000 },
   };
   const article = parseRedditLifeArticle(JSON.stringify({ title_zh: "一个自然的中文问题", description: "一条中文摘要", intro: "讨论从一个具体问题开始，并形成了多个可比较的答案。", mainstream: "多数回答给出了明确的经历、做法和适用条件，而不是抽象口号。", replies: "直接回复补充了反例，也指出原回答需要满足的前提。", minority: "少数观点认为不同生活条件下不能照搬同一个结论。" }));

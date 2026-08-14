@@ -108,25 +108,37 @@ async function jsonWithRetries<T>(label: string, prompt: string, model: string, 
   throw new Error(`${label} failed after ${attempts} attempts: ${lastError}`);
 }
 
+async function mapWithConcurrency<T, R>(items: T[], concurrency: number, mapper: (item: T) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  async function worker(): Promise<void> {
+    for (;;) {
+      const index = next;
+      next += 1;
+      if (index >= items.length) return;
+      results[index] = await mapper(items[index]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, worker));
+  return results;
+}
+
 async function composeArticle(candidate: RedditLifeCandidate, evidence: RedditLifeEvidence, date: string, repo: string, model: string, artifactsDir: string): Promise<string> {
   const promptDir = path.join(repo, "prompts/blog");
   const threadTemplate = fs.readFileSync(resolvePromptFile(promptDir, "reddit-life-wechat-thread-summary"), "utf8");
-  const summaries: RedditThreadSummary[] = [];
-  for (const parent of evidence.topComments) {
+  const summaries = await mapWithConcurrency(evidence.topComments, envPositiveInt("REDDIT_LIFE_WECHAT_AI_CONCURRENCY", 4, 8), async parent => {
     const threadText = renderThreadEvidence(evidence, parent.id);
     const prompt = threadTemplate.replaceAll("{parent_id}", parent.id).replaceAll("{thread_text}", threadText);
     writeArtifact(artifactsDir, `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}-thread-${parent.id}-prompt.md`, prompt);
-    summaries.push(
-      await jsonWithRetries(
-        `Reddit life thread ${parent.id}`,
-        prompt,
-        model,
-        raw => parseRedditThreadSummary(raw, parent.id),
-        artifactsDir,
-        `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}-thread-${parent.id}`,
-      ),
+    return jsonWithRetries(
+      `Reddit life thread ${parent.id}`,
+      prompt,
+      model,
+      raw => parseRedditThreadSummary(raw, parent.id),
+      artifactsDir,
+      `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}-thread-${parent.id}`,
     );
-  }
+  });
   const finalTemplate = fs.readFileSync(resolvePromptFile(promptDir, "reddit-life-wechat-article"), "utf8");
   const facts = [
     `- 标题：${evidence.title}`,

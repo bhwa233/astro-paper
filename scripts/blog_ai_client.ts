@@ -172,6 +172,34 @@ export function parseResponsesSse(sse: string): string {
   return finalText.trim() ? finalText : deltas.join("");
 }
 
+function parseResponsesJson(raw: string): string {
+  const response = JSON.parse(raw) as {
+    status?: string;
+    type?: string;
+    message?: string;
+    error?: { message?: string };
+    output?: { content?: { type?: string; text?: string }[] }[];
+  };
+  if (response.error?.message || response.status === "failed" || response.type === "error") {
+    throw new Error(`AI responses API error: ${response.error?.message || response.message || "unknown responses API error"}`);
+  }
+  return (response.output || [])
+    .flatMap(item => (Array.isArray(item?.content) ? item.content : []))
+    .filter(part => part?.type === "output_text" && typeof part.text === "string")
+    .map(part => part.text as string)
+    .join("");
+}
+
+function isJsonObject(raw: string): boolean {
+  if (!raw.trimStart().startsWith("{")) return false;
+  try {
+    const value: unknown = JSON.parse(raw);
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+  } catch {
+    return false;
+  }
+}
+
 export async function callBlogAi({
   prompt,
   apiKey,
@@ -236,7 +264,8 @@ export async function callBlogAi({
     }
     let content: string | undefined;
     if (useResponses) {
-      content = parseResponsesSse(raw);
+      const contentType = response.headers.get("content-type")?.toLowerCase();
+      content = contentType?.includes("application/json") || isJsonObject(raw) ? parseResponsesJson(raw) : parseResponsesSse(raw);
     } else {
       const data = JSON.parse(raw) as { choices?: { message?: { content?: string } }[] };
       content = data.choices?.[0]?.message?.content;

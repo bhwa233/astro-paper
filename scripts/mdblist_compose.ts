@@ -1,6 +1,6 @@
 // mdblist 每周影视规则层：模型只返回语义字段（中文译名/类型翻译/剧情/推荐/评论），
 // 事实字段（原标题、海报 URL、IMDb 评分、上映日期）一律取自 source。
-import { bulletValue, extractBullets, hasChinese, looksLowSignal, parseModelJsonObject } from "./compose_common.ts";
+import { bulletValue, extractBullets, hasChinese, looksLowSignal, numberedBlocks, parseModelJsonObject } from "./compose_common.ts";
 
 export type MdblistModelItem = {
   rank: number;
@@ -22,10 +22,7 @@ export type MdblistFact = {
 type MdblistFacts = { movies: MdblistFact[]; series: MdblistFact[] };
 
 function parseSectionFacts(sectionText: string): MdblistFact[] {
-  const blocks = sectionText
-    .split(/(?=^##\s+\d+\.\s+)/gm)
-    .map(block => block.trim())
-    .filter(block => /^##\s+\d+\.\s+/.test(block));
+  const blocks = numberedBlocks(sectionText);
   return blocks.map((block, index) => {
     const bullets = extractBullets(block);
     const ratingText = bulletValue(bullets, "评分");

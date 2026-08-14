@@ -7,8 +7,8 @@ import sharp from "sharp";
 import { archivePost } from "./astro_paper_archive.ts";
 import { validateMarkdown, renderPrompt, resolvePromptFile } from "./ai_blog_writer.ts";
 import { type AiCallResult, callBlogAiWithFailover, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
-import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, fetchJson, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { type Task, isTaskInput, scheduledTaskInput, taskPostRelPath, taskTags, taskTitle, tasksForInput } from "./blog_tasks.ts";
+import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, envPositiveInt, fetchJson, parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { type Task, isEpisodeArticleTask, isTaskInput, scheduledTaskInput, taskPostRelPath, taskTags, taskTitle, tasksForInput } from "./blog_tasks.ts";
 import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
@@ -41,7 +41,8 @@ import {
   type MagazineConfig,
 } from "./magazine.ts";
 import { appendMagazineIssue, magazineLedgerRelPath, parseMagazineIssueFromSource } from "./magazine_ledger.ts";
-import { normalizeMarkdownBlock, parseModelJsonObject } from "./compose_common.ts";
+import { normalizeMarkdownBlock, numberedBlocks, parseModelJsonObject } from "./compose_common.ts";
+import { MAX_REDDIT_SOURCE_ITEMS, fetchRedditSourceFromApi } from "./reddit_source_api.ts";
 
 export type ResultItem = ReturnType<typeof archivePost> & {
   skip_reason?: string;
@@ -163,11 +164,6 @@ function skippedLowQuality(task: Task, date: string, reason: string): ResultItem
   };
 }
 
-function envPositiveInt(name: string, fallback: number): number {
-  const value = Number(process.env[name] || "");
-  return Number.isInteger(value) && value > 0 ? value : fallback;
-}
-
 function dailyPodcastMinEpisodes(): number {
   return envPositiveInt("PODCAST_MIN_EPISODES", 1);
 }
@@ -210,15 +206,11 @@ function settlePodcastArticleResults(results: ResultItem[], date: string, minEpi
   ];
 }
 
-function isPodcastArticleTask(task: Task): boolean {
-  return task === "daily-podcasts" || task === "apple-top-podcasts" || task === "xyzrank-top-episodes";
-}
-
 function shouldSkipSourceUnavailable(error: unknown, task: Task): boolean {
   if (error instanceof NytBooksNoNewReleasesError) return task === "nyt-books-weekly";
   if (error instanceof MagazineIssueUnavailableError || error instanceof MagazineIssueAlreadyArchivedError) return isMagazineTask(task);
   if (!(error instanceof PodcastSourceInsufficientEpisodesError)) return false;
-  return isPodcastArticleTask(task);
+  return isEpisodeArticleTask(task);
 }
 
 function failedTask(task: Task, date: string, error: unknown): ResultItem {
@@ -244,348 +236,47 @@ function fixtureSource(fixtureName: string, sourceFixtureDir: string): string {
   return fs.readFileSync(file, "utf8");
 }
 
-type RedditSourceApiResponse = {
-  contract_version?: unknown;
-  archive_date?: unknown;
-  fetched_at?: unknown;
-  item_count?: unknown;
-  source_sha256?: unknown;
-  source?: unknown;
-  policy?: unknown;
-  policy_sha256?: unknown;
-  subreddit_stats?: unknown;
-};
+type SourceContext = { task: Task; repo: string };
 
-type RedditSourceJobApiResponse = {
-  id?: unknown;
-  archive_date?: unknown;
-  state?: unknown;
-  result?: unknown;
-  error_code?: unknown;
-  error_message?: unknown;
-  retryable?: unknown;
-  deadline_at?: unknown;
-  progress?: unknown;
-};
-
-type RedditSubredditStats = {
-  subreddit: string;
-  category: string;
-  listing: number;
-  score_pass: number;
-  min_score: number;
-  shortlisted: number;
-  detail_ok: number;
-  final: number;
-  error_code: string | null;
-};
-
-export type RedditSourcePolicy = {
-  version: "reddit-source-policy.v1";
-  minScore: number;
-  listingLimit: number;
-  maxDetailCandidates: number;
-};
-
-const MAX_REDDIT_SOURCE_ITEMS = 2_000;
-const REDDIT_SUBREDDITS = REDDIT_CATEGORIES.flatMap(category => category.subreddits);
-
-function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourcePolicy {
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Reddit source API returned an invalid policy");
-  const record = value as Record<string, unknown>;
-  const integerFields = [
-    "min_score",
-    "listing_limit",
-    "max_detail_candidates",
-    "top_level_comment_limit",
-    "direct_reply_limit",
-    "detail_comment_limit",
-    "max_post_body_chars",
-    "max_comment_chars",
-  ] as const;
-  for (const field of integerFields) {
-    if (typeof record[field] !== "number" || !Number.isInteger(record[field]) || record[field] < (field === "min_score" || field === "direct_reply_limit" ? 0 : 1)) {
-      throw new Error(`Reddit source API policy has invalid ${field}: ${String(record[field])}`);
-    }
-  }
-  if (
-    record.version !== "reddit-source-policy.v1" ||
-    record.listing_sort !== "top" ||
-    record.listing_period !== "day" ||
-    record.requires_top_level_comment !== true
-  ) {
-    throw new Error("Reddit source API returned an unsupported policy");
-  }
-  const normalized = {
-    detail_comment_limit: record.detail_comment_limit,
-    direct_reply_limit: record.direct_reply_limit,
-    listing_limit: record.listing_limit,
-    listing_period: record.listing_period,
-    listing_sort: record.listing_sort,
-    max_comment_chars: record.max_comment_chars,
-    max_detail_candidates: record.max_detail_candidates,
-    max_post_body_chars: record.max_post_body_chars,
-    min_score: record.min_score,
-    requires_top_level_comment: record.requires_top_level_comment,
-    top_level_comment_limit: record.top_level_comment_limit,
-    version: record.version,
-  };
-  const actualSha256 = createHash("sha256").update(JSON.stringify(normalized), "utf8").digest("hex");
-  if (sha256 !== actualSha256) throw new Error("Reddit source API policy_sha256 does not match policy");
-  return {
-    version: "reddit-source-policy.v1",
-    minScore: record.min_score as number,
-    listingLimit: record.listing_limit as number,
-    maxDetailCandidates: record.max_detail_candidates as number,
-  };
-}
-
-function parseRedditSubredditStats(value: unknown, policy: RedditSourcePolicy): RedditSubredditStats[] {
-  if (!Array.isArray(value)) throw new Error("Reddit source API returned invalid subreddit_stats");
-  const expected = new Map(
-    REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
-  );
-  const seen = new Set<string>();
-  const stats = value.map((raw, index) => {
-    if (!raw || typeof raw !== "object") throw new Error(`Reddit source API subreddit_stats[${index}] is invalid`);
-    const record = raw as Record<string, unknown>;
-    const subreddit = typeof record.subreddit === "string" ? record.subreddit.trim() : "";
-    const key = subreddit.toLowerCase();
-    const category = expected.get(key) || "";
-    if (!category || seen.has(key)) {
-      throw new Error(`Reddit source API has an invalid subreddit statistic: r/${subreddit || "(missing)"}`);
-    }
-    seen.add(key);
-    const counts = ["listing", "score_pass", "shortlisted", "detail_ok", "final"] as const;
-    for (const field of counts) {
-      if (typeof record[field] !== "number" || !Number.isInteger(record[field]) || record[field] < 0) {
-        throw new Error(`Reddit source API r/${subreddit} has invalid ${field}: ${String(record[field])}`);
-      }
-    }
-    const listing = record.listing as number;
-    const scorePass = record.score_pass as number;
-    const minScore = record.min_score;
-    if (typeof minScore !== "number" || !Number.isInteger(minScore) || minScore !== policy.minScore) {
-      throw new Error(`Reddit source API r/${subreddit} has invalid min_score: ${String(minScore)}`);
-    }
-    const shortlisted = record.shortlisted as number;
-    const detailOk = record.detail_ok as number;
-    const final = record.final as number;
-    if (listing > policy.listingLimit || scorePass > listing || shortlisted > scorePass || detailOk > shortlisted || final !== detailOk) {
-      throw new Error(`Reddit source API r/${subreddit} has inconsistent funnel counts`);
-    }
-    const errorCode = record.error_code;
-    if (errorCode !== null && typeof errorCode !== "string") {
-      throw new Error(`Reddit source API r/${subreddit} has invalid error_code`);
-    }
-    return {
-      subreddit,
-      category,
-      listing,
-      score_pass: scorePass,
-      min_score: minScore,
-      shortlisted,
-      detail_ok: detailOk,
-      final,
-      error_code: errorCode,
-    };
+const magazineSourceBuilder = (date: string, { task, repo }: SourceContext): Promise<string> => {
+  const config = magazineConfig(task);
+  return buildMagazineWeeklySource(config, date, {
+    ledgerFile: path.join(repo, magazineLedgerRelPath(config.slug)),
+    excludePostPathForIssueDate: issueDate => taskPostRelPath(task, issueDate),
   });
-  if (seen.size !== expected.size || [...expected].some(([subreddit]) => !seen.has(subreddit))) {
-    throw new Error(`Reddit source API expected statistics for ${expected.size} fixed subreddits, received ${seen.size}`);
-  }
-  return stats;
-}
+};
 
-export function redditSubredditStatsLogLines(value: unknown, policy: RedditSourcePolicy): string[] {
-  return parseRedditSubredditStats(value, policy).map(stat =>
-    `[reddit-source] r/${stat.subreddit} category=${stat.category} listing=${stat.listing} min_score=${stat.min_score} score_pass=${stat.score_pass} shortlisted=${stat.shortlisted} detail_ok=${stat.detail_ok} final=${stat.final}${stat.error_code ? ` error_code=${stat.error_code}` : ""}`,
-  );
-}
-
-export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, date: string): string {
-  if (payload.contract_version !== "reddit-top20-source.v7") {
-    throw new Error(`Reddit source API returned an unsupported contract: ${String(payload.contract_version)}`);
-  }
-  if (payload.archive_date !== date) {
-    throw new Error(`Reddit source API archive date ${String(payload.archive_date)} does not match requested date ${date}`);
-  }
-  if (typeof payload.fetched_at !== "string" || Number.isNaN(Date.parse(payload.fetched_at))) {
-    throw new Error("Reddit source API returned an invalid fetched_at timestamp");
-  }
-  if (typeof payload.source !== "string" || !payload.source.includes("===ARCHIVE_PAYLOAD===")) {
-    throw new Error("Reddit source API returned an invalid source payload");
-  }
-  const sourceHash = createHash("sha256").update(payload.source, "utf8").digest("hex");
-  if (payload.source_sha256 !== sourceHash) {
-    throw new Error("Reddit source API source_sha256 does not match source content");
-  }
-  const policy = parseRedditSourcePolicy(payload.policy, payload.policy_sha256);
-  const facts = parseRedditSourceFacts(payload.source);
-  const maxItems = REDDIT_SUBREDDITS.length * policy.listingLimit;
-  if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > maxItems) {
-    throw new Error(`Reddit source API expected 1-${maxItems} ranked items, received ${String(payload.item_count)}`);
-  }
-  const expectedSubreddits = new Set(REDDIT_SUBREDDITS.map(subreddit => subreddit.toLowerCase()));
-  const stats = parseRedditSubredditStats(payload.subreddit_stats, policy);
-  const subredditCounts = new Map<string, number>();
-  for (const fact of facts) {
-    const subreddit = fact.subreddit.toLowerCase();
-    if (!expectedSubreddits.has(subreddit)) {
-      throw new Error(`Reddit source API item ${fact.rank} returned unrequested subreddit r/${fact.subreddit}`);
-    }
-    subredditCounts.set(subreddit, (subredditCounts.get(subreddit) || 0) + 1);
-    const publishedAt = Date.parse(fact.publishedAt);
-    if (!fact.publishedAt || Number.isNaN(publishedAt)) {
-      throw new Error(`Reddit source API item ${fact.rank} has an invalid publication timestamp`);
-    }
-  }
-  for (const stat of stats) {
-    if (stat.final !== (subredditCounts.get(stat.subreddit.toLowerCase()) || 0)) {
-      throw new Error(`Reddit source API r/${stat.subreddit} final count does not match source items`);
-    }
-  }
-  return payload.source;
-}
-
-function parseRedditSourceJobResponse(payload: RedditSourceJobApiResponse, date: string): {
-  id: string;
-  state: "queued" | "running" | "ready" | "failed";
-  result: RedditSourceApiResponse | null;
-  error: string;
-  progress: string;
-} {
-  if (typeof payload.id !== "string" || !payload.id.trim()) {
-    throw new Error("Reddit source job response is missing id");
-  }
-  if (payload.archive_date !== date) {
-    throw new Error(`Reddit source job date ${String(payload.archive_date)} does not match requested date ${date}`);
-  }
-  if (payload.state !== "queued" && payload.state !== "running" && payload.state !== "ready" && payload.state !== "failed") {
-    throw new Error(`Reddit source job returned an unsupported state: ${String(payload.state)}`);
-  }
-  const result = payload.result && typeof payload.result === "object" && !Array.isArray(payload.result)
-    ? payload.result as RedditSourceApiResponse
-    : null;
-  const code = typeof payload.error_code === "string" && payload.error_code.trim() ? payload.error_code.trim() : "REDDIT_SOURCE_JOB_FAILED";
-  const message = typeof payload.error_message === "string" && payload.error_message.trim() ? payload.error_message.trim() : "Reddit source job failed without details";
-  const deadlineAt = typeof payload.deadline_at === "string" && !Number.isNaN(Date.parse(payload.deadline_at)) ? payload.deadline_at : "";
-  const progress = payload.progress && typeof payload.progress === "object" && !Array.isArray(payload.progress)
-    ? payload.progress as Record<string, unknown>
-    : null;
-  const phase = progress?.phase === "listing" || progress?.phase === "details" ? progress.phase : "";
-  const completed = typeof progress?.details_completed === "number" && Number.isInteger(progress.details_completed)
-    ? progress.details_completed
-    : null;
-  const total = typeof progress?.details_total === "number" && Number.isInteger(progress.details_total)
-    ? progress.details_total
-    : null;
-  const progressSummary = phase
-    ? ` phase=${phase}${completed !== null && total !== null ? ` details=${completed}/${total}` : ""}${deadlineAt ? ` deadline=${deadlineAt}` : ""}`
-    : deadlineAt ? ` deadline=${deadlineAt}` : "";
-  return { id: payload.id, state: payload.state, result, error: `${code}: ${message}`, progress: progressSummary };
-}
-
-function redditSourcePollIntervalMs(): number {
-  return envPositiveInt("REDDIT_SOURCE_POLL_INTERVAL_MS", 5_000);
-}
-
-function redditSourceRequestTimeoutMs(): number {
-  return envPositiveInt("REDDIT_SOURCE_REQUEST_TIMEOUT_MS", 30_000);
-}
-
-function redditSourcePollTimeoutMs(): number {
-  return envPositiveInt("REDDIT_SOURCE_POLL_TIMEOUT_MS", 25 * 60_000);
-}
-
-export async function fetchRedditSourceFromApi(date: string): Promise<string> {
-  const baseUrl = process.env.REDDIT_SOURCE_API_URL?.trim().replace(/\/+$/, "");
-  const token = process.env.REDDIT_SOURCE_API_TOKEN?.trim();
-  if (!baseUrl) throw new Error("REDDIT_SOURCE_API_URL is required for reddit-top20 generation");
-  if (!token) throw new Error("REDDIT_SOURCE_API_TOKEN is required for reddit-top20 generation");
-  const request = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    timeoutMs: redditSourceRequestTimeoutMs(),
-    maxChars: 64_000_000,
-    throwOnMaxChars: true,
-    retries: 2,
-  };
-  let payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v3/reddit/top20-source/jobs`, {
-    method: "POST",
-    body: JSON.stringify({
-      archive_date: date,
-      subreddits: REDDIT_SUBREDDITS,
-    }),
-    ...request,
-  });
-  let previousState = "";
-  let previousProgress = "";
-  const pollTimeoutMs = redditSourcePollTimeoutMs();
-  const pollStartedAt = Date.now();
-
-  for (;;) {
-    const job = parseRedditSourceJobResponse(payload, date);
-    if (job.state !== previousState || job.progress !== previousProgress) {
-      writeStdout(`[reddit-source] job=${job.id} state=${job.state}${job.progress}\n`);
-      previousState = job.state;
-      previousProgress = job.progress;
-    }
-    if (job.state === "failed") throw new Error(`Reddit source job ${job.id} failed: ${job.error}`);
-    if (job.state === "ready") {
-      if (!job.result) throw new Error(`Reddit source job ${job.id} completed without a source result`);
-      const source = parseRedditSourceApiResponse(job.result, date);
-      const policy = parseRedditSourcePolicy(job.result.policy, job.result.policy_sha256);
-      redditSubredditStatsLogLines(job.result.subreddit_stats, policy).forEach(line => writeStdout(`${line}\n`));
-      return source;
-    }
-
-    const elapsedMs = Date.now() - pollStartedAt;
-    const remainingMs = pollTimeoutMs - elapsedMs;
-    if (remainingMs <= 0) {
-      throw new Error(`Reddit source job ${job.id} exceeded client poll timeout after ${pollTimeoutMs}ms; last state=${job.state}${job.progress}`);
-    }
-    await sleep(Math.min(redditSourcePollIntervalMs(), remainingMs));
-    payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v3/reddit/top20-source/jobs/${encodeURIComponent(job.id)}`, {
-      method: "GET",
-      ...request,
-    });
-  }
-}
-
-const SOURCE_BUILDERS: Partial<Record<Task, (date: string) => Promise<string>>> = {
+// 全量 Record：新增任务时漏掉取源是类型错误。null 表示这个任务不走 source 文本——
+// apple-top-podcasts 逐集走多模态，证据是音频本身，没有中间 source。
+const SOURCE_BUILDERS: Record<Task, ((date: string, ctx: SourceContext) => Promise<string>) | null> = {
   "hn-top10": () => buildHnSource(),
-  "reddit-top20": fetchRedditSourceFromApi,
+  "reddit-top20": date => fetchRedditSourceFromApi(date),
   "github-trending-daily": date => buildGitHubTrendingDailySource(date, { dataDir: path.join(repoRoot(), "data/github-trending") }),
   "daily-podcasts": date => buildDailyPodcastSource(date),
+  "apple-top-podcasts": null,
   "xyzrank-top-episodes": date => buildXyzRankTopEpisodesSource(date),
   "tech-daily": date => buildDailyDigestSource(date),
+  "mdblist-weekly": (date, { task, repo }) =>
+    buildMdblistWeeklySource(date, undefined, {
+      ledgerFile: path.join(repo, MDBLIST_LEDGER_REL_PATH),
+      excludePostPath: taskPostRelPath(task, date),
+    }),
+  "nyt-books-weekly": (date, { task, repo }) =>
+    buildNytBooksWeeklySource(date, {
+      ledgerFile: path.join(repo, NYT_BOOKS_LEDGER_REL_PATH),
+      excludePostPath: taskPostRelPath(task, date),
+    }),
+  "economist-weekly": magazineSourceBuilder,
+  "new-yorker-weekly": magazineSourceBuilder,
+  "atlantic-monthly": magazineSourceBuilder,
+  "wired-monthly": magazineSourceBuilder,
 };
 
 async function sourceForTask(task: Task, date: string, sourceFixtureDir = "", repo = repoRoot()): Promise<string> {
   if (sourceFixtureDir) return fixtureSource(task, sourceFixtureDir);
-  if (task === "mdblist-weekly") {
-    return buildMdblistWeeklySource(date, undefined, {
-      ledgerFile: path.join(repo, MDBLIST_LEDGER_REL_PATH),
-      excludePostPath: taskPostRelPath(task, date),
-    });
-  }
-  if (task === "nyt-books-weekly") {
-    return buildNytBooksWeeklySource(date, {
-      ledgerFile: path.join(repo, NYT_BOOKS_LEDGER_REL_PATH),
-      excludePostPath: taskPostRelPath(task, date),
-    });
-  }
-  if (isMagazineTask(task)) {
-    return buildMagazineWeeklySource(magazineConfig(task), date, {
-      ledgerFile: path.join(repo, magazineLedgerRelPath(magazineConfig(task).slug)),
-      excludePostPathForIssueDate: issueDate => taskPostRelPath(task, issueDate),
-    });
-  }
   const builder = SOURCE_BUILDERS[task];
   if (!builder) throw new Error(`no source builder for task: ${task}`);
-  return builder(date);
+  return builder(date, { task, repo });
 }
 
 function writeArtifact(artifactsDir: string, task: string, name: string, content: string): string {
@@ -610,27 +301,15 @@ async function callAi(prompt: string, model: string, jsonMode = false): Promise<
 }
 
 function retryAttempts(): number {
-  const raw = Number(process.env.AI_RETRY_ATTEMPTS || "3");
-  return Number.isInteger(raw) && raw > 0 ? raw : 3;
+  return envPositiveInt("AI_RETRY_ATTEMPTS", 3);
 }
 
-function retryDelayMs(attempt: number): number {
+// jitterMs：同一批条目并发提交时，固定退避会让所有重试撞在同一毫秒上；抖动把它们摊开。
+function retryDelayMs(attempt: number, jitterMs = 0): number {
   const raw = Number(process.env.AI_RETRY_DELAY_MS || "10000");
   const base = Number.isFinite(raw) && raw >= 0 ? raw : 10_000;
-  return attempt <= 1 ? 0 : base * (attempt - 1);
-}
-
-async function sleep(ms: number): Promise<void> {
-  if (ms > 0) await new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function parseJsonObject(text: string): unknown {
-  const trimmed = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-  if (trimmed.startsWith("{")) return JSON.parse(trimmed);
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-  if (start >= 0 && end > start) return JSON.parse(trimmed.slice(start, end + 1));
-  throw new Error("AI selector response did not contain a JSON object");
+  const delay = attempt <= 1 ? 0 : base * (attempt - 1);
+  return delay > 0 && jitterMs > 0 ? delay + Math.floor(Math.random() * jitterMs) : delay;
 }
 
 type JsonStageOptions<T> = {
@@ -641,6 +320,10 @@ type JsonStageOptions<T> = {
   model: string;
   artifactsDir: string;
   parse: (content: string) => T;
+  /** 逐条目并发调用时给一个上界，避开同批重试的惊群。 */
+  jitterMs?: number;
+  /** 不给就抛错；给了则由它把「重试用尽」翻译成一个可继续处理的值（Reddit 逐帖降级）。 */
+  onExhausted?: (message: string) => T;
 };
 
 // Intermediate AI stages are as vulnerable to truncated JSON as final article generation.
@@ -653,12 +336,14 @@ export async function generateJsonStageWithRetries<T>({
   model,
   artifactsDir,
   parse,
+  jitterMs = 0,
+  onExhausted,
 }: JsonStageOptions<T>): Promise<T> {
   const attempts = retryAttempts();
   let lastError = "";
   let attemptPrompt = prompt;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    await sleep(retryDelayMs(attempt));
+    await sleep(retryDelayMs(attempt, jitterMs));
     if (attempt > 1) writeArtifact(artifactsDir, task, `${artifactPrefix}-retry-prompt-attempt-${attempt}.md`, attemptPrompt);
     try {
       const response = await callAi(attemptPrompt, model, true);
@@ -673,7 +358,9 @@ export async function generateJsonStageWithRetries<T>({
       }
     }
   }
-  throw new Error(`${stage} failed after ${attempts} attempts: ${lastError}`);
+  const message = `${stage} failed after ${attempts} attempts: ${lastError}`;
+  if (onExhausted) return onExhausted(message);
+  throw new Error(message);
 }
 
 function splitNumberedSource(source: string): { header: string; blocks: Map<number, string> } {
@@ -681,7 +368,7 @@ function splitNumberedSource(source: string): { header: string; blocks: Map<numb
   const header = match ? match[1].trimEnd() : "";
   const remainder = match ? source.slice(match[1].length) : source;
   const blocks = new Map<number, string>();
-  for (const block of remainder.split(/(?=^##\s+\d+\.\s+)/m).map(part => part.trim()).filter(Boolean)) {
+  for (const block of numberedBlocks(remainder)) {
     const id = Number(block.match(/^##\s+(\d+)\.\s+/)?.[1]);
     if (Number.isInteger(id)) blocks.set(id, block);
   }
@@ -718,13 +405,11 @@ type DailySectionPlan = {
 };
 
 function dailySummaryConcurrency(): number {
-  const raw = Number(process.env.DAILY_DIGEST_SUMMARY_CONCURRENCY || "4");
-  return Number.isInteger(raw) && raw > 0 ? Math.min(raw, 8) : 4;
+  return envPositiveInt("DAILY_DIGEST_SUMMARY_CONCURRENCY", 4, 8);
 }
 
 function dailySummaryMaxCandidates(): number {
-  const raw = Number(process.env.DAILY_DIGEST_MAX_CANDIDATES || "40");
-  return Number.isInteger(raw) && raw > 0 ? raw : 40;
+  return envPositiveInt("DAILY_DIGEST_MAX_CANDIDATES", 40);
 }
 
 function truncateField(value: unknown, max: number): string {
@@ -740,7 +425,7 @@ function candidateMetaFromBlock(id: number, block: string): DailyCandidateMeta {
 }
 
 function parseDailyItemSummaryResponse(text: string, meta: DailyCandidateMeta): DailyItemSummary {
-  const payload = parseJsonObject(text) as Record<string, unknown>;
+  const payload = parseModelJsonObject(text, `tech-daily item ${meta.id}`);
   const rawTags = Array.isArray(payload.tags) ? payload.tags : [];
   const tags = rawTags.map(tag => truncateField(tag, 24)).filter(Boolean).slice(0, 6);
   const importance = Math.max(1, Math.min(5, Number(payload.importance) || 3));
@@ -819,7 +504,7 @@ function formatDailyItemCards(summaries: DailyItemSummary[]): string {
 }
 
 function parseDailySectionPlan(text: string, summaries: DailyItemSummary[]): DailySectionPlan[] {
-  const payload = parseJsonObject(text) as { sections?: unknown };
+  const payload = parseModelJsonObject(text, "tech-daily section planner") as { sections?: unknown };
   if (!Array.isArray(payload.sections)) throw new Error("daily section planner response missing sections array");
   const validIds = new Set(summaries.filter(item => item.include).map(item => item.id));
   const used = new Set<number>();
@@ -930,11 +615,6 @@ function redditSourceBlocks(source: string): string[] {
     .filter(block => /^\d+\.\s*\[r\//.test(block));
 }
 
-function redditRetryDelayMs(attempt: number): number {
-  const base = retryDelayMs(attempt);
-  return base > 0 ? base + Math.floor(Math.random() * 1000) : 0;
-}
-
 type RedditItemSummaryOutcome = {
   summary: RedditModelItem | null;
   error?: string;
@@ -959,27 +639,19 @@ export function partitionRedditItemOutcomes(outcomes: RedditItemProcessingOutcom
 }
 
 // summary 为 null 表示模型判定整帖落在排除主题上；error 则表示重试后仍无法产出可用摘要。
-async function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditItemSummaryOutcome> {
-  const attempts = retryAttempts();
-  let lastError = "";
-  let attemptPrompt = prompt;
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    await sleep(redditRetryDelayMs(attempt));
-    try {
-      const response = await callAi(attemptPrompt, model, true);
-      const summary = parseRedditItemOutcome(response.content, rank);
-      writeArtifact(artifactsDir, "reddit-top20", `item-${String(rank).padStart(2, "0")}-summary.json`, response.content);
-      return { summary };
-    } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-      writeArtifact(artifactsDir, "reddit-top20", `item-${String(rank).padStart(2, "0")}-error-attempt-${attempt}.txt`, lastError);
-      if (attempt < attempts) {
-        attemptPrompt = `${prompt.trim()}\n\n上一轮输出无法解析为规定的 JSON，原因：${lastError}\n请重新返回完整、合法且字段齐全的 JSON 对象，不要输出解释或代码围栏。`;
-        writeStderr(`WARN: Reddit item ${rank} attempt ${attempt}/${attempts} failed; retrying: ${lastError}`);
-      }
-    }
-  }
-  return { summary: null, error: `Reddit item ${rank} failed after ${attempts} attempts: ${lastError}` };
+// 单帖失败不能带走整批，因此这里给 onExhausted 而不是让它抛。
+function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditItemSummaryOutcome> {
+  return generateJsonStageWithRetries<RedditItemSummaryOutcome>({
+    task: "reddit-top20",
+    stage: `Reddit item ${rank}`,
+    artifactPrefix: `item-${String(rank).padStart(2, "0")}-summary`,
+    prompt,
+    model,
+    artifactsDir,
+    jitterMs: 1_000,
+    parse: content => ({ summary: parseRedditItemOutcome(content, rank) }),
+    onExhausted: error => ({ summary: null, error }),
+  });
 }
 
 async function buildCombinedRedditSource({
@@ -1049,15 +721,6 @@ type EconomistItemSummary = {
   contentSummary: string;
 };
 
-function economistSourceBlocks(source: string): string[] {
-  return source.split(/(?=^##\s+\d+\.\s+)/gm).map(block => block.trim()).filter(block => /^##\s+\d+\.\s+/.test(block));
-}
-
-function economistRetryDelayMs(attempt: number): number {
-  const base = retryDelayMs(attempt);
-  return base > 0 ? base + Math.floor(Math.random() * 1000) : 0;
-}
-
 export function parseMagazineItemSummary(raw: string, rank: number, label = "\u6742\u5fd7"): EconomistItemSummary {
   const payload = parseModelJsonObject(raw, `${label} item summary`);
   const responseRank = Number(payload.rank);
@@ -1073,27 +736,18 @@ export function parseMagazineItemSummary(raw: string, rank: number, label = "\u6
   return { rank, titleZh, oneSentenceSummary, corePoint, contentSummary };
 }
 
-async function summarizeMagazineItem(config: MagazineConfig, prompt: string, rank: number, model: string, artifactsDir: string): Promise<EconomistItemSummary> {
-  const attempts = retryAttempts();
-  let lastError = "";
-  let attemptPrompt = prompt;
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    await sleep(economistRetryDelayMs(attempt));
-    try {
-      const response = await callAi(attemptPrompt, model, true);
-      const summary = parseMagazineItemSummary(response.content, rank, config.name);
-      writeArtifact(artifactsDir, config.slug, `item-${String(rank).padStart(2, "0")}-summary.json`, response.content);
-      return summary;
-    } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-      writeArtifact(artifactsDir, config.slug, `item-${String(rank).padStart(2, "0")}-error-attempt-${attempt}.txt`, lastError);
-      if (attempt < attempts) {
-        attemptPrompt = `${prompt.trim()}\n\n上一轮输出无法解析为规定的 JSON，原因：${lastError}\n请重新返回完整、合法且字段齐全的 JSON 对象，不要输出解释或代码围栏。`;
-        writeStderr(`WARN: ${config.name} item ${rank} attempt ${attempt}/${attempts} failed; retrying: ${lastError}`);
-      }
-    }
-  }
-  throw new Error(`${config.name} item ${rank} failed after ${attempts} attempts: ${lastError}`);
+// 整期导读少一篇就不成立，因此这里不给 onExhausted：重试用尽直接抛，由上层判定整个任务失败。
+function summarizeMagazineItem(config: MagazineConfig, prompt: string, rank: number, model: string, artifactsDir: string): Promise<EconomistItemSummary> {
+  return generateJsonStageWithRetries({
+    task: config.slug,
+    stage: `${config.name} item ${rank}`,
+    artifactPrefix: `item-${String(rank).padStart(2, "0")}-summary`,
+    prompt,
+    model,
+    artifactsDir,
+    jitterMs: 1_000,
+    parse: content => parseMagazineItemSummary(content, rank, config.name),
+  });
 }
 
 async function buildCombinedMagazineSource({
@@ -1113,7 +767,7 @@ async function buildCombinedMagazineSource({
   promptDir: string;
   artifactsDir: string;
 }): Promise<string> {
-  const blocks = economistSourceBlocks(source);
+  const blocks = numberedBlocks(source);
   if (blocks.length < 3) throw new Error(`${config.name} source has too few article blocks: ${blocks.length}`);
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, "magazine-item-summary"), "utf8");
@@ -1248,7 +902,7 @@ export function usesJsonComposer(task: Task): boolean {
 
 function extractDescriptionFromJson(raw: string): string | undefined {
   try {
-    const parsed = parseJsonObject(raw) as Record<string, unknown>;
+    const parsed = parseModelJsonObject(raw, "composer description");
     const desc = typeof parsed.description === "string" ? parsed.description.trim().slice(0, 30) : undefined;
     return desc || undefined;
   } catch {
@@ -1299,7 +953,7 @@ async function renderLiveAiMarkdownWithSourceValidation(
 // 播客文章族在生产路径由 buildDailyPodcastEpisodeArticle 统一渲染 daily-podcasts 提示词；
 // 没有专属提示词的播客任务在这里回退到同一份，避免为它单独维护一份不会被生产读到的副本。
 function promptTaskFor(task: Task, promptDir: string): Task {
-  if (!isPodcastArticleTask(task) || fs.existsSync(resolvePromptFile(promptDir, task))) return task;
+  if (!isEpisodeArticleTask(task) || fs.existsSync(resolvePromptFile(promptDir, task))) return task;
   return "daily-podcasts";
 }
 
@@ -1365,6 +1019,57 @@ type GenerateTaskOptions = {
   artifactsDir: string;
 };
 
+// 取源与成文之间的可选一步：先让模型逐条目产出语义字段，再把结果拼回一份「固定证据」source。
+// null = 这个任务的 source 直接进 compose。
+type CombineArgs = { task: Task; source: string; date: string; repo: string; model: string; promptDir: string; artifactsDir: string };
+
+const SOURCE_COMBINERS: Record<Task, ((args: CombineArgs) => Promise<string>) | null> = {
+  "hn-top10": null,
+  "github-trending-daily": null,
+  "daily-podcasts": null,
+  "apple-top-podcasts": null,
+  "xyzrank-top-episodes": null,
+  "mdblist-weekly": null,
+  "nyt-books-weekly": null,
+  "tech-daily": buildCombinedTechDailySource,
+  "reddit-top20": buildCombinedRedditSource,
+  "economist-weekly": combineMagazineSource,
+  "new-yorker-weekly": combineMagazineSource,
+  "atlantic-monthly": combineMagazineSource,
+  "wired-monthly": combineMagazineSource,
+};
+
+function combineMagazineSource(args: CombineArgs): Promise<string> {
+  return buildCombinedMagazineSource({ ...args, config: magazineConfig(args.task) });
+}
+
+// 归档成功后把本篇写进对应账本。null = 这个任务不需要跨运行去重账本。
+// 播客系不在这里：它们的账本按集写入（见 generatePodcastArticles），不是从 source 反解的。
+type LedgerMeta = { archivedAt: string; postPath: string };
+
+const LEDGER_APPENDERS: Record<Task, ((source: string, meta: LedgerMeta, ctx: SourceContext) => void) | null> = {
+  "hn-top10": null,
+  "reddit-top20": null,
+  "github-trending-daily": null,
+  "daily-podcasts": null,
+  "apple-top-podcasts": null,
+  "xyzrank-top-episodes": null,
+  "tech-daily": null,
+  "mdblist-weekly": (source, meta, { repo }) =>
+    appendMdblistRecommendations(parseMdblistRecommendationsFromSource(source), meta, path.join(repo, MDBLIST_LEDGER_REL_PATH)),
+  "nyt-books-weekly": (source, meta, { repo }) =>
+    appendNytBookRecommendations(parseNytBookRecommendationsFromSource(source), meta, path.join(repo, NYT_BOOKS_LEDGER_REL_PATH)),
+  "economist-weekly": appendMagazineIssueForTask,
+  "new-yorker-weekly": appendMagazineIssueForTask,
+  "atlantic-monthly": appendMagazineIssueForTask,
+  "wired-monthly": appendMagazineIssueForTask,
+};
+
+function appendMagazineIssueForTask(source: string, meta: LedgerMeta, { task, repo }: SourceContext): void {
+  const magazine = magazineConfig(task);
+  appendMagazineIssue(parseMagazineIssueFromSource(source, magazine.keyPrefix), magazine.keyPrefix, meta, path.join(repo, magazineLedgerRelPath(magazine.slug)));
+}
+
 export function contentDateForTask(task: Task, runDate: string, source: string): string {
   return isMagazineTask(task) ? parseMagazineIssueFromSource(source, magazineConfig(task).keyPrefix).issueDate : runDate;
 }
@@ -1422,7 +1127,7 @@ async function generatePodcastArticles({ task, repo, date, force, promptDir, art
 
 async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]> {
   const { task, repo, date, force, useAi, model, promptDir, sourceFixtureDir, mockResponseDir, artifactsDir } = options;
-  if (isPodcastArticleTask(task) && useAi && !sourceFixtureDir && !mockResponseDir) return generatePodcastArticles(options);
+  if (isEpisodeArticleTask(task) && useAi && !sourceFixtureDir && !mockResponseDir) return generatePodcastArticles(options);
   if (!force && task === "reddit-top20") {
     const existing = REDDIT_CATEGORIES.map(category => skippedExistingVariant(task, repo, date, category.fileNameSuffix, category.title));
     if (existing.every(Boolean)) return existing as ResultItem[];
@@ -1441,16 +1146,11 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     const skipped = skippedExisting(task, repo, contentDate);
     if (skipped) return [skipped];
   }
-  if (useAi && task === "tech-daily" && !mockResponseDir) {
-    source = await buildCombinedTechDailySource({ source, date, repo, model, promptDir, artifactsDir });
-    const itemCount = countNumberedBlocks(source);
-    if (itemCount < 1) return [skippedLowQuality(task, date, "tech-daily has no high-quality daily items")];
-  }
-  if (useAi && task === "reddit-top20" && !mockResponseDir) {
-    source = await buildCombinedRedditSource({ source, date: contentDate, repo, model, promptDir, artifactsDir });
-  }
-  if (useAi && isMagazineTask(task) && !mockResponseDir) {
-    source = await buildCombinedMagazineSource({ config: magazineConfig(task), source, date: contentDate, repo, model, promptDir, artifactsDir });
+  const combineSource = SOURCE_COMBINERS[task];
+  if (useAi && combineSource && !mockResponseDir) {
+    source = await combineSource({ task, source, date: contentDate, repo, model, promptDir, artifactsDir });
+    // 逐条目摘要可能把当天全部候选都判掉；空栏目不值得发一篇。
+    if (task === "tech-daily" && countNumberedBlocks(source) < 1) return [skippedLowQuality(task, date, "tech-daily has no high-quality daily items")];
   }
   let body = source;
   let description: string | undefined;
@@ -1500,29 +1200,8 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     generation = rendered.metadata;
   }
   const result: ResultItem = archivePost({ task, date: contentDate, repo, body, force, description });
-  if (task === "mdblist-weekly" && !result.skipped) {
-    appendMdblistRecommendations(
-      parseMdblistRecommendationsFromSource(source),
-      { archivedAt: date, postPath: result.path },
-      path.join(repo, MDBLIST_LEDGER_REL_PATH),
-    );
-  }
-  if (task === "nyt-books-weekly" && !result.skipped) {
-    appendNytBookRecommendations(
-      parseNytBookRecommendationsFromSource(source),
-      { archivedAt: date, postPath: result.path },
-      path.join(repo, NYT_BOOKS_LEDGER_REL_PATH),
-    );
-  }
-  if (isMagazineTask(task) && !result.skipped) {
-    const magazine = magazineConfig(task);
-    appendMagazineIssue(
-      parseMagazineIssueFromSource(source, magazine.keyPrefix),
-      magazine.keyPrefix,
-      { archivedAt: date, postPath: result.path },
-      path.join(repo, magazineLedgerRelPath(magazine.slug)),
-    );
-  }
+  const appendToLedger = LEDGER_APPENDERS[task];
+  if (appendToLedger && !result.skipped) appendToLedger(source, { archivedAt: date, postPath: result.path }, { task, repo });
   if (generation) result.generation = generation;
   return [result];
 }

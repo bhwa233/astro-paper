@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import AdmZip from "adm-zip";
 import { XMLParser } from "fast-xml-parser";
-import { JSDOM } from "jsdom";
+import { parseHtml } from "./html_dom.ts";
 import { bjtTimestamp, compact } from "./blog_common.ts";
 import {
   hasArchivedMagazineIssue,
@@ -86,7 +86,7 @@ function extractArticleTitle(document: Document): string {
 const ECONOMIST_NON_ARTICLE_SECTIONS = new Set(["the world this week", "letters", "economic & financial indicators"]);
 
 function economistExtract(html: string): ArticleExtraction {
-  const { document } = new JSDOM(html).window;
+  const document = parseHtml(html);
   const section = normalizedText(document.querySelector(".te_section_title")?.textContent || "未标明");
   const paragraphs = [...document.querySelectorAll("p")]
     .filter(node => !node.closest(".link_navbar, nav, header, footer") && !/downloaded by|subscribers only/i.test(node.textContent || ""))
@@ -97,7 +97,7 @@ function economistExtract(html: string): ArticleExtraction {
 
 // --- The New Yorker --------------------------------------------------------
 function newYorkerExtract(html: string): ArticleExtraction {
-  const { document } = new JSDOM(html).window;
+  const document = parseHtml(html);
   const article = document.querySelector(".article");
   if (!article) return { originalTitle: "", text: "", drop: true };
   const paragraphs = [...article.querySelectorAll("p")]
@@ -110,7 +110,7 @@ function newYorkerExtract(html: string): ArticleExtraction {
 // Bodies are one article per file with hashed calibre classes; feed/TOC pages carry
 // little prose and fall below minArticleChars. No reliable canonical source link.
 function calibreExtract(html: string): ArticleExtraction {
-  const { document } = new JSDOM(html).window;
+  const document = parseHtml(html);
   const paragraphs = [...document.querySelectorAll("p")]
     .filter(node => !node.closest('nav, header, footer, [class*="navbar"]'))
     .map(node => normalizedText(node.textContent || ""))

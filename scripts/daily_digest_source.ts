@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { JSDOM } from "jsdom";
+import { parseXml } from "./html_dom.ts";
 import { avoidCloudflareEmailObfuscation, compact, fetchText, parseArgs, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 
 type DailyRoughCategory = "tech" | "ai" | "business" | "security" | "release" | "infra" | "data";
@@ -117,8 +117,7 @@ function stripHtml(text: string): string {
 }
 
 function parseFeedItems(xml: string, source: FeedSource): DailyDigestItem[] {
-  const dom = new JSDOM(xml, { contentType: "text/xml" });
-  const document = dom.window.document;
+  const document = parseXml(xml);
   const rssItems = [...document.querySelectorAll("item")].map(item => {
     const title = textOf(item.querySelector("title"));
     const url = textOf(item.querySelector("link")) || textOf(item.querySelector("guid"));

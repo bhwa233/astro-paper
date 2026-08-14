@@ -2,11 +2,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { bjtTimestamp, compact, frontmatter, parseArgs, readStdin, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { isTask, taskInfo, taskPostRelPath, taskTags, taskTitle } from "./blog_tasks.ts";
-import { isMagazineTask } from "./magazine.ts";
+import { type Task, isTask, taskInfo, taskPostRelPath, taskTags, taskTitle } from "./blog_tasks.ts";
+import { ARCHIVE_PAYLOAD_MARKER } from "./compose_common.ts";
+import { bulletValue, extractBullets, hasChinese, isCompactProperNameOrModelTitle, looksLowSignal, normalizeMarkdownBlock } from "./markdown_text.ts";
 
 const HN_DEFAULT_OG_IMAGE = "../../../../public/images/hn-cover.svg";
-export const ARCHIVE_PAYLOAD_MARKER = "===ARCHIVE_PAYLOAD===";
 
 type HnPayloadItem = {
   rank?: number;
@@ -69,12 +69,6 @@ function sanitizeGeneratedText(text = ""): string {
   return /[。！？!?]$/.test(cleaned) ? cleaned : `${cleaned}。`;
 }
 
-export function looksLowSignal(text = ""): boolean {
-  const c = compact(text);
-  if (!c) return true;
-  return /评论(?:补充)?信息不足|信息不足|评论信号不足|原文页面提取失败|页面提取失败|待补充/.test(c);
-}
-
 function extractPayload(text: string): { body: string; items: HnPayloadItem[] } {
   const index = text.indexOf(ARCHIVE_PAYLOAD_MARKER);
   if (index < 0) return { body: text, items: [] };
@@ -88,78 +82,8 @@ function extractPayload(text: string): { body: string; items: HnPayloadItem[] } 
   }
 }
 
-function extractBullets(block: string): string[] {
-  return block
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line.startsWith("- "))
-    .map(line => line.slice(2).trim());
-}
-
-function bulletValue(bullets: string[], label: string): string {
-  return bullets.find(bullet => bullet.startsWith(label))?.split("：").slice(1).join("：").trim() || "";
-}
-
 function normalizeParagraph(text: string): string {
   return sanitizeGeneratedText(text);
-}
-
-// CommonMark 右向定界规则：闭合的 **（含 * __ _）若紧邻标点、又紧跟非空白非标点
-// 字符，就不构成 right-flanking，无法闭合，整段被当作字面量星号。中文句子常以 。！？
-// 结尾紧接下一句、中间无空格，正好命中，导致 `**要点。**后文` 里的加粗失效。
-// 把贴着闭合标记的尾随标点移到标记外部（`**要点**。后文`），让加粗正常闭合。
-const EMPHASIS_TRAIL_PUNCT = "。！？；：，、．….!?;:";
-// 其后若已是这些标点，本就满足 right-flanking、能正常闭合，无需改写。
-const EMPHASIS_FOLLOW_PUNCT = EMPHASIS_TRAIL_PUNCT + "）】」』〉》”’\"')]}";
-
-function escapeCharClass(chars: string): string {
-  return chars.replace(/[\]\\^-]/g, "\\$&");
-}
-
-const EMPHASIS_BOUNDARY_RE = new RegExp(
-  "(`+[^`\\n]*`+)" + // 行内代码：原样保留，避免误伤其中标点
-    // (?<![*_]) 与后面排除 *_：避免从 ** 连续星号里切走单个 *，否则会把
-    // 已正常闭合（如后接空格/行尾）的加粗拆坏。
-    "|(?<![*_])(\\*\\*|__|\\*|_)([^*_\\n]+?)([" +
-    escapeCharClass(EMPHASIS_TRAIL_PUNCT) +
-    "]+)\\2(?=[^\\s*_" +
-    escapeCharClass(EMPHASIS_FOLLOW_PUNCT) +
-    "])",
-  "g"
-);
-
-export function fixEmphasisPunctuationBoundary(text: string): string {
-  return text.replace(EMPHASIS_BOUNDARY_RE, (match, code, open, inner, punct) =>
-    code !== undefined ? code : `${open}${inner}${open}${punct}`
-  );
-}
-
-// Markdown 正文块：保留段落与列表结构，只压掉多余空白。
-// sanitizeGeneratedText 相反，它会把整块压成单行纯文本，只适合单句字段。
-export function normalizeMarkdownBlock(raw: unknown): string {
-  return fixEmphasisPunctuationBoundary(
-    String(raw || "")
-      .replace(/\r\n/g, "\n")
-      .replace(/[ \t]+\n/g, "\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .replace(/[ \t]{2,}/g, " ")
-      .trim()
-  );
-}
-
-export function hasChinese(text: string): boolean {
-  return /[\u3400-\u9fff]/.test(text);
-}
-
-// HN 标题原则上必须翻译；只有紧凑的产品/模型专名可保留英文，例如 Pixel Watch 5、Qwen3.8-2.4T。
-export function isCompactProperNameOrModelTitle(title: string): boolean {
-  const parts = title.trim().split(/\s+/);
-  return (
-    parts.length >= 1 &&
-    parts.length <= 4 &&
-    parts.some(part => /\d/.test(part)) &&
-    parts.every(part => /^[A-Z0-9][A-Za-z0-9.-]*$/.test(part))
-  );
 }
 
 function assertHnTitleUsesChinese(title: string): void {
@@ -412,9 +336,26 @@ function formatMagazineWeekly(text: string): { markdown: string; ogImage: string
   return { markdown: `${normalized.trim()}\n`, ogImage: "" };
 }
 
-function isPodcastArticleTask(task: string): boolean {
-  return task === "daily-podcasts" || task === "apple-top-podcasts" || task === "xyzrank-top-episodes";
-}
+// 每个任务的成文函数。写成全量 Record：漏掉一个任务是类型错误，而不是运行到归档那一刻才抛
+// 「no archive formatter」。formatter 住在这里而不是 blog_tasks.ts——后者必须保持无第三方依赖，
+// 否则每个 compose 模块和它们的测试都会被拖进一整套 DOM 实现。
+type ArchiveFormatter = (body: string) => { markdown: string; ogImage?: string; description?: string };
+
+const ARCHIVE_FORMATTERS: Record<Task, ArchiveFormatter> = {
+  "hn-top10": formatHnTop10,
+  "reddit-top20": body => ({ markdown: formatRedditTop20(body) }),
+  "daily-podcasts": formatPodcastEpisode,
+  "apple-top-podcasts": formatPodcastEpisode,
+  "xyzrank-top-episodes": formatPodcastEpisode,
+  "tech-daily": body => ({ markdown: formatTechDaily(body) }),
+  "github-trending-daily": body => ({ markdown: formatGitHubTrendingDaily(body) }),
+  "mdblist-weekly": body => ({ markdown: formatMdblistWeekly(body) }),
+  "nyt-books-weekly": formatNytBooksWeekly,
+  "economist-weekly": formatMagazineWeekly,
+  "new-yorker-weekly": formatMagazineWeekly,
+  "atlantic-monthly": formatMagazineWeekly,
+  "wired-monthly": formatMagazineWeekly,
+};
 
 export function archivePost({
   task,
@@ -440,21 +381,12 @@ export function archivePost({
   if (!isTask(task)) throw new Error(`unsupported task: ${task}`);
   const info = taskInfo(task);
   const relPath = fileNameSuffix ? taskPostRelPath(task, `${date}-${fileNameSuffix}`) : taskPostRelPath(task, date);
-  const title = isPodcastArticleTask(task) ? podcastEpisodeTitle(body) || taskTitle(task, date) : titleSuffix ? `${taskTitle(task, date)}｜${titleSuffix}` : taskTitle(task, date);
+  const title = info.episodeArticles ? podcastEpisodeTitle(body) || taskTitle(task, date) : titleSuffix ? `${taskTitle(task, date)}｜${titleSuffix}` : taskTitle(task, date);
   const absPath = path.join(repo, relPath);
   if (!force && fs.existsSync(absPath)) {
     return { task, path: relPath, title, created: false, skipped: true, updated_at_bjt: bjtTimestamp(), commit: "", push: "", tags: taskTags(task) };
   }
-  const formatted: { markdown: string; ogImage: string; description?: string } =
-    task === "hn-top10" ? formatHnTop10(body) :
-    task === "reddit-top20" ? { markdown: formatRedditTop20(body), ogImage: "" } :
-    isPodcastArticleTask(task) ? { ...formatPodcastEpisode(body), ogImage: "" } :
-    task === "tech-daily" ? { markdown: formatTechDaily(body), ogImage: "" } :
-    task === "github-trending-daily" ? { markdown: formatGitHubTrendingDaily(body), ogImage: "" } :
-    task === "mdblist-weekly" ? { markdown: formatMdblistWeekly(body), ogImage: "" } :
-    task === "nyt-books-weekly" ? formatNytBooksWeekly(body) :
-    isMagazineTask(task) ? formatMagazineWeekly(body) :
-    (() => { throw new Error(`no archive formatter for task: ${task}`); })();
+  const formatted = ARCHIVE_FORMATTERS[task](body);
   const description = formatted.description ?? providedDescription ?? info.description;
   fs.mkdirSync(path.dirname(absPath), { recursive: true });
   const existed = fs.existsSync(absPath);
@@ -466,7 +398,7 @@ export function archivePost({
       description,
       tags: taskTags(task),
       ogImage: formatted.ogImage || ogImage,
-      wechatEnabled: task === "tech-daily" || task === "nyt-books-weekly",
+      wechatEnabled: Boolean(info.wechatEnabled),
     })}${formatted.markdown.trim()}\n`,
     "utf8",
   );

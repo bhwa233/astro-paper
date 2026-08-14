@@ -1,7 +1,8 @@
 // 各任务 compose 规则层共用的解析工具：source 编号块解析 + 模型 JSON 容错解析。
-import { hasChinese, looksLowSignal, normalizeMarkdownBlock } from "./astro_paper_archive.ts";
+export { bulletValue, extractBullets, hasChinese, isCompactProperNameOrModelTitle, looksLowSignal, normalizeMarkdownBlock, numberedBlocks } from "./markdown_text.ts";
 
-export { hasChinese, looksLowSignal, normalizeMarkdownBlock };
+// source 正文与结构化归档载荷之间的分隔标记：hn_top10_source 写入，compose 与 archive 两层都要切它。
+export const ARCHIVE_PAYLOAD_MARKER = "===ARCHIVE_PAYLOAD===";
 
 // Markdown 正文以 JSON 字符串形式塞进单行 bullet 承载（换行被转义），解析时还原。
 export function decodeMarkdownBlock(value: string): string {
@@ -12,18 +13,6 @@ export function decodeMarkdownBlock(value: string): string {
   } catch {
     return value;
   }
-}
-
-export function extractBullets(block: string): string[] {
-  return block
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line.startsWith("- "))
-    .map(line => line.slice(2).trim());
-}
-
-export function bulletValue(bullets: string[], label: string): string {
-  return bullets.find(bullet => bullet.startsWith(label))?.split("：").slice(1).join("：").trim() || "";
 }
 
 // 去掉模型可能裹上的 ```json 围栏，截取第一个 {...} 到最后一个 }。

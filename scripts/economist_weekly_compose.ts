@@ -1,4 +1,4 @@
-import { bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowSignal } from "./compose_common.ts";
+import { bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowSignal, numberedBlocks } from "./compose_common.ts";
 
 export type EconomistArticleSummary = {
   rank: number;
@@ -8,16 +8,9 @@ export type EconomistArticleSummary = {
   contentSummary: string;
 };
 
-function sourceBlocks(source: string): string[] {
-  return source
-    .split(/(?=^##\s+\d+\.\s+)/gm)
-    .map(block => block.trim())
-    .filter(block => /^##\s+\d+\.\s+/.test(block));
-}
-
 export function parseEconomistArticleSummaries(source: string): EconomistArticleSummary[] {
   const ranks = new Set<number>();
-  return sourceBlocks(source).map((block, index) => {
+  return numberedBlocks(source).map((block, index) => {
     const rank = Number(block.match(/^##\s+(\d+)\./m)?.[1]);
     const bullets = extractBullets(block);
     const titleZh = bulletValue(bullets, "中文标题");

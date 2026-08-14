@@ -3,7 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import { archivePost, normalizeMarkdownBlock } from "../scripts/astro_paper_archive.ts";
+import { archivePost } from "../scripts/astro_paper_archive.ts";
+import { normalizeMarkdownBlock } from "../scripts/markdown_text.ts";
 import { composeHnBody, hnMarkdownFromModelJson, parseHnModelJson, parseSourceFacts } from "../scripts/hn_compose.ts";
 import { parseGitHubTrendingFacts, parseGitHubTrendingModelJson } from "../scripts/github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
@@ -12,6 +13,7 @@ import { economistWeeklyMarkdown, parseEconomistArticleSummaries } from "../scri
 import { magazineConfig, parseMagazineEpub } from "../scripts/magazine.ts";
 import { parseRedditItemOutcome, parseRedditItemSummary, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
 import { parseMagazineItemSummary, partitionRedditItemOutcomes } from "../scripts/generate_scheduled_post.ts";
+import { verifyPostContract } from "../scripts/verify_blog_generation.ts";
 import { composeFixtureBody } from "./helpers/compose-fixture.ts";
 import { epubFixture } from "./helpers/epub.ts";
 import { fixture, tempDir } from "./helpers/mocks.ts";
@@ -181,6 +183,15 @@ test("NYT books compose uses compact paragraphs for WeChat", () => {
   assert.match(markdown, /^书评：\\\n/m);
   assert.doesNotMatch(markdown, /^#### (基本信息|内容简介|荣誉|书评)$/m);
   assert.doesNotMatch(markdown, /^- (作者|类型)：/m);
+});
+
+// 2026-08-14 事故：composeSection 去掉分节的 ## 之后，nyt-books 正文最高层级只剩 ###，
+// 而发布流水线的 verifyPostContract 硬要求 /^## /，下一次周日发布会在文章写盘之后炸在 verify 步骤。
+// compose 层的断言全绿也拦不住，因为断裂发生在 compose → archive → verify 的跨模块契约上。
+test("NYT books post satisfies the publish-time content contract", () => {
+  const repo = tempDir("nyt-books-verify");
+  const article = archivePost({ task: "nyt-books-weekly", date: "2099-01-04", repo, body: composeFixtureBody("nyt-books-weekly"), force: true });
+  verifyPostContract(repo, article.path, "nyt-books-weekly");
 });
 
 test("mdblist compose requires every selected candidate exactly once", () => {

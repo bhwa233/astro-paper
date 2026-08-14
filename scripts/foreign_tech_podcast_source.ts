@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { bjtDateString, clipText, compact, ensureDir, fetchText, parseArgs, repoRoot, stringArg, stripHtml, writeStderr, writeStdout } from "./blog_common.ts";
+import { bjtDateString, clipText, compact, ensureDir, envPositiveNumber, fetchText, parseArgs, repoRoot, sleep, stringArg, stripHtml, writeStderr, writeStdout } from "./blog_common.ts";
 import { podcastFingerprints } from "./foreign_tech_podcast_dedupe.ts";
 import { isEpisodeSummarized, loadSummarizedFingerprints } from "./podcast_ledger.ts";
 import { renderPrompt } from "./ai_blog_writer.ts";
@@ -103,20 +103,6 @@ export const FEEDS: FeedSource[] = [
   { show: "99% Invisible", source: "Radiotopia", url: "https://feeds.megaphone.fm/invisible99" },
 ];
 
-function envNumber(name: string, fallback: number): number {
-  const value = Number(process.env[name] || "");
-  return Number.isFinite(value) && value > 0 ? value : fallback;
-}
-
-function envFloat(name: string, fallback: number): number {
-  const value = Number(process.env[name] || "");
-  return Number.isFinite(value) && value > 0 ? value : fallback;
-}
-
-async function sleep(ms: number): Promise<void> {
-  if (ms > 0) await new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export class PodcastSourceInsufficientEpisodesError extends Error {
   constructor(
     readonly sourceName: string,
@@ -211,31 +197,31 @@ function daysBetween(a: string, b: string): number {
 
 
 function maxEpisodes(): number {
-  return envNumber("PODCAST_MAX_EPISODES", 3);
+  return envPositiveNumber("PODCAST_MAX_EPISODES", 3);
 }
 
 function minEpisodes(): number {
-  return envNumber("PODCAST_MIN_EPISODES", 1);
+  return envPositiveNumber("PODCAST_MIN_EPISODES", 1);
 }
 
 function candidateEpisodes(): number {
-  return Math.max(maxEpisodes(), minEpisodes(), envNumber("PODCAST_CANDIDATE_EPISODES", Math.max(maxEpisodes() * 5, minEpisodes())));
+  return Math.max(maxEpisodes(), minEpisodes(), envPositiveNumber("PODCAST_CANDIDATE_EPISODES", Math.max(maxEpisodes() * 5, minEpisodes())));
 }
 
 function foreignTechPodcastMaxEpisodes(): number {
-  return envNumber("FOREIGN_TECH_PODCAST_MAX_EPISODES", 999);
+  return envPositiveNumber("FOREIGN_TECH_PODCAST_MAX_EPISODES", 999);
 }
 
 function maxWindowDays(): number {
-  return envNumber("PODCAST_LOOKBACK_DAYS", 10);
+  return envPositiveNumber("PODCAST_LOOKBACK_DAYS", 10);
 }
 
 function maxDailyEpisodeMinutes(): number {
-  return envNumber("PODCAST_DAILY_MAX_EPISODE_MINUTES", 180);
+  return envPositiveNumber("PODCAST_DAILY_MAX_EPISODE_MINUTES", 180);
 }
 
 function minTranscriptChars(): number {
-  return envNumber("PODCAST_MIN_TRANSCRIPT_CHARS", 1000);
+  return envPositiveNumber("PODCAST_MIN_TRANSCRIPT_CHARS", 1000);
 }
 
 function parseDurationSeconds(value = ""): number | null {
@@ -272,7 +258,7 @@ function audioTranscribeEnabled(): boolean {
 }
 
 function promptTranscriptChars(): number {
-  return envNumber("PODCAST_PROMPT_TRANSCRIPT_CHARS", 12_000);
+  return envPositiveNumber("PODCAST_PROMPT_TRANSCRIPT_CHARS", 12_000);
 }
 
 function transcriptForPrompt(episode: Episode): string {
@@ -355,11 +341,11 @@ async function fetchRssEpisodes(date: string): Promise<Episode[]> {
 
 
 function appleTopPodcastsCount(): number {
-  return envNumber("APPLE_TOP_PODCASTS_COUNT", 20);
+  return envPositiveNumber("APPLE_TOP_PODCASTS_COUNT", 20);
 }
 
 function appleTopPodcastsMaxEpisodes(): number {
-  return envNumber("APPLE_TOP_PODCASTS_MAX_EPISODES", 999);
+  return envPositiveNumber("APPLE_TOP_PODCASTS_MAX_EPISODES", 999);
 }
 
 type AppleStorefront = { code: string; region: string };
@@ -526,8 +512,8 @@ async function fetchEpisodes(date: string, force = false): Promise<Episode[]> {
 }
 
 async function downloadAudio(url: string, file: string): Promise<void> {
-  const maxBytes = envNumber("PODCAST_AUDIO_MAX_MB", 300) * 1024 * 1024;
-  const timeoutMs = envNumber("PODCAST_AUDIO_DOWNLOAD_TIMEOUT_MS", 10 * 60 * 1000);
+  const maxBytes = envPositiveNumber("PODCAST_AUDIO_MAX_MB", 300) * 1024 * 1024;
+  const timeoutMs = envPositiveNumber("PODCAST_AUDIO_DOWNLOAD_TIMEOUT_MS", 10 * 60 * 1000);
   const controller = new AbortController();
   let timedOut = false;
   const timer = setTimeout(() => {
@@ -649,11 +635,11 @@ function retryAfterMs(value: string | null): number | null {
 
 function prepareGeminiAudioChunks(audioFile: string, outDir: string): string[] {
   ensureDir(outDir);
-  const segmentSeconds = envNumber("PODCAST_GEMINI_SEGMENT_SECONDS", 20 * 60);
+  const segmentSeconds = envPositiveNumber("PODCAST_GEMINI_SEGMENT_SECONDS", 20 * 60);
   const bitrate = process.env.PODCAST_GEMINI_AUDIO_BITRATE || "64k";
-  const timeoutMs = envNumber("PODCAST_FFMPEG_TIMEOUT_MS", 20 * 60 * 1000);
+  const timeoutMs = envPositiveNumber("PODCAST_FFMPEG_TIMEOUT_MS", 20 * 60 * 1000);
   runFfmpeg(["-y", "-i", audioFile, "-vn", "-ac", "1", "-ar", "16000", "-b:a", bitrate, "-f", "segment", "-segment_time", String(segmentSeconds), "-reset_timestamps", "1", path.join(outDir, "chunk-%03d.mp3")], timeoutMs);
-  const maxBytes = envNumber("PODCAST_GEMINI_MAX_INLINE_CHUNK_MB", 14) * 1024 * 1024;
+  const maxBytes = envPositiveNumber("PODCAST_GEMINI_MAX_INLINE_CHUNK_MB", 14) * 1024 * 1024;
   const chunks = fs
     .readdirSync(outDir)
     .filter(file => file.endsWith(".mp3"))
@@ -666,15 +652,15 @@ function prepareGeminiAudioChunks(audioFile: string, outDir: string): string[] {
 }
 
 function geminiRetryAttempts(): number {
-  return Math.max(1, envNumber("PODCAST_GEMINI_RETRY_ATTEMPTS", 3));
+  return Math.max(1, envPositiveNumber("PODCAST_GEMINI_RETRY_ATTEMPTS", 3));
 }
 
 function geminiRetryDelayMs(attempt: number): number {
-  return envNumber("PODCAST_GEMINI_RETRY_DELAY_MS", 30_000) * attempt;
+  return envPositiveNumber("PODCAST_GEMINI_RETRY_DELAY_MS", 30_000) * attempt;
 }
 
 function geminiChunkDelayMs(): number {
-  return envNumber("PODCAST_GEMINI_CHUNK_DELAY_MS", 0);
+  return envPositiveNumber("PODCAST_GEMINI_CHUNK_DELAY_MS", 0);
 }
 
 function retryableGeminiStatus(status: number): boolean {
@@ -691,7 +677,7 @@ function geminiTranscriptionPrompt(index: number, total: number): string {
 async function transcribeGeminiChunk(chunkFile: string, index: number, total: number): Promise<string> {
   const key = geminiApiKey();
   if (!key) throw new Error("GEMINI_API_KEY is not configured");
-  const timeoutMs = envNumber("PODCAST_GEMINI_TIMEOUT_MS", 10 * 60 * 1000);
+  const timeoutMs = envPositiveNumber("PODCAST_GEMINI_TIMEOUT_MS", 10 * 60 * 1000);
   const endpoint = `${geminiBaseUrl()}/v1beta/models/${encodeURIComponent(geminiModel())}:generateContent`;
   const payload = {
     contents: [
@@ -709,7 +695,7 @@ async function transcribeGeminiChunk(chunkFile: string, index: number, total: nu
     ],
     generationConfig: {
       temperature: 0,
-      maxOutputTokens: envNumber("PODCAST_GEMINI_MAX_OUTPUT_TOKENS", 8192),
+      maxOutputTokens: envPositiveNumber("PODCAST_GEMINI_MAX_OUTPUT_TOKENS", 8192),
     },
   };
   let lastError = "";
@@ -818,7 +804,7 @@ async function enrichWithTranscripts(episodes: Episode[], options: { tolerateFai
         writeStderr(`skipping podcast because audio transcription is disabled and no transcript is available: ${episode.title}`);
         continue;
       }
-      if (attemptedTranscriptions > 0) await sleep(options.transcribeDelayMs ?? envNumber("PODCAST_TRANSCRIBE_DELAY_MS", 0));
+      if (attemptedTranscriptions > 0) await sleep(options.transcribeDelayMs ?? envPositiveNumber("PODCAST_TRANSCRIBE_DELAY_MS", 0));
       attemptedTranscriptions += 1;
       writeStderr(`transcribing podcast ${index + 1}/${episodes.length}: ${episode.title}`);
       const rawAudio = path.join(tmp, `${index}.mp3`);
@@ -968,16 +954,16 @@ function geminiArticleAudioCodec(): { codec: string; ext: string; mime: string }
 
 function prepareGeminiArticleAudioChunks(audioFile: string, outDir: string): { files: string[]; mimeType: string } {
   ensureDir(outDir);
-  const segmentSeconds = envNumber("PODCAST_GEMINI_SEGMENT_SECONDS", 20 * 60);
+  const segmentSeconds = envPositiveNumber("PODCAST_GEMINI_SEGMENT_SECONDS", 20 * 60);
   const bitrate = process.env.PODCAST_GEMINI_ARTICLE_AUDIO_BITRATE || "24k";
-  const speed = String(envFloat("PODCAST_GEMINI_ARTICLE_AUDIO_SPEED", 1.5));
-  const timeoutMs = envNumber("PODCAST_FFMPEG_TIMEOUT_MS", 20 * 60 * 1000);
+  const speed = String(envPositiveNumber("PODCAST_GEMINI_ARTICLE_AUDIO_SPEED", 1.5));
+  const timeoutMs = envPositiveNumber("PODCAST_FFMPEG_TIMEOUT_MS", 20 * 60 * 1000);
   const { codec, ext, mime } = geminiArticleAudioCodec();
   runFfmpeg(
     ["-y", "-i", audioFile, "-vn", "-ac", "1", "-ar", "16000", "-filter:a", `atempo=${speed}`, "-c:a", codec, "-b:a", bitrate, "-f", "segment", "-segment_time", String(segmentSeconds), "-reset_timestamps", "1", path.join(outDir, `chunk-%03d.${ext}`)],
     timeoutMs,
   );
-  const maxBytes = envNumber("PODCAST_GEMINI_MAX_INLINE_CHUNK_MB", 14) * 1024 * 1024;
+  const maxBytes = envPositiveNumber("PODCAST_GEMINI_MAX_INLINE_CHUNK_MB", 14) * 1024 * 1024;
   const chunks = fs
     .readdirSync(outDir)
     .filter(file => file.endsWith(`.${ext}`))
@@ -1027,14 +1013,14 @@ function episodeAudioMetadataBlock(episode: Episode, index: number): string {
 async function generateGeminiArticle(prompt: string, audioParts: GeminiAudioPart[]): Promise<string> {
   const key = geminiArticleApiKey();
   if (!key) throw new Error("PODCAST_GEMINI_ARTICLE_API_KEY (or GEMINI_API_KEY) is not configured");
-  const timeoutMs = envNumber("PODCAST_GEMINI_TIMEOUT_MS", 10 * 60 * 1000);
+  const timeoutMs = envPositiveNumber("PODCAST_GEMINI_TIMEOUT_MS", 10 * 60 * 1000);
   const endpoint = `${geminiArticleBaseUrl()}/v1beta/models/${encodeURIComponent(geminiArticleModel())}:generateContent`;
   const payload = {
     contents: [{ parts: [{ text: prompt }, ...audioParts] }],
     generationConfig: {
       temperature: 0,
-      maxOutputTokens: envNumber("PODCAST_GEMINI_ARTICLE_MAX_OUTPUT_TOKENS", 16384),
-      thinkingConfig: { thinkingBudget: envNumber("PODCAST_GEMINI_ARTICLE_THINKING_BUDGET", 0) },
+      maxOutputTokens: envPositiveNumber("PODCAST_GEMINI_ARTICLE_MAX_OUTPUT_TOKENS", 16384),
+      thinkingConfig: { thinkingBudget: envPositiveNumber("PODCAST_GEMINI_ARTICLE_THINKING_BUDGET", 0) },
     },
   };
   let lastError = "";

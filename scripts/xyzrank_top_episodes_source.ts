@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { bjtDateString, compact, parseArgs, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { bjtDateString, compact, envPositiveInt, parseArgs, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { type Episode } from "./foreign_tech_podcast_source.ts";
 import { isEpisodeSummarized, loadSummarizedFingerprints } from "./podcast_ledger.ts";
 
@@ -121,8 +121,7 @@ function episodeDate(value: unknown, fallback: string): string {
 }
 
 function episodeLimit(): number {
-  const value = Number(process.env.XYZRANK_TOP_EPISODES_LIMIT || "");
-  return Number.isInteger(value) && value > 0 ? value : DEFAULT_LIMIT;
+  return envPositiveInt("XYZRANK_TOP_EPISODES_LIMIT", DEFAULT_LIMIT);
 }
 
 async function fetchXyzRankEpisodeItems(limit = episodeLimit()): Promise<XyzRankEpisode[]> {

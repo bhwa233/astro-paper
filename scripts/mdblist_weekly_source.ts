@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { bjtTimestamp, clipText, compact, fetchJson, parseArgs, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { bjtTimestamp, clipText, compact, envPositiveInt, fetchJson, parseArgs, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import {
   type MdblistMediaType,
   type MdblistRecommendation,
@@ -85,13 +85,11 @@ function apiKey(): string {
 }
 
 function itemLimit(): number {
-  const parsed = Number(process.env.MDBLIST_ITEM_LIMIT || DEFAULT_LIMIT);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_LIMIT;
+  return envPositiveInt("MDBLIST_ITEM_LIMIT", DEFAULT_LIMIT);
 }
 
 function candidateLimit(): number {
-  const parsed = Number(process.env.MDBLIST_CANDIDATE_LIMIT || DEFAULT_CANDIDATE_LIMIT);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_CANDIDATE_LIMIT;
+  return envPositiveInt("MDBLIST_CANDIDATE_LIMIT", DEFAULT_CANDIDATE_LIMIT);
 }
 
 function apiUrl(pathname: string, key: string, params: Record<string, string> = {}): string {
@@ -108,7 +106,8 @@ function listItemsPath(list: string): string {
   return `/lists/${trimmed}/items`;
 }
 
-function previousMonthReleaseWindow(date: string): { from: string; to: string } {
+// 归档日往前推一个月，取「同一天往前数 7 个自然日」。落到不存在的日期（3/31 → 2/31）时钳到月末。
+export function previousMonthReleaseWindow(date: string): { from: string; to: string } {
   const archiveDate = new Date(`${date}T00:00:00Z`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(archiveDate.getTime()) || archiveDate.toISOString().slice(0, 10) !== date) {
     throw new Error(`invalid MDBList archive date: ${date}`);

@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 import fs from "node:fs";
 import path from "node:path";
-import { JSDOM } from "jsdom";
+import { parseHtml } from "./html_dom.ts";
 import { bjtDateString, compact, ensureDir, fetchJson, fetchText, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 
 type GitHubTrendingRepo = {
@@ -55,8 +55,7 @@ function parseCount(text: string): number {
 }
 
 export function parseGitHubTrendingHtml(html: string, limit = DEFAULT_LIMIT): GitHubTrendingRepo[] {
-  const dom = new JSDOM(html, { url: "https://github.com" });
-  const document = dom.window.document;
+  const document = parseHtml(html, "https://github.com");
   return [...document.querySelectorAll("article.Box-row")]
     .slice(0, limit)
     .map((article, index) => {

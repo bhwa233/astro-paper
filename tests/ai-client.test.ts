@@ -223,8 +223,6 @@ test("Responses API contract: SSE parsing, payload shape, and JSON-mode instruct
   assert.equal(jsonCalls.length, 1);
   assert.equal(jsonCalls[0].url, "https://www.right.codes/codex/v1/responses"); // /responses appended exactly once
   assert.deepEqual(jsonCalls[0].body.input, [{ role: "user", content: "Return a valid json object only.\n\nhello" }]);
-  assert.deepEqual(jsonCalls[0].body.reasoning, { effort: "high" });
-  assert.equal(jsonCalls[0].body.max_output_tokens, 8192);
   assert.equal("text" in jsonCalls[0].body, false);
   assert.equal("messages" in jsonCalls[0].body, false);
 

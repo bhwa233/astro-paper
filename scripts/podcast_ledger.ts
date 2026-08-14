@@ -1,6 +1,5 @@
-import fs from "node:fs";
 import path from "node:path";
-import { repoRoot } from "./blog_common.ts";
+import { readJsonLedger, repoRoot, writeJsonLedger } from "./blog_common.ts";
 import { type PodcastFingerprintInput, podcastFingerprints } from "./foreign_tech_podcast_dedupe.ts";
 
 // 已总结播客账本：在抓取/生成时记录数据源真值（GUID/链接/音频/canonicalId），
@@ -16,14 +15,13 @@ export function summarizedLedgerPath(): string {
   return process.env.PODCAST_SUMMARIZED_LEDGER_FILE || path.join(repoRoot(), "data/daily-podcasts/summarized.json");
 }
 
+// 解析失败必须抛错、不得静默降级成空账本，这条由 readJsonLedger 统一持有（三个账本同约定）。
 function readLedger(file: string): LedgerFile {
-  if (!fs.existsSync(file)) return { version: 1, episodes: [] };
-  try {
-    const parsed = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<LedgerFile>;
-    return { version: parsed.version || 1, episodes: Array.isArray(parsed.episodes) ? parsed.episodes : [] };
-  } catch {
-    return { version: 1, episodes: [] };
-  }
+  return readJsonLedger<LedgerFile>(file, "podcast summarized ledger", { version: 1, episodes: [] }, raw => {
+    const parsed = raw as Partial<LedgerFile>;
+    if (!Array.isArray(parsed.episodes)) throw new Error(`invalid podcast summarized ledger structure: ${file}`);
+    return { version: parsed.version || 1, episodes: parsed.episodes };
+  });
 }
 
 // 加载全部已总结指纹（含当天）：去重以指纹为准，不依赖归档日期，幂等更稳。
@@ -60,6 +58,5 @@ export function appendSummarizedEpisode(episode: PodcastFingerprintInput, meta: 
   );
   if (existingIndex >= 0) ledger.episodes[existingIndex] = entry;
   else ledger.episodes.push(entry);
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, `${JSON.stringify(ledger, null, 2)}\n`, "utf8");
+  writeJsonLedger(file, ledger);
 }

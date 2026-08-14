@@ -1,8 +1,7 @@
 // Reddit 分类精选规则层：模型只返回语义 JSON（中文标题 + Markdown 综合摘要），
 // 事实字段（热度/来源/帖子链接）一律取自脚本抓取的 source，
 // 由这里确定性地组装成 archive 层可消费的中间契约 Markdown。
-import { ARCHIVE_PAYLOAD_MARKER } from "./astro_paper_archive.ts";
-import { bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowSignal, normalizeMarkdownBlock, parseModelJsonObject } from "./compose_common.ts";
+import { ARCHIVE_PAYLOAD_MARKER, bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowSignal, normalizeMarkdownBlock, parseModelJsonObject } from "./compose_common.ts";
 
 // 单帖摘要下限；去掉空白后计长，避免模型退回一两句抽象概括。
 const SUMMARY_MIN_CHARS = 300;

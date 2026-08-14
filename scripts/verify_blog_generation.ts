@@ -36,31 +36,17 @@ function verifyFrontmatter(file: string, expectedTask: string): string {
   if (isTask(expectedTask)) {
     const info = taskInfo(expectedTask);
     if (!frontmatter.includes(info.tag)) throw new Error(`${file} frontmatter missing ${info.tag} tag`);
-    // 播客逐集文章标题改为「节目名：本期中文标题」，不再带固定 titlePrefix。
-    if (expectedTask !== "daily-podcasts" && expectedTask !== "apple-top-podcasts" && expectedTask !== "xyzrank-top-episodes" && !frontmatter.includes(info.titlePrefix)) throw new Error(`${file} frontmatter missing ${info.titlePrefix} title`);
+    if (info.titleCarriesPrefix !== false && !frontmatter.includes(info.titlePrefix)) throw new Error(`${file} frontmatter missing ${info.titlePrefix} title`);
   }
   return text;
-}
-
-function requireTerms(relPath: string, body: string, terms: string[]): void {
-  const missing = terms.filter(term => !body.includes(term));
-  if (missing.length) throw new Error(`${relPath} missing required source terms: ${missing.join(", ")}`);
-}
-
-function requireTermPatterns(relPath: string, body: string, terms: { label: string; pattern: RegExp }[]): void {
-  const missing = terms.filter(term => !term.pattern.test(body)).map(term => term.label);
-  if (missing.length) throw new Error(`${relPath} missing required source terms: ${missing.join(", ")}`);
 }
 
 function resolveArtifactPath(repo: string, artifactPath: string): string {
   return path.isAbsolute(artifactPath) ? artifactPath : path.join(repo, artifactPath);
 }
 
-function verifyNumberedSourceBlocks(relPath: string, source: string, minBlocks: number): void {
-  const blocks = source.match(/^#{2,3}\s+\d+\.\s+/gm) || [];
-  if (blocks.length < minBlocks) throw new Error(`${relPath} source has too few numbered items: ${blocks.length} < ${minBlocks}`);
-}
-
+// 每个任务要求什么，写在 blog_tasks.ts 的注册表里，和它的标题、标签、文件名住在一起。
+// 这里只负责执行；新增任务不需要改这个文件。
 function verifySourceContract(repo: string, task: string, sourceArtifact: string): void {
   if (!sourceArtifact) throw new Error(`${task || "unknown task"} generated without source artifact`);
   const sourcePath = resolveArtifactPath(repo, sourceArtifact);
@@ -69,42 +55,33 @@ function verifySourceContract(repo: string, task: string, sourceArtifact: string
   const relPath = path.relative(repo, sourcePath) || sourceArtifact;
   if (source.trim().length < 80) throw new Error(`${relPath} source is too short to support generation`);
 
-  if (task === "hn-top10") {
-    requireTerms(relPath, source, ["HN 讨论", "原文"]);
-    return;
+  const contract = isTask(task) ? taskInfo(task).sourceContract : undefined;
+  if (!contract) return;
+  if (contract.minNumberedBlocks !== undefined) {
+    const blocks = source.match(/^#{2,3}\s+\d+\.\s+/gm) || [];
+    if (blocks.length < contract.minNumberedBlocks) {
+      throw new Error(`${relPath} source has too few numbered items: ${blocks.length} < ${contract.minNumberedBlocks}`);
+    }
   }
-  if (task === "daily-podcasts") {
-    requireTermPatterns(relPath, source, [
-      { label: "podcast metadata", pattern: /节目|来源|音频|链接/ },
-      { label: "transcript evidence", pattern: /transcript|转写|摘录|长文|内容/i },
-    ]);
-    return;
-  }
-  if (task === "xyzrank-top-episodes") {
-    verifyNumberedSourceBlocks(relPath, source, 5);
-    requireTerms(relPath, source, ["XYZ Rank", "小宇宙", "音频"]);
-    requireTermPatterns(relPath, source, [{ label: "episode audio links", pattern: /- 音频：https?:\/\// }]);
-    return;
-  }
-  if (task === "github-trending-daily") {
-    verifyNumberedSourceBlocks(relPath, source, 5);
-    requireTerms(relPath, source, ["GitHub Trending"]);
-    requireTermPatterns(relPath, source, [{ label: "repository links", pattern: /https:\/\/github\.com\// }]);
-    return;
-  }
-  if (task === "tech-daily") {
-    requireTermPatterns(relPath, source, [{ label: "classified source link", pattern: /- 链接：https?:\/\// }]);
-  }
+  const missing = [
+    ...(contract.requiredTerms || []).filter(term => !source.includes(term)),
+    ...(contract.requiredPatterns || []).filter(term => !term.pattern.test(source)).map(term => term.label),
+  ];
+  if (missing.length) throw new Error(`${relPath} missing required source terms: ${missing.join(", ")}`);
 }
 
-function verifyPostContract(repo: string, relPath: string, task: string): void {
+function sectionHeadingPattern(task: string): RegExp {
+  return (isTask(task) && taskInfo(task).bodyHeadingPattern) || /^##\s+/m;
+}
+
+export function verifyPostContract(repo: string, relPath: string, task: string): void {
   if (!relPath) throw new Error("post result is missing path");
   const postPath = path.join(repo, relPath);
   if (!fs.existsSync(postPath)) throw new Error(`generated post does not exist: ${relPath}`);
   const text = verifyFrontmatter(postPath, task);
   const { body } = splitFrontmatter(text);
   if (!body.trim()) throw new Error(`${relPath} body is empty`);
-  if (!/^##\s+/m.test(body)) throw new Error(`${relPath} body has no section headings`);
+  if (!sectionHeadingPattern(task).test(body)) throw new Error(`${relPath} body has no section headings`);
   for (const pattern of GENERATED_POST_TECHNICAL_ERROR_PATTERNS) {
     if (pattern.test(text)) throw new Error(`${relPath} contains generated-post technical error pattern: ${pattern.source}`);
   }

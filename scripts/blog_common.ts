@@ -24,6 +24,25 @@ export function readStdin(): string {
   return fs.readFileSync(0, "utf8");
 }
 
+// 三个账本（magazine / recommendation / podcast）共用的读写外壳。身份与结构校验各自不同，
+// 留给 validate；这里只固定那条不能各写一遍的规则：**解析失败一律抛错，不得静默返回空账本**——
+// 那会让去重指纹整批清空，把已发布过的条目再发一次。
+export function readJsonLedger<T>(file: string, label: string, emptyLedger: T, validate: (parsed: unknown) => T): T {
+  if (!fs.existsSync(file)) return emptyLedger;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch (error) {
+    throw new Error(`invalid ${label} ${file}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  return validate(parsed);
+}
+
+export function writeJsonLedger(file: string, ledger: unknown): void {
+  ensureDir(path.dirname(file));
+  fs.writeFileSync(file, `${JSON.stringify(ledger, null, 2)}\n`, "utf8");
+}
+
 export type CliArgs = Record<string, string | boolean>;
 
 export function parseArgs(argv = process.argv.slice(2)): CliArgs {
@@ -194,8 +213,21 @@ function isRetriableFetchError(error: unknown): boolean {
   return status === "429" || status === "500" || status === "502" || status === "503" || status === "504";
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+export async function sleep(ms: number): Promise<void> {
+  if (ms > 0) await new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// 环境变量数字读取的唯一入口：未设、非法、非正一律回落到 fallback。
+// max 用于给并发之类的旋钮钳上界，超出时取 max 而不是回落——运维填大了应该被压住，不是被忽略。
+export function envPositiveInt(name: string, fallback: number, max = Number.POSITIVE_INFINITY): number {
+  const value = Number(process.env[name] || "");
+  return Number.isInteger(value) && value > 0 ? Math.min(value, max) : fallback;
+}
+
+// 同上，但允许小数（倍速、时长比例这类旋钮）。整数旋钮一律用 envPositiveInt。
+export function envPositiveNumber(name: string, fallback: number): number {
+  const value = Number(process.env[name] || "");
+  return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
 export async function fetchJson<T = unknown>(url: string, options: FetchTextOptions = {}): Promise<T> {

@@ -1,4 +1,4 @@
-import { clipText, writeStderr } from "./blog_common.ts";
+import { clipText, envPositiveInt, envPositiveNumber, sleep, writeStderr } from "./blog_common.ts";
 
 export const DEFAULT_AI_BASE_URL = "https://rightapi.ai/codex/v1";
 export const DEFAULT_AI_MODEL = "gpt-5.6-luna";
@@ -37,25 +37,11 @@ export type AiCallResult = {
   primaryError?: string;
 };
 
-function envDurationMs(name: string, fallback: number): number {
-  const value = Number(process.env[name] || "");
-  return Number.isFinite(value) && value > 0 ? value : fallback;
-}
-
-function envPositiveInt(name: string, fallback: number): number {
-  const value = Number(process.env[name] || "");
-  return Number.isInteger(value) && value > 0 ? value : fallback;
-}
-
 function envBool(name: string, fallback: boolean): boolean {
   const value = (process.env[name] || "").trim().toLowerCase();
   if (["1", "true", "yes", "on"].includes(value)) return true;
   if (["0", "false", "no", "off"].includes(value)) return false;
   return fallback;
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Transient = worth retrying the same target: dropped connections, resets, timeouts, 5xx, 429.
@@ -206,7 +192,7 @@ export async function callBlogAi({
   baseUrl,
   model,
   apiStyle = "chat",
-  timeoutMs = envDurationMs("AI_TIMEOUT_MS", 120_000),
+  timeoutMs = envPositiveNumber("AI_TIMEOUT_MS", 120_000),
   maxTokens = DEFAULT_MAX_TOKENS,
   jsonMode = false,
 }: {
@@ -353,7 +339,7 @@ export async function callBlogAiWithFailover({
   prompt,
   primaryConfig = envAiConfig(),
   fallbackConfig = envFallbackAiConfig(),
-  timeoutMs = envDurationMs("AI_TIMEOUT_MS", 120_000),
+  timeoutMs = envPositiveNumber("AI_TIMEOUT_MS", 120_000),
   maxTokens = DEFAULT_MAX_TOKENS,
   jsonMode = false,
 }: {

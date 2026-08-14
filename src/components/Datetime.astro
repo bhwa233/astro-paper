@@ -1,15 +1,9 @@
 ---
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import IconCalendar from "@/assets/icons/IconCalendar.svg";
 import config from "@/config";
 import { useTranslations } from "@/i18n";
 import { tplStr } from "@/i18n/format";
 import { getLocaleLangTag } from "@/utils/localeMeta";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 type Props = {
   class?: string;
@@ -35,17 +29,17 @@ const localeTag = getLocaleLangTag(locale);
 
 const isModified = modDatetime && modDatetime > pubDatetime;
 
+// 时区只影响展示：Intl.DateTimeFormat 的 timeZone 已经完成换算，
+// 时间点本身（datetime 属性用的 ISO 串）与时区无关，无需再套一层库。
 const displayTimezone = postTimezone ?? config.site.timezone;
-const datetime = dayjs(isModified ? modDatetime : pubDatetime).tz(
-  displayTimezone
-);
+const datetime = new Date(isModified ? modDatetime : pubDatetime);
 
 const date = new Intl.DateTimeFormat(localeTag, {
   year: "numeric",
   month: "short",
   day: "numeric",
   timeZone: displayTimezone,
-}).format(datetime.toDate());
+}).format(datetime);
 ---
 
 <div

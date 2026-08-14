@@ -1,10 +1,33 @@
 import path from "node:path";
 
+// 发布时对 source 证据的要求。verify_blog_generation.ts 按这里的字段校验，不再自己维护第二份任务清单：
+// 2026-08-14 那次事故（nyt-books 去掉 ## 分节，verify 仍硬要求 ^## ，写盘后才失败）的成因就是
+// 同一任务的输出形状被写在两个文件里，而语言层没有任何东西把它们绑在一起。
+export type PostSourceContract = {
+  /** source 里 `## N.` / `### N.` 编号块的数量下限。 */
+  minNumberedBlocks?: number;
+  /** 必须原样出现的字符串。 */
+  requiredTerms?: readonly string[];
+  /** 必须命中的模式；label 只用于报错信息。 */
+  requiredPatterns?: readonly { label: string; pattern: RegExp }[];
+};
+
 export type BlogTaskInfo = {
   titlePrefix: string;
   tag: string;
   description: string;
   fileName: string;
+  /** 正文分节的标题层级。缺省 `##`；nyt-books 为微信排版去掉了分节 `##`，最高层级是每本书的 `###`。 */
+  bodyHeadingPattern?: RegExp;
+  /** frontmatter 标题是否必须含 titlePrefix。播客逐集文章标题是「节目名：本期中文标题」，不带前缀。 */
+  titleCarriesPrefix?: boolean;
+  /** 一次运行产出多篇（一集一篇），而不是一篇。编排、归档、发布校验三层都按它分流。 */
+  episodeArticles?: boolean;
+  /** 标题带 ISO 周次，例如「纽约时报书单精选｜2099年第2周」。 */
+  weekLabelInTitle?: boolean;
+  /** frontmatter 写入 `wechat.enabled`，进入公众号同步流水线。 */
+  wechatEnabled?: boolean;
+  sourceContract?: PostSourceContract;
 };
 
 export const BLOG_TASKS = {
@@ -13,36 +36,61 @@ export const BLOG_TASKS = {
     tag: "HackerNews",
     description: "每日 Hacker News 热门文章 Top 10 中文整理，按当天归档并覆盖更新。",
     fileName: "hackernews-{date}.md",
+    sourceContract: { requiredTerms: ["HN 讨论", "原文"] },
   },
   "github-trending-daily": {
     titlePrefix: "GitHub 项目日报",
     tag: "GitHub项目日报",
     description: "每日 GitHub Trending 项目中文整理，基于榜单元数据与 README 正文提炼开源项目趋势。",
     fileName: "GitHub项目日报-{date}.md",
+    sourceContract: {
+      minNumberedBlocks: 5,
+      requiredTerms: ["GitHub Trending"],
+      requiredPatterns: [{ label: "repository links", pattern: /https:\/\/github\.com\// }],
+    },
   },
   "daily-podcasts": {
     titlePrefix: "每日播客笔记",
     tag: "播客",
     description: "每日海外 Podcasts 热门节目中文长文笔记。",
     fileName: "每日播客-{date}.md",
+    titleCarriesPrefix: false,
+    episodeArticles: true,
+    sourceContract: {
+      requiredPatterns: [
+        { label: "podcast metadata", pattern: /节目|来源|音频|链接/ },
+        { label: "transcript evidence", pattern: /transcript|转写|摘录|长文|内容/i },
+      ],
+    },
   },
   "xyzrank-top-episodes": {
     titlePrefix: "XYZ Rank 热门播客",
     tag: "中文播客榜",
     description: "每周 XYZ Rank 中文播客热门单集 Top 5 音频长文笔记。",
     fileName: "XYZRank热门播客-{date}.md",
+    titleCarriesPrefix: false,
+    episodeArticles: true,
+    sourceContract: {
+      minNumberedBlocks: 5,
+      requiredTerms: ["XYZ Rank", "小宇宙", "音频"],
+      requiredPatterns: [{ label: "episode audio links", pattern: /- 音频：https?:\/\// }],
+    },
   },
   "apple-top-podcasts": {
     titlePrefix: "Apple 热门播客笔记",
     tag: "Apple播客榜",
     description: "每日 Apple Podcasts 美区 Top Shows 热门节目音频长文笔记。",
     fileName: "Apple热门播客-{date}.md",
+    titleCarriesPrefix: false,
+    episodeArticles: true,
   },
   "tech-daily": {
     titlePrefix: "技术日报",
     tag: "技术日报",
     description: "每日技术综合整理，基于文章级 AI 摘要动态聚合过去 24 小时的 AI、工程、安全、平台与科技商业变化。",
     fileName: "技术日报-{date}.md",
+    wechatEnabled: true,
+    sourceContract: { requiredPatterns: [{ label: "classified source link", pattern: /- 链接：https?:\/\// }] },
   },
   "mdblist-weekly": {
     titlePrefix: "每周影视推荐",
@@ -55,6 +103,10 @@ export const BLOG_TASKS = {
     tag: "每周图书推荐",
     description: "每周图书推荐专栏，基于纽约时报畅销书榜（小说与非虚构）筛选本周新上榜的图书并补充中文导读。",
     fileName: "每周图书推荐-{date}.md",
+    // 正文为微信排版去掉了分节的 ##，最高层级是每本书的 ###。
+    bodyHeadingPattern: /^#{2,3}\s+/m,
+    weekLabelInTitle: true,
+    wechatEnabled: true,
   },
   "economist-weekly": {
     titlePrefix: "经济学人精选导读",
@@ -126,8 +178,13 @@ export function taskTags(task: Task): string[] {
 }
 
 export function taskTitle(task: Task, date: string): string {
-  const titlePrefix = taskInfo(task).titlePrefix;
-  return task === "nyt-books-weekly" ? `${titlePrefix}｜${isoWeekLabel(date)}` : titlePrefix;
+  const info = taskInfo(task);
+  return info.weekLabelInTitle ? `${info.titlePrefix}｜${isoWeekLabel(date)}` : info.titlePrefix;
+}
+
+/** 一次运行产出多篇（一集一篇）的任务。归档、编排、发布校验三层共用这一个判据。 */
+export function isEpisodeArticleTask(task: string): boolean {
+  return isTask(task) && Boolean(taskInfo(task).episodeArticles);
 }
 
 function isoWeekLabel(date: string): string {

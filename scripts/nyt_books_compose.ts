@@ -2,7 +2,7 @@
 // 事实字段（原书名、作者、封面）一律取自 source。分节由 nyt_books_sections 集中配置。
 //
 // 荣誉与书评只做翻译、不做生成：证据缺失时对应段落整块不渲染，宁可空着也不让模型自拟推荐语。
-import { bulletValue, extractBullets, hasChinese, looksLowSignal, parseModelJsonObject } from "./compose_common.ts";
+import { bulletValue, extractBullets, hasChinese, looksLowSignal, numberedBlocks, parseModelJsonObject } from "./compose_common.ts";
 import { NYT_BOOK_SECTIONS } from "./nyt_books_sections.ts";
 
 export type NytBookModelItem = {
@@ -22,10 +22,7 @@ export type NytBookFact = {
 };
 
 function parseSectionFacts(sectionText: string): NytBookFact[] {
-  const blocks = sectionText
-    .split(/(?=^##\s+\d+\.\s+)/gm)
-    .map(block => block.trim())
-    .filter(block => /^##\s+\d+\.\s+/.test(block));
+  const blocks = numberedBlocks(sectionText);
   return blocks.map((block, index) => {
     const bullets = extractBullets(block);
     return {

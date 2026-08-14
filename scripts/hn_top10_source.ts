@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 import { Readability } from "@mozilla/readability";
-import { JSDOM } from "jsdom";
+import { parseHtml } from "./html_dom.ts";
 import { compact, fetchJson, fetchText, stripHtml, writeStderr, writeStdout } from "./blog_common.ts";
 
 const HN_TOP_STORIES_URL = "https://hacker-news.firebaseio.com/v0/topstories.json";
@@ -58,8 +58,7 @@ export async function fetchTopIds(n = HN_CANDIDATE_COUNT): Promise<number[]> {
 }
 
 function readableFromHtml(html: string, url: string): string {
-  const dom = new JSDOM(html, { url });
-  const reader = new Readability(dom.window.document, { keepClasses: false });
+  const reader = new Readability(parseHtml(html, url), { keepClasses: false });
   const article = reader.parse();
   const text = article?.textContent ? compact(article.textContent) : "";
   return text.length >= 160 ? text : "";

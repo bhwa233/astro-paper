@@ -1,7 +1,15 @@
 // HN Top10 规则层：模型只返回语义 JSON（中文标题 + 两段总结），
 // 事实字段（热度/主题/原文/HN 讨论链接）一律取自脚本抓取的 source，
 // 由这里确定性地组装成 archive 层可消费的中间契约 Markdown。
-import { ARCHIVE_PAYLOAD_MARKER, hasChinese, isCompactProperNameOrModelTitle, looksLowSignal } from "./astro_paper_archive.ts";
+import {
+  ARCHIVE_PAYLOAD_MARKER,
+  bulletValue,
+  extractBullets,
+  hasChinese,
+  isCompactProperNameOrModelTitle,
+  looksLowSignal,
+  stripJsonFence,
+} from "./compose_common.ts";
 
 // 模型必须产出的语义字段。
 export type HnModelItem = {
@@ -19,18 +27,6 @@ export type HnSourceFact = {
   url: string;
   hn_link: string;
 };
-
-function extractBullets(block: string): string[] {
-  return block
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line.startsWith("- "))
-    .map(line => line.slice(2).trim());
-}
-
-function bulletValue(bullets: string[], label: string): string {
-  return bullets.find(bullet => bullet.startsWith(label))?.split("：").slice(1).join("：").trim() || "";
-}
 
 // 解析 source 的编号块，取出每条的事实字段。
 // 兼容两种 source：带 `===ARCHIVE_PAYLOAD===` 的真实抓取产物，以及不带 payload 的测试 fixture。
@@ -53,14 +49,6 @@ export function parseSourceFacts(source: string): HnSourceFact[] {
     });
   });
   return facts;
-}
-
-function stripJsonFence(raw: string): string {
-  const trimmed = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-  if (start < 0 || end <= start) return trimmed;
-  return trimmed.slice(start, end + 1);
 }
 
 // 解析并校验模型 JSON。失败抛出可读 error，交给重试循环反馈给模型。

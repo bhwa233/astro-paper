@@ -1,7 +1,8 @@
-import fs from "node:fs";
+// MDBList 影视推荐账本：通用 recommendation_ledger 之上的一层薄封装，只提供 TMDB 身份与 source 反解。
 import path from "node:path";
-import { compact, ensureDir, repoRoot } from "./blog_common.ts";
-import { bulletValue, extractBullets } from "./compose_common.ts";
+import { repoRoot } from "./blog_common.ts";
+import { bulletValue, extractBullets, numberedBlocks } from "./compose_common.ts";
+import { type Archived, type RecommendationLedgerSpec, appendRecommendations, loadRecommendationKeys } from "./recommendation_ledger.ts";
 
 export type MdblistMediaType = "movie" | "show";
 
@@ -13,15 +14,7 @@ export type MdblistRecommendation = {
   title: string;
 };
 
-export type ArchivedMdblistRecommendation = MdblistRecommendation & {
-  archivedAt: string;
-  postPath: string;
-};
-
-type MdblistLedger = {
-  version: 1;
-  recommendations: ArchivedMdblistRecommendation[];
-};
+export type ArchivedMdblistRecommendation = Archived<MdblistRecommendation>;
 
 export const MDBLIST_LEDGER_REL_PATH = "data/mdblist-weekly/recommended.json";
 
@@ -38,32 +31,14 @@ export function mdblistRecommendationKey(mediaType: MdblistMediaType, tmdbId: nu
   return `show:${tmdbId}:season:${seasonNumber}`;
 }
 
-function readLedger(file: string): MdblistLedger {
-  if (!fs.existsSync(file)) return { version: 1, recommendations: [] };
-  let parsed: Partial<MdblistLedger>;
-  try {
-    parsed = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<MdblistLedger>;
-  } catch (error) {
-    throw new Error(`invalid MDBList recommendation ledger ${file}: ${error instanceof Error ? error.message : String(error)}`);
-  }
-  if (parsed.version !== 1 || !Array.isArray(parsed.recommendations)) {
-    throw new Error(`invalid MDBList recommendation ledger structure: ${file}`);
-  }
-  for (const entry of parsed.recommendations) {
-    const expected = mdblistRecommendationKey(entry.mediaType, Number(entry.tmdbId), entry.seasonNumber);
-    if (entry.key !== expected || !compact(entry.title) || !compact(entry.archivedAt) || !compact(entry.postPath)) {
-      throw new Error(`invalid MDBList recommendation ledger entry: ${entry.key || "missing key"}`);
-    }
-  }
-  return parsed as MdblistLedger;
-}
+const SPEC: RecommendationLedgerSpec<MdblistRecommendation> = {
+  label: "MDBList",
+  // 存量条目从 JSON 读回时 tmdbId 可能是字符串，重算 key 前先归一。
+  expectedKey: entry => mdblistRecommendationKey(entry.mediaType, Number(entry.tmdbId), entry.seasonNumber),
+};
 
 export function loadMdblistRecommendationKeys(file = mdblistLedgerPath(), excludePostPath = ""): Set<string> {
-  return new Set(
-    readLedger(file)
-      .recommendations.filter(entry => !excludePostPath || entry.postPath !== excludePostPath)
-      .map(entry => entry.key),
-  );
+  return loadRecommendationKeys(SPEC, file, excludePostPath);
 }
 
 export function appendMdblistRecommendations(
@@ -71,36 +46,11 @@ export function appendMdblistRecommendations(
   meta: { archivedAt: string; postPath: string },
   file = mdblistLedgerPath(),
 ): void {
-  if (!recommendations.length) throw new Error("cannot archive an empty MDBList recommendation selection");
-  const unique = new Map<string, MdblistRecommendation>();
-  for (const recommendation of recommendations) {
-    const expected = mdblistRecommendationKey(recommendation.mediaType, recommendation.tmdbId, recommendation.seasonNumber);
-    if (recommendation.key !== expected) throw new Error(`MDBList recommendation key mismatch: ${recommendation.key} vs ${expected}`);
-    if (!compact(recommendation.title)) throw new Error(`MDBList recommendation ${recommendation.key} is missing title`);
-    unique.set(recommendation.key, recommendation);
-  }
-  if (unique.size !== recommendations.length) throw new Error("MDBList recommendation selection contains duplicate identities");
-
-  const ledger = readLedger(file);
-  const newKeys = new Set(unique.keys());
-  ledger.recommendations = ledger.recommendations.filter(entry => entry.postPath !== meta.postPath && !newKeys.has(entry.key));
-  ledger.recommendations.push(
-    ...[...unique.values()].map(recommendation => ({
-      ...recommendation,
-      archivedAt: meta.archivedAt,
-      postPath: meta.postPath,
-    })),
-  );
-  ensureDir(path.dirname(file));
-  fs.writeFileSync(file, `${JSON.stringify(ledger, null, 2)}\n`, "utf8");
+  appendRecommendations(SPEC, recommendations, meta, file);
 }
 
 export function parseMdblistRecommendationsFromSource(source: string): MdblistRecommendation[] {
-  const blocks = source
-    .split(/(?=^##\s+\d+\.\s+)/gm)
-    .map(block => block.trim())
-    .filter(block => /^##\s+\d+\.\s+/.test(block));
-  return blocks.map(block => {
+  return numberedBlocks(source).map(block => {
     const bullets = extractBullets(block);
     const mediaLabel = bulletValue(bullets, "媒体类型");
     const mediaType: MdblistMediaType = mediaLabel === "电影" ? "movie" : mediaLabel === "剧集" ? "show" : (() => {

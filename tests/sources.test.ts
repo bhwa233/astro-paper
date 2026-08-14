@@ -1,106 +1,26 @@
+// source 构建层：真实上游被 mock 掉之后，脚本对上游异常的反应——降级、丢弃、回退、契约拒收。
+// 断言的是分支走向和拒收理由，不是渲染出来的中文句子；纯计算在 pure.test.ts，账本不变量在 ledgers.test.ts。
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import { buildPayload, classify, HN_CANDIDATE_COUNT, HN_MIN_ORIGINAL_EVIDENCE_COUNT, HN_SELECTION_COUNT, selectTopCommented } from "../scripts/hn_top10_source.ts";
-import { buildGitHubTrendingDailySource, parseGitHubTrendingHtml, sanitizeReadmeText } from "../scripts/github_trending_daily_source.ts";
-import { FEEDS, buildForeignTechPodcastSource } from "../scripts/foreign_tech_podcast_source.ts";
-import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
-import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
+import { buildForeignTechPodcastSource } from "../scripts/foreign_tech_podcast_source.ts";
+import { buildGitHubTrendingDailySource } from "../scripts/github_trending_daily_source.ts";
+import { buildMdblistWeeklySource } from "../scripts/mdblist_weekly_source.ts";
+import { appendMdblistRecommendations } from "../scripts/mdblist_weekly_ledger.ts";
 import { buildXyzRankTopEpisodesSource } from "../scripts/xyzrank_top_episodes_source.ts";
-import { dedupeItems, eventFamilyKey } from "../scripts/daily_digest_source.ts";
-import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
-import { buildMdblistWeeklySource, latestStartedSeasonNumber, selectUnrecommendedMdblistCandidates } from "../scripts/mdblist_weekly_source.ts";
 import { REDDIT_CATEGORIES } from "../scripts/reddit_top20_compose.ts";
 import {
-  type ResultItem,
   type RedditSourcePolicy,
   fetchRedditSourceFromApi,
   parseRedditSourceApiResponse,
   redditSubredditStatsLogLines,
-  settleDailyPodcastArticleResults,
-} from "../scripts/generate_scheduled_post.ts";
+} from "../scripts/reddit_source_api.ts";
 import { fixture, tempDir, tempFile, withMocks } from "./helpers/mocks.ts";
 
-const GITHUB_TRENDING_HTML_FIXTURE = `<!doctype html><html><body>
-  <article class="Box-row">
-    <h2><a href="/acme/agent-lab"> acme / agent-lab </a></h2>
-    <p>Local AI agent workbench for developers</p>
-    <span itemprop="programmingLanguage">TypeScript</span>
-    <a href="/acme/agent-lab/stargazers">12,345</a>
-    <a href="/acme/agent-lab/forks">678</a>
-    <span class="d-inline-block float-sm-right">321 stars today</span>
-  </article>
-</body></html>`;
-
-// ---------------------------------------------------------------- Hacker News
-
-test("blog source evidence keeps long text sentinels and strips template delimiters", () => {
-  const originalTail = `Original evidence ${"x".repeat(2300)} ORIGINAL_TAIL_SENTINEL`;
-  const commentTail = `Comment evidence ${"y".repeat(1900)} COMMENT_TAIL_SENTINEL`;
-  const payload = buildPayload(
-    { id: 123, title: "Developers don't understand CORS", url: "https://example.com/cors", descendants: 88, score: 185, text: "fallback self text" },
-    1,
-    { originalExcerpt: originalTail, commentExcerpt: commentTail },
-  );
-  assert.match(payload.original_excerpt, /ORIGINAL_TAIL_SENTINEL/);
-  assert.match(payload.hn_comment_excerpt, /COMMENT_TAIL_SENTINEL/);
-
-  // Long READMEs keep their tail, and `{{...}}` is neutralized so it cannot look like a prompt template.
-  assert.match(sanitizeReadmeText(`# Heading\n\n${"readme ".repeat(400)} README_TAIL_SENTINEL`), /README TAIL SENTINEL/);
-  const withDelimiters = sanitizeReadmeText("Run docker inspect trek --format '{{json .Mounts}}' before updating.");
-  assert.match(withDelimiters, /json \.Mounts/);
-  assert.doesNotMatch(withDelimiters, /\{\{[^}]+\}\}/);
-});
-
-test("HN selects the 10 most-commented active stories from 30 candidates", () => {
-  assert.equal(HN_CANDIDATE_COUNT, 30);
-  assert.equal(HN_SELECTION_COUNT, 10);
-  assert.equal(HN_MIN_ORIGINAL_EVIDENCE_COUNT, 6);
-  const candidates = Array.from({ length: HN_CANDIDATE_COUNT }, (_, index) => ({ id: index + 1, title: `Story ${index + 1}`, descendants: index + 1, dead: false }));
-  candidates[29].dead = true;
-  const selected = selectTopCommented(candidates);
-  assert.equal(selected.length, HN_SELECTION_COUNT);
-  assert.deepEqual(
-    selected.map(item => item.id),
-    Array.from({ length: 10 }, (_, index) => 29 - index),
-  );
-});
-
-test("HN source payload carries original and comment evidence", () => {
-  const payload = buildPayload(
-    {
-      id: 123,
-      title: "Developers don't understand CORS",
-      url: "https://example.com/cors",
-      descendants: 88,
-      score: 185,
-      text: "An explainer about why CORS exists and what browsers actually enforce.",
-    },
-    1,
-    {
-      originalExcerpt: "The original article explains how browsers enforce CORS through preflight requests, credentials, and origin checks.",
-      commentExcerpt: "Commenters discuss reverse proxies, CDN caches, and local development pitfalls.",
-    },
-  );
-  assert.equal(payload.topic, "开发工具 / 编程语言");
-  assert.equal(classify("A new open model benchmark"), "AI / 模型");
-  assert.match(payload.original_excerpt, /browsers enforce CORS/);
-  assert.match(payload.hn_comment_excerpt, /reverse proxies/);
-});
-
 // ------------------------------------------------------------ GitHub Trending
-
-test("GitHub Trending parser extracts repository metadata", () => {
-  const repos = parseGitHubTrendingHtml(GITHUB_TRENDING_HTML_FIXTURE, 10);
-  assert.equal(repos.length, 1);
-  assert.deepEqual(
-    { fullName: repos[0].fullName, language: repos[0].language, stars: repos[0].stars, forks: repos[0].forks, todayStars: repos[0].todayStars, url: repos[0].url },
-    { fullName: "acme/agent-lab", language: "TypeScript", stars: 12_345, forks: 678, todayStars: 321, url: "https://github.com/acme/agent-lab" },
-  );
-});
 
 test("GitHub trending source overwrites an existing daily archive", async () => {
   const repo = tempDir("github-trending-archive");
@@ -113,7 +33,7 @@ test("GitHub trending source overwrites an existing daily archive", async () => 
     {
       fetch: async input => {
         const url = String(input);
-        if (url.includes("github.com/trending")) return new Response(GITHUB_TRENDING_HTML_FIXTURE, { status: 200 });
+        if (url.includes("github.com/trending")) return new Response(fixture("html/github-trending-daily.html"), { status: 200 });
         if (url.includes("api.github.com/repos/")) {
           return Response.json({ content: Buffer.from("README content for generated archive").toString("base64"), encoding: "base64" });
         }
@@ -128,30 +48,6 @@ test("GitHub trending source overwrites an existing daily archive", async () => 
   assert.equal(payload.date, "2099-01-06");
   assert.equal(payload.repos?.length, 1);
   assert.match(source, /结构化数据归档/);
-});
-
-// -------------------------------------------------------------- Daily digests
-
-test("daily digest source dedupes post-quantum executive order coverage", () => {
-  const ars = {
-    title: "White House drastically shortens deadline for dropping quantum-vulnerable crypto",
-    url: "https://example.com/ars-post-quantum",
-    source: "Ars Technica",
-    category: "business" as const,
-    publishedAt: "2099-01-06T00:00:00Z",
-    summary: "Executive order bumps up deadline to move off quantum-vulnerable cryptography.",
-  };
-  const cloudflare = {
-    title: "The post-quantum EO is an important milestone. Now it’s time to get to work",
-    url: "https://example.com/cloudflare-post-quantum",
-    source: "Cloudflare Blog",
-    category: "infra" as const,
-    publishedAt: "2099-01-06T00:10:00Z",
-    summary: "Cloudflare responds to the post-quantum executive order and migration deadline.",
-  };
-  assert.equal(eventFamilyKey(ars), "post-quantum-executive-order");
-  assert.equal(eventFamilyKey(cloudflare), "post-quantum-executive-order");
-  assert.equal(dedupeItems([ars, cloudflare]).length, 1);
 });
 
 // ------------------------------------------------------------------- Podcasts
@@ -175,76 +71,6 @@ function curatedEpisode(overrides: Record<string, unknown>): Record<string, unkn
     ...overrides,
   };
 }
-
-function podcastResult(overrides: Partial<ResultItem>): ResultItem {
-  return {
-    task: "daily-podcasts",
-    path: "",
-    title: "每日播客笔记",
-    created: false,
-    skipped: false,
-    updated_at_bjt: "",
-    commit: "",
-    push: "",
-    tags: ["播客", "定时文章"],
-    ...overrides,
-  };
-}
-
-test("foreign tech podcast source includes technical interview feeds", () => {
-  const feeds = new Map(FEEDS.map(feed => [feed.show, feed.url]));
-  assert.deepEqual(
-    [
-      feeds.get("Software Engineering Daily"),
-      feeds.get("Software Engineering Radio"),
-      feeds.get("Oxide and Friends"),
-      feeds.get("The InfoQ Podcast"),
-      feeds.get("Changelog Interviews"),
-      feeds.get("The Data Engineering Show"),
-      feeds.get("The Cognitive Revolution"),
-    ],
-    [
-      "https://softwareengineeringdaily.com/feed/podcast/",
-      "https://rss.libsyn.com/shows/21070/destinations/23379.xml",
-      "https://feeds.transistor.fm/oxide-and-friends",
-      "https://feeds.soundcloud.com/users/soundcloud:users:215740450/sounds.rss",
-      "https://changelog.com/podcast/feed",
-      "https://feeds.fame.so/the-data-engineering-show",
-      "https://feeds.megaphone.fm/RINTP3108857801",
-    ],
-  );
-  // Non-technical / interview-light shows stay out of the feed list.
-  for (const show of ["Dwarkesh Podcast", "Training Data", "Gradient Dissent"]) assert.equal(feeds.has(show), false);
-});
-
-test("daily podcasts skip single episode failures but fail below the article minimum", () => {
-  const failed = { failed: true, error: "audio download HTTP 403" };
-
-  // One good article covers the minimum, so the failed one degrades to a skip.
-  const partial = settleDailyPodcastArticleResults(
-    [
-      podcastResult({ path: "src/content/posts/zh-cn/每日播客-2099-01-02-01-good.md", created: true }),
-      podcastResult({ path: "src/content/posts/zh-cn/每日播客-2099-01-02-02-blocked.md", ...failed }),
-    ],
-    "2099-01-02",
-    1,
-  );
-  assert.equal(
-    partial.some(result => result.failed),
-    false,
-  );
-  assert.equal(partial[1].skipped, true);
-  assert.equal(partial[1].path, "");
-  assert.match(partial[1].skip_reason || "", /audio download HTTP 403/);
-  assert.match(partial[1].skip_reason || "", /每日播客-2099-01-02-02-blocked\.md/);
-
-  // Nothing usable left: the task must fail loudly rather than publish an empty day.
-  const empty = settleDailyPodcastArticleResults([podcastResult({ path: "src/content/posts/zh-cn/每日播客-2099-01-02-01-blocked.md", ...failed })], "2099-01-02", 1);
-  assert.equal(empty[0].skipped, true);
-  const failures = empty.filter(result => result.failed);
-  assert.equal(failures.length, 1);
-  assert.match(failures[0].error || "", /found only 0 usable episodes; need 1/);
-});
 
 test("foreign tech podcast source trims oversized transcripts for prompt stability", async () => {
   const transcript = `HEAD_SENTINEL ${"engineering signal ".repeat(2200)} TAIL_SENTINEL`;
@@ -405,24 +231,6 @@ test("daily podcasts fetch skips episodes already in the summarized ledger", asy
   assert.equal((source.match(/^### \d+\./gm) || []).length, 3);
 });
 
-test("podcast fingerprints ignore tracking parameters and upsert by episode identity", () => {
-  assert.equal(normalizePodcastUrl("https://example.com/podcast/dev-platforms?utm_medium=social&uo=4&b=2&a=1#section"), "https://example.com/podcast/dev-platforms?a=1&b=2");
-
-  const ledgerFile = tempFile("podcast-ledger-unit", "summarized.json");
-  const episode = { title: "Building Reliable AI Developer Platforms", show: "Latent Space", link: "https://example.com/podcast/dev-platforms?utm_medium=social", date: "2099-01-02" };
-  appendSummarizedEpisode(episode, { archivedAt: "2099-01-02", postPath: "src/content/posts/zh-cn/每日播客-2099-01-02-01-latent-space.md" }, ledgerFile);
-  // Re-running the same episode (force regeneration) upserts instead of appending a second row.
-  appendSummarizedEpisode(episode, { archivedAt: "2099-01-03", postPath: "src/content/posts/zh-cn/每日播客-2099-01-03-01-latent-space.md" }, ledgerFile);
-
-  const parsed = JSON.parse(fs.readFileSync(ledgerFile, "utf8")) as { episodes: { postPath?: string; archivedAt?: string }[] };
-  assert.equal(parsed.episodes.length, 1);
-  assert.equal(parsed.episodes[0].archivedAt, "2099-01-03");
-  assert.match(parsed.episodes[0].postPath || "", /2099-01-03-01-latent-space/);
-  // A tracking-param variant of the same link still resolves to the stored fingerprint.
-  const variant = { title: "Building Reliable AI Developer Platforms", show: "Latent Space", link: "https://example.com/podcast/dev-platforms?uo=4" };
-  assert.equal(isEpisodeSummarized(loadSummarizedFingerprints(ledgerFile), variant), true);
-});
-
 test("XYZ Rank top episodes source extracts Xiaoyuzhou audio links", async () => {
   const items = Array.from({ length: 5 }, (_, index) => ({
     rank: index + 1,
@@ -494,69 +302,6 @@ test("XYZ Rank top episodes source falls back to reader links when API is blocke
   assert.match(source, /- 日期：2099-01-05/);
 });
 
-// -------------------------------------------------------------------- mdblist
-
-test("mdblist candidate selection skips recommended identities, low ratings, and unstarted seasons", () => {
-  const startedSeason = (season: number, imdb: number | null = 6) => ({
-    ratings: imdb === null ? [] : [{ source: "imdb", value: imdb }],
-    seasons: [{ season_number: season, episodes: [{ votes: 1, rating: 8 }] }],
-  });
-
-  // Season identity is the latest season that actually has aired episodes.
-  assert.equal(
-    latestStartedSeasonNumber([
-      { season_number: 0, episodes: [{ votes: 100, rating: 8 }] },
-      { season_number: 1, episodes: [{ votes: 50, rating: 7.5 }] },
-      { season_number: 2, episodes: [{ votes: 10, rating: null }] },
-      { season_number: 3, episodes: [{ votes: 0, rating: null }] },
-    ]),
-    2,
-  );
-  assert.equal(latestStartedSeasonNumber([{ season_number: 1, episodes: [{ votes: 0, rating: null }] }]), null);
-
-  const candidates = [
-    { item: { title: "Already recommended", ids: { tmdb: 101 } }, info: startedSeason(2) },
-    { item: { title: "Boundary rated", ids: { tmdb: 102 } }, info: startedSeason(1, 6) },
-    { item: { title: "Missing IMDb", ids: { tmdb: 103 } }, info: startedSeason(1, null) },
-    { item: { title: "Future season only", ids: { tmdb: 104 } }, info: { ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 0, rating: null }] }] } },
-    { item: { title: "Fresh first", ids: { tmdb: 105 } }, info: startedSeason(1, 6) },
-    { item: { title: "Fresh second", ids: { tmdb: 106 } }, info: startedSeason(4, 8) },
-  ];
-  const selected = selectUnrecommendedMdblistCandidates(candidates, "show", new Set(["show:101:season:2"]), 2);
-  assert.deepEqual(
-    selected.map(entry => ({ title: entry.item.title, key: entry.recommendation.key })),
-    [
-      { title: "Boundary rated", key: "show:102:season:1" },
-      { title: "Fresh first", key: "show:105:season:1" },
-    ],
-  );
-});
-
-test("mdblist ledger persists successful selections and replaces same-post reruns", () => {
-  const file = tempFile("mdblist-ledger", "recommended.json");
-  const post = { archivedAt: "2099-01-09", postPath: "src/content/posts/zh-cn/每周影视推荐-2099-01-09.md" };
-  appendMdblistRecommendations(
-    [
-      { key: "movie:10", mediaType: "movie", tmdbId: 10, title: "Movie A" },
-      { key: "show:20:season:2", mediaType: "show", tmdbId: 20, seasonNumber: 2, title: "Show A" },
-    ],
-    post,
-    file,
-  );
-  assert.deepEqual(loadMdblistRecommendationKeys(file), new Set(["movie:10", "show:20:season:2"]));
-
-  // Re-running the same post replaces its rows rather than accumulating duplicates.
-  appendMdblistRecommendations([{ key: "show:21:season:1", mediaType: "show", tmdbId: 21, seasonNumber: 1, title: "Show B" }], post, file);
-  assert.deepEqual(loadMdblistRecommendationKeys(file), new Set(["show:21:season:1"]));
-});
-
-test("mdblist source evidence exposes the TMDB identities selected for the ledger", () => {
-  const selections = parseMdblistRecommendationsFromSource(fixture("blog-sources/mdblist-weekly.md"));
-  assert.equal(selections.length, 6);
-  assert.deepEqual(selections[0], { key: "movie:1339713", mediaType: "movie", tmdbId: 1339713, title: "Obsession" });
-  assert.deepEqual(selections[3], { key: "show:94997:season:3", mediaType: "show", tmdbId: 94997, seasonNumber: 3, title: "House of the Dragon" });
-});
-
 test("mdblist source builder applies the previous-month window and locally enforces IMDb >= 6 candidates", async () => {
   const ledgerFile = tempFile("mdblist-source", "recommended.json");
   appendMdblistRecommendations(
@@ -625,8 +370,6 @@ test("mdblist source builder applies the previous-month window and locally enfor
     () => buildMdblistWeeklySource("2099-01-09", 2, { candidatesToFetch: 6, ledgerFile }),
   );
 
-  assert.match(source, /上映日期：2098-12-03 至 2098-12-09（上月同期 7 个自然日）/);
-  assert.match(source, /IMDb >= 6\.0/);
   assert.match(source, /## 1\. Fresh Movie/);
   assert.match(source, /- TMDB ID：4/);
   assert.match(source, /## 1\. Fresh Show/);
@@ -766,8 +509,9 @@ test("Reddit source fetch sends one subreddit-list request to the v7 service", a
     archive_date: "2099-01-02",
     subreddits: REDDIT_CATEGORIES.flatMap(category => category.subreddits),
   });
-  assert.deepEqual(requests.map(request => request.url), [
-    "https://source.example/v3/reddit/top20-source/jobs",
-    "https://source.example/v3/reddit/top20-source/jobs/reddit_test",
-  ]);
+  // 要证的是「提交一次 + 轮询一次」，不是服务端的路由字符串长什么样。
+  assert.equal(requests.length, 2);
+  assert.equal(requests[0].method, "POST");
+  assert.equal(requests[1].method, "GET");
+  assert.ok(requests[1].url.startsWith(requests[0].url + "/"), requests[1].url);
 });

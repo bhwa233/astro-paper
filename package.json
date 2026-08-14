@@ -16,7 +16,8 @@
     "test:blog": "node --import tsx --test \"tests/*.test.ts\"",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
-    "lint": "eslint ."
+    "lint": "eslint . && node --import tsx scripts/check_conventions.ts",
+    "check:conventions": "node --import tsx scripts/check_conventions.ts"
   },
   "dependencies": {
     "@appnest/masonry-layout": "2.2.3",
@@ -28,7 +29,6 @@
     "@tailwindcss/vite": "^4.3.3",
     "adm-zip": "^0.6.0",
     "astro": "^7.1.6",
-    "dayjs": "^1.11.21",
     "fast-xml-parser": "^5.10.1",
     "jsdom": "^29.1.1",
     "lodash.kebabcase": "^4.1.1",

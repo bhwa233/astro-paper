@@ -173,6 +173,9 @@ test("mdblist compose takes poster and IMDb rating from source", () => {
 
 test("NYT books compose uses compact paragraphs for WeChat", () => {
   const markdown = composeFixtureBody("nyt-books-weekly");
+  assert.match(markdown, /^非虚构\n\n### 脚下的电网/m);
+  assert.match(markdown, /\n\n小说\n\n### 盐渍档案/m);
+  assert.doesNotMatch(markdown, /^## (小说|非虚构)$/m);
   assert.match(markdown, /^作者：Mara Okonjo\\\n类型：悬疑小说\\\n内容简介：\\\n/m);
   assert.match(markdown, /^荣誉：\\\n/m);
   assert.match(markdown, /^书评：\\\n/m);

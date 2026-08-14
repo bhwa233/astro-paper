@@ -4,11 +4,6 @@ export type NytBookSection = { key: string; label: string; lists: string[] };
 
 export const NYT_BOOK_SECTIONS: NytBookSection[] = [
   {
-    key: "fiction",
-    label: "小说",
-    lists: ["combined-print-and-e-book-fiction", "hardcover-fiction", "trade-fiction-paperback"],
-  },
-  {
     key: "nonfiction",
     label: "非虚构",
     lists: [
@@ -18,6 +13,11 @@ export const NYT_BOOK_SECTIONS: NytBookSection[] = [
       "advice-how-to-and-miscellaneous",
       "business-books",
     ],
+  },
+  {
+    key: "fiction",
+    label: "小说",
+    lists: ["combined-print-and-e-book-fiction", "hardcover-fiction", "trade-fiction-paperback"],
   },
 ];
 

@@ -112,7 +112,7 @@ function composeSection(heading: string, models: NytBookModelItem[], facts: NytB
     if (!fact) throw new Error(`nyt-books ${heading} model JSON references missing rank ${model.rank}`);
     return composeWork(model, fact);
   });
-  return [`## ${heading}`, "", works.join("\n\n")].join("\n");
+  return [heading, "", works.join("\n\n")].join("\n");
 }
 
 export function composeNytBooksBody(model: Record<string, NytBookModelItem[]>, facts: Record<string, NytBookFact[]>): string {

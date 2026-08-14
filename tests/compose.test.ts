@@ -138,6 +138,21 @@ test("HN compose takes facts from source, not from the model", () => {
   assert.ok(composeHnBody(parsed, [{ rank: 1, points: "1 points · 0 评论", topic: "x", url: "https://e.com", hn_link: "https://h.com" }]).includes("- 原文：https://e.com"));
 });
 
+test("HN compose permits compact proper-name/model titles but rejects English prose", () => {
+  const summary = "这是一段足够长的中文总结，用于验证产品和模型名称的标题例外不会放宽英文正文标题的要求。";
+  const titles = ["Pixel Watch 5", "DeepSeek V4 Pro 0813", "Grok 4.6", "Qwen3.8-2.4T"];
+  const items = parseHnModelJson(
+    JSON.stringify({ items: titles.map((title_zh, index) => ({ rank: index + 1, title_zh, content_summary: summary, comment_summary: summary })) }),
+    titles.length,
+  );
+  assert.deepEqual(items.map(item => item.title_zh), titles);
+
+  assert.throws(
+    () => parseHnModelJson(JSON.stringify({ items: [{ rank: 1, title_zh: "A new framework for building APIs", content_summary: summary, comment_summary: summary }] }), 1),
+    /title should use a Chinese title/,
+  );
+});
+
 test("GitHub trending compose takes stars and links from source, not the model", () => {
   const facts = parseGitHubTrendingFacts(fixture("blog-sources/github-trending-daily.md"));
   assert.equal(facts.length, 5);

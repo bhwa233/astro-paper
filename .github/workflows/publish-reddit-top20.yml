@@ -38,6 +38,8 @@ jobs:
 
   reddit-life-wechat:
     name: Archive Reddit Life WeChat Drafts
+    # Temporarily disabled while the archived source-data workflow is under review.
+    if: ${{ false }}
     needs: publish
     permissions:
       contents: write

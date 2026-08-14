@@ -19,21 +19,6 @@ on:
         description: "Committed result from the reddit-top20 parent workflow."
         required: true
         type: string
-  workflow_dispatch:
-    inputs:
-      date:
-        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
-        required: false
-        type: string
-      ai_model:
-        description: "Optional AI model override."
-        required: false
-        type: string
-      upstream_sha:
-        description: "Commit containing the upstream reddit-<date>-life.md."
-        required: true
-        type: string
-
 concurrency:
   group: scheduled-posts-${{ github.ref }}
   cancel-in-progress: false

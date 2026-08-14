@@ -1,7 +1,7 @@
 // HN Top10 规则层：模型只返回语义 JSON（中文标题 + 两段总结），
 // 事实字段（热度/主题/原文/HN 讨论链接）一律取自脚本抓取的 source，
 // 由这里确定性地组装成 archive 层可消费的中间契约 Markdown。
-import { ARCHIVE_PAYLOAD_MARKER, hasChinese, looksLowSignal } from "./astro_paper_archive.ts";
+import { ARCHIVE_PAYLOAD_MARKER, hasChinese, isCompactProperNameOrModelTitle, looksLowSignal } from "./astro_paper_archive.ts";
 
 // 模型必须产出的语义字段。
 export type HnModelItem = {
@@ -82,7 +82,9 @@ export function parseHnModelJson(raw: string, expectedCount?: number): HnModelIt
     if (!Number.isInteger(rank) || rank < 1) throw new Error(`HN model item ${index + 1} has invalid rank: ${String(item.rank)}`);
     const titleZh = String(item.title_zh || "").trim();
     if (!titleZh) throw new Error(`HN model item rank ${rank} is missing title_zh`);
-    if (!hasChinese(titleZh)) throw new Error(`HN model item rank ${rank} title should use a Chinese title: ${titleZh}`);
+    if (!hasChinese(titleZh) && !isCompactProperNameOrModelTitle(titleZh)) {
+      throw new Error(`HN model item rank ${rank} title should use a Chinese title: ${titleZh}`);
+    }
     const contentSummary = String(item.content_summary || "").trim();
     const commentSummary = String(item.comment_summary || "").trim();
     if (!contentSummary || looksLowSignal(contentSummary)) throw new Error(`HN model item rank ${rank} has empty or low-signal content_summary`);

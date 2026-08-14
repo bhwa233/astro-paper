@@ -151,8 +151,21 @@ export function hasChinese(text: string): boolean {
   return /[\u3400-\u9fff]/.test(text);
 }
 
+// HN 标题原则上必须翻译；只有紧凑的产品/模型专名可保留英文，例如 Pixel Watch 5、Qwen3.8-2.4T。
+export function isCompactProperNameOrModelTitle(title: string): boolean {
+  const parts = title.trim().split(/\s+/);
+  return (
+    parts.length >= 1 &&
+    parts.length <= 4 &&
+    parts.some(part => /\d/.test(part)) &&
+    parts.every(part => /^[A-Z0-9][A-Za-z0-9.-]*$/.test(part))
+  );
+}
+
 function assertHnTitleUsesChinese(title: string): void {
-  if (!hasChinese(title)) throw new Error(`HN item title should use a Chinese title: ${title}`);
+  if (!hasChinese(title) && !isCompactProperNameOrModelTitle(title)) {
+    throw new Error(`HN item title should use a Chinese title: ${title}`);
+  }
 }
 
 function formatHnTop10(text: string): { markdown: string; ogImage: string } {

@@ -570,6 +570,32 @@
       "title": "Life, Larry and the Pursuit of Unhappiness: An Almost History of America",
       "archivedAt": "2026-07-31",
       "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-07-31.md"
+    },
+    {
+      "key": "movie:1476682",
+      "mediaType": "movie",
+      "tmdbId": 1476682,
+      "title": "Gail Daughtry and the Celebrity Sex Pass",
+      "archivedAt": "2026-08-14",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-14.md"
+    },
+    {
+      "key": "show:297826:season:1",
+      "mediaType": "show",
+      "tmdbId": 297826,
+      "seasonNumber": 1,
+      "title": "Tomb Raider King",
+      "archivedAt": "2026-08-14",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-14.md"
+    },
+    {
+      "key": "show:286709:season:1",
+      "mediaType": "show",
+      "tmdbId": 286709,
+      "seasonNumber": 1,
+      "title": "The Westies",
+      "archivedAt": "2026-08-14",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-14.md"
     }
   ]
 }

@@ -232,7 +232,9 @@ test("Reddit life handoff uses only the first three ordered posts and carries ea
   assert.throws(() => parseRedditLifeDescription(block(1)), /missing its frontmatter description/);
 });
 
-test("Reddit life WeChat article keeps the upstream stories and drops trailing ones to fit", () => {
+// 2026-08-17: life summaries changed from Markdown lists to escaped `1\\.` paragraphs.
+// The old parser could not find any story and blocked the WeChat draft workflow.
+test("Reddit life WeChat article keeps plain-numbered upstream stories and drops trailing ones to fit", () => {
   const candidate = {
     rank: 1,
     postId: "post1",
@@ -241,7 +243,7 @@ test("Reddit life WeChat article keeps the upstream stories and drops trailing o
     points: "99 points · 10 评论",
     numComments: 10,
     permalink: "https://www.reddit.com/r/AskReddit/comments/post1/",
-    body: ["1. 第一个故事。", "", "2. 第二个故事。", "", "3. 第三个故事。"].join("\n"),
+    body: ["1\\. 第一个故事。", "", "2\\. 第二个故事。", "", "3\\. 第三个故事。"].join("\n"),
   };
   const markdown = renderRedditLifeWechatMarkdown(candidate, "帖子问的是第一个问题。", "2099-01-02");
 
@@ -250,11 +252,11 @@ test("Reddit life WeChat article keeps the upstream stories and drops trailing o
   assert.match(markdown, /^description: "帖子问的是第一个问题。"$/m);
   assert.match(markdown, /^更多每日精选：https:\/\/blog\.bhwa233\.com\/$/m);
   // 上游正文原样搬运，正文里不出现任何标题。
-  assert.match(markdown, /^1\. 第一个故事。$/m);
+  assert.match(markdown, /^1\\\. 第一个故事。$/m);
   assert.doesNotMatch(markdown, /^#{1,6}\s/m);
-  // 列表必须紧凑：项间留空行会渲染成 <li><p>…</p></li>，微信会把 p 拆出去，编号直接翻倍。
-  assert.match(markdown, /^1\. 第一个故事。\n2\. 第二个故事。\n3\. 第三个故事。$/m);
-  assert.match(dropTrailingStories(markdown, 1), /^1\. 第一个故事。\n2\. 第二个故事。$/m);
+  // 不是 Markdown 列表；每条都是带普通编号的独立段落。
+  assert.match(markdown, /^1\\\. 第一个故事。\n\n2\\\. 第二个故事。\n\n3\\\. 第三个故事。$/m);
+  assert.match(dropTrailingStories(markdown, 1), /^1\\\. 第一个故事。\n\n2\\\. 第二个故事。$/m);
   assert.equal(countDroppableStories(markdown), 3);
   assert.equal(dropTrailingStories(markdown, 0), markdown);
 
@@ -265,9 +267,8 @@ test("Reddit life WeChat article keeps the upstream stories and drops trailing o
   assert.match(droppedOne, /^---\nauthor:/);
   assert.match(droppedOne, /更多每日精选：/);
   // 编号从 1 递增，从末尾删不会留下断号。
-  assert.doesNotMatch(droppedOne, /^3\. /m);
+  assert.doesNotMatch(droppedOne, /^3\\\. /m);
 
   assert.throws(() => dropTrailingStories(markdown, 3), /fewer than 3 droppable stories/);
   assert.throws(() => renderRedditLifeWechatMarkdown(candidate, "", "2099-01-02"), /needs a description/);
 });
-

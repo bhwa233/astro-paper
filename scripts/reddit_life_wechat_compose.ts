@@ -1,5 +1,5 @@
 // 规则层：微信稿完全由上游 life 文章转换而来，没有模型参与。
-// 上游每帖的正文已经是「一条回答一个有序列表项」的故事集，这里只做选帖、改标题和长度收口。
+// 上游每帖的正文已经是「一条回答一个普通文本编号段」的故事集，这里只做选帖、改标题和长度收口。
 import { createHash } from "node:crypto";
 import { compact, frontmatter } from "./blog_common.ts";
 import { redditPostRecommendationKey } from "./reddit_life_wechat_ledger.ts";
@@ -69,10 +69,10 @@ export function parseRedditLifeCandidates(markdown: string): RedditLifeCandidate
   });
 }
 
-// 事实 bullet 之后的一切都是正文；上游契约保证正文是从 1 开始的有序列表。
+// 事实 bullet 之后的一切都是正文；新契约以 `1\.` 转义 Markdown 列表，旧归档的 `1.` 仍可读取。
 function postBody(block: string, rank: number): string {
   const lines = block.split("\n");
-  const start = lines.findIndex((line, index) => index > 0 && /^\d+\.\s/.test(line));
+  const start = lines.findIndex((line, index) => index > 0 && /^\d+\\?\.\s/.test(line));
   const body = start < 0 ? "" : lines.slice(start).join("\n").trim();
   if (!body) throw new Error(`Reddit life article block ${rank} has no story list`);
   return body;
@@ -80,16 +80,17 @@ function postBody(block: string, rank: number): string {
 
 function storyItems(body: string): string[] {
   return body
-    .split(/\n+(?=\d+\.\s)/)
+    .split(/\n+(?=\d+\\?\.\s)/)
     .map(item => item.trim())
     .filter(Boolean);
 }
 
-// 上游正文的列表项之间空一行，Markdown 会按松散列表渲染成 `<li><p>…</p></li>`。
-// 微信编辑器不接受 li 里嵌 p，会把 p 拆成同级元素，于是每条故事变成「空编号项 + 文字项」，
-// 编号直接翻倍。紧凑列表渲染成 `<li>…</li>`，微信才显示正确。
-function tightStoryList(body: string): string {
-  return storyItems(body).join("\n");
+// 草稿一律写成普通文本编号段：避免 Markdown 列表在微信编辑器中被拆成空编号项，
+// 同时把旧归档的未转义编号规范成新契约的 `1\.` 形式。
+function plainStoryText(body: string): string {
+  return storyItems(body)
+    .map(item => item.replace(/^(\d+)\.\s/, "$1\\. "))
+    .join("\n\n");
 }
 
 // 微信正文有 20000 字符的 HTML 上限，而一帖的故事条数不可控。超限时从末尾往回删故事，
@@ -99,7 +100,7 @@ export function dropTrailingStories(markdown: string, drop: number): string {
   const { front, body, footer } = splitWechatMarkdown(markdown);
   const items = storyItems(body);
   if (drop >= items.length) throw new Error(`Reddit life WeChat markdown has fewer than ${drop} droppable stories`);
-  return `${front}\n${items.slice(0, items.length - drop).join("\n")}\n\n${footer}\n`;
+  return `${front}\n${plainStoryText(items.slice(0, items.length - drop).join("\n\n"))}\n\n${footer}\n`;
 }
 
 export function countDroppableStories(markdown: string): number {
@@ -126,7 +127,7 @@ export function renderRedditLifeWechatMarkdown(candidate: RedditLifeCandidate, d
   })
     .replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${candidate.permalink}"`)
     .replace("---\n\n", [`redditPostId: "${candidate.postId}"`, `subreddit: "${candidate.subreddit}"`, "---", ""].join("\n"));
-  return `${metadata}${tightStoryList(candidate.body)}\n\n${FOOTER}\n`;
+  return `${metadata}${plainStoryText(candidate.body)}\n\n${FOOTER}\n`;
 }
 
 export function markdownSha256(markdown: string): string {

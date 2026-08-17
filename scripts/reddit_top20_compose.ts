@@ -27,6 +27,9 @@ export const REDDIT_CATEGORIES = [
   },
 ] as const;
 
+// 市场与价值投资栏目暂时停止生成；保留定义和历史归档的解析兼容性，恢复时只需将 markets 加回此列表。
+export const ENABLED_REDDIT_CATEGORIES = REDDIT_CATEGORIES.filter(category => category.key === "life" || category.key === "ama");
+
 export type RedditCategoryKey = (typeof REDDIT_CATEGORIES)[number]["key"];
 
 const CATEGORY_BY_KEY = new Map<RedditCategoryKey, (typeof REDDIT_CATEGORIES)[number]>(REDDIT_CATEGORIES.map(category => [category.key, category]));
@@ -34,9 +37,13 @@ const CATEGORY_BY_SUBREDDIT = new Map<string, RedditCategoryKey>(
   REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
 );
 
+// description 只喂 frontmatter，不进正文；正文首段因此不必再兼任摘要句。
+const DESCRIPTION_MAX_CHARS = 100;
+
 export type RedditModelItem = {
   rank: number;
   title_zh: string;
+  description: string;
   summary: string;
 };
 
@@ -98,16 +105,21 @@ export function parseRedditItemSummary(raw: string, expectedRank: number): Reddi
   const payload = parseModelJsonObject(raw, "Reddit item summary");
   const rank = Number(payload.rank);
   const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
+  const description = String(payload.description || "").replace(/\s+/g, " ").trim();
   const summary = normalizeMarkdownBlock(payload.summary);
   if (rank !== expectedRank) throw new Error(`Reddit item summary rank mismatch: ${rank} vs ${expectedRank}`);
   if (!titleZh || !hasChinese(titleZh)) throw new Error(`Reddit item ${expectedRank} needs a Chinese title`);
+  if (!description || !hasChinese(description)) throw new Error(`Reddit item ${expectedRank} needs a Chinese description`);
+  if ([...description].length > DESCRIPTION_MAX_CHARS) {
+    throw new Error(`Reddit item ${expectedRank} description is too long: ${[...description].length} > ${DESCRIPTION_MAX_CHARS}`);
+  }
   if (!summary || !hasChinese(summary) || looksLowSignal(summary)) {
     throw new Error(`Reddit item ${expectedRank} has empty or low-signal summary`);
   }
   if (/^\s{0,3}#{1,6}\s/m.test(summary)) throw new Error(`Reddit item ${expectedRank} summary must not use Markdown headings`);
   const length = summary.replace(/\s+/g, "").length;
   if (length < SUMMARY_MIN_CHARS) throw new Error(`Reddit item ${expectedRank} summary is too short: ${length} < ${SUMMARY_MIN_CHARS}`);
-  return { rank, title_zh: titleZh, summary };
+  return { rank, title_zh: titleZh, description, summary };
 }
 
 function sourceBlocks(source: string): string[] {
@@ -130,6 +142,7 @@ export function parseRedditItemSummaries(source: string): RedditModelItem[] {
       JSON.stringify({
         rank,
         title_zh: bulletValue(bullets, "中文标题"),
+        description: bulletValue(bullets, "一句话描述"),
         summary: decodeMarkdownBlock(bulletValue(bullets, "综合摘要")),
       }),
       rank,
@@ -154,15 +167,9 @@ export function composeRedditBody(modelItems: RedditModelItem[], facts: RedditSo
   return `${blocks.join("\n\n")}\n`;
 }
 
-// frontmatter description 只取首帖摘要的第一段，避免把列表记号和加粗小标题拼进摘要行。
+// frontmatter description 用首帖的专用字段；正文不再承担这一句，切首段会切出小标题和引用记号。
 export function redditTop20Description(items: RedditModelItem[]): string {
-  return (items[0]?.summary || "")
-    .split(/\n\s*\n/)[0]
-    .replace(/^[>\s]*(?:[-*+]|\d+\.)\s+/, "")
-    .replace(/[`*_>]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 60);
+  return items[0]?.description || "";
 }
 
 export function redditMarkdownFromItemSummaries(source: string): string {
@@ -172,7 +179,7 @@ export function redditMarkdownFromItemSummaries(source: string): string {
 export function redditCategoryArticlesFromItemSummaries(source: string): RedditCategoryArticle[] {
   const facts = parseSourceFacts(source);
   const modelByRank = new Map(parseRedditItemSummaries(source).map(item => [item.rank, item]));
-  return REDDIT_CATEGORIES.flatMap(category => {
+  return ENABLED_REDDIT_CATEGORIES.flatMap(category => {
     const sourceFacts = facts.filter(fact => fact.category === category.key);
     if (!sourceFacts.length) return [];
     const articleFacts = sourceFacts.map((fact, index) => ({ ...fact, rank: index + 1 }));

@@ -108,6 +108,18 @@
       "mediaId": "lAMaLd-mzPj_bm0zorBkNBccSPVHlfX9UfNhaVnU0r0jzhcerS-TDGI5COc2c88s",
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNKjygJgYno6txoeZMpeoawNZa73O87U_DS06orXz-iHu",
       "coverContentHash": "07f07701f273c471"
+    },
+    "https://www.reddit.com/r/AskReddit/comments/1vpx639/which_celebrity_downfall_can_you_absolutely_not/": {
+      "sourceId": "https://www.reddit.com/r/AskReddit/comments/1vpx639/which_celebrity_downfall_can_you_absolutely_not/",
+      "canonicalUrl": "https://www.reddit.com/r/AskReddit/comments/1vpx639/which_celebrity_downfall_can_you_absolutely_not/",
+      "contentHash": "3c037541101a5626f7151646efc82c21c9ca5f08d14e4aedfc357593ecba8533",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-17T07:57:46.599Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNGyJY18iPFAytaETUIvvLCwIX4BA4PHD35GwsXbtk3-d",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNDwXJkg0E61vOfODN6iODyLdUg9o_VO3aTgTkx870NPQ",
+      "coverContentHash": "07f07701f273c471"
     }
   }
 }

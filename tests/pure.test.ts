@@ -9,7 +9,13 @@ import { buildPayload, classify, HN_CANDIDATE_COUNT, HN_SELECTION_COUNT, selectT
 import { parseGitHubTrendingHtml, sanitizeReadmeText } from "../scripts/github_trending_daily_source.ts";
 import { latestStartedSeasonNumber, previousMonthReleaseWindow, selectUnrecommendedMdblistCandidates } from "../scripts/mdblist_weekly_source.ts";
 import { fixture } from "./helpers/mocks.ts";
-import { parseRedditLifeCandidates } from "../scripts/reddit_life_wechat_compose.ts";
+import {
+  countDroppableStories,
+  dropTrailingStories,
+  parseRedditLifeCandidates,
+  parseRedditLifeDescription,
+  renderRedditLifeWechatMarkdown,
+} from "../scripts/reddit_life_wechat_compose.ts";
 
 function podcastResult(overrides: Partial<ResultItem>): ResultItem {
   return {
@@ -197,15 +203,71 @@ test("mdblist previous-month window clamps month ends and crosses year boundarie
   assert.throws(() => previousMonthReleaseWindow("2099-02-30"), /invalid MDBList archive date/);
 });
 
-test("Reddit life handoff uses only the first three ordered posts and rejects broken ranks", () => {
-  const block = (rank: number, subreddit = "AskReddit") => [
-    `## ${rank}. 问题 ${rank}`,
-    `- **热度**：${100 - rank} points · ${rank * 10} 评论`,
-    `- **来源**：[r/${subreddit}](https://www.reddit.com/r/${subreddit}/)`,
-    `- **帖子**：https://www.reddit.com/r/${subreddit}/comments/post${rank}/`,
-  ].join("\n");
+test("Reddit life handoff uses only the first three ordered posts and carries each story list", () => {
+  const block = (rank: number, subreddit = "AskReddit") =>
+    [
+      `## ${rank}. 问题 ${rank}`,
+      `- **热度**：${100 - rank} points · ${rank * 10} 评论`,
+      `- **来源**：[r/${subreddit}](https://www.reddit.com/r/${subreddit}/)`,
+      `- **帖子**：https://www.reddit.com/r/${subreddit}/comments/post${rank}/`,
+      "",
+      `1. 第 ${rank} 帖的第一个故事。`,
+      "",
+      `2. 第 ${rank} 帖的第二个故事。`,
+    ].join("\n");
   const candidates = parseRedditLifeCandidates([1, 2, 3, 4].map(rank => block(rank)).join("\n\n"));
-  assert.deepEqual(candidates.map(item => item.postId), ["post1", "post2", "post3"]);
+  assert.deepEqual(
+    candidates.map(item => item.postId),
+    ["post1", "post2", "post3"],
+  );
+  // 正文原样搬运：微信稿不重写上游的故事，只做选帖和长度收口。
+  assert.equal(candidates[0].body, "1. 第 1 帖的第一个故事。\n\n2. 第 1 帖的第二个故事。");
   assert.throws(() => parseRedditLifeCandidates(`${block(1)}\n\n${block(3)}`), /handoff contract/);
   assert.throws(() => parseRedditLifeCandidates(block(1, "investing")), /unsupported subreddit/);
+  // 事实行齐全但没有故事列表，说明上游契约已经变了，必须显式失败而不是产出空稿。
+  assert.throws(() => parseRedditLifeCandidates(block(1).split("\n").slice(0, 4).join("\n")), /has no story list/);
+
+  const article = ["---", 'title: "Reddit 每日精选｜人生与社会"', 'description: "帖子问的是第一个问题。"', "---", "", block(1)].join("\n");
+  assert.equal(parseRedditLifeDescription(article), "帖子问的是第一个问题。");
+  assert.throws(() => parseRedditLifeDescription(block(1)), /missing its frontmatter description/);
 });
+
+test("Reddit life WeChat article keeps the upstream stories and drops trailing ones to fit", () => {
+  const candidate = {
+    rank: 1,
+    postId: "post1",
+    title: "问题 1",
+    subreddit: "AskReddit",
+    points: "99 points · 10 评论",
+    numComments: 10,
+    permalink: "https://www.reddit.com/r/AskReddit/comments/post1/",
+    body: ["1. 第一个故事。", "", "2. 第二个故事。", "", "3. 第三个故事。"].join("\n"),
+  };
+  const markdown = renderRedditLifeWechatMarkdown(candidate, "帖子问的是第一个问题。", "2099-01-02");
+
+  assert.match(markdown, /^title: "Reddit 热帖精选｜问题 1"$/m);
+  assert.match(markdown, /^ {2}sourceURL: "https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/post1\/"$/m);
+  assert.match(markdown, /^description: "帖子问的是第一个问题。"$/m);
+  assert.match(markdown, /^更多每日精选：https:\/\/blog\.bhwa233\.com\/$/m);
+  // 上游正文原样搬运，正文里不出现任何标题。
+  assert.match(markdown, /^1\. 第一个故事。$/m);
+  assert.doesNotMatch(markdown, /^#{1,6}\s/m);
+  // 列表必须紧凑：项间留空行会渲染成 <li><p>…</p></li>，微信会把 p 拆出去，编号直接翻倍。
+  assert.match(markdown, /^1\. 第一个故事。\n2\. 第二个故事。\n3\. 第三个故事。$/m);
+  assert.match(dropTrailingStories(markdown, 1), /^1\. 第一个故事。\n2\. 第二个故事。$/m);
+  assert.equal(countDroppableStories(markdown), 3);
+  assert.equal(dropTrailingStories(markdown, 0), markdown);
+
+  const droppedOne = dropTrailingStories(markdown, 1);
+  assert.doesNotMatch(droppedOne, /第三个故事/);
+  assert.match(droppedOne, /第二个故事/);
+  // frontmatter 和页脚是稿子的骨架，任何截断都不能动它们。
+  assert.match(droppedOne, /^---\nauthor:/);
+  assert.match(droppedOne, /更多每日精选：/);
+  // 编号从 1 递增，从末尾删不会留下断号。
+  assert.doesNotMatch(droppedOne, /^3\. /m);
+
+  assert.throws(() => dropTrailingStories(markdown, 3), /fewer than 3 droppable stories/);
+  assert.throws(() => renderRedditLifeWechatMarkdown(candidate, "", "2099-01-02"), /needs a description/);
+});
+

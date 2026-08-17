@@ -51,7 +51,8 @@ jobs:
           set -euo pipefail
           case "$ARTICLE_PATH" in
             src/content/posts/*.md) ;;
-            *) echo "article_path must be a Markdown post under src/content/posts" >&2; exit 1 ;;
+            data/reddit-life-wechat/*.md) ;;
+            *) echo "article_path must be a Markdown post under src/content/posts or data/reddit-life-wechat" >&2; exit 1 ;;
           esac
           test -f "$ARTICLE_PATH"
           printf 'path=%s\n' "$ARTICLE_PATH" >> "$GITHUB_OUTPUT"

@@ -12,6 +12,7 @@ import { type Task, isEpisodeArticleTask, isTaskInput, scheduledTaskInput, taskP
 import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
+  ENABLED_REDDIT_CATEGORIES,
   REDDIT_CATEGORIES,
   parseRedditItemOutcome,
   parseSourceFacts as parseRedditSourceFacts,
@@ -706,7 +707,7 @@ async function buildCombinedRedditSource({
         .filter(line => /^\d+\.\s*\[r\//.test(line) || /^- (?:⭐|来源：|栏目：|发布时间：|帖子链接：)/.test(line))
         .map(line => line.replace(/^\d+\.\s*(?=\[r\/)/, `${rank}. `));
       // 综合摘要是 Markdown；JSON 编码后其换行与列表才能挤进单行 bullet 载体。
-      return [...factLines, `- 中文标题：${summary.title_zh}`, `- 综合摘要：${JSON.stringify(summary.summary)}`, ""];
+      return [...factLines, `- 中文标题：${summary.title_zh}`, `- 一句话描述：${summary.description}`, `- 综合摘要：${JSON.stringify(summary.summary)}`, ""];
     }),
   ].join("\n");
   writeArtifact(artifactsDir, "reddit-top20", "source.dynamic.md", combined);
@@ -1129,7 +1130,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   const { task, repo, date, force, useAi, model, promptDir, sourceFixtureDir, mockResponseDir, artifactsDir } = options;
   if (isEpisodeArticleTask(task) && useAi && !sourceFixtureDir && !mockResponseDir) return generatePodcastArticles(options);
   if (!force && task === "reddit-top20") {
-    const existing = REDDIT_CATEGORIES.map(category => skippedExistingVariant(task, repo, date, category.fileNameSuffix, category.title));
+    const existing = ENABLED_REDDIT_CATEGORIES.map(category => skippedExistingVariant(task, repo, date, category.fileNameSuffix, category.title));
     if (existing.every(Boolean)) return existing as ResultItem[];
   }
   if (!force && !isMagazineTask(task) && task !== "reddit-top20") {

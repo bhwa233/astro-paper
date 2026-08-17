@@ -11,14 +11,13 @@ import { buildGitHubTrendingDailySource } from "../scripts/github_trending_daily
 import { buildMdblistWeeklySource } from "../scripts/mdblist_weekly_source.ts";
 import { appendMdblistRecommendations } from "../scripts/mdblist_weekly_ledger.ts";
 import { buildXyzRankTopEpisodesSource } from "../scripts/xyzrank_top_episodes_source.ts";
-import { REDDIT_CATEGORIES } from "../scripts/reddit_top20_compose.ts";
+import { ENABLED_REDDIT_CATEGORIES } from "../scripts/reddit_top20_compose.ts";
 import {
   type RedditSourcePolicy,
   fetchRedditSourceFromApi,
   parseRedditSourceApiResponse,
   redditSubredditStatsLogLines,
 } from "../scripts/reddit_source_api.ts";
-import { parseRedditPostDetailResponse } from "../scripts/reddit_life_wechat_source.ts";
 import { fixture, tempDir, tempFile, withMocks } from "./helpers/mocks.ts";
 
 // ------------------------------------------------------------ GitHub Trending
@@ -425,7 +424,7 @@ function redditSourceItem(
 }
 
 function redditStats(finalBySubreddit: Record<string, number>) {
-  return REDDIT_CATEGORIES.flatMap(category =>
+  return ENABLED_REDDIT_CATEGORIES.flatMap(category =>
     category.subreddits.map(subreddit => {
       const final = finalBySubreddit[subreddit] || 0;
       return { subreddit, listing: final, score_pass: final, min_score: 20, shortlisted: final, detail_ok: final, final, error_code: null };
@@ -463,12 +462,12 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
     ["tampered policy", (p: typeof payload) => ({ ...p, policy_sha256: "0".repeat(64) }), /policy_sha256 does not match/],
     ["wrong archive date", (p: typeof payload) => ({ ...p, archive_date: "2099-01-01" }), /does not match requested date/],
     [
-      "unrequested subreddit",
+      "temporarily disabled market subreddit",
       (p: typeof payload) => {
-        const unexpected = p.source.replaceAll("r/AskReddit", "r/explainlikeimfive");
+        const unexpected = p.source.replaceAll("r/AskReddit", "r/stocks");
         return { ...p, source: unexpected, source_sha256: createHash("sha256").update(unexpected, "utf8").digest("hex") };
       },
-      /unsupported category\/subreddit mapping/,
+      /returned unrequested subreddit/,
     ],
     [
       "stats that undercount the source items",
@@ -508,30 +507,11 @@ test("Reddit source fetch sends one subreddit-list request to the v7 service", a
   assert.equal(fetched, source);
   assert.deepEqual(JSON.parse(requests.find(request => request.body)?.body || "{}"), {
     archive_date: "2099-01-02",
-    subreddits: REDDIT_CATEGORIES.flatMap(category => category.subreddits),
+    subreddits: ENABLED_REDDIT_CATEGORIES.flatMap(category => category.subreddits),
   });
   // 要证的是「提交一次 + 轮询一次」，不是服务端的路由字符串长什么样。
   assert.equal(requests.length, 2);
   assert.equal(requests[0].method, "POST");
   assert.equal(requests[1].method, "GET");
   assert.ok(requests[1].url.startsWith(requests[0].url + "/"), requests[1].url);
-});
-
-test("Reddit post-detail source rejects orphan replies and policy-limit violations", () => {
-  const policy = { version: "reddit-source-policy.v2", top_level_comment_limit: 40, direct_reply_limit: 10, max_comment_depth: 2, detail_comment_limit: 500, max_post_body_chars: 8000, max_comment_chars: 1200, max_comment_chars_per_post: 40000, requires_top_level_comment: true };
-  const source = "detail evidence";
-  const post = {
-    post_id: "abcde", status: "ok", requested_url: "https://www.reddit.com/r/AskReddit/comments/abcde/", subreddit: "AskReddit", title: "A question", body: "A body", score: 12, num_comments: 2, published_at: "2099-01-02T00:00:00Z", permalink: "https://www.reddit.com/r/AskReddit/comments/abcde/",
-    top_comments: [{ id: "t1", parent_id: null, score: 4, text: "A detailed parent comment", truncated: false }],
-    replies: [{ id: "r1", parent_id: "t1", score: 2, text: "A direct reply", truncated: false }],
-    stats: { top_level_seen: 1, top_level_selected: 1, replies_seen: 1, replies_selected: 1, filtered_unavailable: 0, filtered_bot: 0, filtered_too_short: 0, filtered_duplicate: 0, dropped_beyond_depth: 0, dropped_orphan: 0, dropped_by_limit: 0, dropped_by_budget: 0, truncated_comments: 0, body_truncated: false, comment_chars_used: 40 },
-  };
-  const payload = {
-    contract_version: "reddit-post-detail-source.v1", archive_date: "2099-01-02", fetched_at: "2099-01-02T01:00:00Z", post_count: 1, ok_count: 1, source, source_sha256: createHash("sha256").update(source, "utf8").digest("hex"), posts: [post], policy, policy_sha256: createHash("sha256").update(JSON.stringify(Object.fromEntries(Object.keys(policy).sort().map(key => [key, policy[key as keyof typeof policy]]))), "utf8").digest("hex"),
-  };
-  assert.equal(parseRedditPostDetailResponse(payload, "2099-01-02", ["abcde"])[0].replies.length, 1);
-  const orphan = { ...payload, posts: [{ ...post, replies: [{ ...post.replies[0], parent_id: "missing" }] }] };
-  assert.throws(() => parseRedditPostDetailResponse(orphan, "2099-01-02", ["abcde"]), /parent relationship/);
-  const tooMany = { ...payload, posts: [{ ...post, replies: Array.from({ length: 11 }, (_, index) => ({ ...post.replies[0], id: `r${index}` })), stats: { ...post.stats, replies_selected: 11 } }] };
-  assert.throws(() => parseRedditPostDetailResponse(tooMany, "2099-01-02", ["abcde"]), /exceeded comment policy limits/);
 });

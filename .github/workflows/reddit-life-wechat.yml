@@ -16,6 +16,17 @@ on:
         description: "Committed result from the reddit-top20 parent workflow."
         required: true
         type: string
+  # 手动入口：父工作流的自动调用还没启用时，用它对着某个已归档提交单独跑一次转换。
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      upstream_sha:
+        description: "Commit that already contains the reddit-top20 life article."
+        required: true
+        type: string
 concurrency:
   group: scheduled-posts-${{ github.ref }}
   cancel-in-progress: false

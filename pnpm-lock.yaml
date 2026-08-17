@@ -71,8 +71,8 @@ importers:
         specifier: ^0.9.10
         version: 0.9.10(prettier-plugin-astro@0.14.1)(prettier@3.8.3)(typescript@6.0.3)
       '@lxw15337674/astro-wechat':
-        specifier: 0.1.6
-        version: 0.1.6(@types/node@26.1.2)(astro@7.1.6(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.2)(jiti@2.7.0)(terser@5.46.1)(tsx@4.23.5)(yaml@2.9.0))
+        specifier: 0.1.8
+        version: 0.1.8(@types/node@26.1.2)(astro@7.1.6(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.2)(jiti@2.7.0)(terser@5.46.1)(tsx@4.23.5)(yaml@2.9.0))
       '@pagefind/default-ui':
         specifier: ^1.5.2
         version: 1.5.2
@@ -844,8 +844,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lxw15337674/astro-wechat@0.1.6':
-    resolution: {integrity: sha512-eebtotpRZY1LrBeyMSsxwi3Xlzl3nrm+YQ5JH8KEC2Rv16nhy+6/g12KniBjk8f4ZwUC5F20f9i+zZNXfFOsoA==}
+  '@lxw15337674/astro-wechat@0.1.8':
+    resolution: {integrity: sha512-b4oglQIeFDvq67gqaZDIBLbnTLVZresM+MIJnXBqloRvBNtZ7rt9kRGoWYtuCNHo6LUDrl03uJQ6d2OEn35Q8g==}
     engines: {node: '>=22'}
     hasBin: true
     peerDependencies:
@@ -4196,7 +4196,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@lxw15337674/astro-wechat@0.1.6(@types/node@26.1.2)(astro@7.1.6(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.2)(jiti@2.7.0)(terser@5.46.1)(tsx@4.23.5)(yaml@2.9.0))':
+  '@lxw15337674/astro-wechat@0.1.8(@types/node@26.1.2)(astro@7.1.6(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.2)(jiti@2.7.0)(terser@5.46.1)(tsx@4.23.5)(yaml@2.9.0))':
     dependencies:
       cac: 7.0.0
       cheerio: 1.2.0

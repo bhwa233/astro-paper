@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-17",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "d84f2f6a8862120c307689eda582e2c3cbca92d5",
+    "workflowRun": "32017597238",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-17-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-17/upstream-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vpx639",
+      "title": "你最迫不及待想看到哪位名人翻车？",
+      "subreddit": "AskReddit",
+      "points": "4325 points · 3917 评论",
+      "numComments": 3917,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vpx639/which_celebrity_downfall_can_you_absolutely_not/",
+      "status": "duplicate",
+      "reason": "already recommended"
+    }
+  ]
+}

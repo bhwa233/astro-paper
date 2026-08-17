@@ -135,7 +135,7 @@ export const BLOG_TASKS = {
   "reddit-top20": {
     titlePrefix: "Reddit 每日精选",
     tag: "Reddit热门",
-    description: "每日 Reddit 分类精选，按人生与人物问答两类整理通过来源服务热度与内容质量筛选的帖子。",
+    description: "每日 Reddit 分类精选，按人生与社会、人物与问答、市场与价值投资三个独立栏目归档通过来源服务筛选的帖子。",
     fileName: "reddit-{date}.md",
   },
 } as const satisfies Record<string, BlogTaskInfo>;
@@ -158,6 +158,8 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "0 6 * * 6": { task: "atlantic-monthly", dateTimeZone: "Asia/Shanghai" },
   "0 7 * * 6": { task: "wired-monthly", dateTimeZone: "Asia/Shanghai" },
   "0 8 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
+  "5 8 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
+  "10 8 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
 };
 
 export function isTask(value: string): value is Task {

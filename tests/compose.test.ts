@@ -11,7 +11,7 @@ import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "../scripts/daily_digest_compose.ts";
 import { economistWeeklyMarkdown, parseEconomistArticleSummaries } from "../scripts/economist_weekly_compose.ts";
 import { magazineConfig, parseMagazineEpub } from "../scripts/magazine.ts";
-import { parseRedditItemOutcome, parseRedditItemSummary, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
+import { parseRedditItemOutcome, parseRedditItemSummary, redditCategoryArticleFromSource, redditCategoryByKey, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
 import { parseMagazineItemSummary, partitionRedditItemOutcomes } from "../scripts/generate_scheduled_post.ts";
 import { verifyPostContract } from "../scripts/verify_blog_generation.ts";
 import { composeFixtureBody } from "./helpers/compose-fixture.ts";
@@ -341,6 +341,30 @@ test("Reddit item summaries keep Markdown structure and reject thin or heading-l
   ] as const) {
     assert.throws(() => parseRedditItemSummary(JSON.stringify(payload), 1), expected, name);
   }
+});
+
+test("Reddit AMA article uses only translated titles and source metadata", () => {
+  const source = [
+    "1. [r/IAmA] I designed an emergency bridge after the storm. Ask me anything.",
+    "- ⭐ 300 points · 120 评论",
+    "- 来源：r/IAmA",
+    "- 栏目：ama",
+    "- 发布时间：2099-01-02T07:00:00Z",
+    "- 帖子链接：https://www.reddit.com/r/IAmA/comments/one/",
+    "- 正文：This body must not enter the article.",
+    "- 顶层高赞回答（按赞数排序，共 1 条）：",
+    "  1. [100 赞] This comment must not enter the article.",
+    "- 中文标题：我在暴风雨后设计应急桥梁，欢迎提问。",
+  ].join("\n");
+  const article = redditCategoryArticleFromSource(source, redditCategoryByKey("ama"));
+
+  assert.ok(article);
+  assert.equal(article.description, "");
+  assert.match(article.markdown, /^1\. 🔴 /m);
+  assert.match(article.markdown, /^- ⭐ 300 points · 120 评论$/m);
+  assert.match(article.markdown, /^- 来源：r\/IAmA$/m);
+  assert.match(article.markdown, /^- 帖子：https:\/\/www\.reddit\.com\/r\/IAmA\/comments\/one\/$/m);
+  assert.doesNotMatch(article.markdown, /This body|This comment|综合摘要|正文：/);
 });
 
 test("normalizeMarkdownBlock moves trailing punctuation out of emphasis so CJK bold closes", () => {

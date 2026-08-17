@@ -3,7 +3,7 @@
 // 校验不过一律拒收，不做「尽力而为」的降级。
 import { createHash } from "node:crypto";
 import { envPositiveInt, fetchJson, sleep, writeStderr, writeStdout } from "./blog_common.ts";
-import { ENABLED_REDDIT_CATEGORIES, parseSourceFacts as parseRedditSourceFacts } from "./reddit_top20_compose.ts";
+import { type RedditCategory, parseSourceFacts as parseRedditSourceFacts } from "./reddit_top20_compose.ts";
 
 type RedditSourceApiResponse = {
   contract_version?: unknown;
@@ -49,8 +49,6 @@ export type RedditSourcePolicy = {
 };
 
 export const MAX_REDDIT_SOURCE_ITEMS = 2_000;
-const REDDIT_SUBREDDITS = ENABLED_REDDIT_CATEGORIES.flatMap(category => category.subreddits);
-
 function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourcePolicy {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Reddit source API returned an invalid policy");
   const record = value as Record<string, unknown>;
@@ -101,10 +99,10 @@ function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourceP
   };
 }
 
-function parseRedditSubredditStats(value: unknown, policy: RedditSourcePolicy): RedditSubredditStats[] {
+function parseRedditSubredditStats(value: unknown, policy: RedditSourcePolicy, category: RedditCategory): RedditSubredditStats[] {
   if (!Array.isArray(value)) throw new Error("Reddit source API returned invalid subreddit_stats");
   const expected = new Map(
-    ENABLED_REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
+    category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const),
   );
   const seen = new Set<string>();
   const stats = value.map((raw, index) => {
@@ -157,13 +155,13 @@ function parseRedditSubredditStats(value: unknown, policy: RedditSourcePolicy): 
   return stats;
 }
 
-export function redditSubredditStatsLogLines(value: unknown, policy: RedditSourcePolicy): string[] {
-  return parseRedditSubredditStats(value, policy).map(stat =>
+export function redditSubredditStatsLogLines(value: unknown, policy: RedditSourcePolicy, category: RedditCategory): string[] {
+  return parseRedditSubredditStats(value, policy, category).map(stat =>
     `[reddit-source] r/${stat.subreddit} category=${stat.category} listing=${stat.listing} min_score=${stat.min_score} score_pass=${stat.score_pass} shortlisted=${stat.shortlisted} detail_ok=${stat.detail_ok} final=${stat.final}${stat.error_code ? ` error_code=${stat.error_code}` : ""}`,
   );
 }
 
-export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, date: string): string {
+export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, date: string, category: RedditCategory): string {
   if (payload.contract_version !== "reddit-top20-source.v7") {
     throw new Error(`Reddit source API returned an unsupported contract: ${String(payload.contract_version)}`);
   }
@@ -182,12 +180,12 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
   }
   const policy = parseRedditSourcePolicy(payload.policy, payload.policy_sha256);
   const facts = parseRedditSourceFacts(payload.source);
-  const maxItems = REDDIT_SUBREDDITS.length * policy.listingLimit;
+  const maxItems = category.subreddits.length * policy.listingLimit;
   if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > maxItems) {
     throw new Error(`Reddit source API expected 1-${maxItems} ranked items, received ${String(payload.item_count)}`);
   }
-  const expectedSubreddits = new Set(REDDIT_SUBREDDITS.map(subreddit => subreddit.toLowerCase()));
-  const stats = parseRedditSubredditStats(payload.subreddit_stats, policy);
+  const expectedSubreddits = new Set(category.subreddits.map(subreddit => subreddit.toLowerCase()));
+  const stats = parseRedditSubredditStats(payload.subreddit_stats, policy, category);
   const subredditCounts = new Map<string, number>();
   for (const fact of facts) {
     const subreddit = fact.subreddit.toLowerCase();
@@ -258,7 +256,7 @@ function redditSourcePollTimeoutMs(): number {
   return envPositiveInt("REDDIT_SOURCE_POLL_TIMEOUT_MS", 25 * 60_000);
 }
 
-export async function fetchRedditSourceFromApi(date: string): Promise<string> {
+export async function fetchRedditSourceFromApi(date: string, category: RedditCategory): Promise<string> {
   const baseUrl = process.env.REDDIT_SOURCE_API_URL?.trim().replace(/\/+$/, "");
   const token = process.env.REDDIT_SOURCE_API_TOKEN?.trim();
   if (!baseUrl) throw new Error("REDDIT_SOURCE_API_URL is required for reddit-top20 generation");
@@ -277,7 +275,7 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
     method: "POST",
     body: JSON.stringify({
       archive_date: date,
-      subreddits: REDDIT_SUBREDDITS,
+      subreddits: category.subreddits,
     }),
     ...request,
   });
@@ -296,9 +294,9 @@ export async function fetchRedditSourceFromApi(date: string): Promise<string> {
     if (job.state === "failed") throw new Error(`Reddit source job ${job.id} failed: ${job.error}`);
     if (job.state === "ready") {
       if (!job.result) throw new Error(`Reddit source job ${job.id} completed without a source result`);
-      const source = parseRedditSourceApiResponse(job.result, date);
+      const source = parseRedditSourceApiResponse(job.result, date, category);
       const policy = parseRedditSourcePolicy(job.result.policy, job.result.policy_sha256);
-      redditSubredditStatsLogLines(job.result.subreddit_stats, policy).forEach(line => writeStdout(`${line}\n`));
+      redditSubredditStatsLogLines(job.result.subreddit_stats, policy, category).forEach(line => writeStdout(`${line}\n`));
       return source;
     }
 

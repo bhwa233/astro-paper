@@ -36,7 +36,7 @@ reddit-top20 (publish)
             └─ data/reddit-life-wechat/recommended.json
 ```
 
-workflow `reddit-life-wechat.yml` 由 `publish-reddit-top20.yml` 在 publish 成功后调用，`upstream_sha` 传入父任务提交，保证读到的是已归档的那一版文章。
+workflow `reddit-life-wechat.yml` 由 `publish-reddit-life.yml` 在 publish 成功后调用，`upstream_sha` 传入父任务提交，保证读到的是已归档的那一版文章。
 
 ## 4. 选帖与内容转换
 
@@ -94,4 +94,4 @@ node --import tsx scripts/generate_reddit_life_wechat.ts \
 
 ## 9. 启用状态
 
-`publish-reddit-top20.yml` 中该 job 目前是 `if: ${{ false }}`，需要人工验收后再打开。
+`publish-reddit-life.yml` 中该 job 目前是 `if: ${{ false }}`，需要人工验收后再打开。

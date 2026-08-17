@@ -1,4 +1,4 @@
-name: Publish Reddit Daily Categories
+name: Publish Reddit Life
 
 permissions:
   contents: write
@@ -24,12 +24,13 @@ on:
 
 jobs:
   publish:
-    name: Publish Reddit Daily Categories
+    name: Publish Reddit Life
     permissions:
       contents: write
     uses: ./.github/workflows/blog-publish.yml
     with:
       task: reddit-top20
+      reddit_category: life
       date: ${{ inputs.date || '' }}
       event_schedule: ${{ github.event.schedule || '0 8 * * *' }}
       force: ${{ inputs.force || false }}

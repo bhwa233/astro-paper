@@ -22,6 +22,10 @@ on:
         description: "Original cron string, used only to preserve scheduled task date mapping."
         required: false
         type: string
+      reddit_category:
+        description: "Reddit category key required by reddit-top20: life, ama, or markets."
+        required: false
+        type: string
       force:
         description: "Overwrite an existing post for the same date"
         required: false
@@ -59,6 +63,10 @@ on:
         type: string
       event_schedule:
         description: "Optional cron string to reuse scheduled date mapping."
+        required: false
+        type: string
+      reddit_category:
+        description: "Reddit category key required by reddit-top20: life, ama, or markets."
         required: false
         type: string
       force:
@@ -136,6 +144,7 @@ jobs:
           INPUT_TASK: ${{ inputs.task || '' }}
           INPUT_DATE: ${{ inputs.date || '' }}
           INPUT_FORCE: ${{ inputs.force || 'false' }}
+          INPUT_REDDIT_CATEGORY: ${{ inputs.reddit_category || '' }}
           EVENT_SCHEDULE: ${{ inputs.event_schedule || '' }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
@@ -185,6 +194,9 @@ jobs:
           fi
           if [ -n "$INPUT_DATE" ]; then
             args+=(--date "$INPUT_DATE")
+          fi
+          if [ -n "$INPUT_REDDIT_CATEGORY" ]; then
+            args+=(--reddit-category "$INPUT_REDDIT_CATEGORY")
           fi
           if [ -n "$AI_MODEL" ]; then
             args+=(--model "$AI_MODEL")

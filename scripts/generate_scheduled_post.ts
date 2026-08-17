@@ -12,12 +12,14 @@ import { type Task, isEpisodeArticleTask, isTaskInput, scheduledTaskInput, taskP
 import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
-  ENABLED_REDDIT_CATEGORIES,
-  REDDIT_CATEGORIES,
   parseRedditItemOutcome,
+  parseRedditTitleTranslation,
   parseSourceFacts as parseRedditSourceFacts,
-  redditCategoryArticlesFromItemSummaries,
+  redditCategoryArticleFromSource,
+  redditCategoryByKey,
+  type RedditCategory,
   type RedditModelItem,
+  type RedditTitleTranslation,
 } from "./reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
@@ -237,7 +239,7 @@ function fixtureSource(fixtureName: string, sourceFixtureDir: string): string {
   return fs.readFileSync(file, "utf8");
 }
 
-type SourceContext = { task: Task; repo: string };
+type SourceContext = { task: Task; repo: string; redditCategory?: RedditCategory };
 
 const magazineSourceBuilder = (date: string, { task, repo }: SourceContext): Promise<string> => {
   const config = magazineConfig(task);
@@ -251,7 +253,10 @@ const magazineSourceBuilder = (date: string, { task, repo }: SourceContext): Pro
 // apple-top-podcasts 逐集走多模态，证据是音频本身，没有中间 source。
 const SOURCE_BUILDERS: Record<Task, ((date: string, ctx: SourceContext) => Promise<string>) | null> = {
   "hn-top10": () => buildHnSource(),
-  "reddit-top20": date => fetchRedditSourceFromApi(date),
+  "reddit-top20": (date, { redditCategory }) => {
+    if (!redditCategory) throw new Error("reddit-top20 requires a Reddit category");
+    return fetchRedditSourceFromApi(date, redditCategory);
+  },
   "github-trending-daily": date => buildGitHubTrendingDailySource(date, { dataDir: path.join(repoRoot(), "data/github-trending") }),
   "daily-podcasts": date => buildDailyPodcastSource(date),
   "apple-top-podcasts": null,
@@ -273,11 +278,11 @@ const SOURCE_BUILDERS: Record<Task, ((date: string, ctx: SourceContext) => Promi
   "wired-monthly": magazineSourceBuilder,
 };
 
-async function sourceForTask(task: Task, date: string, sourceFixtureDir = "", repo = repoRoot()): Promise<string> {
+async function sourceForTask(task: Task, date: string, sourceFixtureDir = "", repo = repoRoot(), redditCategory?: RedditCategory): Promise<string> {
   if (sourceFixtureDir) return fixtureSource(task, sourceFixtureDir);
   const builder = SOURCE_BUILDERS[task];
   if (!builder) throw new Error(`no source builder for task: ${task}`);
-  return builder(date, { task, repo });
+  return builder(date, { task, repo, redditCategory });
 }
 
 function writeArtifact(artifactsDir: string, task: string, name: string, content: string): string {
@@ -621,9 +626,28 @@ type RedditItemSummaryOutcome = {
   error?: string;
 };
 
+type RedditTitleTranslationOutcome = {
+  translation: RedditTitleTranslation | null;
+  error?: string;
+};
+
 export type RedditItemProcessingOutcome = RedditItemSummaryOutcome & {
   block: string;
   rank: number;
+};
+
+type RedditTitleProcessingOutcome = RedditTitleTranslationOutcome & {
+  block: string;
+  rank: number;
+};
+
+type RedditProcessingOutcome = RedditItemProcessingOutcome | RedditTitleProcessingOutcome;
+
+// 显式映射供约定检查器追踪模板归属，避免动态文件名让孤儿模板悄然失效。
+const REDDIT_PROMPT_BY_CATEGORY: Record<RedditCategory["key"], string> = {
+  life: "reddit-item-summary",
+  ama: "reddit-ama-title-translation",
+  markets: "reddit-markets-title-translation",
 };
 
 export function partitionRedditItemOutcomes(outcomes: RedditItemProcessingOutcome[]): {
@@ -655,6 +679,20 @@ function summarizeRedditItem(prompt: string, rank: number, model: string, artifa
   });
 }
 
+function translateRedditTitle(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditTitleTranslationOutcome> {
+  return generateJsonStageWithRetries<RedditTitleTranslationOutcome>({
+    task: "reddit-top20",
+    stage: `Reddit title ${rank}`,
+    artifactPrefix: `item-${String(rank).padStart(2, "0")}-title`,
+    prompt,
+    model,
+    artifactsDir,
+    jitterMs: 1_000,
+    parse: content => ({ translation: parseRedditTitleTranslation(content, rank) }),
+    onExhausted: error => ({ translation: null, error }),
+  });
+}
+
 async function buildCombinedRedditSource({
   source,
   date,
@@ -662,6 +700,7 @@ async function buildCombinedRedditSource({
   model,
   promptDir,
   artifactsDir,
+  redditCategory,
 }: {
   source: string;
   date: string;
@@ -669,22 +708,62 @@ async function buildCombinedRedditSource({
   model: string;
   promptDir: string;
   artifactsDir: string;
+  redditCategory?: RedditCategory;
 }): Promise<string> {
+  if (!redditCategory) throw new Error("reddit-top20 requires a Reddit category");
   const blocks = redditSourceBlocks(source);
   if (!blocks.length || blocks.length > MAX_REDDIT_SOURCE_ITEMS) throw new Error(`Reddit source has an invalid number of item blocks: ${blocks.length}`);
   writeArtifact(artifactsDir, "reddit-top20", "source.raw.md", source);
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
-  const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, "reddit-item-summary"), "utf8");
-  // Each request still receives one bounded post block. Limited concurrency keeps a
-  // three-article day practical without turning all listing-window summaries into one huge prompt.
-  const outcomes = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
+  const templateName = REDDIT_PROMPT_BY_CATEGORY[redditCategory.key];
+  const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, templateName), "utf8");
+  // 人生栏目逐帖传入受限 source block；标题栏目只传原题。有限并发保证三个栏目运行时不会把
+  // 候选池拼成一个巨型提示词。
+  const outcomes: RedditProcessingOutcome[] = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
     if (!Number.isInteger(rank)) throw new Error("Reddit source item is missing rank");
-    const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block);
-    const outcome = await summarizeRedditItem(prompt, rank, model, artifactsDir);
+    const originalTitle = block.match(/^\d+\.\s*\[r\/[^\]]+\]\s+(.+)$/m)?.[1]?.trim();
+    if (!originalTitle) throw new Error(`Reddit source item ${rank} is missing its original title`);
+    const prompt = redditCategory.key === "life"
+      ? template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block)
+      : template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{title}", originalTitle);
+    const outcome = redditCategory.key === "life"
+      ? await summarizeRedditItem(prompt, rank, model, artifactsDir)
+      : await translateRedditTitle(prompt, rank, model, artifactsDir);
     return { block, rank, ...outcome };
   });
-  const { kept, excluded, failed } = partitionRedditItemOutcomes(outcomes);
+  if (redditCategory.key !== "life") {
+    const titleOutcomes = outcomes.filter((outcome): outcome is RedditTitleProcessingOutcome => "translation" in outcome);
+    const kept = titleOutcomes.filter((outcome): outcome is RedditTitleProcessingOutcome & { translation: RedditTitleTranslation } => outcome.translation !== null);
+    const failed = titleOutcomes
+      .filter((outcome): outcome is { block: string; rank: number; translation: null; error?: string } => outcome.translation === null)
+      .map(outcome => ({ rank: outcome.rank, error: outcome.error || "title translation failed" }));
+    if (failed.length) {
+      writeStderr(`WARN: Reddit ${redditCategory.key} skipped ${failed.length}/${blocks.length} posts after title translation retries: ranks ${failed.map(item => item.rank).join(", ")}`);
+      writeArtifact(artifactsDir, "reddit-top20", "dropped-items.json", JSON.stringify({ failed, total: blocks.length }, null, 2));
+    }
+    if (!kept.length) throw new Error(`Reddit ${redditCategory.key} has no publishable posts after skipping ${failed.length} failed title translations`);
+    const firstBlockOffset = source.search(/^\d+\.\s*\[r\//m);
+    const header = firstBlockOffset >= 0 ? source.slice(0, firstBlockOffset).trimEnd() : "";
+    const combined = [
+      header,
+      "",
+      "以下条目只使用 AI 翻译原帖标题；热度、来源与帖子链接均保留抓取证据，正文不使用评论或模型摘要。",
+      "",
+      ...kept.flatMap(({ block, translation }, index) => {
+        const rank = index + 1;
+        const factLines = block
+          .split("\n")
+          .filter(line => /^\d+\.\s*\[r\//.test(line) || /^- (?:⭐|来源：|栏目：|发布时间：|帖子链接：)/.test(line))
+          .map(line => line.replace(/^\d+\.\s*(?=\[r\/)/, `${rank}. `));
+        return [...factLines, `- 中文标题：${translation.title_zh}`, ""];
+      }),
+    ].join("\n");
+    writeArtifact(artifactsDir, "reddit-top20", "source.dynamic.md", combined);
+    return combined;
+  }
+  const summaryOutcomes = outcomes.filter((outcome): outcome is RedditItemProcessingOutcome => "summary" in outcome);
+  const { kept, excluded, failed } = partitionRedditItemOutcomes(summaryOutcomes);
   if (excluded.length || failed.length) {
     // 静默截断会让栏目数量看起来仍然完整，因此把丢弃的原始排名同时写进日志与产物。
     if (excluded.length) writeStderr(`WARN: Reddit excluded ${excluded.length}/${blocks.length} posts by topic: ranks ${excluded.join(", ")}`);
@@ -1018,11 +1097,21 @@ type GenerateTaskOptions = {
   sourceFixtureDir: string;
   mockResponseDir: string;
   artifactsDir: string;
+  redditCategory?: RedditCategory;
 };
 
 // 取源与成文之间的可选一步：先让模型逐条目产出语义字段，再把结果拼回一份「固定证据」source。
 // null = 这个任务的 source 直接进 compose。
-type CombineArgs = { task: Task; source: string; date: string; repo: string; model: string; promptDir: string; artifactsDir: string };
+type CombineArgs = {
+  task: Task;
+  source: string;
+  date: string;
+  repo: string;
+  model: string;
+  promptDir: string;
+  artifactsDir: string;
+  redditCategory?: RedditCategory;
+};
 
 const SOURCE_COMBINERS: Record<Task, ((args: CombineArgs) => Promise<string>) | null> = {
   "hn-top10": null,
@@ -1127,17 +1216,18 @@ async function generatePodcastArticles({ task, repo, date, force, promptDir, art
 }
 
 async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]> {
-  const { task, repo, date, force, useAi, model, promptDir, sourceFixtureDir, mockResponseDir, artifactsDir } = options;
+  const { task, repo, date, force, useAi, model, promptDir, sourceFixtureDir, mockResponseDir, artifactsDir, redditCategory } = options;
   if (isEpisodeArticleTask(task) && useAi && !sourceFixtureDir && !mockResponseDir) return generatePodcastArticles(options);
   if (!force && task === "reddit-top20") {
-    const existing = ENABLED_REDDIT_CATEGORIES.map(category => skippedExistingVariant(task, repo, date, category.fileNameSuffix, category.title));
-    if (existing.every(Boolean)) return existing as ResultItem[];
+    if (!redditCategory) throw new Error("reddit-top20 requires a Reddit category");
+    const existing = skippedExistingVariant(task, repo, date, redditCategory.fileNameSuffix, redditCategory.title);
+    if (existing) return [existing];
   }
   if (!force && !isMagazineTask(task) && task !== "reddit-top20") {
     const skipped = skippedExisting(task, repo, date);
     if (skipped) return [skipped];
   }
-  let source = await sourceForTask(task, date, sourceFixtureDir, repo);
+  let source = await sourceForTask(task, date, sourceFixtureDir, repo, redditCategory);
   if (task === "mdblist-weekly" && !parseMdblistRecommendationsFromSource(source).length) {
     writeArtifact(artifactsDir, task, "source.md", source);
     return [skippedLowQuality(task, date, "no MDBList candidates matched the previous-month release window, IMDb >= 6.0, and history-deduplication rules; see the source artifact for per-layer diagnostics")];
@@ -1149,7 +1239,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   }
   const combineSource = SOURCE_COMBINERS[task];
   if (useAi && combineSource && !mockResponseDir) {
-    source = await combineSource({ task, source, date: contentDate, repo, model, promptDir, artifactsDir });
+    source = await combineSource({ task, source, date: contentDate, repo, model, promptDir, artifactsDir, redditCategory });
     // 逐条目摘要可能把当天全部候选都判掉；空栏目不值得发一篇。
     if (task === "tech-daily" && countNumberedBlocks(source) < 1) return [skippedLowQuality(task, date, "tech-daily has no high-quality daily items")];
   }
@@ -1157,29 +1247,29 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   let description: string | undefined;
   let generation: ResultItem["generation"];
   if (task === "reddit-top20" && useAi) {
-    // 逐帖摘要只生成一次，再按 source 中的栏目事实确定性拆成最多三篇文章。
+    if (!redditCategory) throw new Error("reddit-top20 requires a Reddit category");
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
     const itemConfig = envAiConfig({ model });
-    return redditCategoryArticlesFromItemSummaries(source).map(article => {
-      const result: ResultItem = archivePost({
-        task,
-        date: contentDate,
-        repo,
-        body: article.markdown,
-        force,
-        fileNameSuffix: article.fileNameSuffix,
-        titleSuffix: article.title,
-        description: article.description,
-      });
-      result.generation = {
-        ai_model: itemConfig.model,
-        ai_base_url: itemConfig.baseUrl,
-        ai_fallback_used: false,
-        source_artifact: sourceArtifact,
-        mocked_ai: Boolean(mockResponseDir),
-      };
-      return result;
+    const article = redditCategoryArticleFromSource(source, redditCategory);
+    if (!article) return [skippedLowQuality(task, date, `Reddit ${redditCategory.key} source has no publishable posts`)];
+    const result: ResultItem = archivePost({
+      task,
+      date: contentDate,
+      repo,
+      body: article.markdown,
+      force,
+      fileNameSuffix: article.fileNameSuffix,
+      titleSuffix: article.title,
+      description: article.description || undefined,
     });
+    result.generation = {
+      ai_model: itemConfig.model,
+      ai_base_url: itemConfig.baseUrl,
+      ai_fallback_used: false,
+      source_artifact: sourceArtifact,
+      mocked_ai: Boolean(mockResponseDir),
+    };
+    return [result];
   } else if (isMagazineTask(task)) {
     // The issue post is a deterministic aggregation of the per-article summaries; no issue-level AI call.
     const composed = economistWeeklyMarkdown(source);
@@ -1212,6 +1302,10 @@ async function main(): Promise<void> {
   const scheduled = scheduledTaskInput(process.env.EVENT_SCHEDULE || "");
   const taskArg = stringArg(args, "task", scheduled.task);
   if (!isTaskInput(taskArg)) throw new Error(`unsupported task: ${taskArg}`);
+  const redditCategoryArg = stringArg(args, "reddit-category", process.env.REDDIT_CATEGORY || "");
+  if (redditCategoryArg && taskArg !== "reddit-top20") throw new Error("--reddit-category can only be used with reddit-top20");
+  if (taskArg === "reddit-top20" && !redditCategoryArg) throw new Error("reddit-top20 requires --reddit-category");
+  const redditCategory = redditCategoryArg ? redditCategoryByKey(redditCategoryArg) : undefined;
   const repo = path.resolve(stringArg(args, "repo", repoRoot()));
   const explicitDate = stringArg(args, "date");
   const offsetArg = stringArg(args, "date-offset");
@@ -1234,6 +1328,7 @@ async function main(): Promise<void> {
           sourceFixtureDir: stringArg(args, "source-fixture-dir"),
           mockResponseDir: stringArg(args, "mock-response-dir"),
           artifactsDir: stringArg(args, "artifacts-dir"),
+          redditCategory,
         })),
       );
     } catch (error) {

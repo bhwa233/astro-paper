@@ -11,7 +11,7 @@ import { buildGitHubTrendingDailySource } from "../scripts/github_trending_daily
 import { buildMdblistWeeklySource } from "../scripts/mdblist_weekly_source.ts";
 import { appendMdblistRecommendations } from "../scripts/mdblist_weekly_ledger.ts";
 import { buildXyzRankTopEpisodesSource } from "../scripts/xyzrank_top_episodes_source.ts";
-import { ENABLED_REDDIT_CATEGORIES } from "../scripts/reddit_top20_compose.ts";
+import { redditCategoryByKey } from "../scripts/reddit_top20_compose.ts";
 import {
   type RedditSourcePolicy,
   fetchRedditSourceFromApi,
@@ -423,16 +423,14 @@ function redditSourceItem(
   ].join("\n");
 }
 
-function redditStats(finalBySubreddit: Record<string, number>) {
-  return ENABLED_REDDIT_CATEGORIES.flatMap(category =>
-    category.subreddits.map(subreddit => {
+function redditStats(finalBySubreddit: Record<string, number>, category = redditCategoryByKey("life")) {
+  return category.subreddits.map(subreddit => {
       const final = finalBySubreddit[subreddit] || 0;
       return { subreddit, listing: final, score_pass: final, min_score: 20, shortlisted: final, detail_ok: final, final, error_code: null };
-    }),
-  );
+    });
 }
 
-function redditPayload(source: string, itemCount: number, finalBySubreddit: Record<string, number>) {
+function redditPayload(source: string, itemCount: number, finalBySubreddit: Record<string, number>, category = redditCategoryByKey("life")) {
   return {
     contract_version: "reddit-top20-source.v7",
     archive_date: "2099-01-02",
@@ -442,18 +440,19 @@ function redditPayload(source: string, itemCount: number, finalBySubreddit: Reco
     source,
     policy: REDDIT_POLICY_RESPONSE,
     policy_sha256: createHash("sha256").update(JSON.stringify(REDDIT_POLICY_RESPONSE), "utf8").digest("hex"),
-    subreddit_stats: redditStats(finalBySubreddit),
+    subreddit_stats: redditStats(finalBySubreddit, category),
   };
 }
 
 test("Reddit source API contract accepts intact v7 server-policy sources", () => {
+  const category = redditCategoryByKey("life");
   const source = `${[1, 2].map(rank => redditSourceItem(rank)).join("\n")}\n===ARCHIVE_PAYLOAD===\n${JSON.stringify({ items: [] })}\n`;
   const payload = redditPayload(source, 2, { AskReddit: 2 });
 
-  assert.equal(parseRedditSourceApiResponse(payload, "2099-01-02"), source);
-  assert.match(redditSubredditStatsLogLines(payload.subreddit_stats, REDDIT_POLICY).find(line => line.includes("r/AskReddit")) || "", /category=life.*listing=2.*min_score=20.*final=2/);
+  assert.equal(parseRedditSourceApiResponse(payload, "2099-01-02", category), source);
+  assert.match(redditSubredditStatsLogLines(payload.subreddit_stats, REDDIT_POLICY, category).find(line => line.includes("r/AskReddit")) || "", /category=life.*listing=2.*min_score=20.*final=2/);
   // fetched_at may drift past the archive date without invalidating the payload.
-  assert.equal(parseRedditSourceApiResponse({ ...payload, fetched_at: "2099-01-03T08:00:00Z" }, "2099-01-02"), source);
+  assert.equal(parseRedditSourceApiResponse({ ...payload, fetched_at: "2099-01-03T08:00:00Z" }, "2099-01-02", category), source);
 
   for (const [name, mutate, expected] of [
     ["older contract version", (p: typeof payload) => ({ ...p, contract_version: "reddit-top20-source.v6" }), /unsupported contract/],
@@ -462,7 +461,7 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
     ["tampered policy", (p: typeof payload) => ({ ...p, policy_sha256: "0".repeat(64) }), /policy_sha256 does not match/],
     ["wrong archive date", (p: typeof payload) => ({ ...p, archive_date: "2099-01-01" }), /does not match requested date/],
     [
-      "temporarily disabled market subreddit",
+      "unrequested market subreddit",
       (p: typeof payload) => {
         const unexpected = p.source.replaceAll("r/AskReddit", "r/stocks");
         return { ...p, source: unexpected, source_sha256: createHash("sha256").update(unexpected, "utf8").digest("hex") };
@@ -475,19 +474,20 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
       /final count does not match source items/,
     ],
   ] as const) {
-    assert.throws(() => parseRedditSourceApiResponse(mutate(payload), "2099-01-02"), expected, name);
+    assert.throws(() => parseRedditSourceApiResponse(mutate(payload), "2099-01-02", category), expected, name);
   }
 
   // Subreddits are uncapped below the service's declared listing limit.
   const overLimitSource = `${Array.from({ length: 41 }, (_, index) =>
     [`${index + 1}. [r/AskReddit] Fixture post ${index + 1}`, "- 来源：r/AskReddit", "- 发布时间：2099-01-02T07:00:00Z"].join("\n"),
   ).join("\n\n")}\n\n===ARCHIVE_PAYLOAD===\n{"items": []}\n`;
-  assert.equal(parseRedditSourceApiResponse(redditPayload(overLimitSource, 41, { AskReddit: 41 }), "2099-01-02"), overLimitSource);
+  assert.equal(parseRedditSourceApiResponse(redditPayload(overLimitSource, 41, { AskReddit: 41 }), "2099-01-02", category), overLimitSource);
 });
 
 test("Reddit source fetch sends one subreddit-list request to the v7 service", async () => {
+  const category = redditCategoryByKey("ama");
   const source = `${redditSourceItem(1, { subreddit: "IAmA", points: 20 })}\n===ARCHIVE_PAYLOAD===\n${JSON.stringify({ items: [] })}\n`;
-  const payload = redditPayload(source, 1, { IAmA: 1 });
+  const payload = redditPayload(source, 1, { IAmA: 1 }, category);
   const requests: { url: string; method: string; body?: string }[] = [];
 
   const fetched = await withMocks(
@@ -501,13 +501,13 @@ test("Reddit source fetch sends one subreddit-list request to the v7 service", a
         return new Response(JSON.stringify(job), { status: submitting ? 202 : 200 });
       },
     },
-    () => fetchRedditSourceFromApi("2099-01-02"),
+    () => fetchRedditSourceFromApi("2099-01-02", category),
   );
 
   assert.equal(fetched, source);
   assert.deepEqual(JSON.parse(requests.find(request => request.body)?.body || "{}"), {
     archive_date: "2099-01-02",
-    subreddits: ENABLED_REDDIT_CATEGORIES.flatMap(category => category.subreddits),
+    subreddits: category.subreddits,
   });
   // 要证的是「提交一次 + 轮询一次」，不是服务端的路由字符串长什么样。
   assert.equal(requests.length, 2);

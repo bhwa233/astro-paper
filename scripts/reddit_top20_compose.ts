@@ -27,12 +27,10 @@ export const REDDIT_CATEGORIES = [
   },
 ] as const;
 
-// 市场与价值投资栏目暂时停止生成；保留定义和历史归档的解析兼容性，恢复时只需将 markets 加回此列表。
-export const ENABLED_REDDIT_CATEGORIES = REDDIT_CATEGORIES.filter(category => category.key === "life" || category.key === "ama");
-
 export type RedditCategoryKey = (typeof REDDIT_CATEGORIES)[number]["key"];
+export type RedditCategory = (typeof REDDIT_CATEGORIES)[number];
 
-const CATEGORY_BY_KEY = new Map<RedditCategoryKey, (typeof REDDIT_CATEGORIES)[number]>(REDDIT_CATEGORIES.map(category => [category.key, category]));
+const CATEGORY_BY_KEY = new Map<RedditCategoryKey, RedditCategory>(REDDIT_CATEGORIES.map(category => [category.key, category]));
 const CATEGORY_BY_SUBREDDIT = new Map<string, RedditCategoryKey>(
   REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
 );
@@ -45,6 +43,11 @@ export type RedditModelItem = {
   title_zh: string;
   description: string;
   summary: string;
+};
+
+export type RedditTitleTranslation = {
+  rank: number;
+  title_zh: string;
 };
 
 export type RedditSourceFact = {
@@ -64,6 +67,12 @@ export type RedditCategoryArticle = {
   markdown: string;
   description: string;
 };
+
+export function redditCategoryByKey(value: string): RedditCategory {
+  const category = CATEGORY_BY_KEY.get(value as RedditCategoryKey);
+  if (!category) throw new Error(`unsupported Reddit category: ${value || "(missing)"}`);
+  return category;
+}
 
 function redditCategory(value: string, subreddit: string): RedditCategoryKey {
   const inferred = CATEGORY_BY_SUBREDDIT.get(subreddit.toLowerCase());
@@ -122,6 +131,15 @@ export function parseRedditItemSummary(raw: string, expectedRank: number): Reddi
   return { rank, title_zh: titleZh, description, summary };
 }
 
+export function parseRedditTitleTranslation(raw: string, expectedRank: number): RedditTitleTranslation {
+  const payload = parseModelJsonObject(raw, "Reddit title translation");
+  const rank = Number(payload.rank);
+  const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
+  if (rank !== expectedRank) throw new Error(`Reddit title translation rank mismatch: ${rank} vs ${expectedRank}`);
+  if (!titleZh || !hasChinese(titleZh)) throw new Error(`Reddit title translation ${expectedRank} needs a Chinese title`);
+  return { rank, title_zh: titleZh };
+}
+
 function sourceBlocks(source: string): string[] {
   const markerIndex = source.indexOf(ARCHIVE_PAYLOAD_MARKER);
   const body = markerIndex >= 0 ? source.slice(0, markerIndex) : source;
@@ -176,25 +194,64 @@ export function redditMarkdownFromItemSummaries(source: string): string {
   return composeRedditBody(parseRedditItemSummaries(source), parseSourceFacts(source));
 }
 
-export function redditCategoryArticlesFromItemSummaries(source: string): RedditCategoryArticle[] {
+function composeRedditTitleOnlyBody(items: RedditTitleTranslation[], facts: RedditSourceFact[]): string {
+  if (!facts.length) throw new Error("Reddit source produced no items to compose");
+  const byRank = new Map(items.map(item => [item.rank, item]));
+  const blocks = facts.map(fact => {
+    const item = byRank.get(fact.rank);
+    if (!item) throw new Error(`Reddit title translation is missing rank ${fact.rank}`);
+    const lines = [`${fact.rank}. 🔴 ${item.title_zh}`];
+    if (fact.points) lines.push(`- ⭐ ${fact.points}`);
+    if (fact.subreddit) lines.push(`- 来源：r/${fact.subreddit}`);
+    if (fact.url) lines.push(`- 帖子：${fact.url}`);
+    return lines.join("\n");
+  });
+  return `${blocks.join("\n\n")}\n`;
+}
+
+function parseRedditTitleTranslations(source: string): RedditTitleTranslation[] {
+  const blocks = sourceBlocks(source);
+  if (!blocks.length) throw new Error("Reddit combined source has no item blocks");
+  return blocks.map((block, index) => {
+    const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
+    if (!Number.isInteger(rank) || rank !== index + 1) throw new Error(`Reddit combined source item ${index + 1} has invalid rank`);
+    return parseRedditTitleTranslation(JSON.stringify({ rank, title_zh: bulletValue(extractBullets(block), "中文标题") }), rank);
+  });
+}
+
+export function redditCategoryArticleFromSource(source: string, category: RedditCategory): RedditCategoryArticle | null {
   const facts = parseSourceFacts(source);
-  const modelByRank = new Map(parseRedditItemSummaries(source).map(item => [item.rank, item]));
-  return ENABLED_REDDIT_CATEGORIES.flatMap(category => {
-    const sourceFacts = facts.filter(fact => fact.category === category.key);
-    if (!sourceFacts.length) return [];
-    const articleFacts = sourceFacts.map((fact, index) => ({ ...fact, rank: index + 1 }));
+  const sourceFacts = facts.filter(fact => fact.category === category.key);
+  if (!sourceFacts.length) return null;
+  const articleFacts = sourceFacts.map((fact, index) => ({ ...fact, rank: index + 1 }));
+  if (category.key === "life") {
+    const modelByRank = new Map(parseRedditItemSummaries(source).map(item => [item.rank, item]));
     const articleItems = sourceFacts.map((fact, index) => {
       const item = modelByRank.get(fact.rank);
       if (!item) throw new Error(`Reddit model JSON is missing rank ${fact.rank}`);
       return { ...item, rank: index + 1 };
     });
-    return [{
+    return {
       category: category.key,
       title: category.title,
       fileNameSuffix: category.fileNameSuffix,
       itemCount: articleItems.length,
       markdown: composeRedditBody(articleItems, articleFacts),
       description: redditTop20Description(articleItems),
-    }];
+    };
+  }
+  const translations = parseRedditTitleTranslations(source);
+  const articleItems = sourceFacts.map((fact, index) => {
+    const item = translations.find(translation => translation.rank === fact.rank);
+    if (!item) throw new Error(`Reddit title translation is missing rank ${fact.rank}`);
+    return { ...item, rank: index + 1 };
   });
+  return {
+    category: category.key,
+    title: category.title,
+    fileNameSuffix: category.fileNameSuffix,
+    itemCount: articleItems.length,
+    markdown: composeRedditTitleOnlyBody(articleItems, articleFacts),
+    description: "",
+  };
 }

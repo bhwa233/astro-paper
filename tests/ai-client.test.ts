@@ -89,6 +89,77 @@ test("AI client fails over to the fallback provider only when the primary is exh
   assert.deepEqual(retryCalls, ["https://primary.example.com/v1/chat/completions", "https://primary.example.com/v1/chat/completions"]);
 });
 
+test("AI client retries a reasoning-only length-truncated fallback response with a larger output budget", async () => {
+  const requestBodies: Record<string, unknown>[] = [];
+  const result = await withMocks(
+    {
+      env: { AI_PRIMARY_RETRY_ATTEMPTS: "1", AI_FALLBACK_ENABLED: "true" },
+      fetch: async (_input, init) => {
+        const body = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
+        requestBodies.push(body);
+        if (body.model === "primary-model") {
+          return new Response(JSON.stringify({ error: { message: "insufficient balance" } }), { status: 403 });
+        }
+        if (requestBodies.filter(request => request.model === "deepseek-v4-flash").length === 1) {
+          return new Response(
+            JSON.stringify({
+              choices: [{ message: { content: "", reasoning_content: "reasoning consumed the budget" }, finish_reason: "length" }],
+            }),
+            { status: 200 },
+          );
+        }
+        return new Response(CHAT_OK, { status: 200 });
+      },
+    },
+    () =>
+      callBlogAiWithFailover({
+        prompt: "hello",
+        primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model" },
+        fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash" },
+      }),
+  );
+
+  const fallbackRequests = requestBodies.filter(request => request.model === "deepseek-v4-flash");
+  assert.equal(result.usedFallback, true);
+  assert.match(result.content, /^## 标题/);
+  assert.equal(requestBodies.filter(request => request.model === "primary-model").length, 1);
+  assert.equal(fallbackRequests.length, 2);
+  assert.ok(Number(fallbackRequests[1].max_tokens) > Number(fallbackRequests[0].max_tokens));
+});
+
+test("AI client bounds the larger-budget retry for repeated reasoning-only responses", async () => {
+  let fallbackCalls = 0;
+  await withMocks(
+    {
+      env: { AI_PRIMARY_RETRY_ATTEMPTS: "1", AI_FALLBACK_ENABLED: "true" },
+      fetch: async (_input, init) => {
+        const body = JSON.parse(String(init?.body || "{}")) as { model?: string };
+        if (body.model === "primary-model") {
+          return new Response(JSON.stringify({ error: { message: "insufficient balance" } }), { status: 403 });
+        }
+        fallbackCalls += 1;
+        return new Response(
+          JSON.stringify({
+            choices: [{ message: { content: "", reasoning_content: "reasoning consumed the budget" }, finish_reason: "length" }],
+          }),
+          { status: 200 },
+        );
+      },
+    },
+    () =>
+      assert.rejects(
+        () =>
+          callBlogAiWithFailover({
+            prompt: "hello",
+            primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model" },
+            fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash" },
+          }),
+        /exhausted output token budget before message content/,
+      ),
+  );
+  assert.equal(fallbackCalls, 2);
+});
+
 test("Responses API accepts a completed non-streaming JSON response", async () => {
   const content = await withMocks(
     {

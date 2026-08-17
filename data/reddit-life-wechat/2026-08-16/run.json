@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-16",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "a9a2fe7189e448a5bc6aa6c24b6282532f836e09",
+    "workflowRun": "32006464991",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-16-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-16/upstream-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vpx639",
+      "title": "你最迫不及待想看到哪位名人跌落神坛？",
+      "subreddit": "AskReddit",
+      "points": "3854 points · 3716 评论",
+      "numComments": 3716,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vpx639/which_celebrity_downfall_can_you_absolutely_not/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-16/01-1vpx639.md",
+      "contentSha256": "8e7c8b043d408e0f01e039474da23831ee7176ef63dc6bc070e9703aa73c0a56"
+    }
+  ]
+}

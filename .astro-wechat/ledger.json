@@ -1,6 +1,18 @@
 {
   "version": 1,
   "entries": {
+    "https://blog.bhwa233.com/posts/%E6%87%92%E5%87%BA%E6%9D%A5%E7%9A%84%E9%AB%98%E6%98%8E%E4%B9%A0%E6%83%AF-2026-08-17/": {
+      "sourceId": "https://blog.bhwa233.com/posts/%E6%87%92%E5%87%BA%E6%9D%A5%E7%9A%84%E9%AB%98%E6%98%8E%E4%B9%A0%E6%83%AF-2026-08-17/",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/%E6%87%92%E5%87%BA%E6%9D%A5%E7%9A%84%E9%AB%98%E6%98%8E%E4%B9%A0%E6%83%AF-2026-08-17/",
+      "contentHash": "c876f83e6b0ab4bac2fe0d19305195baae73d00d9de0e4fcfa63bfc0df87ccc2",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-17T09:05:26.553Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNCEV1LLUu7bXt-3iCCzDNmElkWercnPSC7U0f3rOlaw1",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNKAbfO8sfAEZ0S7llCyCIH6VcA0O1DA_ob4U6LEnpsD7",
+      "coverContentHash": "07f07701f273c471"
+    },
     "https://blog.bhwa233.com/posts/%E6%8A%80%E6%9C%AF%E6%97%A5%E6%8A%A5-2026-08-11/": {
       "sourceId": "https://blog.bhwa233.com/posts/%E6%8A%80%E6%9C%AF%E6%97%A5%E6%8A%A5-2026-08-11/",
       "canonicalUrl": "https://blog.bhwa233.com/posts/%E6%8A%80%E6%9C%AF%E6%97%A5%E6%8A%A5-2026-08-11/",

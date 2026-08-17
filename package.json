@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@lxw15337674/astro-wechat": "0.1.5",
+    "@lxw15337674/astro-wechat": "0.1.6",
     "@pagefind/default-ui": "^1.5.2",
     "@shikijs/transformers": "^4.4.1",
     "@tailwindcss/typography": "^0.5.20",

@@ -706,7 +706,7 @@ async function buildCombinedRedditSource({
         .filter(line => /^\d+\.\s*\[r\//.test(line) || /^- (?:⭐|来源：|栏目：|发布时间：|帖子链接：)/.test(line))
         .map(line => line.replace(/^\d+\.\s*(?=\[r\/)/, `${rank}. `));
       // 综合摘要是 Markdown；JSON 编码后其换行与列表才能挤进单行 bullet 载体。
-      return [...factLines, `- 中文标题：${summary.title_zh}`, `- 综合摘要：${JSON.stringify(summary.summary)}`, ""];
+      return [...factLines, `- 中文标题：${summary.title_zh}`, `- 一句话描述：${summary.description}`, `- 综合摘要：${JSON.stringify(summary.summary)}`, ""];
     }),
   ].join("\n");
   writeArtifact(artifactsDir, "reddit-top20", "source.dynamic.md", combined);

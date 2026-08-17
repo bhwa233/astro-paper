@@ -12,9 +12,6 @@ on:
       event_schedule:
         required: false
         type: string
-      ai_model:
-        required: false
-        type: string
       upstream_sha:
         description: "Committed result from the reddit-top20 parent workflow."
         required: true
@@ -53,21 +50,10 @@ jobs:
           EVENT_SCHEDULE: ${{ inputs.event_schedule || '' }}
           UPSTREAM_GENERATED_SHA: ${{ inputs.upstream_sha }}
           INPUT_DATE: ${{ inputs.date || '' }}
-          INPUT_AI_MODEL: ${{ inputs.ai_model || '' }}
-          AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
-          AI_MODEL: ${{ inputs.ai_model || 'gpt-5.6-luna' }}
-          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
-          AI_FALLBACK_BASE_URL: ${{ secrets.AI_FALLBACK_BASE_URL || 'https://api.deepseek.com' }}
-          AI_FALLBACK_MODEL: ${{ secrets.AI_FALLBACK_MODEL || 'deepseek-v4-flash' }}
-          REDDIT_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
-          REDDIT_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
-          REDDIT_SOURCE_POLL_TIMEOUT_MS: "1500000"
         run: |
           set -euo pipefail
           args=(--upstream-sha "$UPSTREAM_GENERATED_SHA" --artifacts-dir reddit-life-wechat-artifacts)
           if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
-          if [ -n "$INPUT_AI_MODEL" ]; then args+=(--model "$INPUT_AI_MODEL"); fi
           node --import tsx scripts/generate_reddit_life_wechat.ts "${args[@]}" | tee reddit-life-wechat-result.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";
@@ -99,10 +85,6 @@ jobs:
           } else {
             lines.push("- Generation did not produce a result JSON. Relevant diagnostics are in the uploaded artifact.");
           }
-          const errors = fs.existsSync("reddit-life-wechat-artifacts")
-            ? fs.readdirSync("reddit-life-wechat-artifacts").filter(name => name.endsWith("-error-1.txt") || name.endsWith("-error-2.txt") || name.endsWith("-error-3.txt")).sort()
-            : [];
-          if (errors.length) lines.push(`- AI validation errors: ${errors.join(", ")}`);
           fs.appendFileSync(summary, `${lines.join("\n")}\n`);
           NODE
       - name: Commit archives and recommendation ledger

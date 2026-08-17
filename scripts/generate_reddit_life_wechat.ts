@@ -1,35 +1,30 @@
 #!/usr/bin/env tsx
 // 独立的 Reddit 人生微信归档编排：不进入 Astro 内容集合，也不重新选择 Reddit 榜单。
+// 上游 life 文章的每帖正文已经是逐条故事的有序列表，这里只取排名第一的那帖，改标题、加页脚、收口长度。
+// 整条管线没有模型调用：内容全部来自已归档的上游文章。
 import fs from "node:fs";
 import path from "node:path";
-import { callBlogAiWithFailover, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
-import { dateStringInTimeZone, ensureDir, envPositiveInt, parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { resolvePromptFile } from "./ai_blog_writer.ts";
+import { dateStringInTimeZone, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import {
+  countDroppableStories,
+  dropTrailingStories,
   markdownSha256,
-  parseRedditLifeArticle,
   parseRedditLifeCandidates,
-  parseRedditThreadSummary,
+  parseRedditLifeDescription,
   recommendationForCandidate,
   renderRedditLifeWechatMarkdown,
-  renderThreadEvidence,
   type RedditLifeCandidate,
-  type RedditThreadSummary,
 } from "./reddit_life_wechat_compose.ts";
 import { appendRedditLifeRecommendations, loadRedditLifeRecommendationKeys, REDDIT_LIFE_WECHAT_LEDGER_REL_PATH } from "./reddit_life_wechat_ledger.ts";
-import { fetchRedditPostDetailsFromApi, type RedditLifeEvidence } from "./reddit_life_wechat_source.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 
 const ROOT_REL = "data/reddit-life-wechat";
 const MANIFEST_VERSION = 1;
 
-type Entry = RedditLifeCandidate & {
+type Entry = Omit<RedditLifeCandidate, "body"> & {
   status: "generated" | "duplicate" | "content-skipped";
   path?: string;
   contentSha256?: string;
-  fetchedAt?: string;
-  sourceSha256?: string;
-  policySha256?: string;
   reason?: string;
 };
 
@@ -39,7 +34,7 @@ export type RedditLifeRunManifest = {
   timeZone: "America/Los_Angeles";
   status: "processed" | "upstream-empty";
   upstream: { generatedSha: string; workflowRun: string; lifeArticlePath: string };
-  rawSources?: { upstreamLifeMarkdown: string; postDetailEvidence: string };
+  rawSources?: { upstreamLifeMarkdown: string };
   posts: Entry[];
 };
 
@@ -92,79 +87,46 @@ function writeArtifact(dir: string, name: string, content: string): void {
   fs.writeFileSync(path.join(dir, name), `${content.trim()}\n`, "utf8");
 }
 
-async function jsonWithRetries<T>(label: string, prompt: string, model: string, parse: (raw: string) => T, artifactsDir: string, artifactPrefix: string): Promise<T> {
-  const attempts = envPositiveInt("AI_RETRY_ATTEMPTS", 3);
-  let lastError = "";
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+// 一帖的故事条数不可控，渲染出的 HTML 随时可能撞上微信 20000 字符上限，而上游无法预知渲染后的长度。
+// 这里用渲染器本身做判定：能渲染就原样归档，撞限就从末尾删故事，二分找出最少的删除量。
+export async function fitWechatContentLimit(markdown: string, repo: string, label: string): Promise<string> {
+  const { openProject, prepareArticle } = await import("@lxw15337674/astro-wechat");
+  const project = await openProject(repo, { root: repo });
+  const probeFile = path.join(repo, ".astro-wechat", `content-limit-probe-${process.pid}.md`);
+  ensureDir(path.dirname(probeFile));
+  const fits = async (candidate: string): Promise<boolean> => {
+    fs.writeFileSync(probeFile, candidate, "utf8");
     try {
-      const result = await callBlogAiWithFailover({ prompt, primaryConfig: envAiConfig({ model }), fallbackConfig: envFallbackAiConfig(), jsonMode: true });
-      writeArtifact(artifactsDir, `${artifactPrefix}-response-${attempt}.json`, result.content);
-      writeStderr(`[reddit-life-wechat] ${label}: accepted attempt ${attempt}/${attempts}${result.usedFallback ? " via fallback" : ""}`);
-      return parse(result.content);
+      await prepareArticle(probeFile, project);
+      return true;
     } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-      writeArtifact(artifactsDir, `${artifactPrefix}-error-${attempt}.txt`, lastError);
-      writeStderr(`[reddit-life-wechat] ${label}: rejected attempt ${attempt}/${attempts}: ${lastError}`);
-      if (attempt < attempts) await sleep((attempt - 1) * envPositiveInt("AI_RETRY_DELAY_MS", 1_000));
+      const code = (error as { code?: string }).code;
+      if (code === "content-too-long" || code === "content-too-large") return false;
+      throw error;
     }
-  }
-  throw new Error(`${label} failed after ${attempts} attempts: ${lastError}`);
-}
-
-async function mapWithConcurrency<T, R>(items: T[], concurrency: number, mapper: (item: T) => Promise<R>): Promise<R[]> {
-  const results = new Array<R>(items.length);
-  let next = 0;
-  async function worker(): Promise<void> {
-    for (;;) {
-      const index = next;
-      next += 1;
-      if (index >= items.length) return;
-      results[index] = await mapper(items[index]);
+  };
+  try {
+    if (await fits(markdown)) return markdown;
+    // fits() 对删除量单调：删得越多越可能通过，因此可以二分最小可行的删除条数。
+    let low = 1;
+    let high = countDroppableStories(markdown) - 1;
+    let fittedDrop = 0;
+    while (low <= high) {
+      const middle = Math.floor((low + high) / 2);
+      if (await fits(dropTrailingStories(markdown, middle))) {
+        fittedDrop = middle;
+        high = middle - 1;
+      } else {
+        low = middle + 1;
+      }
     }
+    if (!fittedDrop) throw new Error(`${label}: article still exceeds the WeChat content limit even with a single story`);
+    // 静默截断会让归档看起来是完整讨论，因此把删掉的条数写进日志。
+    writeStderr(`WARN: [reddit-life-wechat] ${label}: dropped ${fittedDrop} trailing story(ies) to fit the WeChat content limit`);
+    return dropTrailingStories(markdown, fittedDrop);
+  } finally {
+    fs.rmSync(probeFile, { force: true });
   }
-  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, worker));
-  return results;
-}
-
-async function composeArticle(candidate: RedditLifeCandidate, evidence: RedditLifeEvidence, date: string, repo: string, model: string, artifactsDir: string): Promise<string> {
-  const promptDir = path.join(repo, "prompts/blog");
-  const threadTemplate = fs.readFileSync(resolvePromptFile(promptDir, "reddit-life-wechat-thread-summary"), "utf8");
-  const concurrency = envPositiveInt("REDDIT_LIFE_WECHAT_AI_CONCURRENCY", 4, 8);
-  writeStderr(`[reddit-life-wechat] rank=${candidate.rank} post=${candidate.postId}: ${evidence.topComments.length} top comments, ${evidence.replies.length} replies, AI concurrency=${concurrency}`);
-  const summaries = await mapWithConcurrency(evidence.topComments, concurrency, async parent => {
-    const threadText = renderThreadEvidence(evidence, parent.id);
-    const prompt = threadTemplate.replaceAll("{parent_id}", parent.id).replaceAll("{thread_text}", threadText);
-    writeArtifact(artifactsDir, `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}-thread-${parent.id}-prompt.md`, prompt);
-    return jsonWithRetries(
-      `Reddit life thread ${parent.id}`,
-      prompt,
-      model,
-      raw => parseRedditThreadSummary(raw, parent.id),
-      artifactsDir,
-      `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}-thread-${parent.id}`,
-    );
-  });
-  const finalTemplate = fs.readFileSync(resolvePromptFile(promptDir, "reddit-life-wechat-article"), "utf8");
-  const facts = [
-    `- 标题：${evidence.title}`,
-    `- 社区：r/${evidence.subreddit}`,
-    `- 原帖：${evidence.permalink}`,
-    `- 热度：${evidence.score} points · ${evidence.numComments} 评论`,
-    `- 正文：${evidence.body || "（无正文）"}`,
-  ].join("\n");
-  const finalPrompt = finalTemplate.replaceAll("{post_facts}", facts).replaceAll("{thread_summaries}", JSON.stringify(summaries));
-  writeArtifact(artifactsDir, `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}-article-prompt.md`, finalPrompt);
-  const article = await jsonWithRetries(
-    `Reddit life article ${candidate.postId}`,
-    finalPrompt,
-    model,
-    parseRedditLifeArticle,
-    artifactsDir,
-    `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}-article`,
-  );
-  const markdown = renderRedditLifeWechatMarkdown(candidate, evidence, article, date);
-  writeStderr(`[reddit-life-wechat] rank=${candidate.rank} post=${candidate.postId}: article ready (${markdown.length} chars)`);
-  return markdown;
 }
 
 export async function generateRedditLifeWechat({
@@ -172,14 +134,12 @@ export async function generateRedditLifeWechat({
   date,
   upstreamSha,
   workflowRun = "",
-  model = "",
   artifactsDir = "",
 }: {
   repo?: string;
   date: string;
   upstreamSha: string;
   workflowRun?: string;
-  model?: string;
   artifactsDir?: string;
 }): Promise<{ manifestPath: string; generatedPaths: string[]; status: RedditLifeRunManifest["status"] }> {
   if (!upstreamSha) throw new Error("--upstream-sha is required; Reddit life WeChat must read the committed parent handoff");
@@ -202,67 +162,45 @@ export async function generateRedditLifeWechat({
   }
   const upstreamMarkdown = fs.readFileSync(upstreamFile, "utf8");
   writeArtifact(artifactsDir, "upstream-life.md", upstreamMarkdown);
-  const candidates = parseRedditLifeCandidates(upstreamMarkdown);
+  // 只取排名第一那帖：微信一天一篇，多写的稿子没有出口。
+  const candidate = parseRedditLifeCandidates(upstreamMarkdown)[0];
+  const description = parseRedditLifeDescription(upstreamMarkdown);
   const ledgerFile = path.join(repo, REDDIT_LIFE_WECHAT_LEDGER_REL_PATH);
   const historical = loadRedditLifeRecommendationKeys(ledgerFile);
-  const entries: Entry[] = candidates.map(candidate =>
-    historical.has(recommendationForCandidate(candidate).key) ? { ...candidate, status: "duplicate", reason: "already recommended" } : { ...candidate, status: "content-skipped", reason: "pending evidence" },
-  );
-  const newCandidates = candidates.filter(candidate => !historical.has(recommendationForCandidate(candidate).key));
-  writeStderr(`[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, candidates=${candidates.length}, duplicates=${candidates.length - newCandidates.length}, deep-fetch=${newCandidates.length}`);
-  const evidence = newCandidates.length ? await fetchRedditPostDetailsFromApi(date, newCandidates.map(candidate => candidate.postId)) : [];
-  const detailEvidenceJson = JSON.stringify(evidence, null, 2);
-  writeArtifact(artifactsDir, "post-detail-evidence.json", detailEvidenceJson);
-  const evidenceById = new Map(evidence.map(item => [item.postId, item]));
-  const pendingFiles: Array<{ entry: Entry; markdown: string }> = [];
-  for (const candidate of newCandidates) {
-    const detail = evidenceById.get(candidate.postId);
-    const entry = entries.find(item => item.postId === candidate.postId)!;
-    if (!detail || detail.status === "unavailable" || !detail.topComments.length) {
-      entry.status = "content-skipped";
-      entry.reason = "post unavailable or has no usable top-level comments";
-      writeStderr(`[reddit-life-wechat] rank=${candidate.rank} post=${candidate.postId}: content-skipped (${entry.reason})`);
-      continue;
-    }
-    const markdown = await composeArticle(candidate, detail, date, repo, model, artifactsDir);
-    const relPath = path.join(ROOT_REL, date, `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}.md`);
-    entry.status = "generated";
-    entry.path = relPath;
-    entry.contentSha256 = markdownSha256(markdown);
-    entry.fetchedAt = detail.fetchedAt;
-    entry.sourceSha256 = detail.sourceSha256;
-    entry.policySha256 = detail.policySha256;
-    delete entry.reason;
-    pendingFiles.push({ entry, markdown });
-    writeStderr(`[reddit-life-wechat] rank=${candidate.rank} post=${candidate.postId}: generated ${relPath}`);
-  }
+  const { body: _body, ...facts } = candidate;
+  const duplicate = historical.has(recommendationForCandidate(candidate).key);
+  writeStderr(`[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, selected=${candidate.postId}, duplicate=${duplicate}`);
   const dayDir = path.join(ROOT_REL, date);
-  const rawSources = {
-    upstreamLifeMarkdown: path.join(dayDir, "upstream-life.md"),
-    postDetailEvidence: path.join(dayDir, "post-detail-evidence.json"),
-  };
-  const manifest: RedditLifeRunManifest = { version: 1, archiveDate: date, timeZone: "America/Los_Angeles", status: "processed", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, rawSources, posts: entries };
-  // Persist the immutable snapshot only after every non-duplicate candidate has reached a terminal outcome.
-  for (const file of pendingFiles) {
-    const target = path.join(repo, file.entry.path!);
+  const rawSources = { upstreamLifeMarkdown: path.join(dayDir, "upstream-life.md") };
+  let entry: Entry = { ...facts, status: "duplicate", reason: "already recommended" };
+  if (!duplicate) {
+    const label = `rank=${candidate.rank} post=${candidate.postId}`;
+    const markdown = await fitWechatContentLimit(renderRedditLifeWechatMarkdown(candidate, description, date), repo, label);
+    const relPath = path.join(ROOT_REL, date, `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}.md`);
+    entry = { ...facts, status: "generated", path: relPath, contentSha256: markdownSha256(markdown) };
+    const target = path.join(repo, relPath);
     ensureDir(path.dirname(target));
-    fs.writeFileSync(target, file.markdown, "utf8");
+    fs.writeFileSync(target, markdown, "utf8");
+    writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);
   }
+  const manifest: RedditLifeRunManifest = { version: 1, archiveDate: date, timeZone: "America/Los_Angeles", status: "processed", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, rawSources, posts: [entry] };
   ensureDir(path.join(repo, dayDir));
   fs.writeFileSync(path.join(repo, rawSources.upstreamLifeMarkdown), upstreamMarkdown, "utf8");
-  writeJson(path.join(repo, rawSources.postDetailEvidence), evidence);
   writeJson(manifestFile, manifest);
-  const generated = entries.filter(entry => entry.status === "generated");
-  if (generated.length) appendRedditLifeRecommendations(generated.map(recommendationForCandidate), { archivedAt: date, postPath: manifestRel }, ledgerFile);
-  writeStderr(`[reddit-life-wechat] archive=${date}: complete generated=${generated.length}, duplicate=${entries.filter(entry => entry.status === "duplicate").length}, content-skipped=${entries.filter(entry => entry.status === "content-skipped").length}`);
-  return { manifestPath: manifestRel, generatedPaths: generated.map(entry => entry.path!).filter(Boolean), status: manifest.status };
+  if (entry.status === "generated") appendRedditLifeRecommendations([recommendationForCandidate(candidate)], { archivedAt: date, postPath: manifestRel }, ledgerFile);
+  writeStderr(`[reddit-life-wechat] archive=${date}: complete status=${entry.status}`);
+  return { manifestPath: manifestRel, generatedPaths: entry.path ? [entry.path] : [], status: manifest.status };
 }
 
 async function main(): Promise<void> {
   const args = parseArgs();
   const date = archiveDate(stringArg(args, "date"), process.env.EVENT_SCHEDULE || "");
   const result = await generateRedditLifeWechat({
-    repo: path.resolve(stringArg(args, "repo", repoRoot())), date, upstreamSha: stringArg(args, "upstream-sha", process.env.UPSTREAM_GENERATED_SHA || ""), workflowRun: stringArg(args, "workflow-run", process.env.GITHUB_RUN_ID || ""), model: stringArg(args, "model", process.env.AI_MODEL || ""), artifactsDir: path.resolve(stringArg(args, "artifacts-dir", "reddit-life-wechat-artifacts")),
+    repo: path.resolve(stringArg(args, "repo", repoRoot())),
+    date,
+    upstreamSha: stringArg(args, "upstream-sha", process.env.UPSTREAM_GENERATED_SHA || ""),
+    workflowRun: stringArg(args, "workflow-run", process.env.GITHUB_RUN_ID || ""),
+    artifactsDir: path.resolve(stringArg(args, "artifacts-dir", "reddit-life-wechat-artifacts")),
   });
   writeStdout(`${JSON.stringify({ date, ...result })}\n`);
 }

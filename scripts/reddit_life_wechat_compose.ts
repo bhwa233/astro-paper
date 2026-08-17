@@ -1,15 +1,26 @@
-// 规则层：上游 life 文章只提供排序与事实；单帖深抓结果和模型语义在此组成微信归档正文。
+// 规则层：微信稿完全由上游 life 文章转换而来，没有模型参与。
+// 上游每帖的正文已经是「一条回答一个有序列表项」的故事集，这里只做选帖、改标题和长度收口。
 import { createHash } from "node:crypto";
 import { compact, frontmatter } from "./blog_common.ts";
-import { hasChinese, normalizeMarkdownBlock, parseModelJsonObject } from "./compose_common.ts";
 import { redditPostRecommendationKey } from "./reddit_life_wechat_ledger.ts";
-import { REDDIT_LIFE_SUBREDDITS, type RedditLifeEvidence } from "./reddit_life_wechat_source.ts";
+import { REDDIT_LIFE_SUBREDDITS } from "./reddit_life_wechat_source.ts";
 
 export const REDDIT_LIFE_WECHAT_TAG = "Reddit人生讨论";
+export const REDDIT_LIFE_WECHAT_TITLE_PREFIX = "Reddit 热帖精选｜";
+const BLOG_URL = "https://blog.bhwa233.com/";
+const FOOTER = `更多每日精选：${BLOG_URL}`;
 
-export type RedditLifeCandidate = { rank: number; postId: string; title: string; subreddit: string; points: string; numComments: number; permalink: string };
-export type RedditThreadSummary = { parentId: string; claims: string; replyRelation: string; minorityOrBoundary: string };
-export type RedditLifeArticle = { titleZh: string; intro: string; mainstream: string; replies: string; minority: string; description: string };
+export type RedditLifeCandidate = {
+  rank: number;
+  postId: string;
+  title: string;
+  subreddit: string;
+  points: string;
+  numComments: number;
+  permalink: string;
+  // 上游那一帖的正文，逐条故事的有序列表，原样搬运。
+  body: string;
+};
 
 function redditId(url: string): string {
   const match = url.match(/reddit\.com\/r\/[^/]+\/comments\/([a-z0-9]{5,12})(?:\/|$)/i);
@@ -22,6 +33,13 @@ function sourceBlocks(markdown: string): string[] {
     .split(/(?=^##\s+\d+\.\s+)/gm)
     .map(block => block.trim())
     .filter(block => /^##\s+\d+\.\s+/.test(block));
+}
+
+// 上游文章的 frontmatter description 就是排名第一那帖的一句话描述（redditTop20Description 取 items[0]）。
+export function parseRedditLifeDescription(markdown: string): string {
+  const description = markdown.match(/^description:\s*"((?:[^"\\]|\\.)*)"\s*$/m)?.[1];
+  if (!description) throw new Error("Reddit life article is missing its frontmatter description");
+  return compact(description.replaceAll('\\"', '"'));
 }
 
 export function parseRedditLifeCandidates(markdown: string): RedditLifeCandidate[] {
@@ -38,87 +56,76 @@ export function parseRedditLifeCandidates(markdown: string): RedditLifeCandidate
     const commentMatch = heat.match(/(?:·|\s)([\d,]+)\s*评论/i);
     const numComments = Number((commentMatch?.[1] || "0").replaceAll(",", ""));
     if (!Number.isInteger(numComments) || numComments < 0) throw new Error(`Reddit life article has an invalid comment count for rank ${index + 1}`);
-    const postId = redditId(url);
-    return { rank: index + 1, postId, title: compact(heading[2].replace(/^🔴\s*/, "")), subreddit, points: compact(heat), numComments, permalink: url };
+    return {
+      rank: index + 1,
+      postId: redditId(url),
+      title: compact(heading[2].replace(/^🔴\s*/, "")),
+      subreddit,
+      points: compact(heat),
+      numComments,
+      permalink: url,
+      body: postBody(block, index + 1),
+    };
   });
 }
 
-export function evidenceThreads(evidence: RedditLifeEvidence[]): Array<{ evidence: RedditLifeEvidence; parent: string; replies: string[] }> {
-  return evidence.flatMap(item =>
-    item.topComments.map(parent => ({ evidence: item, parent: parent.id, replies: item.replies.filter(reply => reply.parentId === parent.id).map(reply => reply.id) })),
-  );
+// 事实 bullet 之后的一切都是正文；上游契约保证正文是从 1 开始的有序列表。
+function postBody(block: string, rank: number): string {
+  const lines = block.split("\n");
+  const start = lines.findIndex((line, index) => index > 0 && /^\d+\.\s/.test(line));
+  const body = start < 0 ? "" : lines.slice(start).join("\n").trim();
+  if (!body) throw new Error(`Reddit life article block ${rank} has no story list`);
+  return body;
 }
 
-export function renderThreadEvidence(evidence: RedditLifeEvidence, parentId: string): string {
-  const parent = evidence.topComments.find(comment => comment.id === parentId);
-  if (!parent) throw new Error(`missing Reddit parent comment ${parentId}`);
-  const replies = evidence.replies.filter(reply => reply.parentId === parentId);
-  return [
-    `- 顶层评论 ID：${parent.id}`,
-    `- 顶层评论赞数：${parent.score ?? "未显示"}`,
-    `- 顶层评论：${parent.text}`,
-    ...replies.flatMap(reply => [`- 直接回复 ID：${reply.id}`, `- 直接回复赞数：${reply.score ?? "未显示"}`, `- 直接回复：${reply.text}`]),
-  ].join("\n");
+function storyItems(body: string): string[] {
+  return body
+    .split(/\n{2,}/)
+    .map(item => item.trim())
+    .filter(Boolean);
 }
 
-function chineseText(value: unknown, label: string, min = 20): string {
-  const text = normalizeMarkdownBlock(value);
-  if (text.length < min || !hasChinese(text) || /^\s{0,3}#{1,6}\s/m.test(text)) throw new Error(`Reddit life WeChat ${label} is empty, non-Chinese, or uses headings`);
-  return text;
+// 微信正文有 20000 字符的 HTML 上限，而一帖的故事条数不可控。超限时从末尾往回删故事，
+// 编号本来就是从 1 递增，删尾部不会留下断号；页脚的项目地址永远保留。
+export function dropTrailingStories(markdown: string, drop: number): string {
+  if (drop <= 0) return markdown;
+  const { front, body, footer } = splitWechatMarkdown(markdown);
+  const items = storyItems(body);
+  if (drop >= items.length) throw new Error(`Reddit life WeChat markdown has fewer than ${drop} droppable stories`);
+  return `${front}\n${items.slice(0, items.length - drop).join("\n\n")}\n\n${footer}\n`;
 }
 
-export function parseRedditThreadSummary(raw: string, parentId: string): RedditThreadSummary {
-  const payload = parseModelJsonObject(raw, "Reddit life thread summary");
-  if (payload.parent_id !== parentId) throw new Error(`Reddit life thread summary parent mismatch: ${String(payload.parent_id)} vs ${parentId}`);
-  return {
-    parentId,
-    // 短评论可能只有一个完整判断；强行要求 20 个字符会把可用证据误判为模型故障。
-    claims: chineseText(payload.claims, "thread claims", 1),
-    replyRelation: chineseText(payload.reply_relation, "thread reply relation", 8),
-    minorityOrBoundary: normalizeMarkdownBlock(payload.minority_or_boundary),
-  };
+export function countDroppableStories(markdown: string): number {
+  return storyItems(splitWechatMarkdown(markdown).body).length;
 }
 
-export function parseRedditLifeArticle(raw: string): RedditLifeArticle {
-  const payload = parseModelJsonObject(raw, "Reddit life article");
-  const titleZh = compact(String(payload.title_zh || ""));
-  if (!titleZh || !hasChinese(titleZh)) throw new Error("Reddit life article needs a Chinese title");
-  const article = {
-    titleZh,
-    intro: chineseText(payload.intro, "intro"),
-    mainstream: chineseText(payload.mainstream, "mainstream"),
-    replies: chineseText(payload.replies, "replies"),
-    minority: chineseText(payload.minority, "minority"),
-    description: compact(String(payload.description || "")),
-  };
-  if (!article.description || !hasChinese(article.description)) article.description = article.intro.replace(/\s+/g, " ").slice(0, 90);
-  return article;
+function splitWechatMarkdown(markdown: string): { front: string; body: string; footer: string } {
+  const frontEnd = markdown.indexOf("\n---\n", markdown.indexOf("---\n") + 1);
+  if (!markdown.startsWith("---\n") || frontEnd < 0) throw new Error("Reddit life WeChat markdown is missing frontmatter");
+  const footerIndex = markdown.lastIndexOf(`\n${FOOTER}`);
+  if (footerIndex < 0) throw new Error("Reddit life WeChat markdown is missing its footer");
+  const front = markdown.slice(0, frontEnd + "\n---\n".length);
+  return { front, body: markdown.slice(front.length, footerIndex).trim(), footer: markdown.slice(footerIndex + 1).trim() };
 }
 
-export function renderRedditLifeWechatMarkdown(candidate: RedditLifeCandidate, evidence: RedditLifeEvidence, article: RedditLifeArticle, archiveDate: string): string {
-  if (candidate.postId !== evidence.postId || candidate.subreddit.toLowerCase() !== evidence.subreddit.toLowerCase()) {
-    throw new Error("Reddit life source facts do not match the selected upstream post");
-  }
-  const metadata = frontmatter({ title: article.titleZh, date: archiveDate, description: article.description, tags: [REDDIT_LIFE_WECHAT_TAG], wechatEnabled: true })
+export function renderRedditLifeWechatMarkdown(candidate: RedditLifeCandidate, description: string, archiveDate: string): string {
+  if (!description) throw new Error("Reddit life WeChat article needs a description");
+  const metadata = frontmatter({
+    title: `${REDDIT_LIFE_WECHAT_TITLE_PREFIX}${candidate.title}`,
+    date: archiveDate,
+    description,
+    tags: [REDDIT_LIFE_WECHAT_TAG],
+    wechatEnabled: true,
+  })
     .replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${candidate.permalink}"`)
-    .replace("---\n\n", [
-      `redditPostId: "${candidate.postId}"`,
-      `subreddit: "${candidate.subreddit}"`,
-      `redditScore: ${evidence.score}`,
-      `redditComments: ${evidence.numComments}`,
-      `redditFetchedAt: "${evidence.fetchedAt}"`,
-      `redditSourceSha256: "${evidence.sourceSha256}"`,
-      `redditPolicySha256: "${evidence.policySha256}"`,
-      "---",
-      "",
-    ].join("\n"));
-  return `${metadata}## 讨论背景\n\n${article.intro}\n\n## 主流观点\n\n${article.mainstream}\n\n## 回复带来的补充与质疑\n\n${article.replies}\n\n## 分歧与适用边界\n\n${article.minority}\n\n## 来源\n\n- Reddit 原帖：${candidate.permalink}\n- 社区：r/${candidate.subreddit}\n- 热度快照：${candidate.points || `${evidence.score} points · ${evidence.numComments} 评论`}\n`;
+    .replace("---\n\n", [`redditPostId: "${candidate.postId}"`, `subreddit: "${candidate.subreddit}"`, "---", ""].join("\n"));
+  return `${metadata}${candidate.body}\n\n${FOOTER}\n`;
 }
 
 export function markdownSha256(markdown: string): string {
   return createHash("sha256").update(markdown, "utf8").digest("hex");
 }
 
-export function recommendationForCandidate(candidate: RedditLifeCandidate) {
+export function recommendationForCandidate(candidate: { postId: string; title: string }) {
   return { key: redditPostRecommendationKey(candidate.postId), postId: candidate.postId, title: candidate.title };
 }

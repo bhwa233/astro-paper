@@ -4,7 +4,14 @@ export const DEFAULT_AI_BASE_URL = "https://rightapi.ai/codex/v1";
 export const DEFAULT_AI_MODEL = "gpt-5.6-luna";
 export const DEFAULT_FALLBACK_AI_BASE_URL = "https://api.deepseek.com";
 export const DEFAULT_FALLBACK_AI_MODEL = "deepseek-v4-flash";
-export const DEFAULT_MAX_TOKENS = 8192;
+// 推理 token 也算在输出上限里，推理型模型很容易在几千 token 处被截断成半截 JSON，
+// 而截断后的重试同样会被截断。这个默认值只是防跑飞的护栏，不是配额。
+export const DEFAULT_MAX_TOKENS = 64_000;
+
+// AI_MAX_TOKENS=0 表示连上限字段都不发送，交给服务端自己决定。
+export function envMaxTokens(): number | null {
+  return (process.env.AI_MAX_TOKENS || "").trim() === "0" ? null : envPositiveInt("AI_MAX_TOKENS", DEFAULT_MAX_TOKENS);
+}
 
 export type AiApiStyle = "responses" | "chat";
 
@@ -193,7 +200,7 @@ export async function callBlogAi({
   model,
   apiStyle = "chat",
   timeoutMs = envPositiveNumber("AI_TIMEOUT_MS", 120_000),
-  maxTokens = DEFAULT_MAX_TOKENS,
+  maxTokens = envMaxTokens(),
   jsonMode = false,
 }: {
   prompt: string;
@@ -202,7 +209,7 @@ export async function callBlogAi({
   model: string;
   apiStyle?: AiApiStyle;
   timeoutMs?: number;
-  maxTokens?: number;
+  maxTokens?: number | null;
   jsonMode?: boolean;
 }): Promise<string> {
   if (!apiKey) throw new Error("AI_API_KEY is required for live AI blog generation");
@@ -220,7 +227,7 @@ export async function callBlogAi({
           // with HTTP 400 "Input must be a list".
           input: [{ role: "user", content: responsesInputPrompt(prompt, jsonMode) }],
           reasoning: { effort: "high" },
-          max_output_tokens: maxTokens,
+          ...(maxTokens === null ? {} : { max_output_tokens: maxTokens }),
         }
       : {
           model,
@@ -229,7 +236,7 @@ export async function callBlogAi({
             { role: "user", content: prompt },
           ],
           temperature: 0.4,
-          max_tokens: maxTokens,
+          ...(maxTokens === null ? {} : { max_tokens: maxTokens }),
           ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
         };
     const response = await fetch(useResponses ? responsesUrl(baseUrl) : chatCompletionsUrl(baseUrl), {
@@ -340,14 +347,14 @@ export async function callBlogAiWithFailover({
   primaryConfig = envAiConfig(),
   fallbackConfig = envFallbackAiConfig(),
   timeoutMs = envPositiveNumber("AI_TIMEOUT_MS", 120_000),
-  maxTokens = DEFAULT_MAX_TOKENS,
+  maxTokens = envMaxTokens(),
   jsonMode = false,
 }: {
   prompt: string;
   primaryConfig?: AiConfig;
   fallbackConfig?: AiConfig;
   timeoutMs?: number;
-  maxTokens?: number;
+  maxTokens?: number | null;
   jsonMode?: boolean;
 }): Promise<AiCallResult> {
   const primaryConfigError = configErrorMessage(primaryConfig, "primary");

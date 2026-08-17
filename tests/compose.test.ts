@@ -285,6 +285,7 @@ test("daily digest compose rejects external, ambiguous, and duplicate source lin
 
 // --------------------------------------------------------------------- Reddit
 
+const REDDIT_DESCRIPTION = "帖子问的是哪些小习惯真正改善了一天的节奏。";
 const REDDIT_LONG_SUMMARY = `${"讨论集中在长期计划上：先明确资金用途与时间，再根据风险承受能力选择简单、分散且费用透明的组合，通过定期投入减少情绪化决策。".repeat(5)}也有人提醒应急资金和高利率债务需要优先处理。`;
 
 test("Reddit item summaries keep Markdown structure and reject thin or heading-laden output", () => {
@@ -308,6 +309,7 @@ test("Reddit item summaries keep Markdown structure and reject thin or heading-l
     "- 来源：r/AskReddit",
     "- 帖子链接：https://www.reddit.com/r/AskReddit/comments/one/",
     "- 中文标题：第一个问题",
+    `- 一句话描述：${REDDIT_DESCRIPTION}`,
     `- 综合摘要：${JSON.stringify(summaryOne)}`,
     "",
     "2. [r/investing] Original question two",
@@ -315,6 +317,7 @@ test("Reddit item summaries keep Markdown structure and reject thin or heading-l
     "- 来源：r/investing",
     "- 帖子链接：https://www.reddit.com/r/investing/comments/two/",
     "- 中文标题：第二个问题",
+    `- 一句话描述：${REDDIT_DESCRIPTION}`,
     `- 综合摘要：${JSON.stringify(REDDIT_LONG_SUMMARY)}`,
   ].join("\n");
 
@@ -325,12 +328,16 @@ test("Reddit item summaries keep Markdown structure and reject thin or heading-l
   assert.match(markdown, /^\*\*前一晚先定好第一件事\*\*$/m);
   assert.match(markdown, /^- 多数回答提到，睡前写下第二天/m);
   assert.doesNotMatch(markdown, /Original question/);
-  assert.equal(redditTop20Description([{ rank: 1, title_zh: "第一个问题", summary: summaryOne }]), "帖子问的是哪些小习惯真正改善了一天的节奏，回答集中在可执行的细节上。");
+  // description lives in its own field: it feeds frontmatter and is never rendered into the body.
+  assert.equal(redditTop20Description([{ rank: 1, title_zh: "第一个问题", description: REDDIT_DESCRIPTION, summary: summaryOne }]), REDDIT_DESCRIPTION);
+  assert.doesNotMatch(markdown, /一句话描述/);
 
   for (const [name, payload, expected] of [
-    ["rank mismatch", { rank: 2, title_zh: "错误排名", summary: summaryOne }, /rank mismatch/],
-    ["thin summary", { rank: 1, title_zh: "太短", summary: "这是一段中文总结。" }, /summary is too short/],
-    ["heading in summary", { rank: 1, title_zh: "带标题", summary: `## 小标题\n\n${summaryOne}` }, /must not use Markdown headings/],
+    ["rank mismatch", { rank: 2, title_zh: "错误排名", description: REDDIT_DESCRIPTION, summary: summaryOne }, /rank mismatch/],
+    ["thin summary", { rank: 1, title_zh: "太短", description: REDDIT_DESCRIPTION, summary: "这是一段中文总结。" }, /summary is too short/],
+    ["heading in summary", { rank: 1, title_zh: "带标题", description: REDDIT_DESCRIPTION, summary: `## 小标题\n\n${summaryOne}` }, /must not use Markdown headings/],
+    ["missing description", { rank: 1, title_zh: "无描述", summary: summaryOne }, /needs a Chinese description/],
+    ["overlong description", { rank: 1, title_zh: "描述过长", description: "帖".repeat(101), summary: summaryOne }, /description is too long/],
   ] as const) {
     assert.throws(() => parseRedditItemSummary(JSON.stringify(payload), 1), expected, name);
   }
@@ -353,9 +360,10 @@ test("normalizeMarkdownBlock moves trailing punctuation out of emphasis so CJK b
 
 test("Reddit item outcome drops excluded-topic posts and keeps ranks contiguous", () => {
   assert.equal(parseRedditItemOutcome(JSON.stringify({ rank: 3, skip: true }), 3), null);
-  assert.deepEqual(parseRedditItemOutcome(JSON.stringify({ rank: 3, title_zh: "第三个问题", summary: REDDIT_LONG_SUMMARY }), 3), {
+  assert.deepEqual(parseRedditItemOutcome(JSON.stringify({ rank: 3, title_zh: "第三个问题", description: REDDIT_DESCRIPTION, summary: REDDIT_LONG_SUMMARY }), 3), {
     rank: 3,
     title_zh: "第三个问题",
+    description: REDDIT_DESCRIPTION,
     summary: REDDIT_LONG_SUMMARY,
   });
   // A skip must also match its rank, or the wrong post is dropped with nothing downstream noticing.
@@ -369,6 +377,7 @@ test("Reddit item outcome drops excluded-topic posts and keeps ranks contiguous"
       "- 来源：r/AskReddit",
       `- 帖子链接：https://www.reddit.com/r/AskReddit/comments/${slug}/`,
       `- 中文标题：${title}`,
+      `- 一句话描述：${REDDIT_DESCRIPTION}`,
       `- 综合摘要：${JSON.stringify(REDDIT_LONG_SUMMARY)}`,
     ].join("\n");
   const gapped = [block(1, "one", "第一个问题"), "", block(3, "three", "第三个问题")].join("\n");
@@ -378,7 +387,7 @@ test("Reddit item outcome drops excluded-topic posts and keeps ranks contiguous"
 
 test("Reddit keeps valid summaries when another post exhausts its retries", () => {
   const outcomes = partitionRedditItemOutcomes([
-    { block: "1. [r/investing] Kept", rank: 1, summary: { rank: 1, title_zh: "保留的帖子", summary: REDDIT_LONG_SUMMARY } },
+    { block: "1. [r/investing] Kept", rank: 1, summary: { rank: 1, title_zh: "保留的帖子", description: REDDIT_DESCRIPTION, summary: REDDIT_LONG_SUMMARY } },
     { block: "2. [r/investing] Failed", rank: 2, summary: null, error: "Reddit item 2 has empty or low-signal summary" },
     { block: "3. [r/investing] Excluded", rank: 3, summary: null },
   ]);

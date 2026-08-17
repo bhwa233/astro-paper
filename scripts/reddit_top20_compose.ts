@@ -27,6 +27,9 @@ export const REDDIT_CATEGORIES = [
   },
 ] as const;
 
+// 市场与价值投资栏目暂时停止生成；保留定义和历史归档的解析兼容性，恢复时只需将 markets 加回此列表。
+export const ENABLED_REDDIT_CATEGORIES = REDDIT_CATEGORIES.filter(category => category.key === "life" || category.key === "ama");
+
 export type RedditCategoryKey = (typeof REDDIT_CATEGORIES)[number]["key"];
 
 const CATEGORY_BY_KEY = new Map<RedditCategoryKey, (typeof REDDIT_CATEGORIES)[number]>(REDDIT_CATEGORIES.map(category => [category.key, category]));
@@ -176,7 +179,7 @@ export function redditMarkdownFromItemSummaries(source: string): string {
 export function redditCategoryArticlesFromItemSummaries(source: string): RedditCategoryArticle[] {
   const facts = parseSourceFacts(source);
   const modelByRank = new Map(parseRedditItemSummaries(source).map(item => [item.rank, item]));
-  return REDDIT_CATEGORIES.flatMap(category => {
+  return ENABLED_REDDIT_CATEGORIES.flatMap(category => {
     const sourceFacts = facts.filter(fact => fact.category === category.key);
     if (!sourceFacts.length) return [];
     const articleFacts = sourceFacts.map((fact, index) => ({ ...fact, rank: index + 1 }));

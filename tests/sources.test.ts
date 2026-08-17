@@ -11,7 +11,7 @@ import { buildGitHubTrendingDailySource } from "../scripts/github_trending_daily
 import { buildMdblistWeeklySource } from "../scripts/mdblist_weekly_source.ts";
 import { appendMdblistRecommendations } from "../scripts/mdblist_weekly_ledger.ts";
 import { buildXyzRankTopEpisodesSource } from "../scripts/xyzrank_top_episodes_source.ts";
-import { REDDIT_CATEGORIES } from "../scripts/reddit_top20_compose.ts";
+import { ENABLED_REDDIT_CATEGORIES } from "../scripts/reddit_top20_compose.ts";
 import {
   type RedditSourcePolicy,
   fetchRedditSourceFromApi,
@@ -424,7 +424,7 @@ function redditSourceItem(
 }
 
 function redditStats(finalBySubreddit: Record<string, number>) {
-  return REDDIT_CATEGORIES.flatMap(category =>
+  return ENABLED_REDDIT_CATEGORIES.flatMap(category =>
     category.subreddits.map(subreddit => {
       const final = finalBySubreddit[subreddit] || 0;
       return { subreddit, listing: final, score_pass: final, min_score: 20, shortlisted: final, detail_ok: final, final, error_code: null };
@@ -462,12 +462,12 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
     ["tampered policy", (p: typeof payload) => ({ ...p, policy_sha256: "0".repeat(64) }), /policy_sha256 does not match/],
     ["wrong archive date", (p: typeof payload) => ({ ...p, archive_date: "2099-01-01" }), /does not match requested date/],
     [
-      "unrequested subreddit",
+      "temporarily disabled market subreddit",
       (p: typeof payload) => {
-        const unexpected = p.source.replaceAll("r/AskReddit", "r/explainlikeimfive");
+        const unexpected = p.source.replaceAll("r/AskReddit", "r/stocks");
         return { ...p, source: unexpected, source_sha256: createHash("sha256").update(unexpected, "utf8").digest("hex") };
       },
-      /unsupported category\/subreddit mapping/,
+      /returned unrequested subreddit/,
     ],
     [
       "stats that undercount the source items",
@@ -507,7 +507,7 @@ test("Reddit source fetch sends one subreddit-list request to the v7 service", a
   assert.equal(fetched, source);
   assert.deepEqual(JSON.parse(requests.find(request => request.body)?.body || "{}"), {
     archive_date: "2099-01-02",
-    subreddits: REDDIT_CATEGORIES.flatMap(category => category.subreddits),
+    subreddits: ENABLED_REDDIT_CATEGORIES.flatMap(category => category.subreddits),
   });
   // 要证的是「提交一次 + 轮询一次」，不是服务端的路由字符串长什么样。
   assert.equal(requests.length, 2);

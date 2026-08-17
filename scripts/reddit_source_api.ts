@@ -3,7 +3,7 @@
 // 校验不过一律拒收，不做「尽力而为」的降级。
 import { createHash } from "node:crypto";
 import { envPositiveInt, fetchJson, sleep, writeStderr, writeStdout } from "./blog_common.ts";
-import { REDDIT_CATEGORIES, parseSourceFacts as parseRedditSourceFacts } from "./reddit_top20_compose.ts";
+import { ENABLED_REDDIT_CATEGORIES, parseSourceFacts as parseRedditSourceFacts } from "./reddit_top20_compose.ts";
 
 type RedditSourceApiResponse = {
   contract_version?: unknown;
@@ -49,7 +49,7 @@ export type RedditSourcePolicy = {
 };
 
 export const MAX_REDDIT_SOURCE_ITEMS = 2_000;
-const REDDIT_SUBREDDITS = REDDIT_CATEGORIES.flatMap(category => category.subreddits);
+const REDDIT_SUBREDDITS = ENABLED_REDDIT_CATEGORIES.flatMap(category => category.subreddits);
 
 function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourcePolicy {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Reddit source API returned an invalid policy");
@@ -104,7 +104,7 @@ function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourceP
 function parseRedditSubredditStats(value: unknown, policy: RedditSourcePolicy): RedditSubredditStats[] {
   if (!Array.isArray(value)) throw new Error("Reddit source API returned invalid subreddit_stats");
   const expected = new Map(
-    REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
+    ENABLED_REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
   );
   const seen = new Set<string>();
   const stats = value.map((raw, index) => {

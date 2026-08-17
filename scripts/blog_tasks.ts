@@ -135,7 +135,7 @@ export const BLOG_TASKS = {
   "reddit-top20": {
     titlePrefix: "Reddit 每日精选",
     tag: "Reddit热门",
-    description: "每日 Reddit 分类精选，按人生、市场与人物问答三类整理通过来源服务热度与内容质量筛选的帖子。",
+    description: "每日 Reddit 分类精选，按人生与人物问答两类整理通过来源服务热度与内容质量筛选的帖子。",
     fileName: "reddit-{date}.md",
   },
 } as const satisfies Record<string, BlogTaskInfo>;

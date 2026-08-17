@@ -5,6 +5,8 @@ export const DEFAULT_AI_MODEL = "gpt-5.6-luna";
 export const DEFAULT_FALLBACK_AI_BASE_URL = "https://api.deepseek.com";
 export const DEFAULT_FALLBACK_AI_MODEL = "deepseek-v4-flash";
 export const DEFAULT_MAX_TOKENS = 8192;
+const DEFAULT_REASONING_RETRY_MAX_TOKENS = DEFAULT_MAX_TOKENS * 2;
+const MAX_REASONING_RETRY_MAX_TOKENS = DEFAULT_MAX_TOKENS * 4;
 
 export type AiApiStyle = "responses" | "chat";
 
@@ -186,7 +188,51 @@ function isJsonObject(raw: string): boolean {
   }
 }
 
+class AiReasoningOutputExhaustedError extends Error {
+  constructor() {
+    super("AI chat response exhausted output token budget before message content");
+  }
+}
+
+function reasoningRetryMaxTokens(maxTokens: number): number {
+  const ceiling = envPositiveInt(
+    "AI_REASONING_RETRY_MAX_TOKENS",
+    DEFAULT_REASONING_RETRY_MAX_TOKENS,
+    MAX_REASONING_RETRY_MAX_TOKENS,
+  );
+  return ceiling > maxTokens ? ceiling : 0;
+}
+
 export async function callBlogAi({
+  prompt,
+  apiKey,
+  baseUrl,
+  model,
+  apiStyle = "chat",
+  timeoutMs = envPositiveNumber("AI_TIMEOUT_MS", 120_000),
+  maxTokens = DEFAULT_MAX_TOKENS,
+  jsonMode = false,
+}: {
+  prompt: string;
+  apiKey: string;
+  baseUrl: string;
+  model: string;
+  apiStyle?: AiApiStyle;
+  timeoutMs?: number;
+  maxTokens?: number;
+  jsonMode?: boolean;
+}): Promise<string> {
+  const retryMaxTokens = reasoningRetryMaxTokens(maxTokens);
+  try {
+    return await callBlogAiOnce({ prompt, apiKey, baseUrl, model, apiStyle, timeoutMs, maxTokens, jsonMode });
+  } catch (error) {
+    if (!(error instanceof AiReasoningOutputExhaustedError) || !retryMaxTokens) throw error;
+    writeStderr(`[ai] ${model} exhausted its reasoning output budget; retrying once with max_tokens=${retryMaxTokens}`);
+    return callBlogAiOnce({ prompt, apiKey, baseUrl, model, apiStyle, timeoutMs, maxTokens: retryMaxTokens, jsonMode });
+  }
+}
+
+async function callBlogAiOnce({
   prompt,
   apiKey,
   baseUrl,
@@ -253,13 +299,20 @@ export async function callBlogAi({
       const contentType = response.headers.get("content-type")?.toLowerCase();
       content = contentType?.includes("application/json") || isJsonObject(raw) ? parseResponsesJson(raw) : parseResponsesSse(raw);
     } else {
-      const data = JSON.parse(raw) as { choices?: { message?: { content?: string } }[] };
-      content = data.choices?.[0]?.message?.content;
+      const data = JSON.parse(raw) as {
+        choices?: { message?: { content?: string; reasoning_content?: string }; finish_reason?: string }[];
+      };
+      const choice = data.choices?.[0];
+      content = choice?.message?.content;
+      if (!content?.trim() && choice?.finish_reason === "length" && choice.message?.reasoning_content?.trim()) {
+        throw new AiReasoningOutputExhaustedError();
+      }
     }
     if (!content?.trim()) throw new Error(`AI response missing message content: ${raw}`);
     return content;
   } catch (error) {
     if (error instanceof Error && (error.name === "AbortError" || error.message === "This operation was aborted")) throw new Error(`AI request timed out after ${timeoutMs}ms`);
+    if (error instanceof AiReasoningOutputExhaustedError) throw error;
     if (error instanceof Error && /^(AI provider HTTP|AI response missing message content:)/.test(error.message)) throw error;
     if (error instanceof Error) throw new Error(`AI request failed: ${error.message}`);
     throw new Error(`AI request failed: ${String(error)}`);

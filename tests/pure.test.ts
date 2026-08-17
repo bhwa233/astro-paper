@@ -252,6 +252,9 @@ test("Reddit life WeChat article keeps the upstream stories and drops trailing o
   // 上游正文原样搬运，正文里不出现任何标题。
   assert.match(markdown, /^1\. 第一个故事。$/m);
   assert.doesNotMatch(markdown, /^#{1,6}\s/m);
+  // 列表必须紧凑：项间留空行会渲染成 <li><p>…</p></li>，微信会把 p 拆出去，编号直接翻倍。
+  assert.match(markdown, /^1\. 第一个故事。\n2\. 第二个故事。\n3\. 第三个故事。$/m);
+  assert.match(dropTrailingStories(markdown, 1), /^1\. 第一个故事。\n2\. 第二个故事。$/m);
   assert.equal(countDroppableStories(markdown), 3);
   assert.equal(dropTrailingStories(markdown, 0), markdown);
 

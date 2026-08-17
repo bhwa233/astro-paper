@@ -80,9 +80,16 @@ function postBody(block: string, rank: number): string {
 
 function storyItems(body: string): string[] {
   return body
-    .split(/\n{2,}/)
+    .split(/\n+(?=\d+\.\s)/)
     .map(item => item.trim())
     .filter(Boolean);
+}
+
+// 上游正文的列表项之间空一行，Markdown 会按松散列表渲染成 `<li><p>…</p></li>`。
+// 微信编辑器不接受 li 里嵌 p，会把 p 拆成同级元素，于是每条故事变成「空编号项 + 文字项」，
+// 编号直接翻倍。紧凑列表渲染成 `<li>…</li>`，微信才显示正确。
+function tightStoryList(body: string): string {
+  return storyItems(body).join("\n");
 }
 
 // 微信正文有 20000 字符的 HTML 上限，而一帖的故事条数不可控。超限时从末尾往回删故事，
@@ -92,7 +99,7 @@ export function dropTrailingStories(markdown: string, drop: number): string {
   const { front, body, footer } = splitWechatMarkdown(markdown);
   const items = storyItems(body);
   if (drop >= items.length) throw new Error(`Reddit life WeChat markdown has fewer than ${drop} droppable stories`);
-  return `${front}\n${items.slice(0, items.length - drop).join("\n\n")}\n\n${footer}\n`;
+  return `${front}\n${items.slice(0, items.length - drop).join("\n")}\n\n${footer}\n`;
 }
 
 export function countDroppableStories(markdown: string): number {
@@ -119,7 +126,7 @@ export function renderRedditLifeWechatMarkdown(candidate: RedditLifeCandidate, d
   })
     .replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${candidate.permalink}"`)
     .replace("---\n\n", [`redditPostId: "${candidate.postId}"`, `subreddit: "${candidate.subreddit}"`, "---", ""].join("\n"));
-  return `${metadata}${candidate.body}\n\n${FOOTER}\n`;
+  return `${metadata}${tightStoryList(candidate.body)}\n\n${FOOTER}\n`;
 }
 
 export function markdownSha256(markdown: string): string {

@@ -2,6 +2,7 @@
 // 上游每帖的正文已经是「一条回答一个普通文本编号段」的故事集，这里只做选帖、截断、拼接和长度收口。
 // 标题与摘要由编排层从模型取得后传进来（见 reddit_life_wechat_digest.ts）。
 import { createHash } from "node:crypto";
+import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
 import { REDDIT_LIFE_SUBREDDITS } from "./reddit_life_wechat_source.ts";
 
@@ -17,29 +18,57 @@ const TITLE_ELLIPSIS = "…";
 export const REDDIT_LIFE_WECHAT_POST_LIMIT = 3;
 export const REDDIT_LIFE_WECHAT_REPLY_LIMIT = 30;
 export const REDDIT_LIFE_WECHAT_QR_FILE = "qr.png";
-export const REDDIT_LIFE_WECHAT_QR_TARGET = "https://blog.bhwa233.com/";
-const QR_CAPTION = "长按识别二维码，查看更多每日精选";
+const BLOG_URL = "https://blog.bhwa233.com/";
+// 清单只是导流诱饵，不是目录：标题在微信里点不动，读者想去哪一条都得先扫码。
+// 上游帖数不固定，超出上限时把总数交代掉即可，无节制地列会把 HTML 预算吃光。
+export const REDDIT_LIFE_WECHAT_REST_LIMIT = 30;
+// 页脚以这一行开头，它同时是正文与页脚的分割哨兵：清单每天不同，不能再拿整段页脚当常量比对。
+const FOOTER_HEADING = "**今天还有这些热帖**";
 
 // 微信正文里的外链点不动（astro-wechat 会把 <a> 拆成文字加尾注），二维码是唯一能把读者送出去的通道。
 // 两栏用 table 而不是 flex：微信编辑器对 flex 支持不稳，table 在 doocs-default 主题里本来就有样式。
-// 这段同时充当正文与页脚的分割哨兵（splitWechatMarkdown 靠 lastIndexOf 找它），所以必须逐字不变，
-// 内部也不能出现空行——markdown-it 的 html_block 遇到空行就结束，后半段会被当成普通段落。
-const FOOTER = [
-  '<section style="margin:24px 0 0;padding:16px 18px;background:#f7f7f7;border-radius:6px;">',
-  // 主题会给 table/td 补上外边距和格线，这里逐条覆盖回去；内联样式后写的胜出。
-  '<table style="width:100%;min-width:0;margin:0;border-collapse:collapse;">',
-  "<tbody><tr>",
-  '<td style="border:none;padding:0;vertical-align:middle;">',
-  `<p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:#8a8a8a;">${QR_CAPTION}</p>`,
-  `<p style="margin:0;font-size:13px;line-height:1.5;color:#576b95;word-break:break-all;">${REDDIT_LIFE_WECHAT_QR_TARGET}</p>`,
-  "</td>",
-  '<td style="border:none;width:96px;padding:0 0 0 14px;vertical-align:middle;">',
-  // img 不写 style：CSS 内联会剥掉尾分号再追加主题样式，把最后一条声明粘坏。尺寸走属性。
-  `<img src="${REDDIT_LIFE_WECHAT_QR_FILE}" alt="bhwa233 博客二维码" width="96" height="96" />`,
-  "</td>",
-  "</tr></tbody></table>",
-  "</section>",
-].join("\n");
+// 卡片内不能出现空行——markdown-it 的 html_block 遇到空行就结束，后半段会被当成普通段落。
+function qrCard(caption: string, target: string): string {
+  return [
+    '<section style="margin:24px 0 0;padding:16px 18px;background:#f7f7f7;border-radius:6px;">',
+    // 主题会给 table/td 补上外边距和格线，这里逐条覆盖回去；内联样式后写的胜出。
+    '<table style="width:100%;min-width:0;margin:0;border-collapse:collapse;">',
+    "<tbody><tr>",
+    '<td style="border:none;padding:0;vertical-align:middle;">',
+    `<p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:#8a8a8a;">${caption}</p>`,
+    `<p style="margin:0;font-size:13px;line-height:1.5;color:#576b95;word-break:break-all;">${target}</p>`,
+    "</td>",
+    '<td style="border:none;width:96px;padding:0 0 0 14px;vertical-align:middle;">',
+    // img 不写 style：CSS 内联会剥掉尾分号再追加主题样式，把最后一条声明粘坏。尺寸走属性。
+    `<img src="${REDDIT_LIFE_WECHAT_QR_FILE}" alt="Reddit 热帖精选原文二维码" width="96" height="96" />`,
+    "</td>",
+    "</tr></tbody></table>",
+    "</section>",
+  ].join("\n");
+}
+
+/** 那天 life 文章的博客地址。slug 就是文件名，站点按 /posts/:slug/ 出页。 */
+export function redditLifeArticleUrl(lifeArticlePath: string): string {
+  const slug = path.basename(lifeArticlePath, ".md");
+  if (!slug) throw new Error(`cannot derive a blog URL from ${lifeArticlePath || "an empty path"}`);
+  return `${BLOG_URL}posts/${slug}/`;
+}
+
+export type RedditLifePostTitle = { rank: number; title: string };
+
+/** 只取标题，不解析正文：清单要列到第 30 帖，而正文解析每帖都要校验来源和故事列表。 */
+export function parseRedditLifePostTitles(markdown: string): RedditLifePostTitle[] {
+  return [...markdown.matchAll(/^##\s+(\d+)\.\s+(.+)$/gm)].map(match => ({ rank: Number(match[1]), title: compact(match[2].replace(/^🔴\s*/, "")) }));
+}
+
+// 页脚 = 剩余热帖清单 + 二维码卡片。整块不参与截断：撞长度上限时该删的是回答，
+// 而清单正好在末尾，不保护的话它会先被啃光，正好把导流入口删掉。
+export function redditLifeWechatFooter({ rest, total, articleUrl, restLimit = REDDIT_LIFE_WECHAT_REST_LIMIT }: { rest: RedditLifePostTitle[]; total: number; articleUrl: string; restLimit?: number }): string {
+  const listed = rest.slice(0, restLimit);
+  const lines = [FOOTER_HEADING, "", ...listed.flatMap(item => [`${item.rank}\\. ${item.title}`, ""])];
+  if (rest.length > listed.length) lines.push(`等 ${total} 个话题，全部在博客原文里。`, "");
+  return `${lines.join("\n").trimEnd()}\n\n${qrCard(`长按识别二维码，在博客看全部 ${total} 个热帖`, articleUrl)}`;
+}
 
 export type RedditLifeCandidate = {
   rank: number;
@@ -176,7 +205,7 @@ export function countDroppableStories(markdown: string): number {
 function splitWechatMarkdown(markdown: string): { front: string; body: string; footer: string } {
   const frontEnd = markdown.indexOf("\n---\n", markdown.indexOf("---\n") + 1);
   if (!markdown.startsWith("---\n") || frontEnd < 0) throw new Error("Reddit life WeChat markdown is missing frontmatter");
-  const footerIndex = markdown.lastIndexOf(`\n${FOOTER}`);
+  const footerIndex = markdown.lastIndexOf(`\n${FOOTER_HEADING}`);
   if (footerIndex < 0) throw new Error("Reddit life WeChat markdown is missing its footer");
   const front = markdown.slice(0, frontEnd + "\n---\n".length);
   return { front, body: markdown.slice(front.length, footerIndex).trim(), footer: markdown.slice(footerIndex + 1).trim() };
@@ -206,6 +235,7 @@ export function renderRedditLifeWechatMarkdown({
   description,
   archiveDate,
   issue,
+  footer,
   coverFile = "",
   replyLimit = REDDIT_LIFE_WECHAT_REPLY_LIMIT,
 }: {
@@ -214,6 +244,7 @@ export function renderRedditLifeWechatMarkdown({
   description: string;
   archiveDate: string;
   issue: number;
+  footer: string;
   coverFile?: string;
   replyLimit?: number;
 }): string {
@@ -230,7 +261,7 @@ export function renderRedditLifeWechatMarkdown({
   })
     .replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${primary.permalink}"`)
     .replace("---\n\n", [`redditPostId: "${primary.postId}"`, `subreddit: "${primary.subreddit}"`, "---", ""].join("\n"));
-  return `${metadata}${redditLifeWechatBody(candidates, replyLimit)}\n\n${FOOTER}\n`;
+  return `${metadata}${redditLifeWechatBody(candidates, replyLimit)}\n\n${footer}\n`;
 }
 
 export function markdownSha256(markdown: string): string {

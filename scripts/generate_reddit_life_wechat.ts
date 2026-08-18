@@ -14,8 +14,11 @@ import {
   parseRedditLifeCandidates,
   parseRedditLifeDescription,
   renderRedditLifeWechatMarkdown,
+  parseRedditLifePostTitles,
+  redditLifeArticleUrl,
+  redditLifeWechatFooter,
+  REDDIT_LIFE_WECHAT_POST_LIMIT,
   REDDIT_LIFE_WECHAT_QR_FILE,
-  REDDIT_LIFE_WECHAT_QR_TARGET,
   REDDIT_LIFE_WECHAT_TITLE_BRAND,
   type RedditLifeCandidate,
 } from "./reddit_life_wechat_compose.ts";
@@ -137,21 +140,6 @@ function writeArtifact(dir: string, name: string, content: string): void {
   fs.writeFileSync(path.join(dir, name), `${content.trim()}\n`, "utf8");
 }
 
-async function restoreGeneratedQrCodes(manifest: RedditLifeRunManifest, repo: string): Promise<void> {
-  const directories = new Set(
-    manifest.posts
-      .filter(post => post.status === "generated")
-      .map(post => path.dirname(path.join(repo, post.path!))),
-  );
-  for (const directory of directories) {
-    ensureDir(directory);
-    const qr = await renderQrPng(REDDIT_LIFE_WECHAT_QR_TARGET);
-    const target = path.join(directory, REDDIT_LIFE_WECHAT_QR_FILE);
-    fs.writeFileSync(target, qr);
-    writeStderr(`[reddit-life-wechat] restored ${path.relative(repo, target)} (${qr.length} bytes)`);
-  }
-}
-
 // 一帖的故事条数不可控，渲染出的 HTML 随时可能撞上微信 20000 字符上限，而上游无法预知渲染后的长度。
 // 这里用渲染器本身做判定：能渲染就原样归档，撞限就从末尾删故事，二分找出最少的删除量。
 // probeDir 必须是真稿最终落地的目录：astro-wechat 按 Markdown 所在目录解析相对资源路径，
@@ -201,6 +189,7 @@ export async function fitWechatContentLimit(markdown: string, repo: string, labe
 async function fitWithOptionalCover({
   candidates,
   digest,
+  footer,
   date,
   issue,
   coverFile,
@@ -210,6 +199,7 @@ async function fitWithOptionalCover({
 }: {
   candidates: RedditLifeCandidate[];
   digest: { headline: string; description: string };
+  footer: string;
   date: string;
   issue: number;
   coverFile: string;
@@ -218,7 +208,7 @@ async function fitWithOptionalCover({
   probeDir: string;
 }): Promise<string> {
   const render = (cover: string) =>
-    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, coverFile: cover });
+    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, footer, coverFile: cover });
   try {
     return await fitWechatContentLimit(render(coverFile), repo, label, probeDir);
   } catch (error) {
@@ -279,7 +269,6 @@ export async function generateRedditLifeWechat({
   const existing = loadRedditLifeRunManifest(manifestFile);
   if (existing) {
     const generated = existing.posts.filter(post => post.status === "generated");
-    await restoreGeneratedQrCodes(existing, repo);
     writeStderr(`[reddit-life-wechat] archive=${date}: reused manifest (${existing.status}), posts=${generated.length}`);
     // 三帖共享同一个 path，去重后才是「要发布几篇稿子」。
     return { manifestPath: manifestRel, generatedPaths: [...new Set(generated.map(post => post.path!).filter(Boolean))], status: existing.status };
@@ -297,7 +286,11 @@ export async function generateRedditLifeWechat({
   writeArtifact(artifactsDir, "upstream-life.md", upstreamMarkdown);
   // 上游解析器本来就产出前三帖，这里全部收录，每帖只保留前 REPLY_LIMIT 条回答。
   const candidates = parseRedditLifeCandidates(upstreamMarkdown);
+  const allTitles = parseRedditLifePostTitles(upstreamMarkdown);
   const upstreamDescription = parseRedditLifeDescription(upstreamMarkdown);
+  // 二维码指向那天的 life 文章：清单里的标题在微信里点不动，读者要看全部只能扫码过去。
+  const articleUrl = redditLifeArticleUrl(lifeArticlePath);
+  const footer = redditLifeWechatFooter({ rest: allTitles.slice(REDDIT_LIFE_WECHAT_POST_LIMIT), total: allTitles.length, articleUrl });
   const issue = nextRedditLifeIssue(repo);
   const label = `posts=${candidates.length} issue=${issue}`;
   writeStderr(`[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, ${label}, ranks=${candidates.map(item => item.postId).join(",")}`);
@@ -325,10 +318,10 @@ export async function generateRedditLifeWechat({
   }
   // 页脚卡片无条件引用 qr.png，所以这张图必须存在，失败就得让整次归档失败——
   // 写出一篇引用了不存在资源的稿子，只会把问题推到发布那一步才炸。
-  const qr = await renderQrPng(REDDIT_LIFE_WECHAT_QR_TARGET);
+  const qr = await renderQrPng(articleUrl);
   fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_QR_FILE), qr);
   writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_QR_FILE} (${qr.length} bytes)`);
-  const markdown = await fitWithOptionalCover({ candidates, digest, date, issue, coverFile: cover ? REDDIT_LIFE_WECHAT_COVER_FILE : "", repo, label, probeDir: path.dirname(target) });
+  const markdown = await fitWithOptionalCover({ candidates, digest, footer, date, issue, coverFile: cover ? REDDIT_LIFE_WECHAT_COVER_FILE : "", repo, label, probeDir: path.dirname(target) });
   fs.writeFileSync(target, markdown, "utf8");
   writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);
   const contentSha256 = markdownSha256(markdown);

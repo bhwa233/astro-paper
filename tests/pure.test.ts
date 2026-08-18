@@ -14,6 +14,7 @@ import {
   dropTrailingStories,
   parseRedditLifeCandidates,
   parseRedditLifeDescription,
+  redditLifeWechatFooter,
   redditLifeWechatTitle,
   renderRedditLifeWechatMarkdown,
 } from "../scripts/reddit_life_wechat_compose.ts";
@@ -227,8 +228,16 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
     body: ["1\\. 第一个故事。", "", "2\\. 第二个故事。", "", "3\\. 第三个故事。"].join("\n"),
   };
   const second = { ...candidate, rank: 2, postId: "post2", title: "问题 2", permalink: "https://www.reddit.com/r/AskReddit/comments/post2/", body: ["1\\. 第四个故事。", "", "2\\. 第五个故事。"].join("\n") };
+  const footer = redditLifeWechatFooter({
+    rest: [
+      { rank: 3, title: "第三个话题" },
+      { rank: 4, title: "第四个话题" },
+    ],
+    total: 4,
+    articleUrl: "https://blog.bhwa233.com/posts/reddit-2099-01-02-life/",
+  });
   const render = (overrides = {}) =>
-    renderRedditLifeWechatMarkdown({ candidates: [candidate, second], headline: "话题一、话题二", description: "这期讲了两件事。", archiveDate: "2099-01-02", issue: 42, ...overrides });
+    renderRedditLifeWechatMarkdown({ candidates: [candidate, second], headline: "话题一、话题二", description: "这期讲了两件事。", archiveDate: "2099-01-02", issue: 42, footer, ...overrides });
   const markdown = render();
 
   // 标题由模型给的话题串加品牌与期号拼成，不再由某一帖独占。
@@ -240,9 +249,14 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   // sourceURL 是 astro-wechat 的同步身份，一篇稿子只能有一个，取第一帖。
   assert.match(markdown, /^ {2}sourceURL: "https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/post1\/"$/m);
   assert.match(markdown, /^description: "这期讲了两件事。"$/m);
-  // 页脚卡片内不能出现空行：markdown-it 的 html_block 遇空行就结束，后半段会退化成
+  // 二维码卡片内不能出现空行：markdown-it 的 html_block 遇空行就结束，后半段会退化成
   // 转义过的普通段落，读者看到的是一堆尖括号。这个约束从卡片本身看不出来，容易在编辑时踩到。
   assert.doesNotMatch(markdown.slice(markdown.indexOf("<section")), /\n\s*\n/);
+  // 剩余热帖清单沿用上游编号，读者扫码过去能按号对上。
+  assert.match(markdown, /^3\\\. 第三个话题$/m);
+  assert.match(markdown, /^4\\\. 第四个话题$/m);
+  assert.match(markdown, /长按识别二维码，在博客看全部 4 个热帖/);
+  assert.match(markdown, /https:\/\/blog\.bhwa233\.com\/posts\/reddit-2099-01-02-life\//);
   // 帖间用整行加粗分隔，编号在每帖内部重新从 1 开始；不能出现 Markdown 标题。
   assert.match(markdown, /^\*\*问题 1\*\*\n\n1\\\. 第一个故事。/m);
   assert.match(markdown, /^\*\*问题 2\*\*\n\n1\\\. 第四个故事。/m);
@@ -263,6 +277,10 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   assert.match(droppedTwo, /\*\*问题 1\*\*/);
   // frontmatter 和页脚是稿子的骨架，任何截断都不能动它们。
   assert.match(droppedTwo, /^---\nauthor:/);
+  assert.match(droppedTwo, /<section /);
+
+  // 清单和二维码卡片都在页脚里，撞长度上限时该删的是回答，导流入口必须活下来。
+  assert.match(droppedTwo, /^3\\\. 第三个话题$/m);
   assert.match(droppedTwo, /<section /);
 
   assert.throws(() => dropTrailingStories(markdown, 5), /fewer than 5 droppable stories/);

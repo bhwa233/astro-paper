@@ -136,16 +136,6 @@ jobs:
             sleep $((attempt * 5))
           done
           exit 1
-      # The drafts reference qr.png but it is gitignored, so the commit the sync job
-      # checks out will not carry it. Handing over this run's file keeps both jobs on
-      # the exact same bytes instead of regenerating and hoping they match.
-      - name: Upload draft QR codes
-        if: steps.generate.outputs.generated_count != '0'
-        uses: actions/upload-artifact@v7
-        with:
-          name: reddit-life-wechat-qr
-          path: data/reddit-life-wechat/*/qr.png
-          if-no-files-found: error
       - id: head
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
@@ -166,13 +156,6 @@ jobs:
         env:
           GENERATED_SHA: ${{ needs.generate-and-archive.outputs.generated_sha }}
         run: git checkout -B "${GITHUB_REF_NAME}" "$GENERATED_SHA"
-      # Restores <date>/qr.png next to each draft. The upload globbed one level down,
-      # so the artifact root is the day directory and this lands the files back in place.
-      - name: Restore draft QR codes
-        uses: actions/download-artifact@v7
-        with:
-          name: reddit-life-wechat-qr
-          path: data/reddit-life-wechat
       - uses: pnpm/action-setup@v6
         with:
           version: "11.3.0"

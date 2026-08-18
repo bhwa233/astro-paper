@@ -355,6 +355,21 @@ test("Reddit AMA article uses only translated titles and source metadata", () =>
   assert.match(article.markdown, /^- 来源：r\/IAmA$/m);
   assert.match(article.markdown, /^- 帖子：https:\/\/www\.reddit\.com\/r\/IAmA\/comments\/one\/$/m);
   assert.doesNotMatch(article.markdown, /This body|This comment|综合摘要|正文：/);
+
+  // 线上事故：归档层要求每个条目在事实 bullet 之后必须有摘要，而 life 以外的分类只翻译标题，
+  // 于是 AMA / Markets 每次调度都以「Reddit Top 20 item 1 has an empty summary」失败。
+  const repo = tempDir("reddit-ama");
+  const published = archivePost({
+    task: "reddit-top20",
+    date: "2099-01-02",
+    repo,
+    body: article.markdown,
+    force: true,
+    fileNameSuffix: redditCategoryByKey("ama").fileNameSuffix,
+    titleSuffix: article.title,
+  });
+  verifyPostContract(repo, published.path, "reddit-top20");
+  assert.match(fs.readFileSync(path.join(repo, published.path), "utf8"), /^## 1\. 我在暴风雨后设计应急桥梁，欢迎提问。$/m);
 });
 
 test("normalizeMarkdownBlock moves trailing punctuation out of emphasis so CJK bold closes", () => {

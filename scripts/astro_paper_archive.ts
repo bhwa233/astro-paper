@@ -149,8 +149,9 @@ function formatRedditTop20(text: string): string {
     let bodyStart = 1;
     while (bodyStart < lines.length && lines[bodyStart].trim().startsWith("- ")) bodyStart += 1;
     const bullets = extractBullets(lines.slice(1, bodyStart).join("\n"));
+    // life 以外的分类只翻译标题、不生成摘要（composeRedditTitleOnlyBody），所以空摘要是合法形态：
+    // 条目退化为标题 + 事实 bullet，不再抛错。
     const summary = normalizeMarkdownBlock(lines.slice(bodyStart).join("\n"));
-    if (!summary) throw new Error(`Reddit Top 20 item ${rank} has an empty summary`);
     const points = bullets.find(b => b.startsWith("⭐"))?.replace(/^⭐\s*/, "") ?? "";
     const subreddit = bulletValue(bullets, "来源");
     const url = bulletValue(bullets, "帖子");
@@ -158,7 +159,7 @@ function formatRedditTop20(text: string): string {
     if (points) out.push(`- **热度**：${points}`);
     if (subreddit) out.push(`- **来源**：[${subreddit}](https://www.reddit.com/${subreddit}/)`);
     if (url) out.push(`- **帖子**：${url}`);
-    out.push("", summary, "");
+    if (summary) out.push("", summary, "");
     return out.join("\n").trim();
   });
   return `${formatted.join("\n\n")}\n`;

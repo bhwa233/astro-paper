@@ -45,6 +45,8 @@ test("blog source evidence keeps long text sentinels and strips template delimit
   );
   assert.match(payload.original_excerpt, /ORIGINAL_TAIL_SENTINEL/);
   assert.match(payload.hn_comment_excerpt, /COMMENT_TAIL_SENTINEL/);
+  assert.equal(payload.topic, "开发工具 / 编程语言");
+  assert.equal(classify("A new open model benchmark"), "AI / 模型");
 
   // Long READMEs keep their tail, and `{{...}}` is neutralized so it cannot look like a prompt template.
   assert.match(sanitizeReadmeText(`# Heading\n\n${"readme ".repeat(400)} README_TAIL_SENTINEL`), /README TAIL SENTINEL/);
@@ -62,28 +64,6 @@ test("HN selects the 10 most-commented active stories from 30 candidates", () =>
     selected.map(item => item.id),
     Array.from({ length: 10 }, (_, index) => 29 - index),
   );
-});
-
-test("HN source payload carries original and comment evidence", () => {
-  const payload = buildPayload(
-    {
-      id: 123,
-      title: "Developers don't understand CORS",
-      url: "https://example.com/cors",
-      descendants: 88,
-      score: 185,
-      text: "An explainer about why CORS exists and what browsers actually enforce.",
-    },
-    1,
-    {
-      originalExcerpt: "The original article explains how browsers enforce CORS through preflight requests, credentials, and origin checks.",
-      commentExcerpt: "Commenters discuss reverse proxies, CDN caches, and local development pitfalls.",
-    },
-  );
-  assert.equal(payload.topic, "开发工具 / 编程语言");
-  assert.equal(classify("A new open model benchmark"), "AI / 模型");
-  assert.match(payload.original_excerpt, /browsers enforce CORS/);
-  assert.match(payload.hn_comment_excerpt, /reverse proxies/);
 });
 
 // ------------------------------------------------------------ GitHub Trending

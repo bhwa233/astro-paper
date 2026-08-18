@@ -230,14 +230,25 @@ async function fitWithOptionalCover({
 
 // 期号一次分配、写进 manifest，之后永不重算。跨天的下一个号从已归档 manifest 里的最大值往后接：
 // 归档本来就提交在仓库里，不必再为一个计数器单开一份账本。
+// 这里刻意不走 loadRedditLifeRunManifest 的严格校验：期号早于当前 manifest 契约，引入它之前的归档
+// 缺 issue、缺 contentSha256，按今天的 schema 全是非法的。拿当前契约去审判历史归档，会让一次取号
+// 被一份三天前的文件挡下来。读不动的目录跳过即可，它顶多让号少涨一次。
 function nextRedditLifeIssue(repo: string): number {
   const root = path.join(repo, ROOT_REL);
   if (!fs.existsSync(root)) return 1;
   let max = 0;
   for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    const manifest = loadRedditLifeRunManifest(path.join(root, entry.name, "run.json"));
-    for (const post of manifest?.posts || []) max = Math.max(max, post.issue || 0);
+    const file = path.join(root, entry.name, "run.json");
+    if (!fs.existsSync(file)) continue;
+    try {
+      const posts = (JSON.parse(fs.readFileSync(file, "utf8")) as { posts?: { issue?: unknown }[] }).posts || [];
+      for (const post of posts) {
+        if (typeof post?.issue === "number" && Number.isInteger(post.issue)) max = Math.max(max, post.issue);
+      }
+    } catch {
+      writeStderr(`WARN: [reddit-life-wechat] ignoring unreadable manifest while numbering issues: ${file}`);
+    }
   }
   return max + 1;
 }

@@ -132,18 +132,6 @@
       "mediaId": "lAMaLd-mzPj_bm0zorBkNGyJY18iPFAytaETUIvvLCwIX4BA4PHD35GwsXbtk3-d",
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNDwXJkg0E61vOfODN6iODyLdUg9o_VO3aTgTkx870NPQ",
       "coverContentHash": "07f07701f273c471"
-    },
-    "https://www.reddit.com/r/AskReddit/comments/1vqq7gj/how_do_you_feel_about_trump_netting_23_billion/": {
-      "sourceId": "https://www.reddit.com/r/AskReddit/comments/1vqq7gj/how_do_you_feel_about_trump_netting_23_billion/",
-      "canonicalUrl": "https://www.reddit.com/r/AskReddit/comments/1vqq7gj/how_do_you_feel_about_trump_netting_23_billion/",
-      "contentHash": "496d30cd4f74a338c6a55be462a5b1e27512005a58e1da2d1f4c2731499ce915",
-      "hashSchemaVersion": 1,
-      "orphanedCoverMaterialIds": [],
-      "writeState": "committed",
-      "updatedAt": "2026-08-18T03:28:37.681Z",
-      "mediaId": "lAMaLd-mzPj_bm0zorBkNOJl4_0aHx01dJEVLNCKecGF3orwPmnalY8C6_oqbH2c",
-      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNDLQUgukPUfY7P3HHxYWYjY1M7cHFwOkXYoQiqBiCr6j",
-      "coverContentHash": "d7a4ef975e21af68"
     }
   }
 }

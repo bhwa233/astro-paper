@@ -227,8 +227,9 @@ export function redditLifeWechatTitle(title: string, issue: number): string {
 // 路径按相对写法：astro-wechat 先相对 Markdown 所在目录解析，封面就躺在稿子旁边，不必往 public/ 里塞。
 //
 // headline 是模型给的话题串，只占标题前半段，品牌与期号由 redditLifeWechatTitle 拼上。
-// frontmatter 的 sourceURL / redditPostId / subreddit 取第一帖：astro-wechat 用 sourceURL 当
-// 同步身份，一篇稿子只能有一个。
+// sourceURL 指向那天的 life 文章：它既是微信的「阅读原文」落点，也是 astro-wechat 的同步身份。
+// 指 Reddit 原帖有两个毛病——大陆读者点开是打不开的墙外链接；而且同一帖跨天登顶时身份会撞车，
+// 按归档日走的文章地址天然唯一。redditPostId / subreddit 仍记第一帖，用于追溯。
 export function renderRedditLifeWechatMarkdown({
   candidates,
   headline,
@@ -236,6 +237,7 @@ export function renderRedditLifeWechatMarkdown({
   archiveDate,
   issue,
   footer,
+  articleUrl,
   coverFile = "",
   replyLimit = REDDIT_LIFE_WECHAT_REPLY_LIMIT,
 }: {
@@ -245,6 +247,7 @@ export function renderRedditLifeWechatMarkdown({
   archiveDate: string;
   issue: number;
   footer: string;
+  articleUrl: string;
   coverFile?: string;
   replyLimit?: number;
 }): string {
@@ -259,7 +262,7 @@ export function renderRedditLifeWechatMarkdown({
     ogImage: coverFile,
     wechatEnabled: true,
   })
-    .replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${primary.permalink}"`)
+    .replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${articleUrl}"`)
     .replace("---\n\n", [`redditPostId: "${primary.postId}"`, `subreddit: "${primary.subreddit}"`, "---", ""].join("\n"));
   return `${metadata}${redditLifeWechatBody(candidates, replyLimit)}\n\n${footer}\n`;
 }

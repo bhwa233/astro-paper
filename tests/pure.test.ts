@@ -228,16 +228,17 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
     body: ["1\\. 第一个故事。", "", "2\\. 第二个故事。", "", "3\\. 第三个故事。"].join("\n"),
   };
   const second = { ...candidate, rank: 2, postId: "post2", title: "问题 2", permalink: "https://www.reddit.com/r/AskReddit/comments/post2/", body: ["1\\. 第四个故事。", "", "2\\. 第五个故事。"].join("\n") };
+  const ARTICLE_URL = "https://blog.bhwa233.com/posts/reddit-2099-01-02-life/";
   const footer = redditLifeWechatFooter({
     rest: [
       { rank: 3, title: "第三个话题" },
       { rank: 4, title: "第四个话题" },
     ],
     total: 4,
-    articleUrl: "https://blog.bhwa233.com/posts/reddit-2099-01-02-life/",
+    articleUrl: ARTICLE_URL,
   });
   const render = (overrides = {}) =>
-    renderRedditLifeWechatMarkdown({ candidates: [candidate, second], headline: "话题一、话题二", description: "这期讲了两件事。", archiveDate: "2099-01-02", issue: 42, footer, ...overrides });
+    renderRedditLifeWechatMarkdown({ candidates: [candidate, second], headline: "话题一、话题二", description: "这期讲了两件事。", archiveDate: "2099-01-02", issue: 42, footer, articleUrl: ARTICLE_URL, ...overrides });
   const markdown = render();
 
   // 标题由模型给的话题串加品牌与期号拼成，不再由某一帖独占。
@@ -246,8 +247,8 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   // 写了却没有对应文件反而会让它解析资源时直接报错。
   assert.doesNotMatch(markdown, /^ogImage:/m);
   assert.match(render({ coverFile: "cover.png" }), /^ogImage: "cover\.png"$/m);
-  // sourceURL 是 astro-wechat 的同步身份，一篇稿子只能有一个，取第一帖。
-  assert.match(markdown, /^ {2}sourceURL: "https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/post1\/"$/m);
+  // sourceURL 既是微信「阅读原文」的落点，也是 astro-wechat 的同步身份；指博客文章而非 Reddit 原帖。
+  assert.match(markdown, /^ {2}sourceURL: "https:\/\/blog\.bhwa233\.com\/posts\/reddit-2099-01-02-life\/"$/m);
   assert.match(markdown, /^description: "这期讲了两件事。"$/m);
   // 二维码卡片内不能出现空行：markdown-it 的 html_block 遇空行就结束，后半段会退化成
   // 转义过的普通段落，读者看到的是一堆尖括号。这个约束从卡片本身看不出来，容易在编辑时踩到。

@@ -190,6 +190,7 @@ async function fitWithOptionalCover({
   candidates,
   digest,
   footer,
+  articleUrl,
   date,
   issue,
   coverFile,
@@ -200,6 +201,7 @@ async function fitWithOptionalCover({
   candidates: RedditLifeCandidate[];
   digest: { headline: string; description: string };
   footer: string;
+  articleUrl: string;
   date: string;
   issue: number;
   coverFile: string;
@@ -208,7 +210,7 @@ async function fitWithOptionalCover({
   probeDir: string;
 }): Promise<string> {
   const render = (cover: string) =>
-    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, footer, coverFile: cover });
+    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, footer, articleUrl, coverFile: cover });
   try {
     return await fitWechatContentLimit(render(coverFile), repo, label, probeDir);
   } catch (error) {
@@ -321,7 +323,7 @@ export async function generateRedditLifeWechat({
   const qr = await renderQrPng(articleUrl);
   fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_QR_FILE), qr);
   writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_QR_FILE} (${qr.length} bytes)`);
-  const markdown = await fitWithOptionalCover({ candidates, digest, footer, date, issue, coverFile: cover ? REDDIT_LIFE_WECHAT_COVER_FILE : "", repo, label, probeDir: path.dirname(target) });
+  const markdown = await fitWithOptionalCover({ candidates, digest, footer, articleUrl, date, issue, coverFile: cover ? REDDIT_LIFE_WECHAT_COVER_FILE : "", repo, label, probeDir: path.dirname(target) });
   fs.writeFileSync(target, markdown, "utf8");
   writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);
   const contentSha256 = markdownSha256(markdown);

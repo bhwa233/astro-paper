@@ -46,4 +46,6 @@ jobs:
     with:
       date: ${{ inputs.date || '' }}
       upstream_sha: ${{ needs.publish.outputs.generated_sha }}
+      upstream_workflow_run: ${{ github.run_id }}
+      ai_model: ${{ inputs.ai_model || '' }}
     secrets: inherit

@@ -13,6 +13,14 @@ on:
         description: "Committed result from the reddit-top20 parent workflow."
         required: true
         type: string
+      upstream_workflow_run:
+        description: "Workflow run that produced upstream_sha."
+        required: true
+        type: string
+      ai_model:
+        description: "Optional AI_MODEL override. Empty = repository default."
+        required: false
+        type: string
   # 手动入口：对着某个已归档提交补跑一次转换，不必等父工作流的下一次定时执行。
   workflow_dispatch:
     inputs:
@@ -23,6 +31,14 @@ on:
       upstream_sha:
         description: "Commit that already contains the reddit-top20 life article."
         required: true
+        type: string
+      upstream_workflow_run:
+        description: "Workflow run that produced the upstream article."
+        required: true
+        type: string
+      ai_model:
+        description: "Optional AI_MODEL override. Empty = repository default."
+        required: false
         type: string
 concurrency:
   group: scheduled-posts-${{ github.ref }}
@@ -35,6 +51,7 @@ jobs:
     outputs:
       generated_sha: ${{ steps.head.outputs.sha }}
       manifest_path: ${{ steps.generate.outputs.manifest_path }}
+      generated_count: ${{ steps.generate.outputs.generated_count }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -56,16 +73,27 @@ jobs:
         id: generate
         env:
           UPSTREAM_GENERATED_SHA: ${{ inputs.upstream_sha }}
+          UPSTREAM_WORKFLOW_RUN: ${{ inputs.upstream_workflow_run }}
           INPUT_DATE: ${{ inputs.date || '' }}
+          # 标题与摘要要调模型。取不到时生成器回落到第一帖标题与上游 description，不会中断归档。
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
+          AI_MODEL: ${{ inputs.ai_model || 'gpt-5.6-luna' }}
+          AI_FALLBACK_ENABLED: "true"
+          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
+          AI_FALLBACK_BASE_URL: ${{ secrets.AI_FALLBACK_BASE_URL || 'https://api.deepseek.com' }}
+          AI_FALLBACK_MODEL: ${{ secrets.AI_FALLBACK_MODEL || 'deepseek-v4-flash' }}
+          AI_TIMEOUT_MS: "600000"
         run: |
           set -euo pipefail
-          args=(--upstream-sha "$UPSTREAM_GENERATED_SHA" --artifacts-dir reddit-life-wechat-artifacts)
+          args=(--upstream-sha "$UPSTREAM_GENERATED_SHA" --upstream-workflow-run "$UPSTREAM_WORKFLOW_RUN" --artifacts-dir reddit-life-wechat-artifacts)
           if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
           node --import tsx scripts/generate_reddit_life_wechat.ts "${args[@]}" | tee reddit-life-wechat-result.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const result = JSON.parse(fs.readFileSync("reddit-life-wechat-result.json", "utf8"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `manifest_path=${result.manifestPath}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `generated_count=${(result.generatedPaths || []).length}\n`);
           NODE
       - name: Upload generation artifacts
         if: always()
@@ -108,20 +136,12 @@ jobs:
             sleep $((attempt * 5))
           done
           exit 1
-      # The drafts reference qr.png but it is gitignored, so the commit the sync job
-      # checks out will not carry it. Handing over this run's file keeps both jobs on
-      # the exact same bytes instead of regenerating and hoping they match.
-      - name: Upload draft QR codes
-        uses: actions/upload-artifact@v7
-        with:
-          name: reddit-life-wechat-qr
-          path: data/reddit-life-wechat/*/qr.png
-          if-no-files-found: ignore
       - id: head
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   sync-wechat:
     needs: generate-and-archive
+    if: needs.generate-and-archive.outputs.generated_count != '0'
     runs-on: ubuntu-latest
     environment: wechat-production
     concurrency:
@@ -136,13 +156,6 @@ jobs:
         env:
           GENERATED_SHA: ${{ needs.generate-and-archive.outputs.generated_sha }}
         run: git checkout -B "${GITHUB_REF_NAME}" "$GENERATED_SHA"
-      # Restores <date>/qr.png next to each draft. The upload globbed one level down,
-      # so the artifact root is the day directory and this lands the files back in place.
-      - name: Restore draft QR codes
-        uses: actions/download-artifact@v7
-        with:
-          name: reddit-life-wechat-qr
-          path: data/reddit-life-wechat
       - uses: pnpm/action-setup@v6
         with:
           version: "11.3.0"
@@ -160,7 +173,8 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
-          const paths = (manifest.posts || []).filter(post => post.status === "generated" && post.path).sort((a, b) => a.rank - b.rank).map(post => post.path);
+          // 一篇稿子收录三帖，三条 Entry 共享同一个 path；不去重会把同一篇发布三次。
+          const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).sort((a, b) => a.rank - b.rank).map(post => post.path))];
           fs.writeFileSync("reddit-life-wechat-paths.txt", paths.join("\n"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
           NODE

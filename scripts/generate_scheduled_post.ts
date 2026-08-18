@@ -6,7 +6,8 @@ import path from "node:path";
 import { resizeToWebp } from "./image_raster.ts";
 import { archivePost } from "./astro_paper_archive.ts";
 import { validateMarkdown, renderPrompt, resolvePromptFile } from "./ai_blog_writer.ts";
-import { type AiCallResult, callBlogAiWithFailover, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
+import { callAi, generateJsonStageWithRetries, retryAttempts, retryDelayMs, writeAiArtifact as writeArtifact } from "./ai_json_stage.ts";
+import { type AiCallResult, envAiConfig } from "./blog_ai_client.ts";
 import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, envPositiveInt, fetchJson, parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { type Task, isEpisodeArticleTask, isTaskInput, scheduledTaskInput, taskPostRelPath, taskTags, taskTitle, tasksForInput } from "./blog_tasks.ts";
 import { buildHnSource } from "./hn_top10_source.ts";
@@ -283,90 +284,6 @@ async function sourceForTask(task: Task, date: string, sourceFixtureDir = "", re
   const builder = SOURCE_BUILDERS[task];
   if (!builder) throw new Error(`no source builder for task: ${task}`);
   return builder(date, { task, repo, redditCategory });
-}
-
-function writeArtifact(artifactsDir: string, task: string, name: string, content: string): string {
-  if (!artifactsDir) return "";
-  ensureDir(artifactsDir);
-  const file = path.join(artifactsDir, `${task}-${name}`);
-  fs.writeFileSync(file, `${content.trim()}\n`, "utf8");
-  return file;
-}
-
-async function callAi(prompt: string, model: string, jsonMode = false): Promise<AiCallResult> {
-  const result = await callBlogAiWithFailover({
-    prompt,
-    primaryConfig: envAiConfig({ model }),
-    fallbackConfig: envFallbackAiConfig(),
-    jsonMode,
-  });
-  if (result.usedFallback) {
-    writeStderr(`WARN: primary AI request failed; using fallback model ${result.config.model} via ${result.config.baseUrl}${result.primaryError ? ` | primary failure: ${result.primaryError}` : ""}`);
-  }
-  return result;
-}
-
-function retryAttempts(): number {
-  return envPositiveInt("AI_RETRY_ATTEMPTS", 3);
-}
-
-// jitterMs：同一批条目并发提交时，固定退避会让所有重试撞在同一毫秒上；抖动把它们摊开。
-function retryDelayMs(attempt: number, jitterMs = 0): number {
-  const raw = Number(process.env.AI_RETRY_DELAY_MS || "10000");
-  const base = Number.isFinite(raw) && raw >= 0 ? raw : 10_000;
-  const delay = attempt <= 1 ? 0 : base * (attempt - 1);
-  return delay > 0 && jitterMs > 0 ? delay + Math.floor(Math.random() * jitterMs) : delay;
-}
-
-type JsonStageOptions<T> = {
-  task: string;
-  stage: string;
-  artifactPrefix: string;
-  prompt: string;
-  model: string;
-  artifactsDir: string;
-  parse: (content: string) => T;
-  /** 逐条目并发调用时给一个上界，避开同批重试的惊群。 */
-  jitterMs?: number;
-  /** 不给就抛错；给了则由它把「重试用尽」翻译成一个可继续处理的值（Reddit 逐帖降级）。 */
-  onExhausted?: (message: string) => T;
-};
-
-// Intermediate AI stages are as vulnerable to truncated JSON as final article generation.
-// Keep every response and retry prompt so the CI artifact identifies the exact failed stage.
-export async function generateJsonStageWithRetries<T>({
-  task,
-  stage,
-  artifactPrefix,
-  prompt,
-  model,
-  artifactsDir,
-  parse,
-  jitterMs = 0,
-  onExhausted,
-}: JsonStageOptions<T>): Promise<T> {
-  const attempts = retryAttempts();
-  let lastError = "";
-  let attemptPrompt = prompt;
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    await sleep(retryDelayMs(attempt, jitterMs));
-    if (attempt > 1) writeArtifact(artifactsDir, task, `${artifactPrefix}-retry-prompt-attempt-${attempt}.md`, attemptPrompt);
-    try {
-      const response = await callAi(attemptPrompt, model, true);
-      writeArtifact(artifactsDir, task, `${artifactPrefix}-response-attempt-${attempt}.json`, response.content);
-      return parse(response.content);
-    } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-      writeArtifact(artifactsDir, task, `${artifactPrefix}-error-attempt-${attempt}.txt`, lastError);
-      if (attempt < attempts) {
-        attemptPrompt = `${prompt.trim()}\n\n---\n\n上一轮 ${stage} 输出无法通过 JSON 解析或质量校验，原因：${lastError}\n请重新返回完整、合法且字段齐全的 JSON 对象，不要输出解释或代码围栏。`;
-        writeStderr(`WARN: ${stage} attempt ${attempt}/${attempts} failed; retrying with JSON validation feedback: ${lastError}`);
-      }
-    }
-  }
-  const message = `${stage} failed after ${attempts} attempts: ${lastError}`;
-  if (onExhausted) return onExhausted(message);
-  throw new Error(message);
 }
 
 function splitNumberedSource(source: string): { header: string; blocks: Map<number, string> } {

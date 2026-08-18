@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-18",
+  "timeZone": "America/Los_Angeles",
+  "status": "upstream-empty",
+  "upstream": {
+    "generatedSha": "d641982916813cceae5f047000031f31d18b12e2",
+    "workflowRun": "32087251072",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-18-life.md"
+  },
+  "posts": []
+}

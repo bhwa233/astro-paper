@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-17",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "c5d5e65cb01cd623bdc95265cdea0e3e3809ec12",
+    "workflowRun": "32087251072",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-17-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-17/upstream-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vqq7gj",
+      "title": "如何看特朗普靠迷因币获利",
+      "subreddit": "AskReddit",
+      "points": "8938 points · 1812 评论",
+      "numComments": 1812,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vqq7gj/how_do_you_feel_about_trump_netting_23_billion/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-17/01-1vqq7gj.md",
+      "contentSha256": "03cf27f5a3c579e3d8e7d39b73094b37b7fd116ea48f5ee10a8b98bf638df2b9",
+      "issue": 1
+    },
+    {
+      "rank": 2,
+      "postId": "1vqvnnm",
+      "title": "为什么有人爱回复群发邮件说“大家早上好”？",
+      "subreddit": "AskReddit",
+      "points": "5880 points · 807 评论",
+      "numComments": 807,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vqvnnm/people_that_reply_all_to_mass_work_emails_just_to/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-17/01-1vqq7gj.md",
+      "contentSha256": "03cf27f5a3c579e3d8e7d39b73094b37b7fd116ea48f5ee10a8b98bf638df2b9",
+      "issue": 1
+    },
+    {
+      "rank": 3,
+      "postId": "1vqf03k",
+      "title": "十年前的炫耀性消费，如今为何显得俗气？",
+      "subreddit": "AskReddit",
+      "points": "4703 points · 3079 评论",
+      "numComments": 3079,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vqf03k/what_was_huge_status_symbol_10_years_ago_that_now/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-17/01-1vqq7gj.md",
+      "contentSha256": "03cf27f5a3c579e3d8e7d39b73094b37b7fd116ea48f5ee10a8b98bf638df2b9",
+      "issue": 1
+    }
+  ]
+}

@@ -49,10 +49,10 @@ async function fetchBinary(url: string): Promise<ArrayBuffer> {
 // 条目字号按最长那条分档，短的跟着一起大会让三行长短不齐。
 function entryFontSize(titles: string[]): number {
   const longest = Math.max(...titles.map(title => [...title].length));
-  if (longest <= 14) return 40;
-  if (longest <= 20) return 34;
-  if (longest <= 26) return 30;
-  return 26;
+  if (longest <= 14) return 52;
+  if (longest <= 20) return 46;
+  if (longest <= 26) return 40;
+  return 34;
 }
 
 function entryLine(title: string, fontSize: number) {

@@ -1,7 +1,9 @@
 // 账本层：跨运行的幂等性——重跑同一篇不重复入账、带追踪参数的同一集仍认得出、
 // 从归档正文能反解出写进账本的身份。这些是读单个函数看不出来的不变量。
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import path from "node:path";
 import test from "node:test";
 
 import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
@@ -10,6 +12,13 @@ import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprint
 import { fixture, tempDir, tempFile } from "./helpers/mocks.ts";
 import { appendRedditLifeRecommendations, loadRedditLifeRecommendationKeys, redditPostRecommendationKey } from "../scripts/reddit_life_wechat_ledger.ts";
 import { generateRedditLifeWechat, loadRedditLifeRunManifest } from "../scripts/generate_reddit_life_wechat.ts";
+
+function commitFixtureRepo(repo: string): string {
+  execFileSync("git", ["-C", repo, "init", "--quiet"]);
+  execFileSync("git", ["-C", repo, "add", "."]);
+  execFileSync("git", ["-C", repo, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--quiet", "--allow-empty", "-m", "fixture"]);
+  return execFileSync("git", ["-C", repo, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+}
 
 test("podcast fingerprints ignore tracking parameters and upsert by episode identity", () => {
   assert.equal(normalizePodcastUrl("https://example.com/podcast/dev-platforms?utm_medium=social&uo=4&b=2&a=1#section"), "https://example.com/podcast/dev-platforms?a=1&b=2");
@@ -77,10 +86,72 @@ test("Reddit life ledger rewrites the full same-day generated set without losing
 
 test("Reddit life generator records an absent upstream article as a stable no-op manifest", async () => {
   const repo = tempDir("reddit-life-upstream-empty");
-  const result = await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: "deadbeef" });
+  const upstreamSha = commitFixtureRepo(repo);
+  const result = await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "123456789" });
   assert.equal(result.status, "upstream-empty");
   assert.deepEqual(result.generatedPaths, []);
   const manifest = loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`);
   assert.deepEqual(manifest?.posts, []);
-  assert.equal(manifest?.upstream.generatedSha, "deadbeef");
+  assert.equal(manifest?.upstream.generatedSha, upstreamSha);
+  assert.equal(manifest?.upstream.workflowRun, "123456789");
+  assert.equal(fs.existsSync(path.join(repo, "data/reddit-life-wechat/2099-01-02/qr.png")), false);
+
+  execFileSync("git", ["-C", repo, "add", "."]);
+  execFileSync("git", ["-C", repo, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--quiet", "-m", "archive"]);
+  await assert.rejects(
+    generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "123456789" }),
+    /does not match --upstream-sha/,
+  );
+});
+
+// 2026-08-18: qr.png is intentionally gitignored, so reusing a committed manifest used to
+// return before restoring it. The following sync job then failed while downloading a QR artifact
+// that the rerun had never uploaded.
+test("Reddit life generator restores QR resources when reusing a generated manifest", async () => {
+  const repo = tempDir("reddit-life-manifest-reuse");
+  const date = "2099-01-02";
+  const dayDir = path.join(repo, "data/reddit-life-wechat", date);
+  const draftPath = `data/reddit-life-wechat/${date}/01-abcde.md`;
+  fs.mkdirSync(dayDir, { recursive: true });
+  fs.writeFileSync(path.join(repo, draftPath), "---\ntitle: fixture\n---\n");
+  fs.writeFileSync(
+    path.join(dayDir, "run.json"),
+    `${JSON.stringify(
+      {
+        version: 1,
+        archiveDate: date,
+        timeZone: "America/Los_Angeles",
+        status: "processed",
+        upstream: {
+          generatedSha: "0000000000000000000000000000000000000000",
+          workflowRun: "123456788",
+          lifeArticlePath: `src/content/posts/zh-cn/reddit-${date}-life.md`,
+        },
+        posts: [
+          {
+            rank: 1,
+            postId: "abcde",
+            title: "测试问题",
+            subreddit: "AskReddit",
+            points: "100 points · 10 评论",
+            numComments: 10,
+            permalink: "https://www.reddit.com/r/AskReddit/comments/abcde/test/",
+            status: "generated",
+            path: draftPath,
+            contentSha256: "1".repeat(64),
+            issue: 1,
+          },
+        ],
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  const upstreamSha = commitFixtureRepo(repo);
+
+  const result = await generateRedditLifeWechat({ repo, date, upstreamSha, workflowRun: "123456789" });
+
+  assert.deepEqual(result.generatedPaths, [draftPath]);
+  const qr = fs.readFileSync(path.join(dayDir, "qr.png"));
+  assert.deepEqual([...qr.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
 });

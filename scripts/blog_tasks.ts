@@ -157,9 +157,9 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "0 5 * * 6": { task: "new-yorker-weekly", dateTimeZone: "Asia/Shanghai" },
   "0 6 * * 6": { task: "atlantic-monthly", dateTimeZone: "Asia/Shanghai" },
   "0 7 * * 6": { task: "wired-monthly", dateTimeZone: "Asia/Shanghai" },
-  "0 8 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
-  "5 8 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
-  "10 8 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
+  "0 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
+  "5 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
+  "10 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
 };
 
 export function isTask(value: string): value is Task {

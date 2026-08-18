@@ -5,7 +5,7 @@ permissions:
 
 on:
   schedule:
-    - cron: "10 8 * * *"
+    - cron: "10 10 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -32,7 +32,7 @@ jobs:
       task: reddit-top20
       reddit_category: markets
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '10 8 * * *' }}
+      event_schedule: ${{ github.event.schedule || '10 10 * * *' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || '' }}
     secrets: inherit

@@ -38,6 +38,10 @@ function readLedger<T extends Recommendation>(spec: RecommendationLedgerSpec<T>,
   });
 }
 
+export function loadRecommendations<T extends Recommendation>(spec: RecommendationLedgerSpec<T>, file: string): Archived<T>[] {
+  return readLedger(spec, file).recommendations;
+}
+
 export function loadRecommendationKeys<T extends Recommendation>(spec: RecommendationLedgerSpec<T>, file: string, excludePostPath = ""): Set<string> {
   return new Set(
     readLedger(spec, file)

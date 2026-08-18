@@ -15,7 +15,7 @@ import {
   renderRedditLifeWechatMarkdown,
   type RedditLifeCandidate,
 } from "./reddit_life_wechat_compose.ts";
-import { appendRedditLifeRecommendations, loadRedditLifeRecommendationKeys, REDDIT_LIFE_WECHAT_LEDGER_REL_PATH } from "./reddit_life_wechat_ledger.ts";
+import { appendRedditLifeRecommendations, loadRedditLifeRecommendationKeys, nextRedditLifeIssue, REDDIT_LIFE_WECHAT_LEDGER_REL_PATH } from "./reddit_life_wechat_ledger.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 
 const ROOT_REL = "data/reddit-life-wechat";
@@ -26,6 +26,9 @@ type Entry = Omit<RedditLifeCandidate, "body"> & {
   path?: string;
   contentSha256?: string;
   reason?: string;
+  // 标题里的期号。写进 manifest 才能让重跑复用同一个号，而不是重新分配一个。
+  // 引入期号之前归档的 manifest 没有这个字段，因此保持可选。
+  issue?: number;
 };
 
 export type RedditLifeRunManifest = {
@@ -38,13 +41,13 @@ export type RedditLifeRunManifest = {
   posts: Entry[];
 };
 
-function archiveDate(input: string, eventSchedule: string): string {
+function archiveDate(input: string): string {
   if (input) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) throw new Error(`invalid archive date: ${input}`);
     return input;
   }
   // The only automatic caller is reddit-top20's daily cron. Preserve that task's Los Angeles business date.
-  return eventSchedule === "0 8 * * *" || !eventSchedule ? dateStringInTimeZone(new Date(), "America/Los_Angeles") : dateStringInTimeZone(new Date(), "America/Los_Angeles");
+  return dateStringInTimeZone(new Date(), "America/Los_Angeles");
 }
 
 function runRelPath(date: string): string {
@@ -174,10 +177,12 @@ export async function generateRedditLifeWechat({
   const rawSources = { upstreamLifeMarkdown: path.join(dayDir, "upstream-life.md") };
   let entry: Entry = { ...facts, status: "duplicate", reason: "already recommended" };
   if (!duplicate) {
-    const label = `rank=${candidate.rank} post=${candidate.postId}`;
-    const markdown = await fitWechatContentLimit(renderRedditLifeWechatMarkdown(candidate, description, date), repo, label);
+    // 期号只在真的要出稿时分配：重复帖不出稿，也就不该占号。
+    const issue = nextRedditLifeIssue(ledgerFile);
+    const label = `rank=${candidate.rank} post=${candidate.postId} issue=${issue}`;
+    const markdown = await fitWechatContentLimit(renderRedditLifeWechatMarkdown(candidate, description, date, issue), repo, label);
     const relPath = path.join(ROOT_REL, date, `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}.md`);
-    entry = { ...facts, status: "generated", path: relPath, contentSha256: markdownSha256(markdown) };
+    entry = { ...facts, status: "generated", path: relPath, contentSha256: markdownSha256(markdown), issue };
     const target = path.join(repo, relPath);
     ensureDir(path.dirname(target));
     fs.writeFileSync(target, markdown, "utf8");
@@ -187,14 +192,14 @@ export async function generateRedditLifeWechat({
   ensureDir(path.join(repo, dayDir));
   fs.writeFileSync(path.join(repo, rawSources.upstreamLifeMarkdown), upstreamMarkdown, "utf8");
   writeJson(manifestFile, manifest);
-  if (entry.status === "generated") appendRedditLifeRecommendations([recommendationForCandidate(candidate)], { archivedAt: date, postPath: manifestRel }, ledgerFile);
+  if (entry.status === "generated") appendRedditLifeRecommendations([recommendationForCandidate({ ...candidate, issue: entry.issue })], { archivedAt: date, postPath: manifestRel }, ledgerFile);
   writeStderr(`[reddit-life-wechat] archive=${date}: complete status=${entry.status}`);
   return { manifestPath: manifestRel, generatedPaths: entry.path ? [entry.path] : [], status: manifest.status };
 }
 
 async function main(): Promise<void> {
   const args = parseArgs();
-  const date = archiveDate(stringArg(args, "date"), process.env.EVENT_SCHEDULE || "");
+  const date = archiveDate(stringArg(args, "date"));
   const result = await generateRedditLifeWechat({
     repo: path.resolve(stringArg(args, "repo", repoRoot())),
     date,

@@ -4,8 +4,8 @@
   "timeZone": "America/Los_Angeles",
   "status": "processed",
   "upstream": {
-    "generatedSha": "8d782d950f21d4b6554985e7496f7ae874417cac",
-    "workflowRun": "32087251072",
+    "generatedSha": "7122af194df4083f7d884974fca4da8ff48fa372",
+    "workflowRun": "32092250605",
     "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-17-life.md"
   },
   "rawSources": {
@@ -22,7 +22,7 @@
       "permalink": "https://www.reddit.com/r/AskReddit/comments/1vqq7gj/how_do_you_feel_about_trump_netting_23_billion/",
       "status": "generated",
       "path": "data/reddit-life-wechat/2026-08-17/01-1vqq7gj.md",
-      "contentSha256": "3b6783f302a4f01a8ed5904ca662bbf75719a5ffa6e53b6338c19bf0ab51f914",
+      "contentSha256": "bb2a60e4af44b299e695207d9e3db9f151f2fdfcb76e8f943054d28ffb4ee99a",
       "issue": 1
     }
   ]

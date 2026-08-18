@@ -1,12 +1,13 @@
 ---
 author: bhwa233
 pubDatetime: 2026-08-16T16:00:00Z
-modDatetime: 2026-08-18T01:27:58Z
+modDatetime: 2026-08-18T02:33:34Z
 title: "如何看特朗普靠迷因币获利｜Reddit 热帖精选 #1"
 featured: false
 draft: false
 tags:
   - Reddit人生讨论
+ogImage: "cover.png"
 wechat:
   enabled: true
   sourceURL: "https://www.reddit.com/r/AskReddit/comments/1vqq7gj/how_do_you_feel_about_trump_netting_23_billion/"

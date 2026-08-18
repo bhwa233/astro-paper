@@ -3,7 +3,7 @@ import fs from "node:fs";
 import { createHash } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
-import sharp from "sharp";
+import { resizeToWebp } from "./image_raster.ts";
 import { archivePost } from "./astro_paper_archive.ts";
 import { validateMarkdown, renderPrompt, resolvePromptFile } from "./ai_blog_writer.ts";
 import { type AiCallResult, callBlogAiWithFailover, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
@@ -140,7 +140,7 @@ async function localizePodcastCover(episode: Episode, repo: string, date: string
     }
     const size = envPositiveInt("PODCAST_COVER_SIZE", 800);
     const quality = envPositiveInt("PODCAST_COVER_QUALITY", 80);
-    const webp = await sharp(input).resize(size, size, { fit: "inside", withoutEnlargement: true }).webp({ quality }).toBuffer();
+    const webp = await resizeToWebp(input, size, quality);
     ensureDir(path.join(repo, PODCAST_COVER_REL_DIR));
     const fileName = `${date}-${fileNameSuffix}.webp`;
     fs.writeFileSync(path.join(repo, PODCAST_COVER_REL_DIR, fileName), webp);

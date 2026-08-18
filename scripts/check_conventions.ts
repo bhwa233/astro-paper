@@ -18,7 +18,7 @@ const DEPENDENCY_OWNERS: Record<string, string> = {
   "adm-zip": "scripts/magazine.ts",
   "fast-xml-parser": "scripts/magazine.ts",
   "@mozilla/readability": "scripts/hn_top10_source.ts",
-  sharp: "scripts/generate_scheduled_post.ts",
+  sharp: "scripts/image_raster.ts",
 };
 
 function listFiles(dir: string, extension: string): string[] {

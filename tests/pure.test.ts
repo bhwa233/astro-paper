@@ -249,6 +249,10 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   const markdown = renderRedditLifeWechatMarkdown(candidate, "帖子问的是第一个问题。", "2099-01-02", 42);
 
   assert.match(markdown, /^title: "问题 1｜Reddit 热帖精选 #42"$/m);
+  // 封面渲染失败时不写 ogImage，astro-wechat 才能回落到配置里的 defaultCover；
+  // 写了却没有对应文件反而会让它解析资源时直接报错。
+  assert.doesNotMatch(markdown, /^ogImage:/m);
+  assert.match(renderRedditLifeWechatMarkdown(candidate, "帖子问的是第一个问题。", "2099-01-02", 42, "cover.png"), /^ogImage: "cover\.png"$/m);
   assert.match(markdown, /^ {2}sourceURL: "https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/post1\/"$/m);
   assert.match(markdown, /^description: "帖子问的是第一个问题。"$/m);
   assert.match(markdown, /^更多每日精选：https:\/\/blog\.bhwa233\.com\/$/m);

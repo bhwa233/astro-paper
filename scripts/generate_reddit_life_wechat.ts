@@ -13,8 +13,10 @@ import {
   parseRedditLifeDescription,
   recommendationForCandidate,
   renderRedditLifeWechatMarkdown,
+  REDDIT_LIFE_WECHAT_TITLE_BRAND,
   type RedditLifeCandidate,
 } from "./reddit_life_wechat_compose.ts";
+import { REDDIT_LIFE_WECHAT_COVER_FILE, renderRedditLifeWechatCover } from "./reddit_life_wechat_cover.ts";
 import { appendRedditLifeRecommendations, loadRedditLifeRecommendationKeys, nextRedditLifeIssue, REDDIT_LIFE_WECHAT_LEDGER_REL_PATH } from "./reddit_life_wechat_ledger.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 
@@ -180,11 +182,18 @@ export async function generateRedditLifeWechat({
     // 期号只在真的要出稿时分配：重复帖不出稿，也就不该占号。
     const issue = nextRedditLifeIssue(ledgerFile);
     const label = `rank=${candidate.rank} post=${candidate.postId} issue=${issue}`;
-    const markdown = await fitWechatContentLimit(renderRedditLifeWechatMarkdown(candidate, description, date, issue), repo, label);
     const relPath = path.join(ROOT_REL, date, `${String(candidate.rank).padStart(2, "0")}-${candidate.postId}.md`);
-    entry = { ...facts, status: "generated", path: relPath, contentSha256: markdownSha256(markdown), issue };
     const target = path.join(repo, relPath);
     ensureDir(path.dirname(target));
+    // 封面先落盘再写稿：ogImage 只有在图确实存在时才敢写，否则 astro-wechat 解析不到文件会直接报错，
+    // 那比回落到 defaultCover 糟得多。渲染失败返回 null，稿子照常出，只是没有专属封面。
+    const cover = await renderRedditLifeWechatCover(candidate.title, REDDIT_LIFE_WECHAT_TITLE_BRAND, issue);
+    if (cover) {
+      fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_COVER_FILE), cover);
+      writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_COVER_FILE} (${cover.length} bytes)`);
+    }
+    const markdown = await fitWechatContentLimit(renderRedditLifeWechatMarkdown(candidate, description, date, issue, cover ? REDDIT_LIFE_WECHAT_COVER_FILE : ""), repo, label);
+    entry = { ...facts, status: "generated", path: relPath, contentSha256: markdownSha256(markdown), issue };
     fs.writeFileSync(target, markdown, "utf8");
     writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);
   }

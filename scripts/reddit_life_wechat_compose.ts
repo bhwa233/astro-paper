@@ -132,13 +132,16 @@ export function redditLifeWechatTitle(title: string, issue: number): string {
   return `${chars.length <= budget ? headline : `${chars.slice(0, budget - TITLE_ELLIPSIS.length).join("")}${TITLE_ELLIPSIS}`}${suffix}`;
 }
 
-export function renderRedditLifeWechatMarkdown(candidate: RedditLifeCandidate, description: string, archiveDate: string, issue: number): string {
+// coverFile 为空时不写 ogImage，astro-wechat 会回落到配置里的 defaultCover。
+// 路径按相对写法：astro-wechat 先相对 Markdown 所在目录解析，封面就躺在稿子旁边，不必往 public/ 里塞。
+export function renderRedditLifeWechatMarkdown(candidate: RedditLifeCandidate, description: string, archiveDate: string, issue: number, coverFile = ""): string {
   if (!description) throw new Error("Reddit life WeChat article needs a description");
   const metadata = frontmatter({
     title: redditLifeWechatTitle(candidate.title, issue),
     date: archiveDate,
     description,
     tags: [REDDIT_LIFE_WECHAT_TAG],
+    ogImage: coverFile,
     wechatEnabled: true,
   })
     .replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${candidate.permalink}"`)

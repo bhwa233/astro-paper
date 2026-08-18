@@ -45,18 +45,33 @@ async function fetchBinary(url: string): Promise<ArrayBuffer> {
   return response.arrayBuffer();
 }
 
-// 标题长短差得远，字号固定的话短标题空一大片、长标题溢出，因此按字数分档。
-function titleFontSize(title: string): number {
-  const length = [...title].length;
-  if (length <= 12) return 72;
-  if (length <= 20) return 60;
-  if (length <= 26) return 52;
-  return 46;
+// 一篇稿子收录三帖，封面改成「大字期号 + 逐条列出帖子标题」：单帖标题当主视觉时另外两帖没有出口。
+// 条目字号按最长那条分档，短的跟着一起大会让三行长短不齐。
+function entryFontSize(titles: string[]): number {
+  const longest = Math.max(...titles.map(title => [...title].length));
+  if (longest <= 14) return 40;
+  if (longest <= 20) return 34;
+  if (longest <= 26) return 30;
+  return 26;
+}
+
+function entryLine(title: string, fontSize: number) {
+  return {
+    type: "div",
+    props: {
+      style: { display: "flex", alignItems: "baseline", width: "100%", fontSize, lineHeight: 1.35, overflow: "hidden" },
+      children: [
+        { type: "span", props: { style: { marginRight: "14px", fontWeight: 700 }, children: "·" } },
+        { type: "span", props: { style: { fontWeight: 700 }, children: title } },
+      ],
+    },
+  };
 }
 
 // 版式对齐博客的 OG 图（src/pages/posts/[...slug]/index.png.ts）：白底、两张错位叠放的描边卡片、
-// 标题钉顶、页脚一行。那边是 1200×630，这里是 2.35:1，所以只有字号按标题长度分档，比例照搬。
-function coverTree(title: string, brand: string, issue: string) {
+// 内容钉顶、页脚一行。那边是 1200×630，这里是 2.35:1，所以只有字号按标题长度分档，比例照搬。
+function coverTree(titles: string[], brand: string, issue: string) {
+  const fontSize = entryFontSize(titles);
   return {
     type: "div",
     props: {
@@ -111,8 +126,8 @@ function coverTree(title: string, brand: string, issue: string) {
                   {
                     type: "div",
                     props: {
-                      style: { display: "flex", fontSize: titleFontSize(title), fontWeight: 700, lineHeight: 1.2, letterSpacing: -1, maxHeight: "84%", overflow: "hidden" },
-                      children: title,
+                      style: { display: "flex", flexDirection: "column", gap: "10px", maxHeight: "84%", overflow: "hidden" },
+                      children: titles.map(title => entryLine(title, fontSize)),
                     },
                   },
                   {
@@ -139,13 +154,13 @@ function coverTree(title: string, brand: string, issue: string) {
  * 渲染一张封面。失败时返回 null 而不是抛：封面缺失会让 astro-wechat 回落到配置里的
  * defaultCover，也就是现在的行为，不值得为它中断整篇稿子的归档。
  */
-export async function renderRedditLifeWechatCover(title: string, brand: string, issue: number): Promise<Buffer | null> {
-  const headline = compact(title);
-  if (!headline) throw new Error("Reddit life WeChat cover needs a title");
+export async function renderRedditLifeWechatCover(titles: string[], brand: string, issue: number): Promise<Buffer | null> {
+  const entries = titles.map(title => compact(title)).filter(Boolean);
+  if (!entries.length) throw new Error("Reddit life WeChat cover needs at least one title");
   const issueLabel = `#${issue}`;
   try {
-    const fonts = await loadSubsetFonts(`${headline}${brand}${issueLabel}`);
-    const svg = await satori(coverTree(headline, brand, issueLabel), { width: COVER_WIDTH, height: COVER_HEIGHT, fonts });
+    const fonts = await loadSubsetFonts(`${entries.join("")}${brand}${issueLabel}·`);
+    const svg = await satori(coverTree(entries, brand, issueLabel), { width: COVER_WIDTH, height: COVER_HEIGHT, fonts });
     return await svgToPng(svg);
   } catch (error) {
     writeStderr(`WARN: [reddit-life-wechat] cover rendering failed, falling back to the configured defaultCover: ${error instanceof Error ? error.message : String(error)}`);

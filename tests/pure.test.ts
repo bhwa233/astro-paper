@@ -226,38 +226,47 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
     permalink: "https://www.reddit.com/r/AskReddit/comments/post1/",
     body: ["1\\. 第一个故事。", "", "2\\. 第二个故事。", "", "3\\. 第三个故事。"].join("\n"),
   };
-  const markdown = renderRedditLifeWechatMarkdown(candidate, "帖子问的是第一个问题。", "2099-01-02", 42);
+  const second = { ...candidate, rank: 2, postId: "post2", title: "问题 2", permalink: "https://www.reddit.com/r/AskReddit/comments/post2/", body: ["1\\. 第四个故事。", "", "2\\. 第五个故事。"].join("\n") };
+  const render = (overrides = {}) =>
+    renderRedditLifeWechatMarkdown({ candidates: [candidate, second], headline: "话题一、话题二", description: "这期讲了两件事。", archiveDate: "2099-01-02", issue: 42, ...overrides });
+  const markdown = render();
 
-  assert.match(markdown, /^title: "问题 1｜Reddit 热帖精选 #42"$/m);
+  // 标题由模型给的话题串加品牌与期号拼成，不再由某一帖独占。
+  assert.match(markdown, /^title: "话题一、话题二｜Reddit 热帖精选 #42"$/m);
   // 封面渲染失败时不写 ogImage，astro-wechat 才能回落到配置里的 defaultCover；
   // 写了却没有对应文件反而会让它解析资源时直接报错。
   assert.doesNotMatch(markdown, /^ogImage:/m);
-  assert.match(renderRedditLifeWechatMarkdown(candidate, "帖子问的是第一个问题。", "2099-01-02", 42, "cover.png"), /^ogImage: "cover\.png"$/m);
+  assert.match(render({ coverFile: "cover.png" }), /^ogImage: "cover\.png"$/m);
+  // sourceURL 是 astro-wechat 的同步身份，一篇稿子只能有一个，取第一帖。
   assert.match(markdown, /^ {2}sourceURL: "https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/post1\/"$/m);
-  assert.match(markdown, /^description: "帖子问的是第一个问题。"$/m);
+  assert.match(markdown, /^description: "这期讲了两件事。"$/m);
   // 页脚卡片内不能出现空行：markdown-it 的 html_block 遇空行就结束，后半段会退化成
   // 转义过的普通段落，读者看到的是一堆尖括号。这个约束从卡片本身看不出来，容易在编辑时踩到。
   assert.doesNotMatch(markdown.slice(markdown.indexOf("<section")), /\n\s*\n/);
-  // 上游正文原样搬运，正文里不出现任何标题。
-  assert.match(markdown, /^1\\\. 第一个故事。$/m);
+  // 帖间用整行加粗分隔，编号在每帖内部重新从 1 开始；不能出现 Markdown 标题。
+  assert.match(markdown, /^\*\*问题 1\*\*\n\n1\\\. 第一个故事。/m);
+  assert.match(markdown, /^\*\*问题 2\*\*\n\n1\\\. 第四个故事。/m);
   assert.doesNotMatch(markdown, /^#{1,6}\s/m);
-  // 不是 Markdown 列表；每条都是带普通编号的独立段落。
-  assert.match(markdown, /^1\\\. 第一个故事。\n\n2\\\. 第二个故事。\n\n3\\\. 第三个故事。$/m);
-  assert.match(dropTrailingStories(markdown, 1), /^1\\\. 第一个故事。\n\n2\\\. 第二个故事。$/m);
-  assert.equal(countDroppableStories(markdown), 3);
+
+  // 每帖只保留前 N 条回答：三帖全量会撞上微信 20000 字符的 HTML 上限。
+  const capped = render({ replyLimit: 1 });
+  assert.match(capped, /^\*\*问题 1\*\*\n\n1\\\. 第一个故事。\n\n\*\*问题 2\*\*$/m);
+  assert.doesNotMatch(capped, /第二个故事/);
+
+  assert.equal(countDroppableStories(markdown), 5);
   assert.equal(dropTrailingStories(markdown, 0), markdown);
 
-  const droppedOne = dropTrailingStories(markdown, 1);
-  assert.doesNotMatch(droppedOne, /第三个故事/);
-  assert.match(droppedOne, /第二个故事/);
+  // 删到某帖一条不剩时，它的标题也要跟着走，否则留下一个后面没有内容的空标题。
+  const droppedTwo = dropTrailingStories(markdown, 2);
+  assert.doesNotMatch(droppedTwo, /第四个故事|第五个故事/);
+  assert.doesNotMatch(droppedTwo, /\*\*问题 2\*\*/);
+  assert.match(droppedTwo, /\*\*问题 1\*\*/);
   // frontmatter 和页脚是稿子的骨架，任何截断都不能动它们。
-  assert.match(droppedOne, /^---\nauthor:/);
-  assert.match(droppedOne, /<section /);
-  // 编号从 1 递增，从末尾删不会留下断号。
-  assert.doesNotMatch(droppedOne, /^3\\\. /m);
+  assert.match(droppedTwo, /^---\nauthor:/);
+  assert.match(droppedTwo, /<section /);
 
-  assert.throws(() => dropTrailingStories(markdown, 3), /fewer than 3 droppable stories/);
-  assert.throws(() => renderRedditLifeWechatMarkdown(candidate, "", "2099-01-02", 42), /needs a description/);
+  assert.throws(() => dropTrailingStories(markdown, 5), /fewer than 5 droppable stories/);
+  assert.throws(() => render({ description: "" }), /needs a description/);
 });
 
 // 品牌与期号在标题末尾，正好落在微信 64 字符上限最先砍掉的位置，因此截断只许吃帖子标题那段。

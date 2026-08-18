@@ -10,7 +10,6 @@ import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
 import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
 import { fixture, tempDir, tempFile } from "./helpers/mocks.ts";
-import { appendRedditLifeRecommendations, loadRedditLifeRecommendationKeys, redditPostRecommendationKey } from "../scripts/reddit_life_wechat_ledger.ts";
 import { generateRedditLifeWechat, loadRedditLifeRunManifest } from "../scripts/generate_reddit_life_wechat.ts";
 
 function commitFixtureRepo(repo: string): string {
@@ -70,18 +69,6 @@ test("mdblist source evidence exposes the TMDB identities selected for the ledge
   assert.match(selections[0].key, /^movie:\d+$/);
   assert.equal(selections[3].mediaType, "show");
   assert.match(selections[3].key, /^show:\d+:season:\d+$/);
-});
-
-test("Reddit life ledger rewrites the full same-day generated set without losing the first post", () => {
-  const file = tempFile("reddit-life-ledger", "recommended.json");
-  const meta = { archivedAt: "2099-01-02", postPath: "data/reddit-life-wechat/2099-01-02/run.json" };
-  const first = { key: redditPostRecommendationKey("abcde"), postId: "abcde", title: "第一个讨论" };
-  const second = { key: redditPostRecommendationKey("fghij"), postId: "fghij", title: "第二个讨论" };
-  appendRedditLifeRecommendations([first, second], meta, file);
-  appendRedditLifeRecommendations([first, second], meta, file);
-  assert.deepEqual(loadRedditLifeRecommendationKeys(file), new Set([first.key, second.key]));
-  fs.writeFileSync(file, "{");
-  assert.throws(() => loadRedditLifeRecommendationKeys(file), /invalid Reddit life WeChat recommendation ledger/);
 });
 
 test("Reddit life generator records an absent upstream article as a stable no-op manifest", async () => {

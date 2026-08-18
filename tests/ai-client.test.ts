@@ -4,7 +4,7 @@ import path from "node:path";
 import test from "node:test";
 
 import { callBlogAi, callBlogAiWithFailover, parseResponsesSse } from "../scripts/blog_ai_client.ts";
-import { generateJsonStageWithRetries } from "../scripts/generate_scheduled_post.ts";
+import { generateJsonStageWithRetries } from "../scripts/ai_json_stage.ts";
 import { tempDir, withMocks } from "./helpers/mocks.ts";
 
 const CHAT_OK = JSON.stringify({ choices: [{ message: { content: "## 标题\n\n" + "有效正文".repeat(80) } }] });
@@ -349,7 +349,7 @@ test("JSON generation stages retry malformed output with JSON mode and retain di
         prompt: "Return one JSON object.",
         model: "test-model",
         artifactsDir,
-        parse: content => JSON.parse(content) as { summary: string },
+        parse: (content: string) => JSON.parse(content) as { summary: string },
       }),
   );
 

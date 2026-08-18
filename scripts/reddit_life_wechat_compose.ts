@@ -2,11 +2,15 @@
 // 上游每帖的正文已经是「一条回答一个普通文本编号段」的故事集，这里只做选帖、改标题和长度收口。
 import { createHash } from "node:crypto";
 import { compact, frontmatter } from "./blog_common.ts";
-import { redditPostRecommendationKey } from "./reddit_life_wechat_ledger.ts";
+import { type RedditLifeRecommendation, redditPostRecommendationKey } from "./reddit_life_wechat_ledger.ts";
 import { REDDIT_LIFE_SUBREDDITS } from "./reddit_life_wechat_source.ts";
 
 export const REDDIT_LIFE_WECHAT_TAG = "Reddit人生讨论";
-export const REDDIT_LIFE_WECHAT_TITLE_PREFIX = "Reddit 热帖精选｜";
+export const REDDIT_LIFE_WECHAT_TITLE_BRAND = "Reddit 热帖精选";
+// 微信图文标题上限 64 字符。品牌与期号在末尾，正是最该固定露出的部分，所以超长时只截帖子标题那段。
+// 提示词已经把译名压到 30 字，这里只是模型不守约时的兜底，正常永远不触发。
+const WECHAT_TITLE_LIMIT = 64;
+const TITLE_ELLIPSIS = "…";
 const BLOG_URL = "https://blog.bhwa233.com/";
 const FOOTER = `更多每日精选：${BLOG_URL}`;
 
@@ -116,10 +120,22 @@ function splitWechatMarkdown(markdown: string): { front: string; body: string; f
   return { front, body: markdown.slice(front.length, footerIndex).trim(), footer: markdown.slice(footerIndex + 1).trim() };
 }
 
-export function renderRedditLifeWechatMarkdown(candidate: RedditLifeCandidate, description: string, archiveDate: string): string {
+export function redditLifeWechatTitle(title: string, issue: number): string {
+  if (!Number.isInteger(issue) || issue < 1) throw new Error(`invalid Reddit life WeChat issue number: ${issue}`);
+  const headline = compact(title);
+  if (!headline) throw new Error("Reddit life WeChat article needs a title");
+  const suffix = `｜${REDDIT_LIFE_WECHAT_TITLE_BRAND} #${issue}`;
+  const budget = WECHAT_TITLE_LIMIT - suffix.length;
+  if (budget <= TITLE_ELLIPSIS.length) throw new Error(`Reddit life WeChat issue number leaves no room for a title: #${issue}`);
+  // 按码点切，不按 UTF-16 单元，否则表情之类的代理对会被截成半个字符。
+  const chars = [...headline];
+  return `${chars.length <= budget ? headline : `${chars.slice(0, budget - TITLE_ELLIPSIS.length).join("")}${TITLE_ELLIPSIS}`}${suffix}`;
+}
+
+export function renderRedditLifeWechatMarkdown(candidate: RedditLifeCandidate, description: string, archiveDate: string, issue: number): string {
   if (!description) throw new Error("Reddit life WeChat article needs a description");
   const metadata = frontmatter({
-    title: `${REDDIT_LIFE_WECHAT_TITLE_PREFIX}${candidate.title}`,
+    title: redditLifeWechatTitle(candidate.title, issue),
     date: archiveDate,
     description,
     tags: [REDDIT_LIFE_WECHAT_TAG],
@@ -134,6 +150,6 @@ export function markdownSha256(markdown: string): string {
   return createHash("sha256").update(markdown, "utf8").digest("hex");
 }
 
-export function recommendationForCandidate(candidate: { postId: string; title: string }) {
-  return { key: redditPostRecommendationKey(candidate.postId), postId: candidate.postId, title: candidate.title };
+export function recommendationForCandidate(candidate: { postId: string; title: string; issue?: number }): RedditLifeRecommendation {
+  return { key: redditPostRecommendationKey(candidate.postId), postId: candidate.postId, title: candidate.title, issue: candidate.issue };
 }

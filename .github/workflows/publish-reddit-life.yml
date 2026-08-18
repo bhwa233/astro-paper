@@ -5,7 +5,7 @@ permissions:
 
 on:
   schedule:
-    - cron: "0 8 * * *"
+    - cron: "0 10 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -32,21 +32,18 @@ jobs:
       task: reddit-top20
       reddit_category: life
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '0 8 * * *' }}
+      event_schedule: ${{ github.event.schedule || '0 10 * * *' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || '' }}
     secrets: inherit
 
   reddit-life-wechat:
     name: Archive Reddit Life WeChat Drafts
-    # Temporarily disabled while the archived source-data workflow is under review.
-    if: ${{ false }}
     needs: publish
     permissions:
       contents: write
     uses: ./.github/workflows/reddit-life-wechat.yml
     with:
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '0 8 * * *' }}
       upstream_sha: ${{ needs.publish.outputs.generated_sha }}
     secrets: inherit

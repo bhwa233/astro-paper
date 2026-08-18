@@ -14,6 +14,7 @@ import {
   dropTrailingStories,
   parseRedditLifeCandidates,
   parseRedditLifeDescription,
+  redditLifeWechatTitle,
   renderRedditLifeWechatMarkdown,
 } from "../scripts/reddit_life_wechat_compose.ts";
 
@@ -245,9 +246,9 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
     permalink: "https://www.reddit.com/r/AskReddit/comments/post1/",
     body: ["1\\. 第一个故事。", "", "2\\. 第二个故事。", "", "3\\. 第三个故事。"].join("\n"),
   };
-  const markdown = renderRedditLifeWechatMarkdown(candidate, "帖子问的是第一个问题。", "2099-01-02");
+  const markdown = renderRedditLifeWechatMarkdown(candidate, "帖子问的是第一个问题。", "2099-01-02", 42);
 
-  assert.match(markdown, /^title: "Reddit 热帖精选｜问题 1"$/m);
+  assert.match(markdown, /^title: "问题 1｜Reddit 热帖精选 #42"$/m);
   assert.match(markdown, /^ {2}sourceURL: "https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/post1\/"$/m);
   assert.match(markdown, /^description: "帖子问的是第一个问题。"$/m);
   assert.match(markdown, /^更多每日精选：https:\/\/blog\.bhwa233\.com\/$/m);
@@ -270,5 +271,32 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   assert.doesNotMatch(droppedOne, /^3\\\. /m);
 
   assert.throws(() => dropTrailingStories(markdown, 3), /fewer than 3 droppable stories/);
-  assert.throws(() => renderRedditLifeWechatMarkdown(candidate, "", "2099-01-02"), /needs a description/);
+  assert.throws(() => renderRedditLifeWechatMarkdown(candidate, "", "2099-01-02", 42), /needs a description/);
+});
+
+// 品牌与期号在标题末尾，正好落在微信 64 字符上限最先砍掉的位置，因此截断只许吃帖子标题那段。
+test("Reddit life WeChat title keeps the brand suffix intact and truncates only the headline", () => {
+  assert.equal(redditLifeWechatTitle("问题 1", 42), "问题 1｜Reddit 热帖精选 #42");
+  // 后缀占 16 字符，标题预算是 48；正好用满不截断。
+  const suffix = "｜Reddit 热帖精选 #42";
+  assert.equal(suffix.length, 16);
+  const exact = "题".repeat(48);
+  assert.equal(redditLifeWechatTitle(exact, 42), `${exact}${suffix}`);
+  assert.equal(redditLifeWechatTitle(exact, 42).length, 64);
+
+  const overlong = redditLifeWechatTitle("题".repeat(60), 42);
+  assert.equal(overlong.length, 64);
+  assert.ok(overlong.endsWith(suffix));
+  assert.equal(overlong, `${"题".repeat(47)}…${suffix}`);
+
+  // 按码点切，代理对不能被截成半个字符。
+  const emoji = redditLifeWechatTitle("😀".repeat(60), 42);
+  assert.equal([...emoji].length, 64);
+  assert.ok(emoji.endsWith(`…${suffix}`));
+  assert.ok(!emoji.includes("�"));
+
+  assert.equal(redditLifeWechatTitle("  问题 1  ", 7), "问题 1｜Reddit 热帖精选 #7");
+  assert.throws(() => redditLifeWechatTitle("问题 1", 0), /invalid Reddit life WeChat issue number/);
+  assert.throws(() => redditLifeWechatTitle("问题 1", 1.5), /invalid Reddit life WeChat issue number/);
+  assert.throws(() => redditLifeWechatTitle("   ", 42), /needs a title/);
 });

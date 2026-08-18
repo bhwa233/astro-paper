@@ -255,7 +255,9 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   assert.match(renderRedditLifeWechatMarkdown(candidate, "帖子问的是第一个问题。", "2099-01-02", 42, "cover.png"), /^ogImage: "cover\.png"$/m);
   assert.match(markdown, /^ {2}sourceURL: "https:\/\/www\.reddit\.com\/r\/AskReddit\/comments\/post1\/"$/m);
   assert.match(markdown, /^description: "帖子问的是第一个问题。"$/m);
-  assert.match(markdown, /^更多每日精选：https:\/\/blog\.bhwa233\.com\/$/m);
+  // 页脚卡片内不能出现空行：markdown-it 的 html_block 遇空行就结束，后半段会退化成
+  // 转义过的普通段落，读者看到的是一堆尖括号。这个约束从卡片本身看不出来，容易在编辑时踩到。
+  assert.doesNotMatch(markdown.slice(markdown.indexOf("<section")), /\n\s*\n/);
   // 上游正文原样搬运，正文里不出现任何标题。
   assert.match(markdown, /^1\\\. 第一个故事。$/m);
   assert.doesNotMatch(markdown, /^#{1,6}\s/m);
@@ -270,7 +272,7 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   assert.match(droppedOne, /第二个故事/);
   // frontmatter 和页脚是稿子的骨架，任何截断都不能动它们。
   assert.match(droppedOne, /^---\nauthor:/);
-  assert.match(droppedOne, /更多每日精选：/);
+  assert.match(droppedOne, /<section /);
   // 编号从 1 递增，从末尾删不会留下断号。
   assert.doesNotMatch(droppedOne, /^3\\\. /m);
 
@@ -303,4 +305,46 @@ test("Reddit life WeChat title keeps the brand suffix intact and truncates only 
   assert.throws(() => redditLifeWechatTitle("问题 1", 0), /invalid Reddit life WeChat issue number/);
   assert.throws(() => redditLifeWechatTitle("问题 1", 1.5), /invalid Reddit life WeChat issue number/);
   assert.throws(() => redditLifeWechatTitle("   ", 42), /needs a title/);
+});
+
+// 编码交给 qrcode-generator，这里守的是自己写的那半截：SVG 栅格化必须逐格还原模块矩阵。
+// 错一格或静区被涂黑，图看着像二维码但扫不出来。
+test("QR rasterization reproduces the module matrix and keeps the quiet zone clear", async () => {
+  const { renderQrPng } = await import("../scripts/qr_code.ts");
+  const qrcode = (await import("qrcode-generator")).default;
+  const sharp = (await import("sharp")).default;
+
+  const text = "https://blog.bhwa233.com/";
+  const size = 240;
+  const margin = 4;
+  const qr = qrcode(0, "M");
+  qr.addData(text);
+  qr.make();
+  const modules = qr.getModuleCount();
+  const scale = size / (modules + margin * 2);
+
+  const { data, info } = await sharp(await renderQrPng(text, { size, marginModules: margin }))
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const luminanceAt = (x: number, y: number) => data[(y * info.width + x) * info.channels];
+
+  assert.equal(info.width, size);
+  assert.equal(info.height, size);
+  for (let row = 0; row < modules; row += 1) {
+    for (let column = 0; column < modules; column += 1) {
+      const x = Math.floor((column + margin + 0.5) * scale);
+      const y = Math.floor((row + margin + 0.5) * scale);
+      assert.equal(luminanceAt(x, y) < 128, qr.isDark(row, column), `module ${row},${column} does not match the matrix`);
+    }
+  }
+  for (let y = 0; y < Math.floor(margin * scale) - 1; y += 1) {
+    for (let x = 0; x < info.width; x += 1) {
+      assert.ok(luminanceAt(x, y) >= 128, `quiet zone is not blank at ${x},${y}`);
+    }
+  }
+
+  await assert.rejects(() => renderQrPng("  "), /needs a non-empty payload/);
+  await assert.rejects(() => renderQrPng(text, { size: 0 }), /invalid QR size/);
+  await assert.rejects(() => renderQrPng(text, { marginModules: -1 }), /invalid QR margin/);
 });

@@ -13,10 +13,13 @@ import {
   parseRedditLifeDescription,
   recommendationForCandidate,
   renderRedditLifeWechatMarkdown,
+  REDDIT_LIFE_WECHAT_QR_FILE,
+  REDDIT_LIFE_WECHAT_QR_TARGET,
   REDDIT_LIFE_WECHAT_TITLE_BRAND,
   type RedditLifeCandidate,
 } from "./reddit_life_wechat_compose.ts";
 import { REDDIT_LIFE_WECHAT_COVER_FILE, renderRedditLifeWechatCover } from "./reddit_life_wechat_cover.ts";
+import { renderQrPng } from "./qr_code.ts";
 import { appendRedditLifeRecommendations, loadRedditLifeRecommendationKeys, nextRedditLifeIssue, REDDIT_LIFE_WECHAT_LEDGER_REL_PATH } from "./reddit_life_wechat_ledger.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 
@@ -215,6 +218,11 @@ export async function generateRedditLifeWechat({
       fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_COVER_FILE), cover);
       writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_COVER_FILE} (${cover.length} bytes)`);
     }
+    // 页脚卡片无条件引用 qr.png，所以这张图必须存在，失败就得让整次归档失败——
+    // 写出一篇引用了不存在资源的稿子，只会把问题推到发布那一步才炸。
+    const qr = await renderQrPng(REDDIT_LIFE_WECHAT_QR_TARGET);
+    fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_QR_FILE), qr);
+    writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_QR_FILE} (${qr.length} bytes)`);
     const markdown = await fitWithOptionalCover(candidate, description, date, issue, cover ? REDDIT_LIFE_WECHAT_COVER_FILE : "", repo, label, path.dirname(target));
     entry = { ...facts, status: "generated", path: relPath, contentSha256: markdownSha256(markdown), issue };
     fs.writeFileSync(target, markdown, "utf8");

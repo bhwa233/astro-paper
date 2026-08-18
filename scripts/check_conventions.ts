@@ -19,6 +19,7 @@ const DEPENDENCY_OWNERS: Record<string, string> = {
   "fast-xml-parser": "scripts/magazine.ts",
   "@mozilla/readability": "scripts/hn_top10_source.ts",
   sharp: "scripts/image_raster.ts",
+  "qrcode-generator": "scripts/qr_code.ts",
 };
 
 function listFiles(dir: string, extension: string): string[] {

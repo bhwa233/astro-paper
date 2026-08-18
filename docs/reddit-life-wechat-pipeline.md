@@ -64,7 +64,17 @@ data/reddit-life-wechat/
 └── 2026-08-17/
     ├── run.json
     ├── upstream-life.md
+    ├── cover.png          # 提交
+    ├── qr.png             # 不提交，见下
     └── 01-<reddit-post-id>.md
+```
+
+`cover.png` 是这一篇的专属封面，由 `reddit_life_wechat_cover.ts` 用 satori 渲染后随稿子提交；缺失时 `astro-wechat` 回落到配置里的 `defaultCover`，因此渲染失败只降级不中断。
+
+`qr.png` 指向博客首页，内容恒定，所以按 `.gitignore` 排除、每次运行重新生成，避免仓库里堆一份天天重复的二进制。代价是**已提交的稿子引用了一个没提交的文件**：CI 里由 `generate-and-archive` 上传成 artifact、`sync-wechat` 下载还原，两个 job 用的是同一份字节。绕开这条链路时必须先补上这张图，否则 `astro-wechat` 会以 `asset-not-found` 直接失败：
+
+```bash
+node --import tsx scripts/generate_reddit_life_wechat.ts --date <date> --upstream-sha <sha>
 ```
 
 `run.json` 记录 manifest version、归档日期与时区、上游提交 SHA / workflow run / 文章路径、上游快照路径、运行状态（`processed` 或 `upstream-empty`），以及那一帖的事实字段、处理状态（`generated` 或 `duplicate`）、产物路径和内容 hash。

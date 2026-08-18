@@ -94,10 +94,12 @@ function writeArtifact(dir: string, name: string, content: string): void {
 
 // 一帖的故事条数不可控，渲染出的 HTML 随时可能撞上微信 20000 字符上限，而上游无法预知渲染后的长度。
 // 这里用渲染器本身做判定：能渲染就原样归档，撞限就从末尾删故事，二分找出最少的删除量。
-export async function fitWechatContentLimit(markdown: string, repo: string, label: string): Promise<string> {
+// probeDir 必须是真稿最终落地的目录：astro-wechat 按 Markdown 所在目录解析相对资源路径，
+// 探针放别处的话，稿子里那句 `ogImage: cover.png` 会在探针旁边找图，找不到就整个跑挂。
+export async function fitWechatContentLimit(markdown: string, repo: string, label: string, probeDir: string): Promise<string> {
   const { openProject, prepareArticle } = await import("@lxw15337674/astro-wechat");
   const project = await openProject(repo, { root: repo });
-  const probeFile = path.join(repo, ".astro-wechat", `content-limit-probe-${process.pid}.md`);
+  const probeFile = path.join(probeDir, `.content-limit-probe-${process.pid}.md`);
   ensureDir(path.dirname(probeFile));
   const fits = async (candidate: string): Promise<boolean> => {
     fs.writeFileSync(probeFile, candidate, "utf8");
@@ -131,6 +133,27 @@ export async function fitWechatContentLimit(markdown: string, repo: string, labe
     return dropTrailingStories(markdown, fittedDrop);
   } finally {
     fs.rmSync(probeFile, { force: true });
+  }
+}
+
+// 封面不该有能力弄挂一次归档：渲染器已经在失败时回落成"没有封面"，这里补上最后一段——
+// 图渲出来了但 astro-wechat 仍然消化不了，就撤掉 ogImage 重来一次，稿子照常归档。
+async function fitWithOptionalCover(
+  candidate: RedditLifeCandidate,
+  description: string,
+  date: string,
+  issue: number,
+  coverFile: string,
+  repo: string,
+  label: string,
+  probeDir: string,
+): Promise<string> {
+  try {
+    return await fitWechatContentLimit(renderRedditLifeWechatMarkdown(candidate, description, date, issue, coverFile), repo, label, probeDir);
+  } catch (error) {
+    if (!coverFile) throw error;
+    writeStderr(`WARN: [reddit-life-wechat] ${label}: dropping the cover after ${error instanceof Error ? error.message : String(error)}`);
+    return fitWechatContentLimit(renderRedditLifeWechatMarkdown(candidate, description, date, issue), repo, label, probeDir);
   }
 }
 
@@ -192,7 +215,7 @@ export async function generateRedditLifeWechat({
       fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_COVER_FILE), cover);
       writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_COVER_FILE} (${cover.length} bytes)`);
     }
-    const markdown = await fitWechatContentLimit(renderRedditLifeWechatMarkdown(candidate, description, date, issue, cover ? REDDIT_LIFE_WECHAT_COVER_FILE : ""), repo, label);
+    const markdown = await fitWithOptionalCover(candidate, description, date, issue, cover ? REDDIT_LIFE_WECHAT_COVER_FILE : "", repo, label, path.dirname(target));
     entry = { ...facts, status: "generated", path: relPath, contentSha256: markdownSha256(markdown), issue };
     fs.writeFileSync(target, markdown, "utf8");
     writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);

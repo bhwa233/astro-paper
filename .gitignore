@@ -47,3 +47,6 @@ yt_dlp_fastapi/
 # Astro WeChat previews are disposable. The ledger lives alongside this
 # directory and must remain tracked so drafts are never duplicated.
 .astro-wechat/preview/
+
+# A crashed run can leave the WeChat content-limit probe behind next to a draft.
+data/reddit-life-wechat/**/.content-limit-probe-*.md

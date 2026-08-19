@@ -2,7 +2,8 @@
 // 这一层是信任边界——服务端返回的 source 与 policy 都要用它自己给的 sha256 复核，
 // 校验不过一律拒收，不做「尽力而为」的降级。
 import { createHash } from "node:crypto";
-import { envPositiveInt, fetchJson, sleep, writeStderr, writeStdout } from "./blog_common.ts";
+import { fetchJson, writeStdout } from "./blog_common.ts";
+import { type RedditJobStatus, pollRedditJob, redditServiceEndpoint } from "./reddit_service_client.ts";
 import { type RedditCategory, parseSourceFacts as parseRedditSourceFacts } from "./reddit_top20_compose.ts";
 
 type RedditSourceApiResponse = {
@@ -206,13 +207,7 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
   return payload.source;
 }
 
-function parseRedditSourceJobResponse(payload: RedditSourceJobApiResponse, date: string): {
-  id: string;
-  state: "queued" | "running" | "ready" | "failed";
-  result: RedditSourceApiResponse | null;
-  error: string;
-  progress: string;
-} {
+function parseRedditSourceJobResponse(payload: RedditSourceJobApiResponse, date: string): RedditJobStatus<RedditSourceApiResponse> {
   if (typeof payload.id !== "string" || !payload.id.trim()) {
     throw new Error("Reddit source job response is missing id");
   }
@@ -244,71 +239,28 @@ function parseRedditSourceJobResponse(payload: RedditSourceJobApiResponse, date:
   return { id: payload.id, state: payload.state, result, error: `${code}: ${message}`, progress: progressSummary };
 }
 
-function redditSourcePollIntervalMs(): number {
-  return envPositiveInt("REDDIT_SOURCE_POLL_INTERVAL_MS", 5_000);
-}
-
-function redditSourceRequestTimeoutMs(): number {
-  return envPositiveInt("REDDIT_SOURCE_REQUEST_TIMEOUT_MS", 30_000);
-}
-
-function redditSourcePollTimeoutMs(): number {
-  return envPositiveInt("REDDIT_SOURCE_POLL_TIMEOUT_MS", 25 * 60_000);
-}
+const REDDIT_SOURCE_JOB_PATH = "/v3/reddit/top20-source/jobs";
 
 export async function fetchRedditSourceFromApi(date: string, category: RedditCategory): Promise<string> {
-  const baseUrl = process.env.REDDIT_SOURCE_API_URL?.trim().replace(/\/+$/, "");
-  const token = process.env.REDDIT_SOURCE_API_TOKEN?.trim();
-  if (!baseUrl) throw new Error("REDDIT_SOURCE_API_URL is required for reddit-top20 generation");
-  if (!token) throw new Error("REDDIT_SOURCE_API_TOKEN is required for reddit-top20 generation");
-  const request = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    timeoutMs: redditSourceRequestTimeoutMs(),
-    maxChars: 64_000_000,
-    throwOnMaxChars: true,
-    retries: 2,
-  };
-  let payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v3/reddit/top20-source/jobs`, {
+  const endpoint = redditServiceEndpoint("reddit-top20 generation");
+  const submitted = await fetchJson<RedditSourceJobApiResponse>(`${endpoint.baseUrl}${REDDIT_SOURCE_JOB_PATH}`, {
     method: "POST",
     body: JSON.stringify({
       archive_date: date,
       subreddits: category.subreddits,
     }),
-    ...request,
+    ...endpoint.request,
   });
-  let previousState = "";
-  let previousProgress = "";
-  const pollTimeoutMs = redditSourcePollTimeoutMs();
-  const pollStartedAt = Date.now();
-
-  for (;;) {
-    const job = parseRedditSourceJobResponse(payload, date);
-    if (job.state !== previousState || job.progress !== previousProgress) {
-      writeStdout(`[reddit-source] job=${job.id} state=${job.state}${job.progress}\n`);
-      previousState = job.state;
-      previousProgress = job.progress;
-    }
-    if (job.state === "failed") throw new Error(`Reddit source job ${job.id} failed: ${job.error}`);
-    if (job.state === "ready") {
-      if (!job.result) throw new Error(`Reddit source job ${job.id} completed without a source result`);
-      const source = parseRedditSourceApiResponse(job.result, date, category);
-      const policy = parseRedditSourcePolicy(job.result.policy, job.result.policy_sha256);
-      redditSubredditStatsLogLines(job.result.subreddit_stats, policy, category).forEach(line => writeStdout(`${line}\n`));
-      return source;
-    }
-
-    const elapsedMs = Date.now() - pollStartedAt;
-    const remainingMs = pollTimeoutMs - elapsedMs;
-    if (remainingMs <= 0) {
-      throw new Error(`Reddit source job ${job.id} exceeded client poll timeout after ${pollTimeoutMs}ms; last state=${job.state}${job.progress}`);
-    }
-    await sleep(Math.min(redditSourcePollIntervalMs(), remainingMs));
-    payload = await fetchJson<RedditSourceJobApiResponse>(`${baseUrl}/v3/reddit/top20-source/jobs/${encodeURIComponent(job.id)}`, {
-      method: "GET",
-      ...request,
-    });
-  }
+  const result = await pollRedditJob<RedditSourceApiResponse>({
+    endpoint,
+    jobPath: REDDIT_SOURCE_JOB_PATH,
+    submitted,
+    label: "Reddit source",
+    logPrefix: "[reddit-source]",
+    parseStatus: payload => parseRedditSourceJobResponse(payload as RedditSourceJobApiResponse, date),
+  });
+  const source = parseRedditSourceApiResponse(result, date, category);
+  const policy = parseRedditSourcePolicy(result.policy, result.policy_sha256);
+  redditSubredditStatsLogLines(result.subreddit_stats, policy, category).forEach(line => writeStdout(`${line}\n`));
+  return source;
 }

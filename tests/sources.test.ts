@@ -18,6 +18,7 @@ import {
   parseRedditSourceApiResponse,
   redditSubredditStatsLogLines,
 } from "../scripts/reddit_source_api.ts";
+import { fetchRedditPostDetail, fetchRedditTrendingBoard, parseRedditPostDetailResult } from "../scripts/reddit_trending_api.ts";
 import { fixture, tempDir, tempFile, withMocks } from "./helpers/mocks.ts";
 
 // ------------------------------------------------------------ GitHub Trending
@@ -514,4 +515,145 @@ test("Reddit source fetch sends one subreddit-list request to the v7 service", a
   assert.equal(requests[0].method, "POST");
   assert.equal(requests[1].method, "GET");
   assert.ok(requests[1].url.startsWith(requests[0].url + "/"), requests[1].url);
+});
+
+// ------------------------------------------------------------ Reddit 全站热搜
+
+const REDDIT_TRENDING_ENV = { REDDIT_SOURCE_API_URL: "https://source.example/", REDDIT_SOURCE_API_TOKEN: "test-token", REDDIT_SOURCE_POLL_INTERVAL_MS: "1" };
+
+function trendingBoardPayload(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    subreddit: "popular",
+    sort: "top",
+    time_window: "day",
+    limit: 100,
+    fetched_at: "2099-01-02T02:39:08.952147Z",
+    item_count: 1,
+    items: [
+      {
+        rank: 1,
+        id: "abc123",
+        subreddit: "nextfuckinglevel",
+        title: "How did people travel these seas 500 years ago",
+        score: 26_140,
+        num_comments: 4_504,
+        permalink: "/r/nextfuckinglevel/comments/abc123/how_did_people/",
+        url: "https://www.reddit.com/r/nextfuckinglevel/comments/abc123/how_did_people/",
+        published_at: "2099-01-01T19:53:21Z",
+      },
+    ],
+    ...overrides,
+  };
+}
+
+test("Reddit trending board rejects responses that lost items in transit", async () => {
+  const board = await withMocks(
+    { env: REDDIT_TRENDING_ENV, fetch: async () => new Response(JSON.stringify(trendingBoardPayload()), { status: 200 }) },
+    () => fetchRedditTrendingBoard({ limit: 100 }),
+  );
+  assert.equal(board.items.length, 1);
+  assert.equal(board.items[0].numComments, 4_504);
+  assert.equal(board.items[0].url, "https://www.reddit.com/r/nextfuckinglevel/comments/abc123/how_did_people/");
+
+  // item_count 是服务端自己数的；和数组对不上说明响应被截断过，宁可拒收也不能少一条就少一条地用。
+  await assert.rejects(
+    () =>
+      withMocks(
+        { env: REDDIT_TRENDING_ENV, fetch: async () => new Response(JSON.stringify(trendingBoardPayload({ item_count: 9 })), { status: 200 }) },
+        () => fetchRedditTrendingBoard({ limit: 100 }),
+      ),
+    /item_count 9 does not match 1 items/,
+  );
+});
+
+function postDetailResult(source: string, posts: unknown[]): Record<string, unknown> {
+  return {
+    contract_version: "reddit-post-detail-source.v1",
+    archive_date: "2099-01-02",
+    fetched_at: "2099-01-02T03:00:00Z",
+    post_count: posts.length,
+    ok_count: posts.length,
+    source,
+    source_sha256: createHash("sha256").update(source, "utf8").digest("hex"),
+    posts,
+  };
+}
+
+const POST_DETAIL_POSTS = [
+  {
+    post_id: "abc123",
+    status: "ok",
+    requested_url: "https://www.reddit.com/r/nextfuckinglevel/comments/abc123/how_did_people/",
+    subreddit: "nextfuckinglevel",
+    title: "How did people travel these seas 500 years ago",
+    body: "",
+    score: 26_140,
+    num_comments: 4_504,
+    published_at: "2099-01-01T19:53:21Z",
+    permalink: "/r/nextfuckinglevel/comments/abc123/how_did_people/",
+    top_comments: [{ id: "t1_a", parent_id: "", score: 4_821, text: "靠的是纬度航行。" }],
+    replies: [{ id: "t1_b", parent_id: "t1_a", score: 1_203, text: "推算航法的误差按天累积。" }],
+  },
+  {
+    post_id: "gone01",
+    status: "unavailable",
+    requested_url: "https://www.reddit.com/r/interesting/comments/gone01/removed/",
+    error_code: "REDDIT_POST_REMOVED",
+    top_comments: [],
+    replies: [],
+  },
+];
+
+test("Reddit post detail submits once, polls once, and keeps per-post failures", async () => {
+  const requests: { url: string; method: string; body?: string }[] = [];
+  const evidence = await withMocks(
+    {
+      env: REDDIT_TRENDING_ENV,
+      fetch: async (input, init) => {
+        const url = String(input);
+        requests.push({ url, method: init?.method || "GET", body: typeof init?.body === "string" ? init.body : undefined });
+        const submitting = url.endsWith("/jobs");
+        const job = {
+          id: "detail_test",
+          archive_date: "2099-01-02",
+          state: submitting ? "running" : "ready",
+          result: submitting ? null : postDetailResult("evidence markdown\n", POST_DETAIL_POSTS),
+        };
+        return new Response(JSON.stringify(job), { status: submitting ? 202 : 200 });
+      },
+    },
+    () => fetchRedditPostDetail("2099-01-02", ["https://www.reddit.com/r/nextfuckinglevel/comments/abc123/how_did_people/"]),
+  );
+
+  assert.equal(evidence.length, 2);
+  assert.equal(evidence[0].status, "ok");
+  assert.equal(evidence[0].topComments[0].score, 4_821);
+  assert.equal(evidence[0].replies[0].parentId, "t1_a");
+  // 单帖不可用不该带走整批：它带着 status 回来，由调用方决定丢弃。
+  assert.equal(evidence[1].status, "unavailable");
+  assert.equal(evidence[1].errorCode, "REDDIT_POST_REMOVED");
+
+  assert.deepEqual(JSON.parse(requests.find(request => request.body)?.body || "{}"), {
+    archive_date: "2099-01-02",
+    posts: ["https://www.reddit.com/r/nextfuckinglevel/comments/abc123/how_did_people/"],
+  });
+  // 提交响应直接当轮询的第一帧，所以只有两次请求；轮询地址是提交地址加上作业 id。
+  assert.equal(requests.length, 2);
+  assert.equal(requests[0].method, "POST");
+  assert.equal(requests[1].method, "GET");
+  assert.ok(requests[1].url.startsWith(requests[0].url + "/"), requests[1].url);
+});
+
+test("Reddit post detail refuses results whose sha256 does not cover the source", () => {
+  const result = postDetailResult("evidence markdown\n", POST_DETAIL_POSTS);
+  assert.equal(parseRedditPostDetailResult(result, "2099-01-02").length, 2);
+  assert.throws(() => parseRedditPostDetailResult({ ...result, source: "tampered\n" }, "2099-01-02"), /source_sha256 does not match/);
+  assert.throws(() => parseRedditPostDetailResult(result, "2099-01-03"), /does not match requested date/);
+  assert.throws(() => parseRedditPostDetailResult({ ...result, contract_version: "v2" }, "2099-01-02"), /unsupported contract/);
+});
+
+test("Reddit post detail rejects more posts than the service accepts", async () => {
+  const urls = Array.from({ length: 11 }, (_, index) => `https://www.reddit.com/r/x/comments/p${index}/t/`);
+  await assert.rejects(() => fetchRedditPostDetail("2099-01-02", urls), /at most 10 posts, got 11/);
+  await assert.rejects(() => fetchRedditPostDetail("2099-01-02", []), /at least one post/);
 });

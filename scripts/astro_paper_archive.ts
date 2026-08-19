@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { bjtTimestamp, compact, frontmatter, parseArgs, readStdin, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { type Task, isTask, taskInfo, taskPostRelPath, taskTags, taskTitle } from "./blog_tasks.ts";
+import { REDDIT_TRENDING_MIN_TOPICS, type Task, isTask, taskInfo, taskPostRelPath, taskTags, taskTitle } from "./blog_tasks.ts";
 import { ARCHIVE_PAYLOAD_MARKER } from "./compose_common.ts";
 import { bulletValue, extractBullets, hasChinese, isCompactProperNameOrModelTitle, looksLowSignal, normalizeMarkdownBlock } from "./markdown_text.ts";
 
@@ -300,6 +300,30 @@ function formatGitHubTrendingDaily(text: string): string {
   return `${normalized.trim()}\n`;
 }
 
+// 热搜稿的每个选题都必须带上那条 `> r/子版块 · N points · N 评论` 事实行：
+// 读者需要知道这段讨论有多大体量才判断得了分量，而模型漏掉它时正文读起来仍然通顺，
+// 不在这里卡住就没有第二道关。
+function formatRedditTrending(text: string): string {
+  const normalized = stripLeadingTitleHeading(normalizeMarkdown(text));
+  const topics = (normalized.match(/^##\s+.+$/gm) || []).length;
+  if (topics < REDDIT_TRENDING_MIN_TOPICS) throw new Error(`Reddit trending needs at least ${REDDIT_TRENDING_MIN_TOPICS} topics, got ${topics}`);
+  const facts = (normalized.match(/^>\s*r\/\S+\s*·\s*[\d,]+\s*points\s*·\s*[\d,]+\s*评论\s*$/gm) || []).length;
+  if (facts < topics) throw new Error(`Reddit trending needs a source line per topic: ${facts} < ${topics}`);
+  const headings = (normalized.match(/^##\s+(.+)$/gm) || []).map(heading => heading.replace(/^##\s+/, "").trim());
+  for (const heading of headings) {
+    if (!hasChinese(heading)) throw new Error(`Reddit trending topic heading should use Chinese: ${heading}`);
+  }
+  if (new Set(headings.map(heading => heading.toLowerCase())).size !== headings.length) {
+    throw new Error("Reddit trending contains duplicate topic headings");
+  }
+  // 入选理由是给写稿模型的内部提示，照抄进正文等于把编辑流程漏给读者。
+  if (/入选理由/.test(normalized)) throw new Error("Reddit trending must not echo the selection rationale");
+  for (const pattern of [/引发热议/, /众说纷纭/, /值得关注/, /持续关注/, /本文将/]) {
+    if (pattern.test(normalized)) throw new Error(`Reddit trending contains forbidden language: ${pattern.source}`);
+  }
+  return `${normalized.trim()}\n`;
+}
+
 function formatMdblistWeekly(text: string): string {
   const normalized = stripLeadingTitleHeading(normalizeMarkdown(text));
   const sections = ["电影推荐", "剧集推荐"].filter(section => new RegExp(`^##\\s+${section}\\s*$`, "m").test(normalized));
@@ -345,6 +369,7 @@ type ArchiveFormatter = (body: string) => { markdown: string; ogImage?: string; 
 const ARCHIVE_FORMATTERS: Record<Task, ArchiveFormatter> = {
   "hn-top10": formatHnTop10,
   "reddit-top20": body => ({ markdown: formatRedditTop20(body) }),
+  "reddit-trending": body => ({ markdown: formatRedditTrending(body) }),
   "daily-podcasts": formatPodcastEpisode,
   "apple-top-podcasts": formatPodcastEpisode,
   "xyzrank-top-episodes": formatPodcastEpisode,

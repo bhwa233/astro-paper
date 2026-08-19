@@ -1,0 +1,39 @@
+name: Publish Reddit Trending
+
+permissions:
+  contents: write
+
+on:
+  # 错开 reddit-top20 的 10:00 / 10:05 / 10:10：两者打同一个来源服务，
+  # 而热搜还要多跑一次评论深挖作业。
+  schedule:
+    - cron: "30 11 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      force:
+        description: "Overwrite an existing post for the same date"
+        required: false
+        type: boolean
+        default: false
+      ai_model:
+        description: "Optional AI_MODEL override. Empty = DeepSeek V4 Flash."
+        required: false
+        type: string
+
+jobs:
+  publish:
+    name: Publish Reddit Trending
+    permissions:
+      contents: write
+    uses: ./.github/workflows/blog-publish.yml
+    with:
+      task: reddit-trending
+      date: ${{ inputs.date || '' }}
+      event_schedule: ${{ github.event.schedule || '30 11 * * *' }}
+      force: ${{ inputs.force || false }}
+      ai_model: ${{ inputs.ai_model || 'deepseek-v4-flash' }}
+    secrets: inherit

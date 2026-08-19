@@ -18,6 +18,15 @@ import {
   redditLifeWechatTitle,
   renderRedditLifeWechatMarkdown,
 } from "../scripts/reddit_life_wechat_compose.ts";
+import {
+  REDDIT_TRENDING_MIN_COMMENTS,
+  discussionDensity,
+  parseRedditTrendingCandidates,
+  parseRedditTrendingSelection,
+  renderRedditTrendingCandidates,
+  selectRedditTrendingCandidates,
+} from "../scripts/reddit_trending_source.ts";
+import { type RedditTrendingBoard, type RedditTrendingItem } from "../scripts/reddit_trending_api.ts";
 
 function podcastResult(overrides: Partial<ResultItem>): ResultItem {
   return {
@@ -355,4 +364,86 @@ test("QR rasterization reproduces the module matrix and keeps the quiet zone cle
   await assert.rejects(() => renderQrPng("  "), /needs a non-empty payload/);
   await assert.rejects(() => renderQrPng(text, { size: 0 }), /invalid QR size/);
   await assert.rejects(() => renderQrPng(text, { marginModules: -1 }), /invalid QR margin/);
+});
+
+// ------------------------------------------------------- Reddit 全站热搜选题
+
+function trendingItem(overrides: Partial<RedditTrendingItem> & { rank: number }): RedditTrendingItem {
+  const id = overrides.id || `post${overrides.rank}`;
+  const subreddit = overrides.subreddit || `sub${overrides.rank}`;
+  const permalink = `/r/${subreddit}/comments/${id}/a_title/`;
+  return {
+    id,
+    subreddit,
+    title: `Title ${overrides.rank}`,
+    score: 10_000,
+    numComments: 1_000,
+    permalink,
+    url: `https://www.reddit.com${permalink}`,
+    publishedAt: "2026-08-19T00:03:55Z",
+    ...overrides,
+  };
+}
+
+function trendingBoard(items: RedditTrendingItem[]): RedditTrendingBoard {
+  return { subreddit: "popular", sort: "top", timeWindow: "day", limit: 100, fetchedAt: "2026-08-19T02:39:08.952147Z", items };
+}
+
+test("reddit trending density filter separates discussion posts from image karma", () => {
+  // 2026-08-19 实测的真实量级：纯图帖 0.003 上下，吵起来的帖子 0.2 上下。
+  assert.ok(discussionDensity({ score: 23_056, numComments: 80 }) < 0.01);
+  assert.ok(discussionDensity({ score: 20_170, numComments: 5_394 }) > 0.2);
+
+  const items = [
+    trendingItem({ rank: 1, score: 43_105, numComments: 400 }), // meme：分数极高、讨论极少，密度垫底
+    trendingItem({ rank: 2, score: 20_170, numComments: 5_394 }), // 密度最高
+    trendingItem({ rank: 3, score: 26_140, numComments: 4_504 }),
+    // 密度高达 0.5，但评论总数不到门槛：小体量的争吵不值得占一个选题位。
+    trendingItem({ rank: 4, score: 500, numComments: REDDIT_TRENDING_MIN_COMMENTS - 1 }),
+  ];
+  const candidates = selectRedditTrendingCandidates(items);
+  assert.deepEqual(candidates.map(candidate => candidate.rank), [2, 3, 1]);
+  // 绝对门槛先于密度排序生效：比值再高，评论太少也进不来。
+  assert.ok(discussionDensity(items[3]) > discussionDensity(items[1]));
+  assert.ok(!candidates.some(candidate => candidate.rank === 4));
+  assert.equal(selectRedditTrendingCandidates(items, { limit: 2 }).length, 2);
+});
+
+test("reddit trending candidate source round-trips through its parser", () => {
+  const items = [
+    trendingItem({ rank: 2, subreddit: "nextfuckinglevel", title: "How did people travel these seas 500 years ago", score: 26_140, numComments: 4_504 }),
+    trendingItem({ rank: 7, subreddit: "interestingasfuck", title: "Chinese humanoid robot named Superman", score: 22_938, numComments: 3_446 }),
+  ];
+  const candidates = selectRedditTrendingCandidates(items);
+  const source = renderRedditTrendingCandidates("2026-08-19", trendingBoard(items), candidates);
+  const parsed = parseRedditTrendingCandidates(source);
+  // 头部说明段不是候选块，不能被当成第 1 条解析进来。
+  assert.equal(parsed.length, 2);
+  // 深挖作业按 url 提交、按 id 回填，事实字段必须逐字还原；密度只写了三位小数，按精度比。
+  assert.deepEqual(
+    parsed.map(({ density: _density, ...facts }) => facts),
+    candidates.map(({ density: _density, ...facts }) => facts),
+  );
+  parsed.forEach((candidate, index) => assert.ok(Math.abs(candidate.density - candidates[index].density) < 0.0005));
+});
+
+test("reddit trending selection rejects picks the candidate list cannot back", () => {
+  const ok = parseRedditTrendingSelection(
+    JSON.stringify({ selected: [{ rank: 2, reason: "讨论航海史与导航技术，与当日新闻无关" }], rejected: [{ rank: 1, reason: "政客当日表态" }] }),
+    5,
+  );
+  assert.deepEqual(ok, [{ rank: 2, reason: "讨论航海史与导航技术，与当日新闻无关" }]);
+
+  // 选不出题是允许的结果：宁缺毋滥由提示词要求，这里只保证空数组能通过解析。
+  assert.deepEqual(parseRedditTrendingSelection(JSON.stringify({ selected: [] }), 5), []);
+
+  assert.throws(() => parseRedditTrendingSelection(JSON.stringify({ selected: [{ rank: 9, reason: "越界" }] }), 5), /not in the list/);
+  assert.throws(
+    () => parseRedditTrendingSelection(JSON.stringify({ selected: [{ rank: 1, reason: "甲" }, { rank: 1, reason: "乙" }] }), 5),
+    /picked candidate 1 twice/,
+  );
+  assert.throws(() => parseRedditTrendingSelection(JSON.stringify({ selected: [{ rank: 1, reason: "English only" }] }), 5), /needs a Chinese reason/);
+  // 服务端 posts 字段的上限是 10，超了要在提交深挖作业之前就挡住。
+  const eleven = Array.from({ length: 11 }, (_, index) => ({ rank: index + 1, reason: "长尾话题" }));
+  assert.throws(() => parseRedditTrendingSelection(JSON.stringify({ selected: eleven }), 25), /at most 10/);
 });

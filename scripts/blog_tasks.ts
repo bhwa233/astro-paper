@@ -30,6 +30,13 @@ export type BlogTaskInfo = {
   sourceContract?: PostSourceContract;
 };
 
+/**
+ * 一篇热搜稿至少要有几条选题。低于这个数就不发：凑不满的那天多半整个榜都在追当日新闻，
+ * 硬发只会稀释专栏。来源层用它决定是否跳过当天，发布校验和归档成文用它兜底，
+ * 三处共用一个常量，避免各自记一个数字后悄悄漂移。
+ */
+export const REDDIT_TRENDING_MIN_TOPICS = 3;
+
 export const BLOG_TASKS = {
   "hn-top10": {
     titlePrefix: "HackerNews Top 10",
@@ -138,6 +145,18 @@ export const BLOG_TASKS = {
     description: "每日 Reddit 分类精选，按人生与社会、人物与问答、市场与价值投资三个独立栏目归档通过来源服务筛选的帖子。",
     fileName: "reddit-{date}.md",
   },
+  "reddit-trending": {
+    titlePrefix: "Reddit 全站热搜",
+    tag: "Reddit热搜",
+    description: "每日 Reddit 全站热榜精选，按讨论密度筛掉无人讨论的图帖，再挑出一个月后仍然成立的长尾话题，逐条整理评论区的观点与分歧。",
+    fileName: "Reddit热搜-{date}.md",
+    sourceContract: {
+      // 选题不足下限时 source 里一个编号块都没有，归档前就该被跳过，不该走到发布校验。
+      minNumberedBlocks: REDDIT_TRENDING_MIN_TOPICS,
+      requiredTerms: ["入选理由", "顶层高赞回答"],
+      requiredPatterns: [{ label: "post links", pattern: /- \*\*帖子\*\*：https:\/\/www\.reddit\.com\// }],
+    },
+  },
 } as const satisfies Record<string, BlogTaskInfo>;
 
 export type Task = keyof typeof BLOG_TASKS;
@@ -160,6 +179,8 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "0 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   "5 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   "10 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
+  // 错开上面三个栏目：它们和热搜打的是同一个来源服务，热搜还要额外跑一次深挖作业。
+  "30 11 * * *": { task: "reddit-trending", dateTimeZone: "America/Los_Angeles" },
 };
 
 export function isTask(value: string): value is Task {

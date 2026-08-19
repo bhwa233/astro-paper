@@ -148,12 +148,12 @@ export const BLOG_TASKS = {
   "reddit-trending": {
     titlePrefix: "Reddit 全站热搜",
     tag: "Reddit热搜",
-    description: "每日 Reddit 全站热榜精选，按讨论密度筛掉无人讨论的图帖，再挑出一个月后仍然成立的长尾话题，逐条整理评论区的观点与分歧。",
+    description: "每日 Reddit 全站热榜精选，按讨论密度筛掉无人讨论的图帖，再挑出一个月后仍然成立的长尾话题，仅翻译原帖标题并保留热度与来源。",
     fileName: "Reddit热搜-{date}.md",
     sourceContract: {
       // 选题不足下限时 source 里一个编号块都没有，归档前就该被跳过，不该走到发布校验。
       minNumberedBlocks: REDDIT_TRENDING_MIN_TOPICS,
-      requiredTerms: ["入选理由", "顶层高赞回答"],
+      requiredTerms: ["入选理由", "中文标题"],
       requiredPatterns: [{ label: "post links", pattern: /- \*\*帖子\*\*：https:\/\/www\.reddit\.com\// }],
     },
   },

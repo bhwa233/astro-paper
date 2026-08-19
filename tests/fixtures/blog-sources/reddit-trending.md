@@ -9,6 +9,7 @@
 - **来源**：[r/nextfuckinglevel](https://www.reddit.com/r/nextfuckinglevel/)
 - **帖子**：https://www.reddit.com/r/nextfuckinglevel/comments/fixture01/how_did_people_travel_these_seas/
 - **发布时间**：2099-01-01T19:53:21Z
+- **中文标题**：五百年前人们如何穿越这样的海域
 - **正文**：（无正文，内容是图片或视频）
 - **顶层高赞回答**（共 2 条）：
 
@@ -23,6 +24,7 @@
 - **来源**：[r/interestingasfuck](https://www.reddit.com/r/interestingasfuck/)
 - **帖子**：https://www.reddit.com/r/interestingasfuck/comments/fixture02/chinese_humanoid_robot_named_superman/
 - **发布时间**：2099-01-01T14:12:02Z
+- **中文标题**：名为“超人”的中国人形机器人
 - **正文**：（无正文，内容是图片或视频）
 - **顶层高赞回答**（共 2 条）：
 
@@ -37,6 +39,7 @@
 - **来源**：[r/interesting](https://www.reddit.com/r/interesting/)
 - **帖子**：https://www.reddit.com/r/interesting/comments/fixture03/the_silent_and_harmonious_morning_metro_commute/
 - **发布时间**：2099-01-01T09:40:55Z
+- **中文标题**：日本早高峰安静有序的地铁通勤
 - **正文**：（无正文，内容是图片或视频）
 - **顶层高赞回答**（共 2 条）：
 

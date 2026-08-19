@@ -1,13 +1,5 @@
-import { bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowSignal, normalizeMarkdownBlock, parseModelJsonObject } from "./compose_common.ts";
-
-const TITLE_MAX_CHARS = 50;
-const SUMMARY_MIN_CHARS = 300;
-
-export type RedditTrendingItemSummary = {
-  rank: number;
-  titleZh: string;
-  summary: string;
-};
+import { bulletValue, extractBullets } from "./compose_common.ts";
+import { parseRedditTitleTranslation } from "./reddit_top20_compose.ts";
 
 type RedditTrendingSourceFact = {
   rank: number;
@@ -41,48 +33,27 @@ function parseSourceFacts(source: string): RedditTrendingSourceFact[] {
   });
 }
 
-export function parseRedditTrendingItemSummary(raw: string, expectedRank: number): RedditTrendingItemSummary {
-  const payload = parseModelJsonObject(raw, "Reddit trending item summary");
-  const rank = Number(payload.rank);
-  const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
-  const summary = normalizeMarkdownBlock(String(payload.summary || ""));
-  if (rank !== expectedRank) throw new Error(`Reddit trending item summary rank mismatch: ${rank} vs ${expectedRank}`);
-  if (!titleZh || !hasChinese(titleZh)) throw new Error(`Reddit trending item ${expectedRank} needs a Chinese title`);
-  if ([...titleZh].length > TITLE_MAX_CHARS) {
-    throw new Error(`Reddit trending item ${expectedRank} title is too long: ${[...titleZh].length} > ${TITLE_MAX_CHARS}`);
-  }
-  if (!summary || !hasChinese(summary) || looksLowSignal(summary)) {
-    throw new Error(`Reddit trending item ${expectedRank} has empty or low-signal summary`);
-  }
-  if (/^\s{0,3}#{1,6}\s/m.test(summary)) throw new Error(`Reddit trending item ${expectedRank} summary must not use Markdown headings`);
-  if (/https?:\/\/|\]\([^)]*\)/.test(summary)) throw new Error(`Reddit trending item ${expectedRank} summary must not include links`);
-  const length = summary.replace(/\s+/g, "").length;
-  if (length < SUMMARY_MIN_CHARS) throw new Error(`Reddit trending item ${expectedRank} summary is too short: ${length} < ${SUMMARY_MIN_CHARS}`);
-  return { rank, titleZh, summary };
-}
-
-export function redditTrendingMarkdownFromItemSummaries(source: string): string {
+export function redditTrendingMarkdownFromTitleTranslations(source: string): string {
   const facts = parseSourceFacts(source);
-  const summaries = sourceBlocks(source).map((block, index) => {
+  const translations = sourceBlocks(source).map((block, index) => {
     const bullets = extractBullets(block);
-    return parseRedditTrendingItemSummary(
+    return parseRedditTitleTranslation(
       JSON.stringify({
         rank: index + 1,
         title_zh: bulletValue(bullets, "**中文标题**"),
-        summary: decodeMarkdownBlock(bulletValue(bullets, "**综合摘要**")),
       }),
       index + 1,
     );
   });
-  const byRank = new Map(summaries.map(summary => [summary.rank, summary]));
+  const byRank = new Map(translations.map(translation => [translation.rank, translation]));
   const titles = new Set<string>();
   const blocks = facts.map(fact => {
-    const summary = byRank.get(fact.rank);
-    if (!summary) throw new Error(`Reddit trending model summary is missing rank ${fact.rank}`);
-    const titleKey = summary.titleZh.toLowerCase();
-    if (titles.has(titleKey)) throw new Error(`Reddit trending model summary reuses title: ${summary.titleZh}`);
+    const translation = byRank.get(fact.rank);
+    if (!translation) throw new Error(`Reddit trending title translation is missing rank ${fact.rank}`);
+    const titleKey = translation.title_zh.toLowerCase();
+    if (titles.has(titleKey)) throw new Error(`Reddit trending title translation reuses title: ${translation.title_zh}`);
     titles.add(titleKey);
-    return `${fact.rank}. 🔴 ${summary.titleZh}\n- ⭐ ${fact.points} points · ${fact.comments} 评论\n- 来源：r/${fact.subreddit}\n- 帖子：${fact.url}\n\n${summary.summary}`;
+    return `${fact.rank}. 🔴 ${translation.title_zh}\n- ⭐ ${fact.points} points · ${fact.comments} 评论\n- 来源：r/${fact.subreddit}\n- 帖子：${fact.url}`;
   });
   return `${blocks.join("\n\n")}\n`;
 }

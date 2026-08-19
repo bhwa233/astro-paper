@@ -1,12 +1,12 @@
-// Reddit 全站热搜的来源层：取榜 → 密度粗筛 → 模型选题 → 深挖评论 → 拼成可写稿的 source。
+// Reddit 全站热搜的来源层：取榜 → 密度粗筛 → 模型选题 → 标题翻译 → 拼成可归档的 source。
 //
 // 这条管线和 reddit-top20 的三个栏目形态不同，原因在数据本身。实测 r/popular 的 top?t=day
 // （2026-08-19，两次 50 条）：零条自帖，74% 是 i.redd.it 与 v.redd.it 的图和视频，
-// 标题短到「meirl」「Petah?!」这种。榜单本身没有可总结的文字，内容全在评论区。
+// 标题短到「meirl」「Petah?!」这种，因此不能把榜单本身当作可直接展开的长文素材。
 //
 // 因此分两步：先用「评论数/分数」把纯图梗筛掉——实测该比值在纯图帖是 0.003 量级、
 // 在真吵起来的帖子是 0.2 量级，差两个数量级，规则层就能干净切开；再让模型从剩下的候选里
-// 挑长尾选题，最后只对选中的帖子调用深挖接口。
+// 挑长尾选题，最后只对选中的帖子翻译标题；正文和评论都不进入文章。
 import fs from "node:fs";
 import path from "node:path";
 import { compact, repoRoot, writeStderr, writeStdout } from "./blog_common.ts";
@@ -14,23 +14,20 @@ import { REDDIT_TRENDING_MIN_TOPICS } from "./blog_tasks.ts";
 import { resolvePromptFile } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
 import { parseModelJsonObject } from "./compose_common.ts";
-import { parseRedditTrendingItemSummary, type RedditTrendingItemSummary } from "./reddit_trending_compose.ts";
 import {
   REDDIT_TRENDING_MAX_DETAIL_POSTS,
-  fetchRedditPostDetail,
   fetchRedditTrendingBoard,
-  type RedditEvidenceComment,
-  type RedditPostEvidence,
   type RedditTrendingBoard,
   type RedditTrendingItem,
 } from "./reddit_trending_api.ts";
+import { parseRedditTitleTranslation, type RedditTitleTranslation } from "./reddit_top20_compose.ts";
 
 const SELECTION_PROMPT_TASK = "reddit-trending-selection";
-const ITEM_SUMMARY_PROMPT_TASK = "reddit-trending";
+const ITEM_TITLE_PROMPT_TASK = "reddit-trending";
 
 /** 取回的榜单深度。选题要剔掉大量时效性内容，池子太浅就凑不出十条长尾。 */
 export const REDDIT_TRENDING_BOARD_LIMIT = 100;
-/** 粗筛的绝对门槛：评论数太少的帖子没有可读的讨论，密度比值再高也是噪声。 */
+/** 粗筛的绝对门槛：评论数太少时讨论密度比值不稳定，容易把偶然波动当成选题价值。 */
 export const REDDIT_TRENDING_MIN_COMMENTS = 300;
 /** 交给模型的候选上限。再多只是把提示词撑大，密度靠后的帖子本来也选不上。 */
 export const REDDIT_TRENDING_CANDIDATE_LIMIT = 25;
@@ -39,7 +36,7 @@ export type RedditTrendingCandidate = RedditTrendingItem & { density: number };
 
 export type RedditTrendingSelection = { rank: number; reason: string };
 
-type RedditTrendingSummaryOutcome = { summary: RedditTrendingItemSummary | null; error?: string };
+type RedditTrendingTitleOutcome = { translation: RedditTitleTranslation | null; error?: string };
 
 /** 讨论密度：评论数与分数之比。高分低评是「点个赞就划走」的图，高评是真在吵。 */
 export function discussionDensity(item: { score: number; numComments: number }): number {
@@ -190,51 +187,22 @@ async function selectLongTailPosts({
   });
 }
 
-function commentLines(comments: RedditEvidenceComment[], replies: RedditEvidenceComment[]): string[] {
-  const repliesByParent = new Map<string, RedditEvidenceComment[]>();
-  for (const reply of replies) {
-    if (!reply.parentId) continue;
-    repliesByParent.set(reply.parentId, [...(repliesByParent.get(reply.parentId) || []), reply]);
-  }
-  const label = (comment: RedditEvidenceComment) => (comment.score === null ? "分数隐藏" : `${comment.score} 赞`);
-  return comments.flatMap((comment, index) => [
-    `  ${index + 1}. [${label(comment)}] ${comment.text}`,
-    ...(repliesByParent.get(comment.id) || []).map(reply => `    - 回复 [${label(reply)}] ${reply.text}`),
-  ]);
-}
-
-function evidenceBlock(position: number, candidate: RedditTrendingCandidate, reason: string, evidence: RedditPostEvidence): string {
-  return [
-    `## ${position}. ${evidence.title || candidate.title}`,
-    "",
-    `- **入选理由**：${reason}`,
-    `- **热度**：${evidence.score ?? candidate.score} points · ${evidence.numComments ?? candidate.numComments} 评论 · 讨论密度 ${candidate.density.toFixed(3)} · 榜内第 ${candidate.rank} 位`,
-    `- **来源**：[r/${evidence.subreddit || candidate.subreddit}](https://www.reddit.com/r/${evidence.subreddit || candidate.subreddit}/)`,
-    `- **帖子**：${candidate.url}`,
-    `- **发布时间**：${evidence.publishedAt || candidate.publishedAt}`,
-    `- **正文**：${evidence.body ? compact(evidence.body) : "（无正文，内容是图片或视频）"}`,
-    `- **顶层高赞回答**（共 ${evidence.topComments.length} 条）：`,
-    "",
-    ...commentLines(evidence.topComments, evidence.replies),
-  ].join("\n");
-}
-
-function summarizeRedditTrendingItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditTrendingSummaryOutcome> {
-  return generateJsonStageWithRetries<RedditTrendingSummaryOutcome>({
+function translateRedditTrendingTitle(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditTrendingTitleOutcome> {
+  return generateJsonStageWithRetries<RedditTrendingTitleOutcome>({
     task: "reddit-trending",
-    stage: `Reddit trending item ${rank}`,
-    artifactPrefix: `item-${String(rank).padStart(2, "0")}-summary`,
+    stage: `Reddit trending title ${rank}`,
+    artifactPrefix: `item-${String(rank).padStart(2, "0")}-title`,
     prompt,
     model,
     artifactsDir,
     jitterMs: 1_000,
-    parse: content => ({ summary: parseRedditTrendingItemSummary(content, rank) }),
-    onExhausted: error => ({ summary: null, error }),
+    parse: content => ({ translation: parseRedditTitleTranslation(content, rank) }),
+    onExhausted: error => ({ translation: null, error }),
   });
 }
 
 /**
- * 第二段：选题、深挖、拼稿。选中不足 REDDIT_TRENDING_MIN_TOPICS 条时照常返回，
+ * 第二段：选题、翻译标题、拼稿。选中不足 REDDIT_TRENDING_MIN_TOPICS 条时照常返回，
  * 但正文里一个 `## N.` 块都没有——上层据此跳过当天，判断规则和 tech-daily 一致。
  */
 export async function buildCombinedRedditTrendingSource({
@@ -271,57 +239,45 @@ export async function buildCombinedRedditTrendingSource({
   }
 
   const picked = selections.map(selection => ({ selection, candidate: candidates[selection.rank - 1] }));
-  const evidence = await fetchRedditPostDetail(date, picked.map(item => item.candidate.url));
-  const evidenceById = new Map(evidence.map(item => [item.postId, item]));
-  const blocks: string[] = [];
-  const dropped: string[] = [];
-  for (const { selection, candidate } of picked) {
-    const detail = evidenceById.get(candidate.id);
-    // 深挖失败的帖子直接落选：没有评论证据就没有可写的内容，留一个空壳块只会误导写稿模型。
-    if (!detail || detail.status !== "ok" || !detail.topComments.length) {
-      dropped.push(`#${selection.rank} r/${candidate.subreddit} (${detail?.status || "missing"}${detail?.errorCode ? `: ${detail.errorCode}` : ""})`);
-      continue;
-    }
-    blocks.push(evidenceBlock(blocks.length + 1, candidate, selection.reason, detail));
+  const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
+  const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, ITEM_TITLE_PROMPT_TASK), "utf8");
+  const translated: Array<{ selection: RedditTrendingSelection; candidate: RedditTrendingCandidate; translation: RedditTitleTranslation }> = [];
+  const failed: Array<{ rank: number; error: string }> = [];
+  for (const [index, item] of picked.entries()) {
+    const rank = index + 1;
+    const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{title}", item.candidate.title);
+    writeAiArtifact(artifactsDir, "reddit-trending", `item-${String(rank).padStart(2, "0")}-title-prompt.md`, prompt);
+    const outcome = await translateRedditTrendingTitle(prompt, rank, model, artifactsDir);
+    if (outcome.translation) translated.push({ ...item, translation: outcome.translation });
+    else failed.push({ rank, error: outcome.error || "title translation failed" });
   }
-  if (dropped.length) writeStderr(`WARN: [reddit-trending] dropped ${dropped.length} picks without usable comment evidence: ${dropped.join(", ")}`);
-  writeStdout(`[reddit-trending] evidence ok=${blocks.length}/${picked.length}\n`);
-
+  if (failed.length) {
+    writeStderr(`WARN: [reddit-trending] skipped ${failed.length}/${picked.length} posts after title translation retries: ranks ${failed.map(item => item.rank).join(", ")}`);
+    writeAiArtifact(artifactsDir, "reddit-trending", "dropped-items.json", JSON.stringify({ failed, total: picked.length }, null, 2));
+  }
   const summary = [
     header,
     "",
-    `- 选题：从 ${candidates.length} 条候选中选出 ${selections.length} 条长尾选题，${blocks.length} 条取到可用评论证据。`,
+    `- 选题：从 ${candidates.length} 条候选中选出 ${selections.length} 条长尾选题，${translated.length} 条标题翻译成功。`,
   ].join("\n");
-  if (blocks.length < REDDIT_TRENDING_MIN_TOPICS) {
-    writeStderr(`WARN: [reddit-trending] only ${blocks.length} posts have usable comment evidence, below the ${REDDIT_TRENDING_MIN_TOPICS} needed to publish`);
+  if (translated.length < REDDIT_TRENDING_MIN_TOPICS) {
+    writeStderr(`WARN: [reddit-trending] only ${translated.length} titles translated, below the ${REDDIT_TRENDING_MIN_TOPICS} needed to publish`);
     return `${summary}\n`;
-  }
-  const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
-  const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, ITEM_SUMMARY_PROMPT_TASK), "utf8");
-  const summarized: Array<{ block: string; summary: RedditTrendingItemSummary }> = [];
-  const failed: Array<{ rank: number; error: string }> = [];
-  for (const [index, block] of blocks.entries()) {
-    const rank = index + 1;
-    const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block);
-    writeAiArtifact(artifactsDir, "reddit-trending", `item-${String(rank).padStart(2, "0")}-prompt.md`, prompt);
-    const outcome = await summarizeRedditTrendingItem(prompt, rank, model, artifactsDir);
-    if (outcome.summary) summarized.push({ block, summary: outcome.summary });
-    else failed.push({ rank, error: outcome.error || "summary failed" });
-  }
-  if (failed.length) {
-    writeStderr(`WARN: [reddit-trending] skipped ${failed.length}/${blocks.length} posts after summary retries: ranks ${failed.map(item => item.rank).join(", ")}`);
-    writeAiArtifact(artifactsDir, "reddit-trending", "dropped-items.json", JSON.stringify({ failed, total: blocks.length }, null, 2));
   }
   const combined = [
     summary,
     "",
-    "每帖由独立模型调用提炼语义摘要；标题、热度、来源、帖子链接与文章层级均由代码从抓取证据组装。",
+    "每帖仅由独立模型调用翻译原始标题；热度、来源、帖子链接与文章层级均由代码从榜单事实组装。",
     "",
-    ...summarized.map(({ block, summary: item }, index) => [
-      block.replace(/^##\s+\d+\./m, `## ${index + 1}.`),
+    ...translated.map(({ selection, candidate, translation }, index) => [
+      `## ${index + 1}. ${candidate.title}`,
       "",
-      `- **中文标题**：${item.titleZh}`,
-      `- **综合摘要**：${JSON.stringify(item.summary)}`,
+      `- **入选理由**：${selection.reason}`,
+      `- **热度**：${candidate.score} points · ${candidate.numComments} 评论 · 讨论密度 ${candidate.density.toFixed(3)} · 榜内第 ${candidate.rank} 位`,
+      `- **来源**：[r/${candidate.subreddit}](https://www.reddit.com/r/${candidate.subreddit}/)`,
+      `- **帖子**：${candidate.url}`,
+      `- **发布时间**：${candidate.publishedAt}`,
+      `- **中文标题**：${translation.title_zh}`,
     ].join("\n")),
   ].join("\n");
   writeAiArtifact(artifactsDir, "reddit-trending", "source.dynamic.md", combined);

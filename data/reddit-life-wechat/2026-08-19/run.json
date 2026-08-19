@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-19",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "ada443173a6374b9a35b8d316d948fc06d2fad5f",
+    "workflowRun": "32242026461",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-19-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-19/upstream-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vs4t1p",
+      "title": "如何看待奥索夫痛斥特朗普为“逃兵役者、骗子总统”？",
+      "subreddit": "AskReddit",
+      "points": "5745 points · 1324 评论",
+      "numComments": 1324,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vs4t1p/what_do_you_think_about_ossoff_denouncing_trump/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-19/01-1vs4t1p.md",
+      "contentSha256": "94974e922c68c16bb032dcfd5e6e514f2d6cb560ca3ae32776fc4f24dd967fa0",
+      "issue": 1
+    },
+    {
+      "rank": 2,
+      "postId": "1vrxox0",
+      "title": "哪些所谓的“低技能”工作，上一天班就会让人认清现实？",
+      "subreddit": "AskReddit",
+      "points": "5303 points · 2617 评论",
+      "numComments": 2617,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vrxox0/what_unskilled_job_would_humble_most_people_after/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-19/01-1vs4t1p.md",
+      "contentSha256": "94974e922c68c16bb032dcfd5e6e514f2d6cb560ca3ae32776fc4f24dd967fa0",
+      "issue": 1
+    },
+    {
+      "rank": 3,
+      "postId": "1vrrwe3",
+      "title": "谁是过气后心态最酸、最怨气冲天的明星？",
+      "subreddit": "AskReddit",
+      "points": "3696 points · 4329 评论",
+      "numComments": 4329,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vrrwe3/whos_the_most_bitter_washedup_celebrity/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-19/01-1vs4t1p.md",
+      "contentSha256": "94974e922c68c16bb032dcfd5e6e514f2d6cb560ca3ae32776fc4f24dd967fa0",
+      "issue": 1
+    }
+  ]
+}

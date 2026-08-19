@@ -32,7 +32,7 @@
 
 ### 3.1 数据源可用，且比预期干净
 
-不需要爬 `archives/*.md`。仓库提供结构化 JSON，`raw.githubusercontent.com` 匿名可取：
+不需要爬 `archives/*.md`。仓库 `master` 分支提供结构化 JSON，`raw.githubusercontent.com` 匿名可取：
 
 ```text
 api/<date>/summary.json   当日累积榜，每小时更新
@@ -117,7 +117,7 @@ api/<date>/NN.json        逐小时快照（00.json … 23.json）
 ## 5. 数据流
 
 ```text
-raw.githubusercontent.com/.../api/<date>/summary.json   ← 匿名，TS 侧直接拉
+raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/<date>/summary.json   ← 匿名，TS 侧直接拉
   └─ 规则层：滤 ads、事件级合并、按热度与讨论量排序取候选
        └─ 模型：选题（必须排除中国政治；其余可写性由模型判断）
             └─ GET /v1/weibo/aisearch                      ← 服务端，走已登录 Chrome

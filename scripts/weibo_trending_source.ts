@@ -9,7 +9,7 @@ import { bulletValue, extractBullets, hasChinese, normalizeMarkdownBlock, number
 
 export const WEIBO_TRENDING_LIMIT = 20;
 
-const DEFAULT_SUMMARY_URL = "https://raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/main/api/{date}/summary.json";
+const DEFAULT_SUMMARY_URL = "https://raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/{date}/summary.json";
 const SELECTION_PROMPT_TASK = "weibo-trending-selection";
 const SUMMARY_PROMPT_TASK = "weibo-trending";
 

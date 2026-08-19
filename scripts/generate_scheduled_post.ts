@@ -48,6 +48,8 @@ import { normalizeMarkdownBlock, numberedBlocks, parseModelJsonObject } from "./
 import { MAX_REDDIT_SOURCE_ITEMS, fetchRedditSourceFromApi } from "./reddit_source_api.ts";
 import { redditTrendingMarkdownFromTitleTranslations } from "./reddit_trending_compose.ts";
 import { buildCombinedRedditTrendingSource, buildRedditTrendingSource } from "./reddit_trending_source.ts";
+import { weiboTrendingMarkdownFromSummaries } from "./weibo_trending_compose.ts";
+import { buildCombinedWeiboTrendingSource, buildWeiboTrendingSource } from "./weibo_trending_source.ts";
 
 export type ResultItem = ReturnType<typeof archivePost> & {
   skip_reason?: string;
@@ -280,6 +282,7 @@ const SOURCE_BUILDERS: Record<Task, ((date: string, ctx: SourceContext) => Promi
   "wired-monthly": magazineSourceBuilder,
   // 只取榜和粗筛，选题与深挖留给 SOURCE_COMBINERS——那一层才拿得到模型与提示词目录。
   "reddit-trending": date => buildRedditTrendingSource(date),
+  "weibo-trending": date => buildWeiboTrendingSource(date),
 };
 
 async function sourceForTask(task: Task, date: string, sourceFixtureDir = "", repo = repoRoot(), redditCategory?: RedditCategory): Promise<string> {
@@ -1044,6 +1047,7 @@ const SOURCE_COMBINERS: Record<Task, ((args: CombineArgs) => Promise<string>) | 
   "tech-daily": buildCombinedTechDailySource,
   "reddit-top20": buildCombinedRedditSource,
   "reddit-trending": buildCombinedRedditTrendingSource,
+  "weibo-trending": buildCombinedWeiboTrendingSource,
   "economist-weekly": combineMagazineSource,
   "new-yorker-weekly": combineMagazineSource,
   "atlantic-monthly": combineMagazineSource,
@@ -1067,6 +1071,7 @@ const LEDGER_APPENDERS: Record<Task, ((source: string, meta: LedgerMeta, ctx: So
   "xyzrank-top-episodes": null,
   "tech-daily": null,
   "reddit-trending": null,
+  "weibo-trending": null,
   "mdblist-weekly": (source, meta, { repo }) =>
     appendMdblistRecommendations(parseMdblistRecommendationsFromSource(source), meta, path.join(repo, MDBLIST_LEDGER_REL_PATH)),
   "nyt-books-weekly": (source, meta, { repo }) =>
@@ -1164,6 +1169,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     source = await combineSource({ task, source, date: contentDate, repo, model, promptDir, artifactsDir, redditCategory });
     // 逐条目摘要可能把当天全部候选都判掉；空栏目不值得发一篇。
     if (task === "tech-daily" && countNumberedBlocks(source) < 1) return [skippedLowQuality(task, date, "tech-daily has no high-quality daily items")];
+    if (task === "weibo-trending" && countNumberedBlocks(source) < 1) return [skippedLowQuality(task, date, "weibo-trending has no publishable topics after policy selection and AI Search")];
     // 合成后条目不够就不发。数量写在 blog_tasks.ts 的 sourceContract 里，和发布校验共用一个值：
     // 少了这一步，凑不满的那天会一路走到归档，再由 verify 在写盘之后才拦下来。
     const minBlocks = taskInfo(task).sourceContract?.minNumberedBlocks;
@@ -1201,6 +1207,18 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   } else if (task === "reddit-trending" && useAi) {
     // 逐帖标题翻译已在 source combine 阶段完成；这里仅由规则层恢复榜单事实并组装文章。
     body = redditTrendingMarkdownFromTitleTranslations(source);
+    const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
+    const itemConfig = envAiConfig({ model });
+    generation = {
+      ai_model: itemConfig.model,
+      ai_base_url: itemConfig.baseUrl,
+      ai_fallback_used: false,
+      source_artifact: sourceArtifact,
+      mocked_ai: Boolean(mockResponseDir),
+    };
+  } else if (task === "weibo-trending" && useAi) {
+    // 逐条摘要已在 source combine 阶段完成；这里只恢复经源证据约束的短条目。
+    body = weiboTrendingMarkdownFromSummaries(source);
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
     const itemConfig = envAiConfig({ model });
     generation = {

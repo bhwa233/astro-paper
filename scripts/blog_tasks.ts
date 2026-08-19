@@ -157,6 +157,17 @@ export const BLOG_TASKS = {
       requiredPatterns: [{ label: "post links", pattern: /- \*\*帖子\*\*：https:\/\/www\.reddit\.com\// }],
     },
   },
+  "weibo-trending": {
+    titlePrefix: "微博热搜",
+    tag: "微博热搜",
+    description: "每日微博热搜短条目，基于当日榜单与逐话题微博智搜结论整理。",
+    fileName: "微博热搜-{date}.md",
+    bodyHeadingPattern: /^\d+\. 🔴\s+/m,
+    sourceContract: {
+      requiredTerms: ["微博智搜", "智搜摘要"],
+      requiredPatterns: [{ label: "topic links", pattern: /- \*\*话题\*\*：https:\/\// }],
+    },
+  },
 } as const satisfies Record<string, BlogTaskInfo>;
 
 export type Task = keyof typeof BLOG_TASKS;
@@ -181,6 +192,8 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "10 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   // 错开上面三个栏目：它们和热搜打的是同一个来源服务，热搜还要额外跑一次深挖作业。
   "30 11 * * *": { task: "reddit-trending", dateTimeZone: "America/Los_Angeles" },
+  // 北京时间次日 00:20 读取前一天完整累积榜，避免当天中午只拿到半天热搜。
+  "20 16 * * *": { task: "weibo-trending", dateOffset: -1, dateTimeZone: "Asia/Shanghai" },
 };
 
 export function isTask(value: string): value is Task {

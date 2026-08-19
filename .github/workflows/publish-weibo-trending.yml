@@ -1,0 +1,38 @@
+name: Publish Weibo Trending
+
+permissions:
+  contents: write
+
+on:
+  # 北京时间次日 00:20，归档前一天的完整累积榜。
+  schedule:
+    - cron: "20 16 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Archive date in Asia/Shanghai, YYYY-MM-DD. Empty = previous day for the scheduled run."
+        required: false
+        type: string
+      force:
+        description: "Overwrite an existing post for the same date"
+        required: false
+        type: boolean
+        default: false
+      ai_model:
+        description: "Optional AI_MODEL override. Empty = Gemini 3.7 Flash."
+        required: false
+        type: string
+
+jobs:
+  publish:
+    name: Publish Weibo Trending
+    permissions:
+      contents: write
+    uses: ./.github/workflows/blog-publish.yml
+    with:
+      task: weibo-trending
+      date: ${{ inputs.date || '' }}
+      event_schedule: ${{ github.event.schedule || '20 16 * * *' }}
+      force: ${{ inputs.force || false }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+    secrets: inherit

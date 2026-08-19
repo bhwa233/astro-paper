@@ -162,6 +162,8 @@ jobs:
           NYT_API_KEY: ${{ secrets.NYT_API_KEY }}
           REDDIT_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
           REDDIT_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
+          WEIBO_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
+          WEIBO_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
           REDDIT_AI_CONCURRENCY: 3
           GITHUB_TOKEN: ${{ github.token }}
           PODCAST_TRANSCRIBE_PROVIDER: gemini

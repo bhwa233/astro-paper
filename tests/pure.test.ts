@@ -27,6 +27,7 @@ import {
   selectRedditTrendingCandidates,
 } from "../scripts/reddit_trending_source.ts";
 import { type RedditTrendingBoard, type RedditTrendingItem } from "../scripts/reddit_trending_api.ts";
+import { WEIBO_TRENDING_LIMIT, parseWeiboTrendingSelection, parseWeiboTrendingSummary } from "../scripts/weibo_trending_source.ts";
 
 function podcastResult(overrides: Partial<ResultItem>): ResultItem {
   return {
@@ -446,4 +447,32 @@ test("reddit trending selection rejects picks the candidate list cannot back", (
   // 服务端 posts 字段的上限是 10，超了要在提交深挖作业之前就挡住。
   const eleven = Array.from({ length: 11 }, (_, index) => ({ rank: index + 1, reason: "长尾话题" }));
   assert.throws(() => parseRedditTrendingSelection(JSON.stringify({ selected: eleven }), 25), /at most 10/);
+});
+
+// ------------------------------------------------------- 微博全站热搜选题
+
+test("weibo trending keeps the first 20 non-ad topics in upstream order", () => {
+  const payload = [
+    { title: "推广位", category: "广告", url: "https://m.weibo.cn/search?ad", hot: 999_999, ads: true },
+    ...Array.from({ length: WEIBO_TRENDING_LIMIT + 2 }, (_, index) => ({
+      title: `话题 ${index + 1}`,
+      category: "社会",
+      url: `https://m.weibo.cn/search?topic=${index + 1}`,
+      hot: index + 1,
+      ads: false,
+    })),
+  ];
+  const items = parseWeiboTrendingSummary(payload);
+  assert.equal(items.length, WEIBO_TRENDING_LIMIT);
+  assert.deepEqual(items.map(item => item.rank), Array.from({ length: WEIBO_TRENDING_LIMIT }, (_, index) => index + 1));
+  assert.equal(items[0].title, "话题 1");
+  assert.equal(items.at(-1)?.title, `话题 ${WEIBO_TRENDING_LIMIT}`);
+  assert.throws(() => parseWeiboTrendingSummary([{ title: "缺少链接", hot: 1, ads: false }]), /missing its title or topic URL/);
+});
+
+test("weibo trending selection accepts only unique ranks from the top-20 source", () => {
+  assert.deepEqual(parseWeiboTrendingSelection(JSON.stringify({ selected: [{ rank: 3 }, { rank: 1 }] }), 20), [1, 3]);
+  assert.deepEqual(parseWeiboTrendingSelection(JSON.stringify({ selected: [] }), 20), []);
+  assert.throws(() => parseWeiboTrendingSelection(JSON.stringify({ selected: [{ rank: 21 }] }), 20), /not in the top 20/);
+  assert.throws(() => parseWeiboTrendingSelection(JSON.stringify({ selected: [{ rank: 1 }, { rank: 1 }] }), 20), /picked candidate 1 twice/);
 });

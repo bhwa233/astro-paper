@@ -13,6 +13,7 @@ import { economistWeeklyMarkdown, parseEconomistArticleSummaries } from "../scri
 import { magazineConfig, parseMagazineEpub } from "../scripts/magazine.ts";
 import { parseRedditItemOutcome, parseRedditItemSummary, redditCategoryArticleFromSource, redditCategoryByKey, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
 import { redditTrendingMarkdownFromTitleTranslations } from "../scripts/reddit_trending_compose.ts";
+import { weiboTrendingMarkdownFromSummaries } from "../scripts/weibo_trending_compose.ts";
 import { parseMagazineItemSummary, partitionRedditItemOutcomes } from "../scripts/generate_scheduled_post.ts";
 import { verifyPostContract } from "../scripts/verify_blog_generation.ts";
 import { composeFixtureBody } from "./helpers/compose-fixture.ts";
@@ -182,6 +183,30 @@ test("Reddit trending aggregates title translations while retaining source facts
   assert.match(published, /^- \*\*来源\*\*：\[r\/nextfuckinglevel\]\(https:\/\/www\.reddit\.com\/r\/nextfuckinglevel\/\)$/m);
   assert.match(published, /^- \*\*帖子\*\*：https:\/\/www\.reddit\.com\/r\/nextfuckinglevel\/comments\/fixture01\/how_did_people_travel_these_seas\/$/m);
   verifyPostContract(repo, article.path, "reddit-trending");
+});
+
+test("Weibo trending renders only the topic link and AI summary from source evidence", () => {
+  const source = [
+    "# 微博热搜 2099-01-02",
+    "",
+    "每条摘要仅基于对应话题的完整微博智搜结论；话题链接与标题由榜单事实提供。",
+    "",
+    "## 1. 某公司发布新产品",
+    "",
+    "- **话题**：https://m.weibo.cn/search?containerid=topic1",
+    "- **智搜结论**：\"这是不应进入正文的完整原始结论，含有较长的证据细节。\"",
+    "- **智搜引用数**：12",
+    "- **智搜摘要**：\"智搜结论显示，该产品发布后引发了对定价、功能和交付节奏的讨论。\"",
+  ].join("\n");
+  const markdown = weiboTrendingMarkdownFromSummaries(source);
+  assert.match(markdown, /^1\. 🔴 某公司发布新产品$/m);
+  assert.match(markdown, /^- 话题：https:\/\/m\.weibo\.cn\/search\?containerid=topic1$/m);
+  assert.match(markdown, /^- 摘要：智搜结论显示，该产品发布后引发了对定价、功能和交付节奏的讨论。$/m);
+  assert.doesNotMatch(markdown, /不应进入正文的完整原始结论|智搜引用数/);
+
+  const repo = tempDir("weibo-trending-verify");
+  const article = archivePost({ task: "weibo-trending", date: "2099-01-02", repo, body: markdown, force: true });
+  verifyPostContract(repo, article.path, "weibo-trending");
 });
 
 test("mdblist compose takes poster and IMDb rating from source", () => {

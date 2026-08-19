@@ -336,6 +336,18 @@ function formatRedditTrending(text: string): string {
   return `${normalized.trim()}\n`;
 }
 
+function formatWeiboTrending(text: string): string {
+  const normalized = stripLeadingTitleHeading(normalizeMarkdown(text));
+  const entries = normalized.match(/^\d+\. 🔴 .+$/gm) || [];
+  if (!entries.length) throw new Error("Weibo trending needs at least one topic entry");
+  const topicLinks = normalized.match(/^- 话题：https:\/\/\S+$/gm) || [];
+  const summaries = normalized.match(/^- 摘要：\S.+$/gm) || [];
+  if (topicLinks.length !== entries.length || summaries.length !== entries.length) {
+    throw new Error(`Weibo trending needs a topic link and summary per entry: ${topicLinks.length}/${summaries.length} vs ${entries.length}`);
+  }
+  return `${normalized.trim()}\n`;
+}
+
 function formatMdblistWeekly(text: string): string {
   const normalized = stripLeadingTitleHeading(normalizeMarkdown(text));
   const sections = ["电影推荐", "剧集推荐"].filter(section => new RegExp(`^##\\s+${section}\\s*$`, "m").test(normalized));
@@ -382,6 +394,7 @@ const ARCHIVE_FORMATTERS: Record<Task, ArchiveFormatter> = {
   "hn-top10": formatHnTop10,
   "reddit-top20": body => ({ markdown: formatRedditTop20(body) }),
   "reddit-trending": body => ({ markdown: formatRedditTrending(body) }),
+  "weibo-trending": body => ({ markdown: formatWeiboTrending(body) }),
   "daily-podcasts": formatPodcastEpisode,
   "apple-top-podcasts": formatPodcastEpisode,
   "xyzrank-top-episodes": formatPodcastEpisode,

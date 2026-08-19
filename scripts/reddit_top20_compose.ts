@@ -37,6 +37,10 @@ const CATEGORY_BY_SUBREDDIT = new Map<string, RedditCategoryKey>(
 
 // description 只喂 frontmatter，不进正文；正文首段因此不必再兼任摘要句。
 const DESCRIPTION_MAX_CHARS = 100;
+// 提示词已经要求译名压到 30 字，这里留 10 字缓冲：只拦模型完全不守约的长句
+// （2026-08-09 出过一条 109 字的），不为多写一两个字就废掉一整帖。
+// 下游微信稿直接拿第一帖标题当图文标题，64 字上限减去期号后缀还剩 47，40 因此永远塞得下。
+const TITLE_MAX_CHARS = 40;
 
 export type RedditModelItem = {
   rank: number;
@@ -118,6 +122,9 @@ export function parseRedditItemSummary(raw: string, expectedRank: number): Reddi
   const summary = normalizeMarkdownBlock(payload.summary);
   if (rank !== expectedRank) throw new Error(`Reddit item summary rank mismatch: ${rank} vs ${expectedRank}`);
   if (!titleZh || !hasChinese(titleZh)) throw new Error(`Reddit item ${expectedRank} needs a Chinese title`);
+  if ([...titleZh].length > TITLE_MAX_CHARS) {
+    throw new Error(`Reddit item ${expectedRank} title is too long: ${[...titleZh].length} > ${TITLE_MAX_CHARS}`);
+  }
   if (!description || !hasChinese(description)) throw new Error(`Reddit item ${expectedRank} needs a Chinese description`);
   if ([...description].length > DESCRIPTION_MAX_CHARS) {
     throw new Error(`Reddit item ${expectedRank} description is too long: ${[...description].length} > ${DESCRIPTION_MAX_CHARS}`);
@@ -137,6 +144,9 @@ export function parseRedditTitleTranslation(raw: string, expectedRank: number): 
   const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
   if (rank !== expectedRank) throw new Error(`Reddit title translation rank mismatch: ${rank} vs ${expectedRank}`);
   if (!titleZh || !hasChinese(titleZh)) throw new Error(`Reddit title translation ${expectedRank} needs a Chinese title`);
+  if ([...titleZh].length > TITLE_MAX_CHARS) {
+    throw new Error(`Reddit title translation ${expectedRank} is too long: ${[...titleZh].length} > ${TITLE_MAX_CHARS}`);
+  }
   return { rank, title_zh: titleZh };
 }
 

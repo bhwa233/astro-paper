@@ -1,8 +1,9 @@
 #!/usr/bin/env tsx
 // 独立的 Reddit 人生微信归档编排：不进入 Astro 内容集合，也不重新选择 Reddit 榜单。
 // 上游 life 文章的每帖正文已经是逐条故事的有序列表，这里取前三帖、每帖前 30 条回答，拼成一篇稿子。
-// 正文全部来自已归档的上游文章；唯一的模型调用是标题与摘要（reddit_life_wechat_digest.ts），
-// 它失败时回落到第一帖标题与上游 description，不影响归档。
+// 整条管线不调模型：标题直接取第一帖，摘要直接取上游 frontmatter 的 description。
+// 曾经有一次模型调用把三帖话题串成一个标题，读者一眼看不出在讲什么，因此改回主打第一帖。
+// 第一帖标题的长度由上游 parseRedditItemSummary 的 TITLE_MAX_CHARS 守住，这里不必再压。
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -24,7 +25,6 @@ import {
 } from "./reddit_life_wechat_compose.ts";
 import { REDDIT_LIFE_WECHAT_COVER_FILE, renderRedditLifeWechatCover } from "./reddit_life_wechat_cover.ts";
 import { renderQrPng } from "./qr_code.ts";
-import { redditLifeWechatDigest } from "./reddit_life_wechat_digest.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 
 const ROOT_REL = "data/reddit-life-wechat";
@@ -251,16 +251,12 @@ export async function generateRedditLifeWechat({
   upstreamSha,
   workflowRun = "",
   artifactsDir = "",
-  model = "",
-  promptDir = "",
 }: {
   repo?: string;
   date: string;
   upstreamSha: string;
   workflowRun?: string;
   artifactsDir?: string;
-  model?: string;
-  promptDir?: string;
 }): Promise<{ manifestPath: string; generatedPaths: string[]; status: RedditLifeRunManifest["status"] }> {
   if (!upstreamSha) throw new Error("--upstream-sha is required; Reddit life WeChat must read the committed parent handoff");
   if (!/^\d+$/.test(workflowRun)) throw new Error("--upstream-workflow-run is required and must be a GitHub Actions run ID");
@@ -301,15 +297,9 @@ export async function generateRedditLifeWechat({
   const relPath = path.join(dayDir, `${String(candidates[0].rank).padStart(2, "0")}-${candidates[0].postId}.md`);
   const target = path.join(repo, relPath);
   ensureDir(path.dirname(target));
-  const digest = await redditLifeWechatDigest({
-    candidates,
-    fallbackDescription: upstreamDescription,
-    date,
-    model,
-    repo,
-    promptDir,
-    artifactsDir,
-  });
+  // 标题主打第一帖，摘要沿用上游那句（它本来就是第一帖的一句话描述）。
+  // 两行都指向第一帖，读者在列表页看到的是同一个话题的标题与展开，而不是三帖并列的话题串。
+  const digest = { headline: candidates[0].title, description: upstreamDescription };
   writeStderr(`[reddit-life-wechat] ${label}: headline=${digest.headline}`);
   // 封面先落盘再写稿：ogImage 只有在图确实存在时才敢写，否则 astro-wechat 解析不到文件会直接报错，
   // 那比回落到 defaultCover 糟得多。渲染失败返回 null，稿子照常出，只是没有专属封面。
@@ -347,8 +337,6 @@ async function main(): Promise<void> {
     upstreamSha: stringArg(args, "upstream-sha", process.env.UPSTREAM_GENERATED_SHA || ""),
     workflowRun: stringArg(args, "upstream-workflow-run", process.env.UPSTREAM_WORKFLOW_RUN || ""),
     artifactsDir: path.resolve(stringArg(args, "artifacts-dir", "reddit-life-wechat-artifacts")),
-    model: stringArg(args, "model", process.env.AI_MODEL || ""),
-    promptDir: stringArg(args, "prompt-dir"),
   });
   writeStdout(`${JSON.stringify({ date, ...result })}\n`);
 }

@@ -1,6 +1,6 @@
 // 规则层：正文完全由上游 life 文章转换而来，本模块自身不调用模型。
 // 上游每帖的正文已经是「一条回答一个普通文本编号段」的故事集，这里只做选帖、截断、拼接和长度收口。
-// 标题与摘要由编排层从模型取得后传进来（见 reddit_life_wechat_digest.ts）。
+// 标题与摘要由编排层传进来：标题是第一帖的标题，摘要是上游 frontmatter 的 description。
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
@@ -9,7 +9,7 @@ import { REDDIT_LIFE_SUBREDDITS } from "./reddit_life_wechat_source.ts";
 export const REDDIT_LIFE_WECHAT_TAG = "Reddit人生讨论";
 export const REDDIT_LIFE_WECHAT_TITLE_BRAND = "Reddit 热帖精选";
 // 微信图文标题上限 64 字符。品牌与期号在末尾，正是最该固定露出的部分，所以超长时只截帖子标题那段。
-// 提示词已经把译名压到 30 字，这里只是模型不守约时的兜底，正常永远不触发。
+// 上游 parseRedditItemSummary 已经把译名卡在 40 字，扣掉后缀仍有 47 的预算，这里正常永远不触发。
 const WECHAT_TITLE_LIMIT = 64;
 const TITLE_ELLIPSIS = "…";
 // 一篇微信稿收录上游前三帖，每帖只保留前 30 条回答。
@@ -147,7 +147,7 @@ function storyItems(body: string): string[] {
 
 // 每帖只取前 REPLY_LIMIT 条：三帖全量渲染出的 HTML 会撞上微信 20000 字符上限（实测 20557）。
 // 编号是上游给的顺序，截前 N 条不会留下断号。
-export function limitedStoryText(body: string, limit = REDDIT_LIFE_WECHAT_REPLY_LIMIT): string {
+function limitedStoryText(body: string, limit = REDDIT_LIFE_WECHAT_REPLY_LIMIT): string {
   if (!Number.isInteger(limit) || limit < 1) throw new Error(`invalid Reddit life reply limit: ${limit}`);
   return storyItems(body)
     .slice(0, limit)
@@ -226,7 +226,7 @@ export function redditLifeWechatTitle(title: string, issue: number): string {
 // coverFile 为空时不写 ogImage，astro-wechat 会回落到配置里的 defaultCover。
 // 路径按相对写法：astro-wechat 先相对 Markdown 所在目录解析，封面就躺在稿子旁边，不必往 public/ 里塞。
 //
-// headline 是模型给的话题串，只占标题前半段，品牌与期号由 redditLifeWechatTitle 拼上。
+// headline 是第一帖的标题，只占标题前半段，品牌与期号由 redditLifeWechatTitle 拼上。
 // sourceURL 指向那天的 life 文章：它既是微信的「阅读原文」落点，也是 astro-wechat 的同步身份。
 // 指 Reddit 原帖有两个毛病——大陆读者点开是打不开的墙外链接；而且同一帖跨天登顶时身份会撞车，
 // 按归档日走的文章地址天然唯一。redditPostId / subreddit 仍记第一帖，用于追溯。

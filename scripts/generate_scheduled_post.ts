@@ -15,7 +15,6 @@ import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
   parseRedditItemOutcome,
   parseRedditTitleTranslation,
-  parseSourceFacts as parseRedditSourceFacts,
   redditCategoryArticleFromSource,
   redditCategoryByKey,
   type RedditCategory,

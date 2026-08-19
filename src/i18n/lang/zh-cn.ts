@@ -11,7 +11,6 @@ export default {
   },
   post: {
     publishedAt: "发布于",
-    updatedAt: "更新于",
     sharePostIntro: "分享这篇文章：",
     sharePostOn: "分享到 {{platform}}",
     sharePostViaEmail: "通过邮件分享这篇文章",

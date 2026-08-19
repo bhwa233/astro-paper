@@ -11,7 +11,6 @@ export default {
   },
   post: {
     publishedAt: "Published at",
-    updatedAt: "Updated",
     sharePostIntro: "Share this post:",
     sharePostOn: "Share this post on {{platform}}",
     sharePostViaEmail: "Share this post via email",

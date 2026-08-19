@@ -42,9 +42,7 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
             data-feed-base={feedBasePath}
             data-next-page="2"
             data-has-more={hasMorePosts}
-            data-locale={locale}
             data-timezone={config.site.timezone}
-            data-updated-label={t.post.updatedAt}
             data-reading-label={t.post.readingTime}
           >
             {homepagePosts.map(data => (
@@ -61,6 +59,7 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
 
 <script>
   import "@appnest/masonry-layout";
+  import { formatCompactDate } from "@/utils/formatCompactDate";
 
   type HomePost = {
     title: string;
@@ -95,32 +94,14 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
       .querySelector<HTMLElement>("li > div")
       ?.cloneNode(true) as HTMLElement | undefined;
     const date = new Date(post.modDatetime ?? post.pubDatetime);
-    const isModified = Boolean(
-      post.modDatetime &&
-      new Date(post.modDatetime) > new Date(post.pubDatetime)
-    );
-
     if (datetime) {
-      const updatedLabel = datetime.querySelector("[data-updated-label]");
-      if (!isModified) {
-        updatedLabel?.remove();
-      } else if (!updatedLabel) {
-        const created = document.createElement("span");
-        created.dataset.updatedLabel = "";
-        created.className = "text-sm";
-        created.textContent = `${grid.dataset.updatedLabel}:`;
-        datetime.querySelector("time")?.before(created);
-      }
-
       const time = datetime.querySelector("time");
       if (time) {
         time.dateTime = date.toISOString();
-        time.textContent = new Intl.DateTimeFormat(grid.dataset.locale, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          timeZone: post.timezone ?? grid.dataset.timezone,
-        }).format(date);
+        time.textContent = formatCompactDate(
+          date,
+          post.timezone ?? grid.dataset.timezone ?? "UTC"
+        );
       }
 
       const reading = datetime.querySelector("[data-reading-time]");

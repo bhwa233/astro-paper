@@ -250,6 +250,7 @@ const magazineSourceBuilder = (date: string, { task, repo }: SourceContext): Pro
   return buildMagazineWeeklySource(config, date, {
     ledgerFile: path.join(repo, magazineLedgerRelPath(config.slug)),
     excludePostPathForIssueDate: issueDate => taskPostRelPath(task, issueDate),
+    imageOutputRoot: path.join(repo, "public/images/magazine"),
   });
 };
 
@@ -797,7 +798,7 @@ async function buildCombinedMagazineSource({
     ...blocks.flatMap(block => {
       const rank = Number(block.match(/^##\s+(\d+)\./m)?.[1]);
       const summary = byRank.get(rank);
-      const factLines = block.split("\n").filter(line => /^##\s+/.test(line));
+      const factLines = block.split("\n").filter(line => /^##\s+/.test(line) || /^- 图片：/.test(line));
       if (!summary) throw new Error(`${config.name} item summary missing rank ${rank}`);
       return [
         ...factLines,
@@ -1230,7 +1231,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     };
   } else if (isMagazineTask(task)) {
     // The issue post is a deterministic aggregation of the per-article summaries; no issue-level AI call.
-    const composed = economistWeeklyMarkdown(source);
+    const composed = economistWeeklyMarkdown(source, { requireImages: task === "economist-weekly" });
     body = composed.markdown;
     description = composed.description;
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);

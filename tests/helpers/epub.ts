@@ -5,6 +5,11 @@ interface EpubPage {
   html: string;
   /** Calibre magazines ship .html spine items; the other two use .xhtml. */
   extension?: string;
+  image?: {
+    data: Buffer;
+    href: string;
+    mediaType: string;
+  };
 }
 
 /** Builds a minimal but structurally valid EPUB: container.xml + content.opf + spine pages. */
@@ -16,7 +21,10 @@ function buildEpub(title: string, pages: EpubPage[]): Buffer {
   );
   const manifest = pages
     .map(page => `<item id="${page.id}" href="${page.id}.${page.extension || "xhtml"}" media-type="application/xhtml+xml"/>`)
-    .join("");
+    .join("") + pages
+      .filter(page => page.image)
+      .map(page => `<item id="${page.id}-image" href="${page.image!.href}" media-type="${page.image!.mediaType}"/>`)
+      .join("");
   const spine = pages.map(page => `<itemref idref="${page.id}"/>`).join("");
   zip.addFile(
     "EPUB/content.opf",
@@ -24,6 +32,7 @@ function buildEpub(title: string, pages: EpubPage[]): Buffer {
   );
   for (const page of pages) {
     zip.addFile(`EPUB/${page.id}.${page.extension || "xhtml"}`, Buffer.from(page.html));
+    if (page.image) zip.addFile(`EPUB/${page.image.href}`, page.image.data);
   }
   return zip.toBuffer();
 }
@@ -48,9 +57,11 @@ export function epubFixture(kind: EpubKind, articleCount: number): Buffer {
       Array.from({ length: articleCount }, (_, index) => {
         const rank = index + 1;
         const body = `${`Article ${rank} presents complete evidence without an artificial per-article length limit. `.repeat(180)}ARTICLE_${rank}_TAIL_SENTINEL`;
+        const imageHref = `images/article-${rank}.jpg`;
         return {
           id: `article-${rank}`,
-          html: `<html><body><div class="te_section_title">Leaders</div><h1>Repeated title</h1><a class="origin_link" href="https://www.economist.com/fixture/${rank}">Original</a><p>${body}</p></body></html>`,
+          html: `<html><body><div class="te_section_title">Leaders</div><h1>Repeated title</h1><img ${rank === 2 ? "" : 'class="te_head_image"'} src="${imageHref}"/><a class="origin_link" href="https://www.economist.com/fixture/${rank}">Original</a><p>${body}</p></body></html>`,
+          image: { data: Buffer.from(`ORIGINAL_ECONOMIST_IMAGE_${rank}`), href: imageHref, mediaType: "image/jpeg" },
         };
       }),
     );

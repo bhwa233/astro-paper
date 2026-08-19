@@ -385,6 +385,14 @@ function formatMagazineWeekly(text: string): { markdown: string; ogImage: string
   return { markdown: `${normalized.trim()}\n`, ogImage: "" };
 }
 
+function formatEconomistWeekly(text: string): { markdown: string; ogImage: string } {
+  const formatted = formatMagazineWeekly(text);
+  const articleCount = (formatted.markdown.match(/^##\s+\S.+$/gm) || []).length;
+  const imageCount = (formatted.markdown.match(/^!\[.*\]\(\/images\/magazine\/economist\/\d{4}-\d{2}-\d{2}\/\d{2,}\.(?:avif|gif|jpe?g|png|webp)\)$/gm) || []).length;
+  if (imageCount !== articleCount) throw new Error(`economist weekly needs one local image per article: ${imageCount} vs ${articleCount}`);
+  return formatted;
+}
+
 // 每个任务的成文函数。写成全量 Record：漏掉一个任务是类型错误，而不是运行到归档那一刻才抛
 // 「no archive formatter」。formatter 住在这里而不是 blog_tasks.ts——后者必须保持无第三方依赖，
 // 否则每个 compose 模块和它们的测试都会被拖进一整套 DOM 实现。
@@ -402,7 +410,7 @@ const ARCHIVE_FORMATTERS: Record<Task, ArchiveFormatter> = {
   "github-trending-daily": body => ({ markdown: formatGitHubTrendingDaily(body) }),
   "mdblist-weekly": body => ({ markdown: formatMdblistWeekly(body) }),
   "nyt-books-weekly": formatNytBooksWeekly,
-  "economist-weekly": formatMagazineWeekly,
+  "economist-weekly": formatEconomistWeekly,
   "new-yorker-weekly": formatMagazineWeekly,
   "atlantic-monthly": formatMagazineWeekly,
   "wired-monthly": formatMagazineWeekly,

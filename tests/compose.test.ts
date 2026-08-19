@@ -10,7 +10,7 @@ import { parseGitHubTrendingModelJson } from "../scripts/github_trending_compose
 import { mdblistMarkdownFromModelJson } from "../scripts/mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "../scripts/daily_digest_compose.ts";
 import { economistWeeklyMarkdown, parseEconomistArticleSummaries } from "../scripts/economist_weekly_compose.ts";
-import { magazineConfig, parseMagazineEpub } from "../scripts/magazine.ts";
+import { magazineConfig, parseMagazineEpub, writeMagazineArticleImages } from "../scripts/magazine.ts";
 import { parseRedditItemOutcome, parseRedditItemSummary, redditCategoryArticleFromSource, redditCategoryByKey, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
 import { redditTrendingMarkdownFromTitleTranslations } from "../scripts/reddit_trending_compose.ts";
 import { weiboTrendingMarkdownFromSummaries } from "../scripts/weibo_trending_compose.ts";
@@ -30,10 +30,10 @@ test("magazine EPUB parsers keep every valid article and drop non-article pages"
       articleCount: 12,
       tail: /ARTICLE_1_TAIL_SENTINEL/,
       // Repeated titles must NOT collapse, and long bodies must NOT be truncated.
-      extra: (articles: { text: string; originalTitle: string; rank: number }[]) => {
+      extra: (articles: { text: string; originalTitle: string; rank: number; image?: { data: Buffer; extension: string } }[]) => {
         assert.ok(articles[0].text.length > 12_000);
         assert.equal(articles[0].originalTitle, "Repeated title");
-        assert.deepEqual(Object.keys(articles[0]).sort(), ["originalTitle", "rank", "text"]);
+        assert.deepEqual(Object.keys(articles[0]).sort(), ["image", "originalTitle", "rank", "text"]);
       },
     },
     {
@@ -69,6 +69,17 @@ test("magazine EPUB parsers keep every valid article and drop non-article pages"
   }
 });
 
+test("Economist EPUB images keep their original bytes and article order", () => {
+  const config = magazineConfig("economist-weekly");
+  const issue = parseMagazineEpub(epubFixture("economist", 3), config);
+  assert.deepEqual(issue.articles[0].image?.data, Buffer.from("ORIGINAL_ECONOMIST_IMAGE_1"));
+  assert.deepEqual(issue.articles[1].image?.data, Buffer.from("ORIGINAL_ECONOMIST_IMAGE_2"));
+  const outputRoot = tempDir("economist-images");
+  const paths = writeMagazineArticleImages(config, "2099-01-02", issue, outputRoot);
+  assert.equal(paths.get(1), "/images/magazine/economist/2099-01-02/01.jpg");
+  assert.deepEqual(fs.readFileSync(path.join(outputRoot, "economist/2099-01-02/01.jpg")), Buffer.from("ORIGINAL_ECONOMIST_IMAGE_1"));
+});
+
 test("magazine item summary keeps Markdown structure and rejects headings", () => {
   const base = { rank: 1, title_zh: "制度压力", one_sentence_summary: "短摘要。", core_point: "核心观点。" };
   const item = parseMagazineItemSummary(JSON.stringify({ ...base, content_summary: "第一段总结。\n\n- **要点一**：细节。\n- 要点二：细节。" }), 1);
@@ -80,11 +91,13 @@ test("magazine item summary keeps Markdown structure and rejects headings", () =
 
 test("Economist compose aggregates per-article summaries with no issue-level sections", () => {
   const source = fixture("blog-sources/economist-weekly.md");
-  const summaries = parseEconomistArticleSummaries(source);
-  const { markdown, description } = economistWeeklyMarkdown(source);
+  const summaries = parseEconomistArticleSummaries(source, { requireImages: true });
+  const { markdown, description } = economistWeeklyMarkdown(source, { requireImages: true });
   assert.ok(summaries.length > 0);
   assert.doesNotMatch(markdown, /本期主题脉络|阅读路线|全部文章/);
   assert.match(markdown, /^## .+$/m);
+  assert.equal((markdown.match(/^!\[/gm) || []).length, summaries.length);
+  assert.match(markdown, /^!\[脆弱和平的压力测试\]\(\/images\/magazine\/economist\/2099-01-02\/01\.jpg\)$/m);
   assert.match(markdown, /^### 内容总结$/m);
   // content_summary Markdown structure survives the carrier round-trip.
   assert.match(markdown, /^- \*\*[^*]+\*\*：/m);

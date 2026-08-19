@@ -1,9 +1,10 @@
 import crypto from "node:crypto";
+import fs from "node:fs";
 import path from "node:path";
 import AdmZip from "adm-zip";
 import { XMLParser } from "fast-xml-parser";
 import { parseHtml } from "./html_dom.ts";
-import { bjtTimestamp, compact } from "./blog_common.ts";
+import { bjtTimestamp, compact, ensureDir } from "./blog_common.ts";
 import {
   hasArchivedMagazineIssue,
   magazineIssueKey,
@@ -25,12 +26,16 @@ export type MagazineArticle = {
   rank: number;
   originalTitle: string;
   text: string;
+  image?: {
+    data: Buffer;
+    extension: string;
+  };
 };
 
 export type MagazineParsedIssue = { title: string; articles: MagazineArticle[] };
 
 // Per-magazine extraction of one EPUB document; drop=true excludes it (non-article page/section).
-export type ArticleExtraction = { originalTitle: string; text: string; drop?: boolean };
+export type ArticleExtraction = { originalTitle: string; text: string; imageHrefs?: string[]; drop?: boolean };
 
 export type MagazineConfig = {
   task: string;
@@ -43,6 +48,7 @@ export type MagazineConfig = {
   name: string; // Chinese magazine name, e.g. 经济学人
   defaultEpubTitle: string;
   minArticleChars: number;
+  imageDirectory?: string;
   extractArticle: (html: string) => ArticleExtraction;
 };
 
@@ -51,8 +57,10 @@ function asArray<T>(value: T | T[] | undefined): T[] {
 }
 
 function cleanPath(base: string, href: string): string {
-  return path.posix.normalize(path.posix.join(path.posix.dirname(base), href.split("#")[0]));
+  return path.posix.normalize(path.posix.join(path.posix.dirname(base), href.split(/[?#]/)[0]));
 }
+
+const RASTER_IMAGE_EXTENSIONS = new Set([".avif", ".gif", ".jpeg", ".jpg", ".png", ".webp"]);
 
 function normalizedText(value = ""): string {
   return value
@@ -88,11 +96,15 @@ const ECONOMIST_NON_ARTICLE_SECTIONS = new Set(["the world this week", "letters"
 function economistExtract(html: string): ArticleExtraction {
   const document = parseHtml(html);
   const section = normalizedText(document.querySelector(".te_section_title")?.textContent || "未标明");
+  const headImage = document.querySelector("img.te_head_image")?.getAttribute("src") || "";
+  const imageHrefs = [headImage, ...[...document.querySelectorAll("img")].map(image => image.getAttribute("src") || "")]
+    .map(href => href.trim())
+    .filter((href, index, values) => href.length > 0 && values.indexOf(href) === index);
   const paragraphs = [...document.querySelectorAll("p")]
     .filter(node => !node.closest(".link_navbar, nav, header, footer") && !/downloaded by|subscribers only/i.test(node.textContent || ""))
     .map(node => normalizedText(node.textContent || ""))
     .filter(text => text.length > 30);
-  return { originalTitle: extractArticleTitle(document), text: paragraphs.join("\n\n"), drop: ECONOMIST_NON_ARTICLE_SECTIONS.has(section.toLowerCase()) };
+  return { originalTitle: extractArticleTitle(document), text: paragraphs.join("\n\n"), imageHrefs, drop: ECONOMIST_NON_ARTICLE_SECTIONS.has(section.toLowerCase()) };
 }
 
 // --- The New Yorker --------------------------------------------------------
@@ -130,6 +142,7 @@ export const MAGAZINES: Record<string, MagazineConfig> = {
     name: "经济学人",
     defaultEpubTitle: "The Economist",
     minArticleChars: 900,
+    imageDirectory: "economist",
     extractArticle: economistExtract,
   },
   "new-yorker-weekly": {
@@ -219,10 +232,44 @@ export function parseMagazineEpub(buffer: Buffer, config: MagazineConfig): Magaz
     if (!entry) continue;
     const extracted = config.extractArticle(entry.getData().toString("utf8"));
     if (extracted.drop || extracted.text.length < config.minArticleChars) continue;
-    articles.push({ originalTitle: extracted.originalTitle, text: extracted.text });
+    let image: MagazineArticle["image"];
+    for (const href of extracted.imageHrefs || []) {
+      const imagePath = cleanPath(sourceFile, href);
+      const extension = path.posix.extname(imagePath).toLowerCase();
+      if (!RASTER_IMAGE_EXTENSIONS.has(extension)) continue;
+      const imageEntry = zip.getEntry(imagePath);
+      if (!imageEntry || imageEntry.isDirectory) continue;
+      image = { data: imageEntry.getData(), extension };
+      break;
+    }
+    if (config.imageDirectory && !image) {
+      throw new Error(`${config.name} EPUB article image is missing or invalid: ${extracted.originalTitle || sourceFile}`);
+    }
+    articles.push({ originalTitle: extracted.originalTitle, text: extracted.text, ...(image ? { image } : {}) });
   }
   if (articles.length < 3) throw new Error(`${config.name} EPUB produced too few complete articles: ${articles.length}`);
   return { title, articles: articles.map((article, index) => ({ ...article, rank: index + 1 })) };
+}
+
+export function writeMagazineArticleImages(
+  config: MagazineConfig,
+  issueDate: string,
+  parsed: MagazineParsedIssue,
+  outputRoot: string,
+): Map<number, string> {
+  const imageDirectory = config.imageDirectory;
+  if (!imageDirectory) return new Map();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(issueDate)) throw new Error(`invalid magazine image issue date: ${issueDate}`);
+  const issueDirectory = path.join(outputRoot, imageDirectory, issueDate);
+  ensureDir(issueDirectory);
+  const publicPaths = new Map<number, string>();
+  for (const article of parsed.articles) {
+    if (!article.image) throw new Error(`${config.name} article ${article.rank} has no image to archive`);
+    const fileName = `${String(article.rank).padStart(2, "0")}${article.image.extension}`;
+    fs.writeFileSync(path.join(issueDirectory, fileName), article.image.data);
+    publicPaths.set(article.rank, path.posix.join("/images/magazine", imageDirectory, issueDate, fileName));
+  }
+  return publicPaths;
 }
 
 async function githubJson<T>(url: string): Promise<T> {
@@ -241,7 +288,13 @@ async function downloadEpub(url: string, config: MagazineConfig): Promise<Buffer
   return bytes;
 }
 
-export function renderMagazineSource(config: MagazineConfig, issue: MagazineIssue, parsed: MagazineParsedIssue, issueUrl: string): string {
+export function renderMagazineSource(
+  config: MagazineConfig,
+  issue: MagazineIssue,
+  parsed: MagazineParsedIssue,
+  issueUrl: string,
+  articleImages: ReadonlyMap<number, string> = new Map(),
+): string {
   return [
     `# 《${config.name}》本期候选｜${issue.issueDate}`,
     "",
@@ -259,6 +312,7 @@ export function renderMagazineSource(config: MagazineConfig, issue: MagazineIssu
       `## ${article.rank}. 文章`,
       "",
       `- 原文标题：${article.originalTitle || "-"}`,
+      ...(articleImages.has(article.rank) ? [`- 图片：${articleImages.get(article.rank)}`] : []),
       "",
       article.text,
       "",
@@ -273,7 +327,13 @@ export async function buildMagazineWeeklySource(
     ledgerFile = magazineLedgerFile(config),
     excludePostPath = "",
     excludePostPathForIssueDate,
-  }: { ledgerFile?: string; excludePostPath?: string; excludePostPathForIssueDate?: (issueDate: string) => string } = {},
+    imageOutputRoot,
+  }: {
+    ledgerFile?: string;
+    excludePostPath?: string;
+    excludePostPathForIssueDate?: (issueDate: string) => string;
+    imageOutputRoot?: string;
+  } = {},
 ): Promise<string> {
   const root = await githubJson<GithubEntry[]>(`https://api.github.com/repos/${REPOSITORY}/contents/${config.dir}`);
   const dirs = root
@@ -306,5 +366,7 @@ export async function buildMagazineWeeklySource(
   const excludedPostPath = excludePostPathForIssueDate?.(issueDate) || excludePostPath;
   if (hasArchivedMagazineIssue(issue, config.keyPrefix, ledgerFile, excludedPostPath)) throw new MagazineIssueAlreadyArchivedError(`${config.name} issue ${issueDate} is already archived`);
   const parsed = parseMagazineEpub(epubBytes, config);
-  return renderMagazineSource(config, issue, parsed, `https://github.com/${REPOSITORY}/tree/master/${config.dir}/${issueDirName}`);
+  if (config.imageDirectory && !imageOutputRoot) throw new Error(`${config.name} image output root is required`);
+  const articleImages = imageOutputRoot ? writeMagazineArticleImages(config, issueDate, parsed, imageOutputRoot) : new Map<number, string>();
+  return renderMagazineSource(config, issue, parsed, `https://github.com/${REPOSITORY}/tree/master/${config.dir}/${issueDirName}`, articleImages);
 }

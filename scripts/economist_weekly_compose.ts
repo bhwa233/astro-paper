@@ -3,27 +3,32 @@ import { bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowS
 export type EconomistArticleSummary = {
   rank: number;
   titleZh: string;
+  image: string;
   oneSentenceSummary: string;
   corePoint: string;
   contentSummary: string;
 };
 
-export function parseEconomistArticleSummaries(source: string): EconomistArticleSummary[] {
+export function parseEconomistArticleSummaries(source: string, { requireImages = false }: { requireImages?: boolean } = {}): EconomistArticleSummary[] {
   const ranks = new Set<number>();
   return numberedBlocks(source).map((block, index) => {
     const rank = Number(block.match(/^##\s+(\d+)\./m)?.[1]);
     const bullets = extractBullets(block);
     const titleZh = bulletValue(bullets, "中文标题");
+    const image = bulletValue(bullets, "图片");
     const oneSentenceSummary = bulletValue(bullets, "一句话摘要");
     const corePoint = bulletValue(bullets, "核心观点");
     const contentSummary = decodeMarkdownBlock(bulletValue(bullets, "内容总结"));
     if (!Number.isInteger(rank) || rank < 1 || ranks.has(rank)) throw new Error(`economist weekly article ${index + 1} has invalid or duplicate rank`);
     ranks.add(rank);
     if (!titleZh || !hasChinese(titleZh)) throw new Error(`economist weekly rank ${rank} needs a Chinese title`);
+    if (requireImages && !/^\/images\/magazine\/economist\/\d{4}-\d{2}-\d{2}\/\d{2,}\.(?:avif|gif|jpe?g|png|webp)$/.test(image)) {
+      throw new Error(`economist weekly rank ${rank} needs a local article image`);
+    }
     if ([oneSentenceSummary, corePoint, contentSummary].some(looksLowSignal)) throw new Error(`economist weekly rank ${rank} has empty or low-signal summary`);
     if (![oneSentenceSummary, corePoint, contentSummary].every(hasChinese)) throw new Error(`economist weekly rank ${rank} summaries must be Chinese`);
     if (/^\s{0,3}#{1,6}\s/m.test(contentSummary)) throw new Error(`economist weekly rank ${rank} content_summary must not use Markdown headings`);
-    return { rank, titleZh, oneSentenceSummary, corePoint, contentSummary };
+    return { rank, titleZh, image, oneSentenceSummary, corePoint, contentSummary };
   });
 }
 
@@ -34,11 +39,12 @@ function economistWeeklyDescription(articles: EconomistArticleSummary[]): string
 
 // The per-article summaries are already fully generated upstream; the issue post is a
 // deterministic aggregation of them — no issue-level model call, no overview/reading-route.
-export function economistWeeklyMarkdown(source: string): { markdown: string; description: string } {
-  const articles = parseEconomistArticleSummaries(source);
+export function economistWeeklyMarkdown(source: string, { requireImages = false }: { requireImages?: boolean } = {}): { markdown: string; description: string } {
+  const articles = parseEconomistArticleSummaries(source, { requireImages });
   if (articles.length < 3) throw new Error(`economist weekly source needs at least three articles, got ${articles.length}`);
   const renderedArticles = articles.map(article => {
     const lines = [`## ${article.titleZh}`, ""];
+    if (article.image) lines.push(`![${article.titleZh.replaceAll("]", "\\]")}](${article.image})`, "");
     lines.push(
       "### 一句话摘要",
       "",

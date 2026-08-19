@@ -85,6 +85,18 @@
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNHDi8F4E9gyjBj-tvJqU3pmGJvC0iacxlFcW3WAn0T0B",
       "coverContentHash": "d1584e38ace40475"
     },
+    "https://blog.bhwa233.com/posts/reddit-2026-08-19-life/": {
+      "sourceId": "https://blog.bhwa233.com/posts/reddit-2026-08-19-life/",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/reddit-2026-08-19-life/",
+      "contentHash": "8369a42a1a375ba8ee37b1737dbfee1cef78c09de9c10824c47577dde0e7e3bd",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-19T10:25:37.706Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNDVzSYRdN6g3XYAIPS7MmW8mC-AXEywV_2xeAkgyvgh6",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNNM0Pl_wg7S3ES-y8Ln9g45T2dFV7k-k1J47sy6aUOsg",
+      "coverContentHash": "2270612061f02804"
+    },
     "https://www.reddit.com/r/AskReddit/comments/1vn8yqz/whats_a_rule_at_your_job_that_exists_purely/": {
       "sourceId": "https://www.reddit.com/r/AskReddit/comments/1vn8yqz/whats_a_rule_at_your_job_that_exists_purely/",
       "canonicalUrl": "https://www.reddit.com/r/AskReddit/comments/1vn8yqz/whats_a_rule_at_your_job_that_exists_purely/",

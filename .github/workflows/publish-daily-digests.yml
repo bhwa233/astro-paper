@@ -32,5 +32,5 @@ jobs:
       event_schedule: ${{ github.event.schedule || '30 0 * * *' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || '' }}
-      sync_wechat: true
+      sync_wechat: false
     secrets: inherit

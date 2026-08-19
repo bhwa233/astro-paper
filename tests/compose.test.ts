@@ -12,6 +12,7 @@ import { dailyDigestMarkdownFromModelJson } from "../scripts/daily_digest_compos
 import { economistWeeklyMarkdown, parseEconomistArticleSummaries } from "../scripts/economist_weekly_compose.ts";
 import { magazineConfig, parseMagazineEpub } from "../scripts/magazine.ts";
 import { parseRedditItemOutcome, parseRedditItemSummary, redditCategoryArticleFromSource, redditCategoryByKey, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
+import { parseRedditTrendingItemSummary, redditTrendingMarkdownFromItemSummaries } from "../scripts/reddit_trending_compose.ts";
 import { parseMagazineItemSummary, partitionRedditItemOutcomes } from "../scripts/generate_scheduled_post.ts";
 import { verifyPostContract } from "../scripts/verify_blog_generation.ts";
 import { composeFixtureBody } from "./helpers/compose-fixture.ts";
@@ -152,6 +153,43 @@ test("GitHub trending compose takes stars and links from source, not the model",
   const markdown = composeFixtureBody("github-trending-daily");
   assert.match(markdown, /^## 1\. \[acme\/agent-lab\]\(https:\/\/github\.com\/acme\/agent-lab\)/m);
   assert.match(markdown, /^- Stars：12\.4k/m);
+});
+
+test("Reddit trending aggregates independent item summaries while retaining source facts", () => {
+  // 2026-08-19: the task formerly asked one model call to write the whole article, letting it omit or invent per-post facts.
+  const titles = ["航海如何在不确定中保持方向", "人形机器人的成本边界", "安静通勤背后的公共条件"];
+  const summary = [
+    "这段讨论从原帖展示的现象切入，但重点不在复述画面，而在于评论区如何把直觉拆成可核对的条件。高赞回答提供了具体的机制、限制和反例，使读者能区分哪些结论来自事实，哪些只是方便传播的印象。",
+    "不同回答并不完全一致：有人强调技术或制度的主因，也有人指出环境、成本和使用场景会改变结果。把这些差异并列后，讨论呈现出明确的适用边界，而不是把单一经验扩展成普遍规律。",
+    "对读者而言，真正有用的不是接受某一个结论，而是沿着证据去检查判断成立的前提：哪些条件已经出现，哪些变量还没有被观察，反例是否足以改变结论。这样才能把一次热帖讨论转化为面对相似问题时可重复使用的分析方法，也能避免只因观点顺耳就仓促下结论，更不应忽略未知变量。",
+  ].join("\n\n");
+  let index = 0;
+  const source = fixture("blog-sources/reddit-trending.md").replace(/^- \*\*发布时间\*\*：.*$/gm, line => {
+    const title = titles[index];
+    index += 1;
+    return `${line}\n- **中文标题**：${title}\n- **综合摘要**：${JSON.stringify(summary)}`;
+  });
+  const markdown = redditTrendingMarkdownFromItemSummaries(source);
+
+  assert.equal(index, 3);
+  assert.match(markdown, /^1\. 🔴 航海如何在不确定中保持方向$/m);
+  assert.match(markdown, /^- ⭐ 26140 points · 4504 评论$/m);
+  assert.match(markdown, /^- 来源：r\/nextfuckinglevel$/m);
+  assert.match(markdown, /^- 帖子：https:\/\/www\.reddit\.com\/r\/interesting\/comments\/fixture03\/the_silent_and_harmonious_morning_metro_commute\/$/m);
+  assert.doesNotMatch(markdown, /入选理由/);
+  assert.throws(
+    () => parseRedditTrendingItemSummary(JSON.stringify({ rank: 1, title_zh: "伪造链接", summary: `${summary}\n\nhttps://evil.example.com` }), 1),
+    /must not include links/,
+  );
+
+  const repo = tempDir("reddit-trending-verify");
+  const article = archivePost({ task: "reddit-trending", date: "2099-01-02", repo, body: markdown, force: true });
+  const published = fs.readFileSync(path.join(repo, article.path), "utf8");
+  assert.match(published, /^## 1\. 航海如何在不确定中保持方向$/m);
+  assert.match(published, /^- \*\*热度\*\*：26140 points · 4504 评论$/m);
+  assert.match(published, /^- \*\*来源\*\*：\[r\/nextfuckinglevel\]\(https:\/\/www\.reddit\.com\/r\/nextfuckinglevel\/\)$/m);
+  assert.match(published, /^- \*\*帖子\*\*：https:\/\/www\.reddit\.com\/r\/nextfuckinglevel\/comments\/fixture01\/how_did_people_travel_these_seas\/$/m);
+  verifyPostContract(repo, article.path, "reddit-trending");
 });
 
 test("mdblist compose takes poster and IMDb rating from source", () => {

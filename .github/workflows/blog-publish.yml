@@ -32,7 +32,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI model override. Empty = gpt-5.6-luna."
+        description: "Optional AI model override. Empty = gemini-3.7-flash."
         required: false
         type: string
       podcast_max_episodes:
@@ -75,7 +75,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI model override. Empty = gpt-5.6-luna."
+        description: "Optional AI model override. Empty = gemini-3.7-flash."
         required: false
         type: string
       podcast_max_episodes:
@@ -147,12 +147,14 @@ jobs:
           INPUT_REDDIT_CATEGORY: ${{ inputs.reddit_category || '' }}
           EVENT_SCHEDULE: ${{ inputs.event_schedule || '' }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
-          AI_MODEL: ${{ inputs.ai_model || 'gpt-5.6-luna' }}
+          AI_BASE_URL: https://rightapi.ai/gemini
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+          AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "true"
-          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
-          AI_FALLBACK_BASE_URL: ${{ secrets.AI_FALLBACK_BASE_URL || 'https://api.deepseek.com' }}
-          AI_FALLBACK_MODEL: ${{ secrets.AI_FALLBACK_MODEL || 'deepseek-v4-flash' }}
+          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY || secrets.AI_API_KEY }}
+          AI_FALLBACK_BASE_URL: https://rightapi.ai/codex/v1
+          AI_FALLBACK_MODEL: gpt-5.6-luna
+          AI_FALLBACK_API_STYLE: chat
           REDDIT_SOURCE_POLL_TIMEOUT_MS: "1500000"
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}

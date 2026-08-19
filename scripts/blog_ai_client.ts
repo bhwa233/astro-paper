@@ -1,3 +1,6 @@
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
+import { APICallError, generateText, Output } from "ai";
 import { clipText, envPositiveInt, envPositiveNumber, sleep, writeStderr } from "./blog_common.ts";
 
 export const DEFAULT_AI_BASE_URL = "https://rightapi.ai/codex/v1";
@@ -13,7 +16,7 @@ export function envMaxTokens(): number | null {
   return (process.env.AI_MAX_TOKENS || "").trim() === "0" ? null : envPositiveInt("AI_MAX_TOKENS", DEFAULT_MAX_TOKENS);
 }
 
-export type AiApiStyle = "responses" | "chat";
+export type AiApiStyle = "responses" | "chat" | "gemini";
 
 export type AiConfig = {
   apiKey: string;
@@ -27,13 +30,6 @@ const SYSTEM_PROMPT_MARKDOWN = "你是严格的中文博客编辑。只输出可
 
 function systemPrompt(jsonMode: boolean): string {
   return jsonMode ? SYSTEM_PROMPT_JSON : SYSTEM_PROMPT_MARKDOWN;
-}
-
-function responsesInputPrompt(prompt: string, jsonMode: boolean): string {
-  if (!jsonMode) return prompt;
-  // Some Responses-compatible providers validate JSON-mode instructions in input,
-  // not only in the top-level instructions field.
-  return `Return a valid json object only.\n\n${prompt}`;
 }
 
 export type AiCallResult = {
@@ -101,111 +97,12 @@ let cooldownWaitedMs = 0;
 
 function envApiStyle(name: string, fallback: AiApiStyle): AiApiStyle {
   const value = (process.env[name] || "").trim().toLowerCase();
-  return value === "responses" || value === "chat" ? value : fallback;
+  return value === "responses" || value === "chat" || value === "gemini" ? value : fallback;
 }
 
 export function chatCompletionsUrl(baseUrl: string): string {
   const cleaned = baseUrl.replace(/\/+$/, "");
   return cleaned.endsWith("/chat/completions") ? cleaned : `${cleaned}/chat/completions`;
-}
-
-export function responsesUrl(baseUrl: string): string {
-  const cleaned = baseUrl.replace(/\/+$/, "");
-  return cleaned.endsWith("/responses") ? cleaned : `${cleaned}/responses`;
-}
-
-// Parse an OpenAI Responses API SSE stream (buffered) into final text.
-// Prefers the authoritative text on response.completed; falls back to accumulated deltas.
-export function parseResponsesSse(sse: string): string {
-  const deltas: string[] = [];
-  let finalText = "";
-  let failure = "";
-  for (const block of sse.split(/\r?\n\r?\n/)) {
-    const data = block
-      .split(/\r?\n/)
-      .filter(line => line.startsWith("data:"))
-      .map(line => line.slice(5).trim())
-      .join("\n");
-    if (!data || data === "[DONE]") continue;
-    let event: {
-      type?: string;
-      delta?: string;
-      message?: string;
-      error?: { message?: string };
-      response?: { error?: { message?: string }; output?: { content?: { type?: string; text?: string }[] }[] };
-    };
-    try {
-      event = JSON.parse(data);
-    } catch {
-      continue;
-    }
-    switch (event.type) {
-      case "response.output_text.delta":
-        if (typeof event.delta === "string") deltas.push(event.delta);
-        break;
-      case "response.completed": {
-        const output = event.response?.output;
-        if (Array.isArray(output)) {
-          finalText = output
-            .flatMap(item => (Array.isArray(item?.content) ? item.content : []))
-            .filter(part => part?.type === "output_text" && typeof part.text === "string")
-            .map(part => part.text as string)
-            .join("");
-        }
-        break;
-      }
-      case "response.failed":
-      case "response.error":
-      case "error":
-        failure = event.response?.error?.message || event.error?.message || event.message || "unknown responses API error";
-        break;
-    }
-  }
-  if (failure) throw new Error(`AI responses API error: ${failure}`);
-  return finalText.trim() ? finalText : deltas.join("");
-}
-
-function parseResponsesJson(raw: string): string {
-  const response = JSON.parse(raw) as {
-    status?: string;
-    type?: string;
-    message?: string;
-    error?: { message?: string };
-    output?: { content?: { type?: string; text?: string }[] }[];
-  };
-  if (response.error?.message || response.status === "failed" || response.type === "error") {
-    throw new Error(`AI responses API error: ${response.error?.message || response.message || "unknown responses API error"}`);
-  }
-  return (response.output || [])
-    .flatMap(item => (Array.isArray(item?.content) ? item.content : []))
-    .filter(part => part?.type === "output_text" && typeof part.text === "string")
-    .map(part => part.text as string)
-    .join("");
-}
-
-function isJsonObject(raw: string): boolean {
-  if (!raw.trimStart().startsWith("{")) return false;
-  try {
-    const value: unknown = JSON.parse(raw);
-    return typeof value === "object" && value !== null && !Array.isArray(value);
-  } catch {
-    return false;
-  }
-}
-
-class AiReasoningOutputExhaustedError extends Error {
-  constructor() {
-    super("AI chat response exhausted output token budget before message content");
-  }
-}
-
-// 重试预算按这次调用的上限翻倍，而不是从固定基数算：上限可以被 AI_MAX_TOKENS 调走，
-// 固定基数一旦低于当次上限，这个 ceiling 就永远不大于它，重试会静默失效。
-// null 表示这次根本没发上限，没有预算可以被推理吃光，也就无从加倍。
-function reasoningRetryMaxTokens(maxTokens: number | null): number {
-  if (maxTokens === null) return 0;
-  const ceiling = envPositiveInt("AI_REASONING_RETRY_MAX_TOKENS", maxTokens * 2, maxTokens * 4);
-  return ceiling > maxTokens ? ceiling : 0;
 }
 
 export async function callBlogAi({
@@ -227,14 +124,7 @@ export async function callBlogAi({
   maxTokens?: number | null;
   jsonMode?: boolean;
 }): Promise<string> {
-  const retryMaxTokens = reasoningRetryMaxTokens(maxTokens);
-  try {
-    return await callBlogAiOnce({ prompt, apiKey, baseUrl, model, apiStyle, timeoutMs, maxTokens, jsonMode });
-  } catch (error) {
-    if (!(error instanceof AiReasoningOutputExhaustedError) || !retryMaxTokens) throw error;
-    writeStderr(`[ai] ${model} exhausted its reasoning output budget; retrying once with max_tokens=${retryMaxTokens}`);
-    return callBlogAiOnce({ prompt, apiKey, baseUrl, model, apiStyle, timeoutMs, maxTokens: retryMaxTokens, jsonMode });
-  }
+  return callBlogAiOnce({ prompt, apiKey, baseUrl, model, apiStyle, timeoutMs, maxTokens, jsonMode });
 }
 
 async function callBlogAiOnce({
@@ -259,70 +149,39 @@ async function callBlogAiOnce({
   if (!apiKey) throw new Error("AI_API_KEY is required for live AI blog generation");
   if (!baseUrl) throw new Error("AI_BASE_URL is required for live AI blog generation");
   if (!model) throw new Error("AI_MODEL is required for live AI blog generation");
-  const useResponses = apiStyle === "responses";
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const body = useResponses
-      ? {
-          model,
-          instructions: systemPrompt(jsonMode),
-          // Some provider backends strictly require the list form and reject a bare string
-          // with HTTP 400 "Input must be a list".
-          input: [{ role: "user", content: responsesInputPrompt(prompt, jsonMode) }],
-          reasoning: { effort: "high" },
-          ...(maxTokens === null ? {} : { max_output_tokens: maxTokens }),
-        }
-      : {
-          model,
-          messages: [
-            { role: "system", content: systemPrompt(jsonMode) },
-            { role: "user", content: prompt },
-          ],
-          temperature: 0.4,
-          ...(maxTokens === null ? {} : { max_tokens: maxTokens }),
-          ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
-        };
-    const response = await fetch(useResponses ? responsesUrl(baseUrl) : chatCompletionsUrl(baseUrl), {
-      method: "POST",
-      signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
+    const googleBaseUrl = baseUrl.replace(/\/+$/, "").replace(/\/v1beta$/, "") + "/v1beta";
+    const languageModel = apiStyle === "gemini"
+      ? createGoogleGenerativeAI({ apiKey, baseURL: googleBaseUrl })(model)
+      : apiStyle === "responses"
+        ? createOpenAI({ apiKey, baseURL: baseUrl })(model)
+        : createOpenAI({ apiKey, baseURL: baseUrl }).chat(model);
+    const supportsTemperature = !/^gpt-5(?:[.-]|$)/.test(model);
+    const result = await generateText({
+      model: languageModel,
+      system: systemPrompt(jsonMode),
+      prompt,
+      ...(supportsTemperature ? { temperature: 0.4 } : {}),
+      ...(maxTokens === null ? {} : { maxOutputTokens: maxTokens }),
+      ...(jsonMode ? { output: Output.json() } : {}),
+      maxRetries: 0,
+      timeout: timeoutMs,
     });
-    const raw = await response.text();
-    if (!response.ok) {
-      const failure: AiRetryableError = new Error(`AI provider HTTP ${response.status}: ${clipText(raw, 1200)}`);
-      const retryAfterMs = parseRetryAfterMs(response.headers.get("retry-after"));
+    if (!result.text.trim()) throw new Error("AI response missing message content");
+    return result.text;
+  } catch (error) {
+    if (error instanceof Error && (error.name === "AbortError" || error.message === "This operation was aborted")) {
+      throw new Error(`AI request timed out after ${timeoutMs}ms`);
+    }
+    if (APICallError.isInstance(error)) {
+      const failure: AiRetryableError = new Error(`AI provider HTTP ${error.statusCode || "unknown"}: ${clipText(error.responseBody || error.message, 1200)}`);
+      const retryAfterMs = parseRetryAfterMs(error.responseHeaders?.["retry-after"]);
       if (retryAfterMs > 0) failure.retryAfterMs = retryAfterMs;
       throw failure;
     }
-    let content: string | undefined;
-    if (useResponses) {
-      const contentType = response.headers.get("content-type")?.toLowerCase();
-      content = contentType?.includes("application/json") || isJsonObject(raw) ? parseResponsesJson(raw) : parseResponsesSse(raw);
-    } else {
-      const data = JSON.parse(raw) as {
-        choices?: { message?: { content?: string; reasoning_content?: string }; finish_reason?: string }[];
-      };
-      const choice = data.choices?.[0];
-      content = choice?.message?.content;
-      if (!content?.trim() && choice?.finish_reason === "length" && choice.message?.reasoning_content?.trim()) {
-        throw new AiReasoningOutputExhaustedError();
-      }
-    }
-    if (!content?.trim()) throw new Error(`AI response missing message content: ${raw}`);
-    return content;
-  } catch (error) {
-    if (error instanceof Error && (error.name === "AbortError" || error.message === "This operation was aborted")) throw new Error(`AI request timed out after ${timeoutMs}ms`);
-    if (error instanceof AiReasoningOutputExhaustedError) throw error;
-    if (error instanceof Error && /^(AI provider HTTP|AI response missing message content:)/.test(error.message)) throw error;
+    if (error instanceof Error && /^AI response missing message content/.test(error.message)) throw error;
     if (error instanceof Error) throw new Error(`AI request failed: ${error.message}`);
     throw new Error(`AI request failed: ${String(error)}`);
-  } finally {
-    clearTimeout(timer);
   }
 }
 

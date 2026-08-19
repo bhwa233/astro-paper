@@ -14,6 +14,7 @@ import { REDDIT_TRENDING_MIN_TOPICS } from "./blog_tasks.ts";
 import { resolvePromptFile } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
 import { parseModelJsonObject } from "./compose_common.ts";
+import { parseRedditTrendingItemSummary, type RedditTrendingItemSummary } from "./reddit_trending_compose.ts";
 import {
   REDDIT_TRENDING_MAX_DETAIL_POSTS,
   fetchRedditPostDetail,
@@ -25,6 +26,7 @@ import {
 } from "./reddit_trending_api.ts";
 
 const SELECTION_PROMPT_TASK = "reddit-trending-selection";
+const ITEM_SUMMARY_PROMPT_TASK = "reddit-trending";
 
 /** 取回的榜单深度。选题要剔掉大量时效性内容，池子太浅就凑不出十条长尾。 */
 export const REDDIT_TRENDING_BOARD_LIMIT = 100;
@@ -36,6 +38,8 @@ export const REDDIT_TRENDING_CANDIDATE_LIMIT = 25;
 export type RedditTrendingCandidate = RedditTrendingItem & { density: number };
 
 export type RedditTrendingSelection = { rank: number; reason: string };
+
+type RedditTrendingSummaryOutcome = { summary: RedditTrendingItemSummary | null; error?: string };
 
 /** 讨论密度：评论数与分数之比。高分低评是「点个赞就划走」的图，高评是真在吵。 */
 export function discussionDensity(item: { score: number; numComments: number }): number {
@@ -215,6 +219,20 @@ function evidenceBlock(position: number, candidate: RedditTrendingCandidate, rea
   ].join("\n");
 }
 
+function summarizeRedditTrendingItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditTrendingSummaryOutcome> {
+  return generateJsonStageWithRetries<RedditTrendingSummaryOutcome>({
+    task: "reddit-trending",
+    stage: `Reddit trending item ${rank}`,
+    artifactPrefix: `item-${String(rank).padStart(2, "0")}-summary`,
+    prompt,
+    model,
+    artifactsDir,
+    jitterMs: 1_000,
+    parse: content => ({ summary: parseRedditTrendingItemSummary(content, rank) }),
+    onExhausted: error => ({ summary: null, error }),
+  });
+}
+
 /**
  * 第二段：选题、深挖、拼稿。选中不足 REDDIT_TRENDING_MIN_TOPICS 条时照常返回，
  * 但正文里一个 `## N.` 块都没有——上层据此跳过当天，判断规则和 tech-daily 一致。
@@ -274,5 +292,38 @@ export async function buildCombinedRedditTrendingSource({
     "",
     `- 选题：从 ${candidates.length} 条候选中选出 ${selections.length} 条长尾选题，${blocks.length} 条取到可用评论证据。`,
   ].join("\n");
-  return `${[summary, ...blocks].join("\n\n")}\n`;
+  if (blocks.length < REDDIT_TRENDING_MIN_TOPICS) {
+    writeStderr(`WARN: [reddit-trending] only ${blocks.length} posts have usable comment evidence, below the ${REDDIT_TRENDING_MIN_TOPICS} needed to publish`);
+    return `${summary}\n`;
+  }
+  const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
+  const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, ITEM_SUMMARY_PROMPT_TASK), "utf8");
+  const summarized: Array<{ block: string; summary: RedditTrendingItemSummary }> = [];
+  const failed: Array<{ rank: number; error: string }> = [];
+  for (const [index, block] of blocks.entries()) {
+    const rank = index + 1;
+    const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block);
+    writeAiArtifact(artifactsDir, "reddit-trending", `item-${String(rank).padStart(2, "0")}-prompt.md`, prompt);
+    const outcome = await summarizeRedditTrendingItem(prompt, rank, model, artifactsDir);
+    if (outcome.summary) summarized.push({ block, summary: outcome.summary });
+    else failed.push({ rank, error: outcome.error || "summary failed" });
+  }
+  if (failed.length) {
+    writeStderr(`WARN: [reddit-trending] skipped ${failed.length}/${blocks.length} posts after summary retries: ranks ${failed.map(item => item.rank).join(", ")}`);
+    writeAiArtifact(artifactsDir, "reddit-trending", "dropped-items.json", JSON.stringify({ failed, total: blocks.length }, null, 2));
+  }
+  const combined = [
+    summary,
+    "",
+    "每帖由独立模型调用提炼语义摘要；标题、热度、来源、帖子链接与文章层级均由代码从抓取证据组装。",
+    "",
+    ...summarized.map(({ block, summary: item }, index) => [
+      block.replace(/^##\s+\d+\./m, `## ${index + 1}.`),
+      "",
+      `- **中文标题**：${item.titleZh}`,
+      `- **综合摘要**：${JSON.stringify(item.summary)}`,
+    ].join("\n")),
+  ].join("\n");
+  writeAiArtifact(artifactsDir, "reddit-trending", "source.dynamic.md", combined);
+  return `${combined}\n`;
 }

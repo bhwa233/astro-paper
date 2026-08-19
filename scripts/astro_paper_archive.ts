@@ -300,21 +300,33 @@ function formatGitHubTrendingDaily(text: string): string {
   return `${normalized.trim()}\n`;
 }
 
-// 热搜稿的每个选题都必须带上那条 `> r/子版块 · N points · N 评论` 事实行：
-// 读者需要知道这段讨论有多大体量才判断得了分量，而模型漏掉它时正文读起来仍然通顺，
-// 不在这里卡住就没有第二道关。
+// 热搜稿复用 Reddit 分类稿的编号标题与事实列表版式；摘要保留在元数据之后。
+// 格式化完成后仍单独校验热搜的最低条数和逐帖事实完整性。
 function formatRedditTrending(text: string): string {
-  const normalized = stripLeadingTitleHeading(normalizeMarkdown(text));
-  const topics = (normalized.match(/^##\s+.+$/gm) || []).length;
+  const normalized = formatRedditTop20(text);
+  const blocks = normalized
+    .split(/(?=^##\s+\d+\.\s+)/gm)
+    .map(block => block.trim())
+    .filter(block => /^##\s+\d+\.\s+/.test(block));
+  const topics = blocks.length;
   if (topics < REDDIT_TRENDING_MIN_TOPICS) throw new Error(`Reddit trending needs at least ${REDDIT_TRENDING_MIN_TOPICS} topics, got ${topics}`);
-  const facts = (normalized.match(/^>\s*r\/\S+\s*·\s*[\d,]+\s*points\s*·\s*[\d,]+\s*评论\s*$/gm) || []).length;
-  if (facts < topics) throw new Error(`Reddit trending needs a source line per topic: ${facts} < ${topics}`);
-  const headings = (normalized.match(/^##\s+(.+)$/gm) || []).map(heading => heading.replace(/^##\s+/, "").trim());
+  const headings = blocks.map(block => block.match(/^##\s+\d+\.\s+(.+)$/m)?.[1]?.trim() ?? "");
   for (const heading of headings) {
     if (!hasChinese(heading)) throw new Error(`Reddit trending topic heading should use Chinese: ${heading}`);
   }
   if (new Set(headings.map(heading => heading.toLowerCase())).size !== headings.length) {
     throw new Error("Reddit trending contains duplicate topic headings");
+  }
+  for (const block of blocks) {
+    if (!/^- \*\*热度\*\*：[\d,]+ points · [\d,]+ 评论$/m.test(block)) {
+      throw new Error("Reddit trending needs a heat line per topic");
+    }
+    if (!/^- \*\*来源\*\*：\[r\/[^\]]+\]\(https:\/\/www\.reddit\.com\/r\/[^\s)]+\/\)$/m.test(block)) {
+      throw new Error("Reddit trending needs a subreddit source per topic");
+    }
+    if (!/^- \*\*帖子\*\*：https:\/\/www\.reddit\.com\/\S+$/m.test(block)) {
+      throw new Error("Reddit trending needs a post link per topic");
+    }
   }
   // 入选理由是给写稿模型的内部提示，照抄进正文等于把编辑流程漏给读者。
   if (/入选理由/.test(normalized)) throw new Error("Reddit trending must not echo the selection rationale");

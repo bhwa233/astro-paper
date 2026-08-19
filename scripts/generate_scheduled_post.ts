@@ -47,6 +47,7 @@ import {
 import { appendMagazineIssue, magazineLedgerRelPath, parseMagazineIssueFromSource } from "./magazine_ledger.ts";
 import { normalizeMarkdownBlock, numberedBlocks, parseModelJsonObject } from "./compose_common.ts";
 import { MAX_REDDIT_SOURCE_ITEMS, fetchRedditSourceFromApi } from "./reddit_source_api.ts";
+import { redditTrendingMarkdownFromItemSummaries } from "./reddit_trending_compose.ts";
 import { buildCombinedRedditTrendingSource, buildRedditTrendingSource } from "./reddit_trending_source.ts";
 
 export type ResultItem = ReturnType<typeof archivePost> & {
@@ -1198,6 +1199,18 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
       mocked_ai: Boolean(mockResponseDir),
     };
     return [result];
+  } else if (task === "reddit-trending" && useAi && !mockResponseDir) {
+    // 逐帖模型摘要已在 source combine 阶段完成；这里仅由规则层恢复事实并组装文章，不能再让模型写整篇。
+    body = redditTrendingMarkdownFromItemSummaries(source);
+    const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
+    const itemConfig = envAiConfig({ model });
+    generation = {
+      ai_model: itemConfig.model,
+      ai_base_url: itemConfig.baseUrl,
+      ai_fallback_used: false,
+      source_artifact: sourceArtifact,
+      mocked_ai: false,
+    };
   } else if (isMagazineTask(task)) {
     // The issue post is a deterministic aggregation of the per-article summaries; no issue-level AI call.
     const composed = economistWeeklyMarkdown(source);

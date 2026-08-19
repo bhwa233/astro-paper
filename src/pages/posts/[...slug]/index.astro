@@ -81,7 +81,6 @@ const ogImage = ogImageUrl
   ? new URL(ogImageUrl, Astro.url.origin).href
   : undefined;
 
-const showCoverImage = Boolean(ogImageUrl);
 const showBitcoinChart = tags.includes("比特币日报");
 const showUsMarketChart = tags.includes("美股市场日报");
 const showAsiaMarketChart = tags.includes("亚洲市场日报");
@@ -142,18 +141,6 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
     </div>
 
     <TableOfContents {headings} title={t.post.tableOfContents} />
-
-    {
-      showCoverImage && ogImageUrl && (
-        <img
-          src={ogImageUrl}
-          alt={title}
-          class="border-border/60 my-6 aspect-[16/9] w-full overflow-hidden rounded-2xl border object-cover shadow-sm"
-          loading="eager"
-          decoding="async"
-        />
-      )
-    }
 
     <article
       id="article"

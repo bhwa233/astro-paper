@@ -12,5 +12,5 @@ export function formatCompactDate(date: Date, timeZone: string): string {
       .map(part => [part.type, part.value])
   );
 
-  return `${values.year}${values.month}${values.day}`;
+  return `${values.year}-${values.month}-${values.day}`;
 }

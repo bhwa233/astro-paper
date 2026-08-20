@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-19",
+  "timeZone": "Asia/Shanghai",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "b8b0317c96902a7461ef04c9eee8f12435e2c559",
+    "workflowRun": "32342853314",
+    "articlePath": "src/content/posts/zh-cn/微博热搜-2026-08-19.md"
+  },
+  "rawSources": {
+    "upstreamMarkdown": {
+      "path": "data/weibo-trending-wechat/2026-08-19/upstream.md",
+      "sha256": "c34b4b89a0d578fa9b3b7a3c2fab2313bd71e35b927d294a44bc843fd69f1b34"
+    }
+  },
+  "draft": {
+    "path": "data/weibo-trending-wechat/2026-08-19/01.md",
+    "sha256": "817a25300e9fd02acca4cbcb575609baedffafacd65df9b298edd3eaca939d87",
+    "itemCount": 30,
+    "truncatedItemCount": 0,
+    "cover": {
+      "path": "data/weibo-trending-wechat/2026-08-19/cover.png",
+      "sha256": "b7ce3325ac30bdecc01a1b3a3cc1bdbd2b0bd3d742ef73332407f78a36ae634b"
+    }
+  }
+}

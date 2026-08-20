@@ -25,6 +25,8 @@ export type BlogTaskInfo = {
   episodeArticles?: boolean;
   /** 标题带 ISO 周次，例如「纽约时报书单精选｜2099年第2周」。 */
   weekLabelInTitle?: boolean;
+  /** 标题带归档日期，例如「微博热搜｜2099-01-02」。与 weekLabelInTitle 互斥。 */
+  dateInTitle?: boolean;
   /** frontmatter 写入 `wechat.enabled`，进入公众号同步流水线。 */
   wechatEnabled?: boolean;
   sourceContract?: PostSourceContract;
@@ -162,6 +164,7 @@ export const BLOG_TASKS = {
     tag: "微博热搜",
     description: "每日微博热搜短条目，基于当日榜单与逐话题微博智搜结论整理。",
     fileName: "微博热搜-{date}.md",
+    dateInTitle: true,
     bodyHeadingPattern: /^## \d+\.\s+/m,
     sourceContract: {
       requiredTerms: ["微博智搜", "智搜摘要"],
@@ -216,7 +219,8 @@ export function taskTags(task: Task): string[] {
 
 export function taskTitle(task: Task, date: string): string {
   const info = taskInfo(task);
-  return info.weekLabelInTitle ? `${info.titlePrefix}｜${isoWeekLabel(date)}` : info.titlePrefix;
+  if (info.weekLabelInTitle) return `${info.titlePrefix}｜${isoWeekLabel(date)}`;
+  return info.dateInTitle ? `${info.titlePrefix}｜${date}` : info.titlePrefix;
 }
 
 /** 一次运行产出多篇（一集一篇）的任务。归档、编排、发布校验三层共用这一个判据。 */

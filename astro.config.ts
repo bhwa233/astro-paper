@@ -136,6 +136,7 @@ export default defineConfig({
     },
   },
   experimental: {
+    incrementalBuild: true,
     svgOptimizer: svgoOptimizer(),
   },
 });

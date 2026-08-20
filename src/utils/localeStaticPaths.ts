@@ -7,6 +7,10 @@ import { getSortedPosts } from "@/utils/getSortedPosts";
 import { getUniqueTags } from "@/utils/getUniqueTags";
 import { slugifyAll } from "@/utils/slugify";
 import { getPostSlug } from "@/utils/getPostPaths";
+import {
+  getContentEntryCacheKey,
+  getStaticPathCacheKey,
+} from "@/utils/staticPathCache";
 
 export async function getPostsForLocale(
   locale: SiteLocale,
@@ -25,7 +29,12 @@ export async function getPaginatedPostPaths(
   { paginate }: GetStaticPathsOptions
 ) {
   const posts = await getPostsForLocale(locale, { includeDrafts: false });
-  return paginate(getSortedPosts(posts), { pageSize: config.posts.perPage });
+  return paginate(getSortedPosts(posts), {
+    pageSize: config.posts.perPage,
+  }).map(path => ({
+    ...path,
+    cacheKey: getPaginatedPathCacheKey(path.props),
+  }));
 }
 
 export async function getTagPaginatedPaths(
@@ -44,7 +53,10 @@ export async function getTagPaginatedPaths(
       params: { tag },
       props: { tagName },
       pageSize: config.posts.perPage,
-    });
+    }).map(path => ({
+      ...path,
+      cacheKey: getPaginatedPathCacheKey(path.props),
+    }));
   });
 }
 
@@ -65,7 +77,44 @@ export async function getPostDetailPaths(locale: SiteLocale) {
       prevPost: toAdjacentPost(sortedPosts[index - 1]),
       nextPost: toAdjacentPost(sortedPosts[index + 1]),
     },
+    cacheKey: getStaticPathCacheKey({
+      post: getContentEntryCacheKey(post),
+      previous: getContentEntryCacheKey(sortedPosts[index - 1]),
+      next: getContentEntryCacheKey(sortedPosts[index + 1]),
+      translations: post.data.translationKey
+        ? posts
+            .filter(
+              candidate =>
+                candidate.data.translationKey === post.data.translationKey
+            )
+            .map(getContentEntryCacheKey)
+        : [],
+    }),
   }));
+}
+
+function getPaginatedPathCacheKey(props: {
+  page: {
+    currentPage: number;
+    data: CollectionEntry<"posts">[];
+    lastPage: number;
+    size: number;
+    total: number;
+  };
+  tagName?: string;
+}) {
+  const { page, tagName } = props;
+
+  return getStaticPathCacheKey({
+    tagName,
+    page: {
+      currentPage: page.currentPage,
+      data: page.data.map(getContentEntryCacheKey),
+      lastPage: page.lastPage,
+      size: page.size,
+      total: page.total,
+    },
+  });
 }
 
 export async function getPostOgPaths(locale: SiteLocale) {
@@ -80,6 +129,10 @@ export async function getPostOgPaths(locale: SiteLocale) {
   return posts.map(post => ({
     params: { slug: getPostSlug(post.id, post.filePath) },
     props: post,
+    cacheKey: getStaticPathCacheKey({
+      title: post.data.title,
+      author: post.data.author,
+    }),
   }));
 }
 

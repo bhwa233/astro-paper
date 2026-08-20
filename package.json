@@ -31,7 +31,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "adm-zip": "^0.6.0",
     "ai": "^7.0.66",
-    "astro": "^7.1.6",
+    "astro": "^7.2.3",
     "fast-xml-parser": "^5.10.1",
     "jsdom": "^29.1.1",
     "lodash.kebabcase": "^4.1.1",

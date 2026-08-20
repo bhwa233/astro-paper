@@ -4,6 +4,7 @@ import { filterCollectionByLocale } from "@/utils/contentLocale";
 import { getPostUrl } from "@/utils/getPostPaths";
 import { getSortedPosts } from "@/utils/getSortedPosts";
 import { getReadingTime } from "@/utils/readingTime";
+import { getStaticPathCacheKey } from "@/utils/staticPathCache";
 
 export const HOME_POSTS_PER_LOAD = 20;
 
@@ -55,9 +56,11 @@ export async function getHomePostFeedPaths(locale: SiteLocale) {
 
   return Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) => {
     const page = index + 2;
+    const feed = toHomePostFeed(posts, locale, page);
     return {
       params: { page: String(page) },
-      props: { feed: toHomePostFeed(posts, locale, page) },
+      props: { feed },
+      cacheKey: getStaticPathCacheKey(feed),
     };
   });
 }

@@ -9,7 +9,7 @@ import { validateMarkdown, renderPrompt, resolvePromptFile } from "./ai_blog_wri
 import { callAi, generateJsonStageWithRetries, retryAttempts, retryDelayMs, writeAiArtifact as writeArtifact } from "./ai_json_stage.ts";
 import { type AiCallResult, envAiConfig } from "./blog_ai_client.ts";
 import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, envPositiveInt, fetchJson, parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { type Task, isEpisodeArticleTask, isTaskInput, scheduledTaskInput, taskInfo, taskPostRelPath, taskTags, taskTitle, tasksForInput } from "./blog_tasks.ts";
+import { type Task, isEpisodeArticleTask, isTaskInput, scheduledTaskInput, taskInfo, taskPostRelPath, taskTags, taskTitle, taskTitleWithSuffix, tasksForInput } from "./blog_tasks.ts";
 import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
@@ -48,7 +48,7 @@ import { normalizeMarkdownBlock, numberedBlocks, parseModelJsonObject } from "./
 import { MAX_REDDIT_SOURCE_ITEMS, fetchRedditSourceFromApi } from "./reddit_source_api.ts";
 import { redditTrendingMarkdownFromTitleTranslations } from "./reddit_trending_compose.ts";
 import { buildCombinedRedditTrendingSource, buildRedditTrendingSource } from "./reddit_trending_source.ts";
-import { weiboTrendingMarkdownFromSummaries } from "./weibo_trending_compose.ts";
+import { weiboTrendingArticleFromSummaries } from "./weibo_trending_compose.ts";
 import { buildCombinedWeiboTrendingSource, buildWeiboTrendingSource } from "./weibo_trending_source.ts";
 
 export type ResultItem = ReturnType<typeof archivePost> & {
@@ -72,7 +72,7 @@ function offsetDate(days: number, timeZone?: string): string {
 }
 
 function titleForVariant(task: Task, date: string, titleSuffix = ""): string {
-  return titleSuffix ? `${taskTitle(task, date)}｜${titleSuffix}` : taskTitle(task, date);
+  return taskTitleWithSuffix(task, date, titleSuffix);
 }
 
 function variantPostRelPath(task: Task, date: string, fileNameSuffix = ""): string {
@@ -1180,6 +1180,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   }
   let body = source;
   let description: string | undefined;
+  let titleSuffix = "";
   let generation: ResultItem["generation"];
   if (task === "reddit-top20" && useAi) {
     if (!redditCategory) throw new Error("reddit-top20 requires a Reddit category");
@@ -1218,8 +1219,10 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
       mocked_ai: Boolean(mockResponseDir),
     };
   } else if (task === "weibo-trending" && useAi) {
-    // 逐条摘要已在 source combine 阶段完成；这里只恢复经源证据约束的短条目。
-    body = weiboTrendingMarkdownFromSummaries(source);
+    // 逐条摘要和标题已在 source combine 阶段完成；这里只恢复经源证据约束的成稿。
+    const article = weiboTrendingArticleFromSummaries(source);
+    body = article.markdown;
+    titleSuffix = article.titleSuffix;
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
     const itemConfig = envAiConfig({ model });
     generation = {
@@ -1249,7 +1252,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     description = rendered.description;
     generation = rendered.metadata;
   }
-  const result: ResultItem = archivePost({ task, date: contentDate, repo, body, force, description });
+  const result: ResultItem = archivePost({ task, date: contentDate, repo, body, force, titleSuffix, description });
   const appendToLedger = LEDGER_APPENDERS[task];
   if (appendToLedger && !result.skipped) appendToLedger(source, { archivedAt: date, postPath: result.path }, { task, repo });
   if (generation) result.generation = generation;

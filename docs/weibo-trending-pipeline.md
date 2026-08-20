@@ -119,13 +119,13 @@ raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/<date>/s
   └─ 规则层：滤 ads，保留上游顺序前 50 条
        └─ GET /v1/weibo/aisearch                      ← 服务端，走已登录 Chrome
             └─ 逐条取智搜结论；取不到的话题直接丢弃，不顶替
-                 └─ 模型：逐条摘要 → 代码拼短条目
+                 └─ 模型：逐条摘要 + 基于最终收录话题生成标题后半句 → 代码拼短条目
                       └─ archivePost → blog-publish.yml
 ```
 
 榜单 JSON 匿名可取，所以只有智搜那一步需要服务端，且它是同步 GET，不需要作业与轮询。
 
-博客侧新增 `weibo-trending` 任务，落点与 `reddit-trending` 完全一致：`BLOG_TASKS` 一条、`SOURCE_BUILDERS` / `SOURCE_COMBINERS` / `LEDGER_APPENDERS` / `ARCHIVE_FORMATTERS` 各一项、一个逐条摘要提示词、一个 `publish-*.yml`。
+博客侧新增 `weibo-trending` 任务，落点与 `reddit-trending` 完全一致：`BLOG_TASKS` 一条、`SOURCE_BUILDERS` / `SOURCE_COMBINERS` / `LEDGER_APPENDERS` / `ARCHIVE_FORMATTERS` 各一项、逐条摘要与整篇标题提示词、一个 `publish-*.yml`。
 
 站点文章发布成功后还会进入独立的[微博热搜微信草稿管线](./weibo-trending-wechat-pipeline.md)：它只读取已提交文章，移除话题链接并保留前 30 条，通过纯规则生成公众号草稿，不再调用模型。
 
@@ -134,7 +134,7 @@ raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/<date>/s
 1. **内容范围。** 输入固定为上游顺序中的前 50 条非广告话题，不经过模型选题或政治/政策排除。
 2. **时间窗。** 每日北京时间次日 00:20（UTC `20 16 * * *`）读取前一天的完整累积榜，归档日期为前一天。
 3. **条目数量。** 不设备选池和最低发布数。前 50 条逐条智搜，失败即丢弃且不向第 51 条以后补位；只要有一条成功即发布，全部失败才跳过当天。
-4. **文章形态。** 正文沿用 Reddit 热搜的二级标题短条目风格，每条输出话题名、指向原始微博 URL 的短锚文本和模型对智搜结论的摘要。摘要不设长度上限，不做整篇二次生成。
+4. **文章形态。** 正文沿用 Reddit 热搜的二级标题短条目风格，每条输出话题名、指向原始微博 URL 的短锚文本和模型对智搜结论的摘要。摘要不设长度上限，不做整篇二次生成。标题固定为 `<date> 热搜 ｜ <AI 标题后半句>`；后半句只基于最终成功收录的话题生成一次，并作为 source 证据传给归档层。
 
 ## 7. 风险与失败处理
 
@@ -144,6 +144,7 @@ raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/<date>/s
 - **智搜生成为流式**：需要明确的「生成完毕」判据。判据不可靠就会产出半截结论，而半截结论读起来通顺、下游无法识别——所以未收敛一律丢弃，不返回部分结果。
 - **单条取不到**：该话题丢弃，不用任何其他来源顶替，也不从榜单第 21 条以后补位。
 - **全部失败**：当天跳过；只要保留一条完整智搜结论及摘要，就照常发布。
+- **标题生成失败**：标题后半句通过 JSON 与长度校验重试；重试耗尽则当天生成失败，不回退到无主题标题。
 
 ## 8. 上线前置条件
 

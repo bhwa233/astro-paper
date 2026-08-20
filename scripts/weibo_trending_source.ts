@@ -6,11 +6,13 @@ import { resolvePromptFile } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
 import { compact, fetchJson, repoRoot, writeStderr, writeStdout } from "./blog_common.ts";
 import { bulletValue, extractBullets, hasChinese, normalizeMarkdownBlock, numberedBlocks, parseModelJsonObject } from "./compose_common.ts";
+import { parseWeiboTrendingTitleResponse } from "./weibo_trending_title.ts";
 
 export const WEIBO_TRENDING_LIMIT = 50;
 
 const DEFAULT_SUMMARY_URL = "https://raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/{date}/summary.json";
 const SUMMARY_PROMPT_TASK = "weibo-trending";
+const TITLE_PROMPT_TASK = "weibo-trending-title";
 
 export type WeiboTrendingItem = {
   rank: number;
@@ -192,7 +194,12 @@ function itemPrompt(template: string, date: string, rank: number, title: string,
     .replaceAll("{aisearch_answer}", answer);
 }
 
-/** 模型只负责逐条摘要；话题链接、标题、榜单顺序和智搜原文都由代码保留。 */
+function titlePrompt(template: string, date: string, items: Array<{ item: WeiboTrendingItem }>): string {
+  const topics = items.map(({ item }, index) => `${index + 1}. ${item.title}`).join("\n");
+  return template.replaceAll("{date}", date).replaceAll("{topics}", topics);
+}
+
+/** 模型逐条摘要，并在最终收录范围确定后生成一次文章标题；事实与榜单顺序仍由代码保留。 */
 export async function buildCombinedWeiboTrendingSource({
   source,
   date,
@@ -248,8 +255,23 @@ export async function buildCombinedWeiboTrendingSource({
   if (dropped.length) writeAiArtifact(artifactsDir, "weibo-trending", "dropped-items.json", JSON.stringify({ dropped }, null, 2));
   if (!completed.length) return `${header}\n\n- 结果：没有取得可发布的完整微博智搜结论。\n`;
 
+  const titleTemplate = fs.readFileSync(resolvePromptFile(resolvedPromptDir, TITLE_PROMPT_TASK), "utf8");
+  const headlinePrompt = titlePrompt(titleTemplate, date, completed);
+  writeAiArtifact(artifactsDir, "weibo-trending", "title-prompt.md", headlinePrompt);
+  const titleSuffix = await generateJsonStageWithRetries({
+    task: "weibo-trending",
+    stage: "Weibo trending title",
+    artifactPrefix: "title",
+    prompt: headlinePrompt,
+    model,
+    artifactsDir,
+    parse: parseWeiboTrendingTitleResponse,
+  });
+
   const combined = [
     header,
+    "",
+    `- **AI 标题**：${JSON.stringify(titleSuffix)}`,
     "",
     "每条摘要仅基于对应话题的完整微博智搜结论；话题链接与标题由榜单事实提供。",
     "",

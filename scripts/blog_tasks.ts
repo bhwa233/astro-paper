@@ -25,8 +25,12 @@ export type BlogTaskInfo = {
   episodeArticles?: boolean;
   /** 标题带 ISO 周次，例如「纽约时报书单精选｜2099年第2周」。 */
   weekLabelInTitle?: boolean;
-  /** 标题带归档日期，例如「每日微博热搜总结｜2099-01-02」。与 weekLabelInTitle 互斥。 */
+  /** 日期放在标题最前，例如「2099-01-02 热搜」。与 weekLabelInTitle/dateInTitle 互斥。 */
+  dateFirstTitle?: boolean;
+  /** 标题带归档日期，例如「日报｜2099-01-02」。与 weekLabelInTitle/dateFirstTitle 互斥。 */
   dateInTitle?: boolean;
+  /** AI 或栏目后缀前的分隔符，缺省为 `｜`。 */
+  titleSuffixSeparator?: string;
   /** frontmatter 写入 `wechat.enabled`，进入公众号同步流水线。 */
   wechatEnabled?: boolean;
   sourceContract?: PostSourceContract;
@@ -160,14 +164,15 @@ export const BLOG_TASKS = {
     },
   },
   "weibo-trending": {
-    titlePrefix: "每日微博热搜总结",
+    titlePrefix: "热搜",
     tag: "微博热搜",
     description: "每日微博热搜短条目，基于当日榜单与逐话题微博智搜结论整理。",
-    fileName: "微博热搜-{date}.md",
-    dateInTitle: true,
+    fileName: "wb-{compactDate}.md",
+    dateFirstTitle: true,
+    titleSuffixSeparator: " ｜ ",
     bodyHeadingPattern: /^## \d+\.\s+/m,
     sourceContract: {
-      requiredTerms: ["微博智搜", "智搜摘要"],
+      requiredTerms: ["微博智搜", "智搜摘要", "AI 标题"],
       // source 层始终写裸 URL，markdown 链接是 compose 之后的形态，由 formatWeiboTrending 单独校验。
       requiredPatterns: [{ label: "topic links", pattern: /- \*\*话题\*\*：https:\/\// }],
     },
@@ -220,7 +225,12 @@ export function taskTags(task: Task): string[] {
 export function taskTitle(task: Task, date: string): string {
   const info = taskInfo(task);
   if (info.weekLabelInTitle) return `${info.titlePrefix}｜${isoWeekLabel(date)}`;
+  if (info.dateFirstTitle) return `${date} ${info.titlePrefix}`;
   return info.dateInTitle ? `${info.titlePrefix}｜${date}` : info.titlePrefix;
+}
+
+export function taskTitleWithSuffix(task: Task, date: string, suffix = ""): string {
+  return suffix ? `${taskTitle(task, date)}${taskInfo(task).titleSuffixSeparator ?? "｜"}${suffix}` : taskTitle(task, date);
 }
 
 /** 一次运行产出多篇（一集一篇）的任务。归档、编排、发布校验三层共用这一个判据。 */
@@ -241,7 +251,10 @@ function isoWeekLabel(date: string): string {
 }
 
 export function taskPostRelPath(task: Task, date: string): string {
-  return path.join("src/content/posts/zh-cn", taskInfo(task).fileName.replace("{date}", date));
+  const fileName = taskInfo(task)
+    .fileName.replace("{date}", date)
+    .replace("{compactDate}", date.replaceAll("-", ""));
+  return path.join("src/content/posts/zh-cn", fileName);
 }
 
 export function tasksForInput(input: TaskInput): Task[] {

@@ -13,7 +13,7 @@ import { economistWeeklyMarkdown, parseEconomistArticleSummaries } from "../scri
 import { magazineConfig, parseMagazineEpub, writeMagazineArticleImages } from "../scripts/magazine.ts";
 import { parseRedditItemOutcome, parseRedditItemSummary, redditCategoryArticleFromSource, redditCategoryByKey, redditMarkdownFromItemSummaries, redditTop20Description } from "../scripts/reddit_top20_compose.ts";
 import { redditTrendingMarkdownFromTitleTranslations } from "../scripts/reddit_trending_compose.ts";
-import { weiboTrendingMarkdownFromSummaries } from "../scripts/weibo_trending_compose.ts";
+import { weiboTrendingArticleFromSummaries } from "../scripts/weibo_trending_compose.ts";
 import { parseMagazineItemSummary, partitionRedditItemOutcomes } from "../scripts/generate_scheduled_post.ts";
 import { verifyPostContract, verifySourceContract } from "../scripts/verify_blog_generation.ts";
 import { composeFixtureBody } from "./helpers/compose-fixture.ts";
@@ -202,6 +202,8 @@ test("Weibo trending renders only the topic link and AI summary from source evid
   const source = [
     "# 微博热搜 2099-01-02",
     "",
+    "- **AI 标题**：\"有人发布新产品,有人讨论定价与交付\"",
+    "",
     "每条摘要仅基于对应话题的完整微博智搜结论；话题链接与标题由榜单事实提供。",
     "",
     "## 1. 某公司发布新产品",
@@ -211,7 +213,8 @@ test("Weibo trending renders only the topic link and AI summary from source evid
     "- **智搜引用数**：12",
     "- **智搜摘要**：\"智搜结论显示，该产品发布后引发了对定价、功能和交付节奏的讨论。\"",
   ].join("\n");
-  const markdown = weiboTrendingMarkdownFromSummaries(source);
+  const composed = weiboTrendingArticleFromSummaries(source);
+  const markdown = composed.markdown;
   // 2026-08-19: ordinary list items lost the article hierarchy and exposed multi-hundred-character tracking URLs.
   assert.match(markdown, /^## 1\. 某公司发布新产品$/m);
   assert.match(markdown, /^- \*\*话题\*\*：\[在微博查看\]\(https:\/\/m\.weibo\.cn\/search\?containerid=topic1\)$/m);
@@ -222,7 +225,9 @@ test("Weibo trending renders only the topic link and AI summary from source evid
   // 2026-08-20: source 契约曾被改成要求 markdown 链接，而 source 层始终写裸 URL，发布流水线在 verify 步全线失败。
   fs.writeFileSync(path.join(repo, "weibo-trending-source.md"), source);
   verifySourceContract(repo, "weibo-trending", "weibo-trending-source.md");
-  const article = archivePost({ task: "weibo-trending", date: "2099-01-02", repo, body: markdown, force: true });
+  const article = archivePost({ task: "weibo-trending", date: "2099-01-02", repo, body: markdown, force: true, titleSuffix: composed.titleSuffix });
+  const published = fs.readFileSync(path.join(repo, article.path), "utf8");
+  assert.match(published, /^title: "2099-01-02 热搜 ｜ 有人发布新产品,有人讨论定价与交付"$/m);
   verifyPostContract(repo, article.path, "weibo-trending");
 });
 

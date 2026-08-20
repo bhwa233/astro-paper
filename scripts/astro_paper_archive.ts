@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { bjtTimestamp, compact, frontmatter, parseArgs, readStdin, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { REDDIT_TRENDING_MIN_TOPICS, type Task, isTask, taskInfo, taskPostRelPath, taskTags, taskTitle } from "./blog_tasks.ts";
+import { REDDIT_TRENDING_MIN_TOPICS, type Task, isTask, taskInfo, taskPostRelPath, taskTags, taskTitle, taskTitleWithSuffix } from "./blog_tasks.ts";
 import { ARCHIVE_PAYLOAD_MARKER } from "./compose_common.ts";
 import { bulletValue, extractBullets, hasChinese, isCompactProperNameOrModelTitle, looksLowSignal, normalizeMarkdownBlock } from "./markdown_text.ts";
 
@@ -440,7 +440,7 @@ export function archivePost({
   if (!isTask(task)) throw new Error(`unsupported task: ${task}`);
   const info = taskInfo(task);
   const relPath = fileNameSuffix ? taskPostRelPath(task, `${date}-${fileNameSuffix}`) : taskPostRelPath(task, date);
-  const title = info.episodeArticles ? podcastEpisodeTitle(body) || taskTitle(task, date) : titleSuffix ? `${taskTitle(task, date)}｜${titleSuffix}` : taskTitle(task, date);
+  const title = info.episodeArticles ? podcastEpisodeTitle(body) || taskTitle(task, date) : taskTitleWithSuffix(task, date, titleSuffix);
   const absPath = path.join(repo, relPath);
   if (!force && fs.existsSync(absPath)) {
     return { task, path: relPath, title, created: false, skipped: true, updated_at_bjt: bjtTimestamp(), commit: "", push: "", tags: taskTags(task) };

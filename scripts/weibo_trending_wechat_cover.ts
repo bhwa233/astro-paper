@@ -41,10 +41,10 @@ async function fetchBinary(url: string): Promise<ArrayBuffer> {
 
 function entryFontSize(titles: string[]): number {
   const longest = Math.max(...titles.map(title => [...title].length));
-  if (longest <= 14) return 52;
-  if (longest <= 20) return 46;
-  if (longest <= 26) return 40;
-  return 34;
+  if (longest <= 14) return 46;
+  if (longest <= 20) return 40;
+  if (longest <= 26) return 34;
+  return 30;
 }
 
 function entryLine(title: string, fontSize: number) {
@@ -107,7 +107,7 @@ function coverTree(titles: string[], archiveDate: string) {
                     props: {
                       style: { display: "flex", justifyContent: "space-between", width: "100%", marginBottom: "8px", fontSize: 28, fontWeight: 700 },
                       children: [
-                        { type: "span", props: { children: "每日微博热搜总结" } },
+                        { type: "span", props: { children: "微博热搜" } },
                         { type: "span", props: { children: archiveDate } },
                       ],
                     },
@@ -130,7 +130,7 @@ export async function renderWeiboTrendingWechatCover(titles: string[], archiveDa
   if (!entries.length) throw new Error("Weibo trending WeChat cover needs at least one title");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(archiveDate)) throw new Error(`invalid Weibo trending WeChat cover date: ${archiveDate}`);
   try {
-    const fonts = await loadSubsetFonts(`${entries.join("")}每日微博热搜总结${archiveDate}·`);
+    const fonts = await loadSubsetFonts(`${entries.join("")}微博热搜${archiveDate}·`);
     const svg = await satori(coverTree(entries, archiveDate), { width: COVER_WIDTH, height: COVER_HEIGHT, fonts });
     return await svgToPng(svg);
   } catch (error) {

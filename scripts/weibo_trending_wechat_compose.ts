@@ -1,7 +1,6 @@
 // 微博微信稿的规则层：唯一输入是已经归档的站点文章，本模块不拉榜、不调用模型。
 import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
-import { taskTitle } from "./blog_tasks.ts";
 import { bulletValue, extractBullets, numberedBlocks } from "./compose_common.ts";
 
 export const WEIBO_TRENDING_WECHAT_ITEM_LIMIT = 30;
@@ -10,13 +9,28 @@ export const WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT = 120;
 export const WEIBO_TRENDING_WECHAT_QR_FILE = "qr.png";
 
 const BLOG_URL = "https://blog.bhwa233.com/";
-export const WEIBO_TRENDING_WECHAT_QR_URL = BLOG_URL;
 
 export type WeiboTrendingWechatItem = {
   rank: number;
   title: string;
   summary: string;
 };
+
+export function parseWeiboTrendingArticleTitle(markdown: string): string {
+  const encoded = markdown.match(/^title:\s*(.+)$/m)?.[1]?.trim() || "";
+  if (!encoded) throw new Error("Weibo trending article is missing its frontmatter title");
+  try {
+    const title = encoded.startsWith('"')
+      ? JSON.parse(encoded)
+      : encoded.startsWith("'") && encoded.endsWith("'")
+        ? encoded.slice(1, -1).replaceAll("''", "'")
+        : encoded;
+    if (typeof title !== "string" || !compact(title)) throw new Error("empty title");
+    return compact(title);
+  } catch {
+    throw new Error("Weibo trending article has an invalid frontmatter title");
+  }
+}
 
 export function parseWeiboTrendingArticle(markdown: string): WeiboTrendingWechatItem[] {
   const blocks = numberedBlocks(markdown);
@@ -59,25 +73,25 @@ export function weiboTrendingWechatDescription(items: WeiboTrendingWechatItem[])
 
 // 微信正文里的外链会被拆成尾注，因此正文只保留二维码这个固定出口。
 // 卡片沿用 Reddit 微信稿验证过的 table 结构，避免微信编辑器破坏 flex 布局。
-function qrCard(): string {
+function qrCard(target: string): string {
   return [
     '<section style="margin:24px 0 0;padding:16px 18px;background:#f7f7f7;border-radius:6px;">',
     '<table style="width:100%;min-width:0;margin:0;border-collapse:collapse;">',
     "<tbody><tr>",
     '<td style="border:none;padding:0;vertical-align:middle;">',
-    '<p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:#8a8a8a;">长按识别二维码，在博客阅读更多内容</p>',
-    `<p style="margin:0;font-size:13px;line-height:1.5;color:#576b95;word-break:break-all;">${BLOG_URL}</p>`,
+    '<p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:#8a8a8a;">长按识别二维码查看更多热搜话题</p>',
+    `<p style="margin:0;font-size:13px;line-height:1.5;color:#576b95;word-break:break-all;">${target}</p>`,
     "</td>",
     '<td style="border:none;width:96px;padding:0 0 0 14px;vertical-align:middle;">',
-    `<img src="${WEIBO_TRENDING_WECHAT_QR_FILE}" alt="博客二维码" width="96" height="96" />`,
+    `<img src="${WEIBO_TRENDING_WECHAT_QR_FILE}" alt="微博热搜原文二维码" width="96" height="96" />`,
     "</td>",
     "</tr></tbody></table>",
     "</section>",
   ].join("\n");
 }
 
-export function weiboTrendingWechatFooter(): string {
-  return qrCard();
+export function weiboTrendingWechatFooter(articleUrl: string): string {
+  return qrCard(articleUrl);
 }
 
 export function weiboTrendingArticleUrl(articlePath: string): string {
@@ -89,6 +103,7 @@ export function weiboTrendingArticleUrl(articlePath: string): string {
 export function renderWeiboTrendingWechatMarkdown({
   items,
   archiveDate,
+  title,
   description,
   footer,
   articleUrl,
@@ -96,6 +111,7 @@ export function renderWeiboTrendingWechatMarkdown({
 }: {
   items: WeiboTrendingWechatItem[];
   archiveDate: string;
+  title: string;
   description: string;
   footer: string;
   articleUrl: string;
@@ -103,8 +119,9 @@ export function renderWeiboTrendingWechatMarkdown({
 }): string {
   if (!description) throw new Error("Weibo trending WeChat article needs a description");
   if (!items.length) throw new Error("Weibo trending WeChat article needs at least one item");
+  if (!title) throw new Error("Weibo trending WeChat article needs a title");
   const metadata = frontmatter({
-    title: taskTitle("weibo-trending", archiveDate),
+    title,
     date: archiveDate,
     description,
     tags: [WEIBO_TRENDING_WECHAT_TAG],

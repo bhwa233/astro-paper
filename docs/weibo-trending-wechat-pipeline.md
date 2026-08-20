@@ -7,7 +7,7 @@
 站点文章是唯一内容输入：
 
 ```text
-src/content/posts/zh-cn/微博热搜-<date>.md
+src/content/posts/zh-cn/wb-<YYYYMMDD>.md
   -> scripts/generate_weibo_trending_wechat.ts
        -> data/weibo-trending-wechat/<date>/01.md
        -> data/weibo-trending-wechat/<date>/upstream.md
@@ -18,12 +18,12 @@ src/content/posts/zh-cn/微博热搜-<date>.md
 
 ## 2. 内容规则
 
-- 标题复用 `taskTitle("weibo-trending", date)`，格式为 `每日微博热搜总结｜<date>`。站点标签和微信 `eligibleTags` 匹配键仍是 `微博热搜`，文件名及站点 slug 不变。
+- 标题完整复用站点文章 frontmatter，格式固定为 `<date> 热搜 ｜ <AI 标题后半句>`。后半句由站点文章生成阶段基于最终成功收录的话题统一生成，公众号管线不再调用模型。站点标签和微信 `eligibleTags` 匹配键仍是 `微博热搜`，文章文件名统一为 `wb-<YYYYMMDD>.md`，站点 URL 为 `/posts/wb-<YYYYMMDD>/`。
 - `parseWeiboTrendingArticle` 严格读取连续的 `## N.` 块，标题或摘要为空、编号断号都会终止转换。
 - 正文按上游顺序保留前 30 条，只输出二级标题和摘要段。`- **话题**` 行不进入微信稿，避免超长 URL 被 astro-wechat 转成尾注。
 - 微信摘要默认拼接前三条标题，超过 120 个 Unicode 码点时依次退到两条、一条，仍超长才按码点截断。
 - `wechat.sourceURL` 指向同一天的站点文章，既是「阅读原文」落点，也是 astro-wechat 的同步身份。
-- 页脚不放可点击外链，只显示固定博客地址和 `qr.png`。二维码内容固定为 `https://blog.bhwa233.com/`。
+- 页脚不放可点击外链，显示“长按识别二维码查看更多热搜话题”、对应站点文章 URL 和 `qr.png`。二维码与 `wechat.sourceURL` 均指向同一天的站点文章。
 
 封面由 `scripts/weibo_trending_wechat_cover.ts` 使用 satori 渲染为 1175×500 PNG，列出前三条标题，页脚显示品牌与归档日期。字体下载或渲染失败只会回落到 `astro-wechat.config.mjs` 的 `defaultCover`，不会中断归档。
 
@@ -35,9 +35,9 @@ src/content/posts/zh-cn/微博热搜-<date>.md
 
 生成器要求 `--date`、`--upstream-sha` 和 `--upstream-workflow-run`，并校验当前 `HEAD` 等于父任务提交。`run.json` 记录北京时间归档日、父提交及 workflow run、上游文章与快照路径、稿件/封面路径、SHA-256、收录数和截断数。
 
-同一天已有合法 manifest 时直接复用，不重新转换正文。复用前会校验已归档文件仍与 manifest 的 SHA-256 一致，并重新生成稿件旁的 `qr.png`。manifest 无法解析或归档文件不匹配时直接失败，防止把损坏状态当作空归档。上游文章不存在时写入 `upstream-empty` manifest，不创建草稿，也不把空结果当作错误。
+同一天已有合法 manifest 时直接复用，不重新转换正文。复用前会校验已归档文件仍与 manifest 的 SHA-256 一致，并根据 manifest 中的上游文章路径重新生成指向对应文章的 `qr.png`。manifest 无法解析或归档文件不匹配时直接失败，防止把损坏状态当作空归档。上游文章不存在时写入 `upstream-empty` manifest，不创建草稿，也不把空结果当作错误。
 
-`cover.png`、`01.md`、`upstream.md` 和 `run.json` 会提交；恒定的 `qr.png` 被 `.gitignore` 排除，由每次需要同步的运行恢复并随 job artifact 交给发布 job。
+`cover.png`、`01.md`、`upstream.md` 和 `run.json` 会提交；可按文章 URL 重建的 `qr.png` 被 `.gitignore` 排除，由每次需要同步的运行恢复并随 job artifact 交给发布 job。
 
 ## 5. Workflow
 

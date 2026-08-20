@@ -27,10 +27,14 @@ import {
   selectRedditTrendingCandidates,
 } from "../scripts/reddit_trending_source.ts";
 import { type RedditTrendingBoard, type RedditTrendingItem } from "../scripts/reddit_trending_api.ts";
+import { taskPostRelPath } from "../scripts/blog_tasks.ts";
 import { WEIBO_TRENDING_LIMIT, parseWeiboTrendingSummary } from "../scripts/weibo_trending_source.ts";
+import { parseWeiboTrendingTitleResponse } from "../scripts/weibo_trending_title.ts";
 import {
   parseWeiboTrendingArticle,
+  parseWeiboTrendingArticleTitle,
   renderWeiboTrendingWechatMarkdown,
+  weiboTrendingArticleUrl,
   weiboTrendingWechatBody,
   weiboTrendingWechatDescription,
   weiboTrendingWechatFooter,
@@ -478,6 +482,9 @@ test("weibo trending keeps the configured non-ad topic limit in upstream order",
   assert.equal(items[0].title, "话题 1");
   assert.equal(items.at(-1)?.title, `话题 ${WEIBO_TRENDING_LIMIT}`);
   assert.throws(() => parseWeiboTrendingSummary([{ title: "缺少链接", hot: 1, ads: false }]), /missing its title or topic URL/);
+  assert.equal(parseWeiboTrendingTitleResponse('{"title_suffix":"有人接住火箭,有人讨论空座该不该让"}'), "有人接住火箭,有人讨论空座该不该让");
+  assert.throws(() => parseWeiboTrendingTitleResponse('{"title_suffix":"2099-01-02 热搜｜重复前缀"}'), /must not repeat the fixed title prefix/);
+  assert.throws(() => parseWeiboTrendingTitleResponse(`{"title_suffix":"${"很长".repeat(21)}"}`), /exceeds 40 characters/);
 });
 
 // ------------------------------------------------------- 微博热搜微信稿
@@ -526,21 +533,30 @@ test("Weibo trending WeChat description falls back by title count and truncates 
 
 test("Weibo trending WeChat renderer carries synchronization metadata and optional cover", () => {
   const items = [weiboWechatItem(1, "甲"), weiboWechatItem(2, "乙")];
-  const articleUrl = "https://blog.bhwa233.com/posts/%E5%BE%AE%E5%8D%9A%E7%83%AD%E6%90%9C-2099-01-02/";
+  const articlePath = taskPostRelPath("weibo-trending", "2099-01-02");
+  const articleUrl = "https://blog.bhwa233.com/posts/wb-20990102/";
+  const title = '2099-01-02 热搜 ｜ 有人接住火箭,有人问"空座该让吗"';
+  assert.equal(articlePath, "src/content/posts/zh-cn/wb-20990102.md");
+  assert.equal(weiboTrendingArticleUrl(articlePath), articleUrl);
   const render = (coverFile = "") =>
     renderWeiboTrendingWechatMarkdown({
       items,
       archiveDate: "2099-01-02",
+      title,
       description: weiboTrendingWechatDescription(items),
-      footer: weiboTrendingWechatFooter(),
+      footer: weiboTrendingWechatFooter(articleUrl),
       articleUrl,
       coverFile,
     });
   const markdown = render();
-  assert.match(markdown, /^title: "每日微博热搜总结｜2099-01-02"$/m);
-  assert.match(markdown, /^wechat:\n {2}enabled: true\n {2}sourceURL: "https:\/\/blog\.bhwa233\.com\/posts\//m);
+  assert.equal(parseWeiboTrendingArticleTitle(markdown), title);
+  assert.equal(parseWeiboTrendingArticleTitle(`---\ntitle: '${title}'\n---\n`), title);
+  assert.match(markdown, /^title: "2099-01-02 热搜 ｜ 有人接住火箭,有人问\\"空座该让吗\\""$/m);
+  assert.match(markdown, /^wechat:\n {2}enabled: true\n {2}sourceURL: "https:\/\/blog\.bhwa233\.com\/posts\/wb-20990102\/"$/m);
   assert.doesNotMatch(markdown, /^ogImage:/m);
   assert.match(render("cover.png"), /^ogImage: "cover\.png"$/m);
   assert.match(markdown, /<img src="qr\.png"/);
+  assert.match(markdown, /长按识别二维码查看更多热搜话题/);
+  assert.match(markdown, />https:\/\/blog\.bhwa233\.com\/posts\/wb-20990102\/<\/p>/);
   assert.doesNotMatch(markdown.slice(markdown.indexOf("<section")), /\n\s*\n/);
 });

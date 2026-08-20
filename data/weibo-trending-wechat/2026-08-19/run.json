@@ -6,7 +6,7 @@
   "upstream": {
     "generatedSha": "b8b0317c96902a7461ef04c9eee8f12435e2c559",
     "workflowRun": "32342853314",
-    "articlePath": "src/content/posts/zh-cn/微博热搜-2026-08-19.md"
+    "articlePath": "src/content/posts/zh-cn/wb-20260819.md"
   },
   "rawSources": {
     "upstreamMarkdown": {
@@ -16,12 +16,12 @@
   },
   "draft": {
     "path": "data/weibo-trending-wechat/2026-08-19/01.md",
-    "sha256": "817a25300e9fd02acca4cbcb575609baedffafacd65df9b298edd3eaca939d87",
+    "sha256": "f2237aac32829f34ca302287e55b3a78b5cd5306c338b2b1d071557cae2dc521",
     "itemCount": 30,
     "truncatedItemCount": 0,
     "cover": {
       "path": "data/weibo-trending-wechat/2026-08-19/cover.png",
-      "sha256": "b7ce3325ac30bdecc01a1b3a3cc1bdbd2b0bd3d742ef73332407f78a36ae634b"
+      "sha256": "0503d65fac06aab9c65f1a5b7800efc3e8f378c92ebf92162157885b40e17d7f"
     }
   }
 }

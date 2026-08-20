@@ -9,13 +9,13 @@ import { taskPostRelPath } from "./blog_tasks.ts";
 import { renderQrPng } from "./qr_code.ts";
 import {
   parseWeiboTrendingArticle,
+  parseWeiboTrendingArticleTitle,
   renderWeiboTrendingWechatMarkdown,
   weiboTrendingArticleUrl,
   weiboTrendingWechatDescription,
   weiboTrendingWechatFooter,
   WEIBO_TRENDING_WECHAT_ITEM_LIMIT,
   WEIBO_TRENDING_WECHAT_QR_FILE,
-  WEIBO_TRENDING_WECHAT_QR_URL,
   type WeiboTrendingWechatItem,
 } from "./weibo_trending_wechat_compose.ts";
 import { renderWeiboTrendingWechatCover, WEIBO_TRENDING_WECHAT_COVER_FILE } from "./weibo_trending_wechat_cover.ts";
@@ -145,8 +145,8 @@ function verifyArchivedFile(repo: string, archived: ArchivedFile, label: string)
   if (sha256(fs.readFileSync(file)) !== archived.sha256) throw new Error(`Weibo trending WeChat manifest ${label} hash does not match: ${archived.path}`);
 }
 
-async function restoreQr(repo: string, draftPath: string, artifactsDir: string): Promise<void> {
-  const qr = await renderQrPng(WEIBO_TRENDING_WECHAT_QR_URL);
+async function restoreQr(repo: string, draftPath: string, artifactsDir: string, articleUrl: string): Promise<void> {
+  const qr = await renderQrPng(articleUrl);
   const qrFile = path.join(repo, path.dirname(draftPath), WEIBO_TRENDING_WECHAT_QR_FILE);
   ensureDir(path.dirname(qrFile));
   fs.writeFileSync(qrFile, qr);
@@ -208,6 +208,7 @@ async function fitWechatContentLimit({
 async function fitWithOptionalCover({
   items,
   archiveDate,
+  title,
   footer,
   articleUrl,
   coverFile,
@@ -216,6 +217,7 @@ async function fitWithOptionalCover({
 }: {
   items: WeiboTrendingWechatItem[];
   archiveDate: string;
+  title: string;
   footer: string;
   articleUrl: string;
   coverFile: string;
@@ -231,6 +233,7 @@ async function fitWithOptionalCover({
         renderWeiboTrendingWechatMarkdown({
           items: included,
           archiveDate,
+          title,
           description: weiboTrendingWechatDescription(included),
           footer,
           articleUrl,
@@ -283,7 +286,8 @@ export async function generateWeiboTrendingWechat({
       verifyArchivedFile(repo, existing.rawSources!.upstreamMarkdown, "upstream snapshot");
       verifyArchivedFile(repo, existing.draft!, "draft");
       if (existing.draft!.cover) verifyArchivedFile(repo, existing.draft!.cover!, "cover");
-      await restoreQr(repo, existing.draft!.path, artifactsDir);
+      const articleUrl = weiboTrendingArticleUrl(existing.upstream.articlePath);
+      await restoreQr(repo, existing.draft!.path, artifactsDir, articleUrl);
     }
     writeStderr(`[weibo-trending-wechat] archive=${date}: reused manifest (${existing.status})`);
     return { manifestPath: manifestRel, generatedPaths: existing.draft ? [existing.draft.path] : [], status: existing.status };
@@ -307,6 +311,7 @@ export async function generateWeiboTrendingWechat({
 
   const upstreamMarkdown = fs.readFileSync(upstreamFile, "utf8");
   const allItems = parseWeiboTrendingArticle(upstreamMarkdown);
+  const articleTitle = parseWeiboTrendingArticleTitle(upstreamMarkdown);
   const selectedItems = allItems.slice(0, WEIBO_TRENDING_WECHAT_ITEM_LIMIT);
   const dayDir = path.join(ROOT_REL, date);
   const draftRel = path.join(dayDir, "01.md");
@@ -324,12 +329,13 @@ export async function generateWeiboTrendingWechat({
     fs.writeFileSync(path.join(repo, coverRel), cover);
     writeStderr(`[weibo-trending-wechat] rendered ${coverRel} (${cover.length} bytes)`);
   }
-  await restoreQr(repo, draftRel, artifactsDir);
+  await restoreQr(repo, draftRel, artifactsDir, articleUrl);
 
   const fitted = await fitWithOptionalCover({
     items: selectedItems,
     archiveDate: date,
-    footer: weiboTrendingWechatFooter(),
+    title: articleTitle,
+    footer: weiboTrendingWechatFooter(articleUrl),
     articleUrl,
     coverFile: cover ? WEIBO_TRENDING_WECHAT_COVER_FILE : "",
     repo,

@@ -162,10 +162,10 @@ export const BLOG_TASKS = {
     tag: "微博热搜",
     description: "每日微博热搜短条目，基于当日榜单与逐话题微博智搜结论整理。",
     fileName: "微博热搜-{date}.md",
-    bodyHeadingPattern: /^\d+\. 🔴\s+/m,
+    bodyHeadingPattern: /^## \d+\.\s+/m,
     sourceContract: {
       requiredTerms: ["微博智搜", "智搜摘要"],
-      requiredPatterns: [{ label: "topic links", pattern: /- \*\*话题\*\*：https:\/\// }],
+      requiredPatterns: [{ label: "topic links", pattern: /- \*\*话题\*\*：\[[^\]]+\]\(https:\/\// }],
     },
   },
 } as const satisfies Record<string, BlogTaskInfo>;

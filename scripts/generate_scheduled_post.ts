@@ -1168,9 +1168,9 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   const combineSource = SOURCE_COMBINERS[task];
   if (useAi && combineSource && !mockResponseDir) {
     source = await combineSource({ task, source, date: contentDate, repo, model, promptDir, artifactsDir, redditCategory });
-    // 逐条目摘要可能把当天全部候选都判掉；空栏目不值得发一篇。
+    // 逐条目获取或摘要可能全部失败；空栏目不值得发一篇。
     if (task === "tech-daily" && countNumberedBlocks(source) < 1) return [skippedLowQuality(task, date, "tech-daily has no high-quality daily items")];
-    if (task === "weibo-trending" && countNumberedBlocks(source) < 1) return [skippedLowQuality(task, date, "weibo-trending has no publishable topics after policy selection and AI Search")];
+    if (task === "weibo-trending" && countNumberedBlocks(source) < 1) return [skippedLowQuality(task, date, "weibo-trending has no publishable topics after AI Search and summary generation")];
     // 合成后条目不够就不发。数量写在 blog_tasks.ts 的 sourceContract 里，和发布校验共用一个值：
     // 少了这一步，凑不满的那天会一路走到归档，再由 verify 在写盘之后才拦下来。
     const minBlocks = taskInfo(task).sourceContract?.minNumberedBlocks;

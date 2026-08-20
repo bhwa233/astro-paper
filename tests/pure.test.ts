@@ -27,7 +27,7 @@ import {
   selectRedditTrendingCandidates,
 } from "../scripts/reddit_trending_source.ts";
 import { type RedditTrendingBoard, type RedditTrendingItem } from "../scripts/reddit_trending_api.ts";
-import { WEIBO_TRENDING_LIMIT, parseWeiboTrendingSelection, parseWeiboTrendingSummary } from "../scripts/weibo_trending_source.ts";
+import { WEIBO_TRENDING_LIMIT, parseWeiboTrendingSummary } from "../scripts/weibo_trending_source.ts";
 
 function podcastResult(overrides: Partial<ResultItem>): ResultItem {
   return {
@@ -468,11 +468,4 @@ test("weibo trending keeps the first 20 non-ad topics in upstream order", () => 
   assert.equal(items[0].title, "话题 1");
   assert.equal(items.at(-1)?.title, `话题 ${WEIBO_TRENDING_LIMIT}`);
   assert.throws(() => parseWeiboTrendingSummary([{ title: "缺少链接", hot: 1, ads: false }]), /missing its title or topic URL/);
-});
-
-test("weibo trending selection accepts only unique ranks from the top-20 source", () => {
-  assert.deepEqual(parseWeiboTrendingSelection(JSON.stringify({ selected: [{ rank: 3 }, { rank: 1 }] }), 20), [1, 3]);
-  assert.deepEqual(parseWeiboTrendingSelection(JSON.stringify({ selected: [] }), 20), []);
-  assert.throws(() => parseWeiboTrendingSelection(JSON.stringify({ selected: [{ rank: 21 }] }), 20), /not in the top 20/);
-  assert.throws(() => parseWeiboTrendingSelection(JSON.stringify({ selected: [{ rank: 1 }, { rank: 1 }] }), 20), /picked candidate 1 twice/);
 });

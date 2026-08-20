@@ -338,10 +338,10 @@ function formatRedditTrending(text: string): string {
 
 function formatWeiboTrending(text: string): string {
   const normalized = stripLeadingTitleHeading(normalizeMarkdown(text));
-  const entries = normalized.match(/^\d+\. 🔴 .+$/gm) || [];
+  const entries = normalized.match(/^## \d+\.\s+.+$/gm) || [];
   if (!entries.length) throw new Error("Weibo trending needs at least one topic entry");
-  const topicLinks = normalized.match(/^- 话题：https:\/\/\S+$/gm) || [];
-  const summaries = normalized.match(/^- 摘要：\S.+$/gm) || [];
+  const topicLinks = normalized.match(/^- \*\*话题\*\*：\[[^\]]+\]\(https:\/\/[^\s)]+\)$/gm) || [];
+  const summaries = normalized.match(/^- \*\*摘要\*\*：\S.+$/gm) || [];
   if (topicLinks.length !== entries.length || summaries.length !== entries.length) {
     throw new Error(`Weibo trending needs a topic link and summary per entry: ${topicLinks.length}/${summaries.length} vs ${entries.length}`);
   }

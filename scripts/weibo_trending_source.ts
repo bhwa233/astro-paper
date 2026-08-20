@@ -1,5 +1,5 @@
-// 微博热搜来源层：取匿名榜单 -> 模型按内容政策选题 -> 逐条智搜 -> 逐条摘要。
-// 榜单前 20 是唯一候选池；智搜或摘要失败只丢该话题，不向榜单后续条目补位。
+// 微博热搜来源层：取匿名榜单前 20 条 -> 逐条智搜 -> 逐条摘要。
+// 智搜或摘要失败只丢该话题，不向榜单后续条目补位。
 import fs from "node:fs";
 import path from "node:path";
 import { resolvePromptFile } from "./ai_blog_writer.ts";
@@ -10,7 +10,6 @@ import { bulletValue, extractBullets, hasChinese, normalizeMarkdownBlock, number
 export const WEIBO_TRENDING_LIMIT = 20;
 
 const DEFAULT_SUMMARY_URL = "https://raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/{date}/summary.json";
-const SELECTION_PROMPT_TASK = "weibo-trending-selection";
 const SUMMARY_PROMPT_TASK = "weibo-trending";
 
 export type WeiboTrendingItem = {
@@ -125,22 +124,6 @@ export function parseWeiboTrendingCandidates(source: string): WeiboTrendingItem[
   });
 }
 
-export function parseWeiboTrendingSelection(raw: string, candidateCount: number): number[] {
-  const payload = parseModelJsonObject(raw, "Weibo trending selection");
-  if (!Array.isArray(payload.selected)) throw new Error("Weibo trending selection must contain a selected array");
-  const selected = new Set<number>();
-  for (const [index, value] of payload.selected.entries()) {
-    const entry = asRecord(value, `Weibo trending selection entry ${index + 1}`);
-    const rank = Number(entry.rank);
-    if (!Number.isInteger(rank) || rank < 1 || rank > candidateCount) {
-      throw new Error(`Weibo trending selection entry ${index + 1} refers to candidate ${String(entry.rank)}, which is not in the top ${candidateCount}`);
-    }
-    if (selected.has(rank)) throw new Error(`Weibo trending selection picked candidate ${rank} twice`);
-    selected.add(rank);
-  }
-  return [...selected].sort((left, right) => left - right);
-}
-
 function parseWeiboTrendingItemSummary(raw: string, expectedRank: number): WeiboTrendingSummary {
   const payload = parseModelJsonObject(raw, "Weibo trending item summary");
   const rank = Number(payload.rank);
@@ -209,7 +192,7 @@ function itemPrompt(template: string, date: string, rank: number, title: string,
     .replaceAll("{aisearch_answer}", answer);
 }
 
-/** 模型只决定入选与摘要；话题链接、标题、榜单顺序和智搜原文都由代码保留。 */
+/** 模型只负责逐条摘要；话题链接、标题、榜单顺序和智搜原文都由代码保留。 */
 export async function buildCombinedWeiboTrendingSource({
   source,
   date,
@@ -228,33 +211,14 @@ export async function buildCombinedWeiboTrendingSource({
   writeAiArtifact(artifactsDir, "weibo-trending", "candidates.md", source);
   const candidates = parseWeiboTrendingCandidates(source);
   const header = `# 微博热搜 ${date}`;
-  if (!candidates.length) return `${header}\n\n- 选题：当天榜单没有可用的非广告话题。\n`;
+  if (!candidates.length) return `${header}\n\n- 结果：当天榜单没有可用的非广告话题。\n`;
 
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
-  const selectionTemplate = fs.readFileSync(resolvePromptFile(resolvedPromptDir, SELECTION_PROMPT_TASK), "utf8");
-  const selectionPrompt = selectionTemplate.replaceAll("{date}", date).replaceAll("{source_text}", source);
-  writeAiArtifact(artifactsDir, SELECTION_PROMPT_TASK, "prompt.md", selectionPrompt);
-  const ranks = await generateJsonStageWithRetries<number[]>({
-    task: SELECTION_PROMPT_TASK,
-    stage: "Weibo trending selection",
-    artifactPrefix: "selection",
-    prompt: selectionPrompt,
-    model,
-    artifactsDir,
-    parse: content => parseWeiboTrendingSelection(content, candidates.length),
-    onExhausted: message => {
-      writeStderr(`WARN: [weibo-trending] ${message}; treating the day as having no selected topics`);
-      return [];
-    },
-  });
-  const selected = ranks.map(rank => candidates[rank - 1]);
-  writeStdout(`[weibo-trending] selected=${selected.length}/${candidates.length}\n`);
-  if (!selected.length) return `${header}\n\n- 选题：模型未从前 ${candidates.length} 条非广告话题中选出可写条目。\n`;
-
+  writeStdout(`[weibo-trending] topics=${candidates.length}/${WEIBO_TRENDING_LIMIT}\n`);
   const summaryTemplate = fs.readFileSync(resolvePromptFile(resolvedPromptDir, SUMMARY_PROMPT_TASK), "utf8");
   const completed: Array<{ item: WeiboTrendingItem; result: WeiboAiSearchResult; summary: WeiboTrendingSummary }> = [];
   const dropped: Array<{ rank: number; stage: "aisearch" | "summary"; error: string }> = [];
-  for (const item of selected) {
+  for (const item of candidates) {
     let result: WeiboAiSearchResult;
     try {
       result = await fetchWeiboAiSearch(item.title);
@@ -282,7 +246,7 @@ export async function buildCombinedWeiboTrendingSource({
     else dropped.push({ rank: item.rank, stage: "summary", error: outcome.error || "summary generation failed" });
   }
   if (dropped.length) writeAiArtifact(artifactsDir, "weibo-trending", "dropped-items.json", JSON.stringify({ dropped }, null, 2));
-  if (!completed.length) return `${header}\n\n- 选题：没有取得可发布的完整微博智搜结论。\n`;
+  if (!completed.length) return `${header}\n\n- 结果：没有取得可发布的完整微博智搜结论。\n`;
 
   const combined = [
     header,

@@ -212,9 +212,10 @@ test("Weibo trending renders only the topic link and AI summary from source evid
     "- **智搜摘要**：\"智搜结论显示，该产品发布后引发了对定价、功能和交付节奏的讨论。\"",
   ].join("\n");
   const markdown = weiboTrendingMarkdownFromSummaries(source);
-  assert.match(markdown, /^1\. 🔴 某公司发布新产品$/m);
-  assert.match(markdown, /^- 话题：https:\/\/m\.weibo\.cn\/search\?containerid=topic1$/m);
-  assert.match(markdown, /^- 摘要：智搜结论显示，该产品发布后引发了对定价、功能和交付节奏的讨论。$/m);
+  // 2026-08-19: ordinary list items lost the article hierarchy and exposed multi-hundred-character tracking URLs.
+  assert.match(markdown, /^## 1\. 某公司发布新产品$/m);
+  assert.match(markdown, /^- \*\*话题\*\*：\[在微博查看\]\(https:\/\/m\.weibo\.cn\/search\?containerid=topic1\)$/m);
+  assert.match(markdown, /^- \*\*摘要\*\*：智搜结论显示，该产品发布后引发了对定价、功能和交付节奏的讨论。$/m);
   assert.doesNotMatch(markdown, /不应进入正文的完整原始结论|智搜引用数/);
 
   const repo = tempDir("weibo-trending-verify");

@@ -16,6 +16,6 @@ export function weiboTrendingMarkdownFromSummaries(source: string): string {
     const url = bulletValue(bullets, "**话题**");
     const summary = normalizeMarkdownBlock(decodeMarkdownBlock(bulletValue(bullets, "**智搜摘要**")));
     if (!/^https:\/\//.test(url) || !summary) throw new Error(`Weibo trending source item ${index + 1} is missing its topic URL or summary`);
-    return `${index + 1}. 🔴 ${title}\n- 话题：${url}\n- 摘要：${summary}`;
+    return `## ${index + 1}. ${title}\n\n- **话题**：[在微博查看](${url})\n- **摘要**：${summary}`;
   }).join("\n\n")}\n`;
 }

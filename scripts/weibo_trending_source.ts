@@ -1,4 +1,4 @@
-// 微博热搜来源层：取匿名榜单前 20 条 -> 逐条智搜 -> 逐条摘要。
+// 微博热搜来源层：取匿名榜单前 50 条 -> 逐条智搜 -> 逐条摘要。
 // 智搜或摘要失败只丢该话题，不向榜单后续条目补位。
 import fs from "node:fs";
 import path from "node:path";
@@ -7,7 +7,7 @@ import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.t
 import { compact, fetchJson, repoRoot, writeStderr, writeStdout } from "./blog_common.ts";
 import { bulletValue, extractBullets, hasChinese, normalizeMarkdownBlock, numberedBlocks, parseModelJsonObject } from "./compose_common.ts";
 
-export const WEIBO_TRENDING_LIMIT = 20;
+export const WEIBO_TRENDING_LIMIT = 50;
 
 const DEFAULT_SUMMARY_URL = "https://raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/{date}/summary.json";
 const SUMMARY_PROMPT_TASK = "weibo-trending";

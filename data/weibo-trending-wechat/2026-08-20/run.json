@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-20",
+  "timeZone": "Asia/Shanghai",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "d4de319d022e875607ea5fa2de28dd8ed2c26c9a",
+    "workflowRun": "32394578709",
+    "articlePath": "src/content/posts/zh-cn/wb-20260820.md"
+  },
+  "rawSources": {
+    "upstreamMarkdown": {
+      "path": "data/weibo-trending-wechat/2026-08-20/upstream.md",
+      "sha256": "0674673a89c062207489b0160c6fbc0e16c94731c637a95083c469aa14e7e2b9"
+    }
+  },
+  "draft": {
+    "path": "data/weibo-trending-wechat/2026-08-20/01.md",
+    "sha256": "21963f2b2f41a85c81e4408321fc1b541b99aa5411e365a2d2e2e18575d32e55",
+    "itemCount": 30,
+    "truncatedItemCount": 0,
+    "cover": {
+      "path": "data/weibo-trending-wechat/2026-08-20/cover.png",
+      "sha256": "e03dc97452316a36c4a8094a67d0eaa70939b3f8552a9c80c8a5feabf4ab922e"
+    }
+  }
+}

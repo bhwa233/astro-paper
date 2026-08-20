@@ -155,14 +155,14 @@ function limitedStoryText(body: string, limit = REDDIT_LIFE_WECHAT_REPLY_LIMIT):
     .join("\n\n");
 }
 
-// 帖间用整行加粗当分隔。不能用 `#` 标题：微信编辑器会把它拆坏，上游契约也禁止。
+// 每个问题用二级标题分隔，和其他微信日报的条目层级保持一致。
 function postHeading(title: string): string {
-  return `**${compact(title)}**`;
+  return `## ${compact(title)}`;
 }
 
-const HEADING_BLOCK = /^\*\*[^*\n]+\*\*$/;
+const HEADING_BLOCK = /^##\s+\S.*$/;
 
-// 正文由「加粗标题」和「编号故事」两种块交替组成，块之间空一行。上游契约保证一条回答就是一段，
+// 正文由「二级标题」和「编号故事」两种块交替组成，块之间空一行。上游契约保证一条回答就是一段，
 // 段内不再分段，因此按空行切就是按块切。
 function bodyBlocks(body: string): string[] {
   return body
@@ -270,4 +270,3 @@ export function renderRedditLifeWechatMarkdown({
 export function markdownSha256(markdown: string): string {
   return createHash("sha256").update(markdown, "utf8").digest("hex");
 }
-

@@ -282,14 +282,14 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   assert.match(markdown, /^4\\\. 第四个话题$/m);
   assert.match(markdown, /长按识别二维码，在博客看全部 4 个热帖/);
   assert.match(markdown, /https:\/\/blog\.bhwa233\.com\/posts\/reddit-2099-01-02-life\//);
-  // 帖间用整行加粗分隔，编号在每帖内部重新从 1 开始；不能出现 Markdown 标题。
-  assert.match(markdown, /^\*\*问题 1\*\*\n\n1\\\. 第一个故事。/m);
-  assert.match(markdown, /^\*\*问题 2\*\*\n\n1\\\. 第四个故事。/m);
-  assert.doesNotMatch(markdown, /^#{1,6}\s/m);
+  // 每个问题用二级标题分隔，编号在每帖内部重新从 1 开始。
+  assert.match(markdown, /^## 问题 1\n\n1\\\. 第一个故事。/m);
+  assert.match(markdown, /^## 问题 2\n\n1\\\. 第四个故事。/m);
+  assert.doesNotMatch(markdown, /^###\s/m);
 
   // 每帖只保留前 N 条回答：三帖全量会撞上微信 20000 字符的 HTML 上限。
   const capped = render({ replyLimit: 1 });
-  assert.match(capped, /^\*\*问题 1\*\*\n\n1\\\. 第一个故事。\n\n\*\*问题 2\*\*$/m);
+  assert.match(capped, /^## 问题 1\n\n1\\\. 第一个故事。\n\n## 问题 2$/m);
   assert.doesNotMatch(capped, /第二个故事/);
 
   assert.equal(countDroppableStories(markdown), 5);
@@ -298,8 +298,8 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   // 删到某帖一条不剩时，它的标题也要跟着走，否则留下一个后面没有内容的空标题。
   const droppedTwo = dropTrailingStories(markdown, 2);
   assert.doesNotMatch(droppedTwo, /第四个故事|第五个故事/);
-  assert.doesNotMatch(droppedTwo, /\*\*问题 2\*\*/);
-  assert.match(droppedTwo, /\*\*问题 1\*\*/);
+  assert.doesNotMatch(droppedTwo, /^## 问题 2$/m);
+  assert.match(droppedTwo, /^## 问题 1$/m);
   // frontmatter 和页脚是稿子的骨架，任何截断都不能动它们。
   assert.match(droppedTwo, /^---\nauthor:/);
   assert.match(droppedTwo, /<section /);

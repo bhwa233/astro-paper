@@ -20,6 +20,7 @@ export interface UIStrings {
     nextPost: string;
     tableOfContents: string;
     readingTime: string;
+    wordCount: string;
   };
   pagination: {
     prev: string;

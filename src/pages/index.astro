@@ -44,6 +44,7 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
             data-has-more={hasMorePosts}
             data-timezone={config.site.timezone}
             data-reading-label={t.post.readingTime}
+            data-word-count-label={t.post.wordCount}
           >
             {homepagePosts.map(data => (
               <Card variant="h3" {...data} />
@@ -59,6 +60,7 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
 
 <script>
   import "@appnest/masonry-layout";
+  import { formatCompactCount } from "@/utils/formatCompactCount";
   import { formatCompactDate } from "@/utils/formatCompactDate";
 
   type HomePost = {
@@ -69,6 +71,7 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
     modDatetime: string | null;
     timezone: string | undefined;
     readingTime: number;
+    wordCount: number;
   };
 
   type MasonryLayoutElement = HTMLElement & { layout?: () => void };
@@ -104,13 +107,28 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
         );
       }
 
+      // 数字给视觉，完整说法给读屏：两处都要填，否则克隆来的卡片会念上一篇的时长。
       const reading = datetime.querySelector("[data-reading-time]");
-      if (reading) {
-        reading.textContent = (grid.dataset.readingLabel ?? "").replace(
-          "{{min}}",
-          String(post.readingTime)
-        );
-      }
+      if (reading) reading.textContent = String(post.readingTime);
+
+      const readingLabel = datetime.querySelector("[data-reading-time-label]");
+      const readingText = (grid.dataset.readingLabel ?? "").replace(
+        "{{min}}",
+        String(post.readingTime)
+      );
+      if (readingLabel) readingLabel.textContent = readingText;
+      readingLabel?.parentElement?.setAttribute("title", readingText);
+
+      const words = datetime.querySelector("[data-word-count]");
+      if (words) words.textContent = formatCompactCount(post.wordCount);
+
+      const wordsLabel = datetime.querySelector("[data-word-count-label]");
+      const wordsText = (grid.dataset.wordCountLabel ?? "").replace(
+        "{{count}}",
+        String(post.wordCount)
+      );
+      if (wordsLabel) wordsLabel.textContent = wordsText;
+      wordsLabel?.parentElement?.setAttribute("title", wordsText);
     }
 
     const description = document.createElement("p");

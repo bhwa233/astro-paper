@@ -19,7 +19,7 @@ import { getPostDetailPaths } from "@/utils/localeStaticPaths";
 import { getLocalizedSiteTitle } from "@/utils/siteMeta";
 import { getPostLocaleAlternates } from "@/utils/localeAlternates";
 import { useTranslations } from "@/i18n";
-import { getReadingTime } from "@/utils/readingTime";
+import { getPostMetrics } from "@/utils/readingTime";
 import config from "@/config";
 import TradingViewChart from "@/components/TradingViewChart.astro";
 
@@ -59,7 +59,7 @@ const {
 
 const { Content, headings } = await render(post);
 
-const readingTime = getReadingTime(post.body ?? "");
+const { readingTime, wordCount } = getPostMetrics(post.body ?? "");
 
 let ogImageUrl: string | undefined;
 
@@ -120,23 +120,15 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
       {title}
     </h1>
 
-    <div class="my-2 flex items-center gap-2">
+    <div class="my-2 flex items-center gap-3">
       <Datetime
         {pubDatetime}
         {modDatetime}
         {timezone}
         {readingTime}
+        {wordCount}
         size="lg"
       />
-      <span
-        aria-hidden="true"
-        class:list={[
-          "text-muted-foreground max-sm:hidden",
-          { hidden: !config.features.editPost?.enabled || hideEditPost },
-        ]}
-      >
-        |
-      </span>
       <EditPost {hideEditPost} {post} class="max-sm:hidden" />
     </div>
 

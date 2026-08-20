@@ -3,7 +3,7 @@ import type { SiteLocale } from "@/i18n/locales";
 import { filterCollectionByLocale } from "@/utils/contentLocale";
 import { getPostUrl } from "@/utils/getPostPaths";
 import { getSortedPosts } from "@/utils/getSortedPosts";
-import { getReadingTime } from "@/utils/readingTime";
+import { getPostMetrics } from "@/utils/readingTime";
 import { getStaticPathCacheKey } from "@/utils/staticPathCache";
 
 export const HOME_POSTS_PER_LOAD = 20;
@@ -16,6 +16,7 @@ export type HomePost = {
   modDatetime: string | null;
   timezone: string | undefined;
   readingTime: number;
+  wordCount: number;
 };
 
 export type HomePostFeed = {
@@ -44,7 +45,7 @@ export function toHomePostFeed(
       pubDatetime: data.pubDatetime.toISOString(),
       modDatetime: data.modDatetime?.toISOString() ?? null,
       timezone: data.timezone,
-      readingTime: getReadingTime(body ?? ""),
+      ...getPostMetrics(body ?? ""),
     })),
     hasMore: start + HOME_POSTS_PER_LOAD < posts.length,
   };

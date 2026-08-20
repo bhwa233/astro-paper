@@ -22,6 +22,7 @@ export default {
     nextPost: "下一篇",
     tableOfContents: "目录",
     readingTime: "{{min}} 分钟阅读",
+    wordCount: "{{count}} 字",
   },
   pagination: {
     prev: "上一页",

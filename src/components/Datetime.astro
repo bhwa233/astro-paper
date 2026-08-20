@@ -1,8 +1,11 @@
 ---
 import IconCalendar from "@/assets/icons/IconCalendar.svg";
+import IconClock from "@/assets/icons/IconClock.svg";
+import IconLetterCase from "@/assets/icons/IconLetterCase.svg";
 import config from "@/config";
 import { useTranslations } from "@/i18n";
 import { tplStr } from "@/i18n/format";
+import { formatCompactCount } from "@/utils/formatCompactCount";
 import { formatCompactDate } from "@/utils/formatCompactDate";
 
 type Props = {
@@ -12,6 +15,7 @@ type Props = {
   timezone?: string;
   modDatetime?: string | Date | null;
   readingTime?: number;
+  wordCount?: number;
 };
 
 const {
@@ -21,6 +25,7 @@ const {
   class: className = "",
   timezone: postTimezone,
   readingTime,
+  wordCount,
 } = Astro.props;
 
 const locale = Astro.currentLocale ?? config.site.lang;
@@ -34,36 +39,53 @@ const displayTimezone = postTimezone ?? config.site.timezone;
 const datetime = new Date(isModified ? modDatetime : pubDatetime);
 
 const date = formatCompactDate(datetime, displayTimezone);
+
+// 图标旁只留数字，完整说法交给 sr-only 与悬停提示。
+const readingLabel =
+  readingTime != null ? tplStr(t.post.readingTime, { min: readingTime }) : "";
+const wordCountLabel =
+  wordCount != null ? tplStr(t.post.wordCount, { count: wordCount }) : "";
+
+const textSize = ["text-sm", size === "lg" ? "sm:text-base" : ""];
+const iconSize = [
+  "inline-block size-6 min-w-5.5",
+  size === "sm" ? "scale-90" : "",
+];
 ---
 
 <div
-  class:list={["text-muted-foreground flex items-center gap-x-2", className]}
+  class:list={["text-muted-foreground flex items-center gap-x-3", className]}
 >
-  <IconCalendar
-    class:list={[
-      "inline-block size-6 min-w-5.5",
-      { "scale-90": size === "sm" },
-    ]}
-  />
-  <time
-    class:list={["text-sm", { "sm:text-base": size === "lg" }]}
-    datetime={datetime.toISOString()}
-  >
-    {date}
-  </time>
+  <span class="flex items-center gap-x-1.5">
+    <IconCalendar class:list={iconSize} />
+    <time class:list={textSize} datetime={datetime.toISOString()}>
+      {date}
+    </time>
+  </span>
   {
     readingTime != null && (
-      <>
-        <span aria-hidden="true" data-reading-sep>
-          |
+      <span class="flex items-center gap-x-1.5" title={readingLabel}>
+        <IconClock class:list={iconSize} />
+        <span class:list={textSize} aria-hidden="true" data-reading-time>
+          {readingTime}
         </span>
-        <span
-          data-reading-time
-          class:list={["text-sm", { "sm:text-base": size === "lg" }]}
-        >
-          {tplStr(t.post.readingTime, { min: readingTime })}
+        <span class="sr-only" data-reading-time-label>
+          {readingLabel}
         </span>
-      </>
+      </span>
+    )
+  }
+  {
+    wordCount != null && (
+      <span class="flex items-center gap-x-1.5" title={wordCountLabel}>
+        <IconLetterCase class:list={iconSize} />
+        <span class:list={textSize} aria-hidden="true" data-word-count>
+          {formatCompactCount(wordCount)}
+        </span>
+        <span class="sr-only" data-word-count-label>
+          {wordCountLabel}
+        </span>
+      </span>
     )
   }
 </div>

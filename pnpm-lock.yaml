@@ -64,6 +64,12 @@ importers:
       lodash.kebabcase:
         specifier: ^4.1.1
         version: 4.1.1
+      mdast-util-from-markdown:
+        specifier: ^2.0.3
+        version: 2.0.3
+      mdast-util-to-string:
+        specifier: ^4.0.0
+        version: 4.0.0
       qrcode-generator:
         specifier: ^2.0.4
         version: 2.0.4
@@ -104,6 +110,9 @@ importers:
       '@types/lodash.kebabcase':
         specifier: ^4.1.9
         version: 4.1.9
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/mozilla-readability':
         specifier: ^0.2.1
         version: 0.2.1

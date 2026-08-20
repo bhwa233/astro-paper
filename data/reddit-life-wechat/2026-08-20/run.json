@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-20",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "ea576ce3fa597986905301e35e0b661091362249",
+    "workflowRun": "32358379756",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-20-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-20/upstream-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vsntmt",
+      "title": "Reddit 上的失业网友们，现在的就业市场到底有多难？",
+      "subreddit": "AskReddit",
+      "points": "6148 points · 2571 评论",
+      "numComments": 2571,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vsntmt/unemployed_people_of_reddit_how_hard_is_the_job/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-20/01-1vsntmt.md",
+      "contentSha256": "d997edab2e592319b411a7fc30e97e2da7519be1101dcea6cf0d44bc27f27423",
+      "issue": 2
+    },
+    {
+      "rank": 2,
+      "postId": "1vswn31",
+      "title": "你听过最离谱的离婚理由是什么？",
+      "subreddit": "AskReddit",
+      "points": "3586 points · 1974 评论",
+      "numComments": 1974,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vswn31/whats_the_dumbest_reason_you_have_heard_for_a/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-20/01-1vsntmt.md",
+      "contentSha256": "d997edab2e592319b411a7fc30e97e2da7519be1101dcea6cf0d44bc27f27423",
+      "issue": 2
+    },
+    {
+      "rank": 3,
+      "postId": "1vsuyq9",
+      "title": "你亲眼见过最炸裂的“高调辞职”是什么样的？",
+      "subreddit": "AskReddit",
+      "points": "3078 points · 1002 评论",
+      "numComments": 1002,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vsuyq9/we_have_all_heard_of_quiet_quitting_but_what_is/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-20/01-1vsntmt.md",
+      "contentSha256": "d997edab2e592319b411a7fc30e97e2da7519be1101dcea6cf0d44bc27f27423",
+      "issue": 2
+    }
+  ]
+}

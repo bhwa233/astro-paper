@@ -6,6 +6,10 @@ overrides:
   js-yaml: ^4.3.0
   yaml: ^2.8.3
   brace-expansion: ^5.0.7
+  # nanoid <3.3.18: custom generators loop forever when size is 0 (GHSA-2v37-7h3g-55p8).
+  # postcss 8.5.25 (via vite and eslint-plugin-astro) still resolves 3.3.16; the other
+  # postcss copy is already on 3.3.18, so only the floor needs forcing.
+  nanoid: ^3.3.18
   # astro-eslint-parser takes these on `^7.0.0 || ^8.0.0` and drifts onto whatever
   # typescript-eslint published most recently, which trips the minimumReleaseAge
   # supply-chain policy and fails `pnpm install --frozen-lockfile` in CI and in the

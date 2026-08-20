@@ -3,6 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
+import { APICallError } from "ai";
+
 import { callBlogAiWithFailover } from "../scripts/blog_ai_client.ts";
 import { generateJsonStageWithRetries } from "../scripts/ai_json_stage.ts";
 import { tempDir, withMocks } from "./helpers/mocks.ts";
@@ -84,6 +86,34 @@ test("AI client fails over to the fallback provider only when the primary is exh
   assert.equal(retried.usedFallback, false);
   assert.equal(retried.config.model, "primary-model");
   assert.deepEqual(retryCalls, ["https://primary.example.com/v1/chat/completions", "https://primary.example.com/v1/chat/completions"]);
+
+  // 2026-08-19: 握手超时被 provider 包成没有状态码的 APICallError，曾被当成永久错误直接落到 fallback。
+  const timeoutCalls: string[] = [];
+  const recovered = await withMocks(
+    {
+      env: { AI_PRIMARY_RETRY_DELAY_MS: "1" },
+      fetch: async input => {
+        timeoutCalls.push(String(input));
+        if (timeoutCalls.length === 1) {
+          throw new APICallError({
+            message: "Cannot connect to API: Headers Timeout Error",
+            url: String(input),
+            requestBodyValues: {},
+            isRetryable: true,
+          });
+        }
+        return new Response(CHAT_OK, { status: 200, headers: JSON_HEADERS });
+      },
+    },
+    () =>
+      callBlogAiWithFailover({
+        prompt: "hello",
+        primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model", apiStyle: "chat" },
+        fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash", apiStyle: "chat" },
+      }),
+  );
+  assert.equal(recovered.usedFallback, false);
+  assert.deepEqual(timeoutCalls, ["https://primary.example.com/v1/chat/completions", "https://primary.example.com/v1/chat/completions"]);
 });
 
 test("AI client sends Gemini through its native provider and fails over to OpenAI Chat", async () => {

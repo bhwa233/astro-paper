@@ -174,7 +174,10 @@ async function callBlogAiOnce({
       throw new Error(`AI request timed out after ${timeoutMs}ms`);
     }
     if (APICallError.isInstance(error)) {
-      const failure: AiRetryableError = new Error(`AI provider HTTP ${error.statusCode || "unknown"}: ${clipText(error.responseBody || error.message, 1200)}`);
+      // 没有状态码的 APICallError 是连接层失败（握手超时、连接断开），provider 根本没回响应。
+      // 归到 "AI provider HTTP unknown" 会被 isTransientAiError 判成永久错误，直接跳过主目标重试落到 fallback。
+      if (!error.statusCode) throw new Error(`AI request failed: ${clipText(error.message, 1200)}`);
+      const failure: AiRetryableError = new Error(`AI provider HTTP ${error.statusCode}: ${clipText(error.responseBody || error.message, 1200)}`);
       const retryAfterMs = parseRetryAfterMs(error.responseHeaders?.["retry-after"]);
       if (retryAfterMs > 0) failure.retryAfterMs = retryAfterMs;
       throw failure;

@@ -103,6 +103,9 @@ jobs:
     name: Publish scheduled blog posts
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    # 产物目录清单，检测与提交共用；其中部分目录只在对应任务运行时才被创建。
+    env:
+      PUBLISH_PATHS: "src/content/posts data public/images/podcast public/images/magazine"
     outputs:
       generated_sha: ${{ steps.head.outputs.sha }}
 
@@ -256,7 +259,7 @@ jobs:
       - name: "Detect publishable changes"
         id: diff
         run: |
-          if [ -z "$(git status --porcelain -- src/content/posts data public/images/podcast public/images/magazine)" ]; then
+          if [ -z "$(git status --porcelain -- $PUBLISH_PATHS)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -272,7 +275,18 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/content/posts data public/images/podcast public/images/magazine
+          # 缺失路径会让 git add 以 128 退出，所以只提交这次运行里真实存在的产物目录。
+          staged=""
+          for candidate in $PUBLISH_PATHS; do
+            if [ -e "$candidate" ]; then
+              staged="$staged $candidate"
+            fi
+          done
+          if [ -z "$staged" ]; then
+            echo "no generated paths exist to commit" >&2
+            exit 1
+          fi
+          git add -- $staged
           git commit -m "feat(posts): archive scheduled posts"
           for attempt in 1 2 3; do
             git pull --rebase -X theirs origin "${GITHUB_REF_NAME}"

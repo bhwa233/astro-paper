@@ -3,7 +3,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { formatCompactCount } from "../src/utils/formatCompactCount.ts";
 import { getPostMetrics } from "../src/utils/readingTime.ts";
 import { toPlainText } from "../src/utils/postText.ts";
 
@@ -63,12 +62,4 @@ test("post metrics count CJK characters and Latin words off the same prose", () 
 test("empty and whitespace bodies still report one minute", () => {
   assert.deepEqual(getPostMetrics(""), { readingTime: 1, wordCount: 0 });
   assert.deepEqual(getPostMetrics("\n\n"), { readingTime: 1, wordCount: 0 });
-});
-
-test("compact counts switch to k at one thousand", () => {
-  assert.equal(formatCompactCount(0), "0");
-  assert.equal(formatCompactCount(999), "999");
-  assert.equal(formatCompactCount(1000), "1k");
-  assert.equal(formatCompactCount(5432), "5.4k");
-  assert.equal(formatCompactCount(12000), "12k");
 });

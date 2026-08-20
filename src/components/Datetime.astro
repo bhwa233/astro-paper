@@ -1,11 +1,10 @@
 ---
 import IconCalendar from "@/assets/icons/IconCalendar.svg";
 import IconClock from "@/assets/icons/IconClock.svg";
-import IconLetterCase from "@/assets/icons/IconLetterCase.svg";
+import IconFileText from "@/assets/icons/IconFileText.svg";
 import config from "@/config";
 import { useTranslations } from "@/i18n";
 import { tplStr } from "@/i18n/format";
-import { formatCompactCount } from "@/utils/formatCompactCount";
 import { formatCompactDate } from "@/utils/formatCompactDate";
 
 type Props = {
@@ -40,9 +39,14 @@ const datetime = new Date(isModified ? modDatetime : pubDatetime);
 
 const date = formatCompactDate(datetime, displayTimezone);
 
-// 图标旁只留数字，完整说法交给 sr-only 与悬停提示。
+// 时长旁只放短版「8 分钟」，完整的「8 分钟阅读」交给 sr-only 与悬停提示。
 const readingLabel =
   readingTime != null ? tplStr(t.post.readingTime, { min: readingTime }) : "";
+const readingShortLabel =
+  readingTime != null
+    ? tplStr(t.post.readingTimeShort, { min: readingTime })
+    : "";
+// 字数直接显示完整值，视觉文本已经等于完整说法，不再另写一份 sr-only。
 const wordCountLabel =
   wordCount != null ? tplStr(t.post.wordCount, { count: wordCount }) : "";
 
@@ -67,7 +71,7 @@ const iconSize = [
       <span class="flex items-center gap-x-1.5" title={readingLabel}>
         <IconClock class:list={iconSize} />
         <span class:list={textSize} aria-hidden="true" data-reading-time>
-          {readingTime}
+          {readingShortLabel}
         </span>
         <span class="sr-only" data-reading-time-label>
           {readingLabel}
@@ -78,11 +82,8 @@ const iconSize = [
   {
     wordCount != null && (
       <span class="flex items-center gap-x-1.5" title={wordCountLabel}>
-        <IconLetterCase class:list={iconSize} />
-        <span class:list={textSize} aria-hidden="true" data-word-count>
-          {formatCompactCount(wordCount)}
-        </span>
-        <span class="sr-only" data-word-count-label>
+        <IconFileText class:list={iconSize} />
+        <span class:list={textSize} data-word-count>
           {wordCountLabel}
         </span>
       </span>

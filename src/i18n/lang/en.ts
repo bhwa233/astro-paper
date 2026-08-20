@@ -22,6 +22,7 @@ export default {
     nextPost: "Next Post",
     tableOfContents: "On this page",
     readingTime: "{{min}} min read",
+    readingTimeShort: "{{min}} min",
     wordCount: "{{count}} words",
   },
   pagination: {

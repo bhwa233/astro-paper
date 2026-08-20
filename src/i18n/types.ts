@@ -20,6 +20,8 @@ export interface UIStrings {
     nextPost: string;
     tableOfContents: string;
     readingTime: string;
+    /** 图标旁的短版说法；完整版 readingTime 留给 title 与读屏。 */
+    readingTimeShort: string;
     wordCount: string;
   };
   pagination: {

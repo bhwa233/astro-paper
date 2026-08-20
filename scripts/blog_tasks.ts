@@ -165,7 +165,8 @@ export const BLOG_TASKS = {
     bodyHeadingPattern: /^## \d+\.\s+/m,
     sourceContract: {
       requiredTerms: ["微博智搜", "智搜摘要"],
-      requiredPatterns: [{ label: "topic links", pattern: /- \*\*话题\*\*：\[[^\]]+\]\(https:\/\// }],
+      // source 层始终写裸 URL，markdown 链接是 compose 之后的形态，由 formatWeiboTrending 单独校验。
+      requiredPatterns: [{ label: "topic links", pattern: /- \*\*话题\*\*：https:\/\// }],
     },
   },
 } as const satisfies Record<string, BlogTaskInfo>;

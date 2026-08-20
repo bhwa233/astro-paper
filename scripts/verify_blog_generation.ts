@@ -47,7 +47,7 @@ function resolveArtifactPath(repo: string, artifactPath: string): string {
 
 // 每个任务要求什么，写在 blog_tasks.ts 的注册表里，和它的标题、标签、文件名住在一起。
 // 这里只负责执行；新增任务不需要改这个文件。
-function verifySourceContract(repo: string, task: string, sourceArtifact: string): void {
+export function verifySourceContract(repo: string, task: string, sourceArtifact: string): void {
   if (!sourceArtifact) throw new Error(`${task || "unknown task"} generated without source artifact`);
   const sourcePath = resolveArtifactPath(repo, sourceArtifact);
   if (!fs.existsSync(sourcePath)) throw new Error(`source artifact does not exist: ${sourceArtifact}`);

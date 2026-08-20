@@ -15,7 +15,7 @@ import { parseRedditItemOutcome, parseRedditItemSummary, redditCategoryArticleFr
 import { redditTrendingMarkdownFromTitleTranslations } from "../scripts/reddit_trending_compose.ts";
 import { weiboTrendingMarkdownFromSummaries } from "../scripts/weibo_trending_compose.ts";
 import { parseMagazineItemSummary, partitionRedditItemOutcomes } from "../scripts/generate_scheduled_post.ts";
-import { verifyPostContract } from "../scripts/verify_blog_generation.ts";
+import { verifyPostContract, verifySourceContract } from "../scripts/verify_blog_generation.ts";
 import { composeFixtureBody } from "./helpers/compose-fixture.ts";
 import { epubFixture } from "./helpers/epub.ts";
 import { fixture, tempDir } from "./helpers/mocks.ts";
@@ -219,6 +219,9 @@ test("Weibo trending renders only the topic link and AI summary from source evid
   assert.doesNotMatch(markdown, /不应进入正文的完整原始结论|智搜引用数/);
 
   const repo = tempDir("weibo-trending-verify");
+  // 2026-08-20: source 契约曾被改成要求 markdown 链接，而 source 层始终写裸 URL，发布流水线在 verify 步全线失败。
+  fs.writeFileSync(path.join(repo, "weibo-trending-source.md"), source);
+  verifySourceContract(repo, "weibo-trending", "weibo-trending-source.md");
   const article = archivePost({ task: "weibo-trending", date: "2099-01-02", repo, body: markdown, force: true });
   verifyPostContract(repo, article.path, "weibo-trending");
 });

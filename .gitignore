@@ -47,4 +47,8 @@ yt_dlp_fastapi/
 
 # A crashed run can leave the WeChat content-limit probe behind next to a draft.
 data/reddit-life-wechat/**/.content-limit-probe-*.md
+data/weibo-trending-wechat/**/.content-limit-probe-*.md
+
+# QR payloads are constant and restored from each workflow's generation artifact.
+data/weibo-trending-wechat/*/qr.png
 

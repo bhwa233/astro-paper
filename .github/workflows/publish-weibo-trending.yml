@@ -36,3 +36,15 @@ jobs:
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
     secrets: inherit
+
+  weibo-trending-wechat:
+    name: Archive Weibo Trending WeChat Draft
+    needs: publish
+    permissions:
+      contents: write
+    uses: ./.github/workflows/weibo-trending-wechat.yml
+    with:
+      date: ${{ inputs.date || '' }}
+      upstream_sha: ${{ needs.publish.outputs.generated_sha }}
+      upstream_workflow_run: ${{ github.run_id }}
+    secrets: inherit

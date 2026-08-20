@@ -28,6 +28,16 @@ import {
 } from "../scripts/reddit_trending_source.ts";
 import { type RedditTrendingBoard, type RedditTrendingItem } from "../scripts/reddit_trending_api.ts";
 import { WEIBO_TRENDING_LIMIT, parseWeiboTrendingSummary } from "../scripts/weibo_trending_source.ts";
+import {
+  parseWeiboTrendingArticle,
+  renderWeiboTrendingWechatMarkdown,
+  weiboTrendingWechatBody,
+  weiboTrendingWechatDescription,
+  weiboTrendingWechatFooter,
+  WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT,
+  WEIBO_TRENDING_WECHAT_ITEM_LIMIT,
+  type WeiboTrendingWechatItem,
+} from "../scripts/weibo_trending_wechat_compose.ts";
 
 function podcastResult(overrides: Partial<ResultItem>): ResultItem {
   return {
@@ -451,7 +461,7 @@ test("reddit trending selection rejects picks the candidate list cannot back", (
 
 // ------------------------------------------------------- 微博全站热搜选题
 
-test("weibo trending keeps the first 20 non-ad topics in upstream order", () => {
+test("weibo trending keeps the configured non-ad topic limit in upstream order", () => {
   const payload = [
     { title: "推广位", category: "广告", url: "https://m.weibo.cn/search?ad", hot: 999_999, ads: true },
     ...Array.from({ length: WEIBO_TRENDING_LIMIT + 2 }, (_, index) => ({
@@ -468,4 +478,69 @@ test("weibo trending keeps the first 20 non-ad topics in upstream order", () => 
   assert.equal(items[0].title, "话题 1");
   assert.equal(items.at(-1)?.title, `话题 ${WEIBO_TRENDING_LIMIT}`);
   assert.throws(() => parseWeiboTrendingSummary([{ title: "缺少链接", hot: 1, ads: false }]), /missing its title or topic URL/);
+});
+
+// ------------------------------------------------------- 微博热搜微信稿
+
+function weiboWechatItem(rank: number, title = `话题 ${rank}`): WeiboTrendingWechatItem {
+  return { rank, title, summary: `这是第 ${rank} 条摘要。` };
+}
+
+test("Weibo trending WeChat parser enforces the handoff and body keeps only the first 30 summaries", () => {
+  const article = Array.from({ length: 43 }, (_, index) => {
+    const rank = index + 1;
+    return [`## ${rank}. 话题 ${rank}`, "", `- **话题**：[在微博查看](https://m.weibo.cn/search?q=${rank})`, `- **摘要**：这是第 ${rank} 条摘要。`].join("\n");
+  }).join("\n\n");
+  const items = parseWeiboTrendingArticle(article);
+  assert.equal(items.length, 43);
+  assert.deepEqual(items[0], weiboWechatItem(1));
+
+  const body = weiboTrendingWechatBody(items);
+  assert.equal([...body.matchAll(/^## (\d+)\./gm)].length, WEIBO_TRENDING_WECHAT_ITEM_LIMIT);
+  assert.deepEqual(
+    [...body.matchAll(/^## (\d+)\./gm)].map(match => Number(match[1])),
+    Array.from({ length: WEIBO_TRENDING_WECHAT_ITEM_LIMIT }, (_, index) => index + 1),
+  );
+  assert.doesNotMatch(body, /\*\*话题\*\*|m\.weibo\.cn/);
+  assert.doesNotMatch(body, /^## 31\./m);
+
+  assert.throws(() => parseWeiboTrendingArticle(article.replace("## 2. 话题 2", "## 3. 话题 2")), /non-contiguous rank/);
+  assert.throws(() => parseWeiboTrendingArticle(article.replace("- **摘要**：这是第 1 条摘要。", "- **摘要**：")), /empty summary/);
+});
+
+test("Weibo trending WeChat description falls back by title count and truncates by code point", () => {
+  assert.equal(weiboTrendingWechatDescription([weiboWechatItem(1, "甲"), weiboWechatItem(2, "乙"), weiboWechatItem(3, "丙")]), "甲、乙、丙……等 3 个话题。");
+
+  const fallbackToTwo = [weiboWechatItem(1, "甲".repeat(40)), weiboWechatItem(2, "乙".repeat(40)), weiboWechatItem(3, "丙".repeat(40))];
+  assert.match(weiboTrendingWechatDescription(fallbackToTwo), new RegExp(`^${"甲".repeat(40)}、${"乙".repeat(40)}……`));
+  assert.doesNotMatch(weiboTrendingWechatDescription(fallbackToTwo), /丙/);
+
+  const fallbackToOne = [weiboWechatItem(1, "甲".repeat(55)), weiboWechatItem(2, "乙".repeat(55)), weiboWechatItem(3, "丙")];
+  assert.equal(weiboTrendingWechatDescription(fallbackToOne), `${"甲".repeat(55)}……等 3 个话题。`);
+
+  const truncated = weiboTrendingWechatDescription([weiboWechatItem(1, "😀".repeat(130))]);
+  assert.equal([...truncated].length, WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT);
+  assert.ok(truncated.endsWith("…"));
+  assert.ok(!truncated.includes("�"));
+});
+
+test("Weibo trending WeChat renderer carries synchronization metadata and optional cover", () => {
+  const items = [weiboWechatItem(1, "甲"), weiboWechatItem(2, "乙")];
+  const articleUrl = "https://blog.bhwa233.com/posts/%E5%BE%AE%E5%8D%9A%E7%83%AD%E6%90%9C-2099-01-02/";
+  const render = (coverFile = "") =>
+    renderWeiboTrendingWechatMarkdown({
+      items,
+      archiveDate: "2099-01-02",
+      description: weiboTrendingWechatDescription(items),
+      footer: weiboTrendingWechatFooter(),
+      articleUrl,
+      coverFile,
+    });
+  const markdown = render();
+  assert.match(markdown, /^title: "每日微博热搜总结｜2099-01-02"$/m);
+  assert.match(markdown, /^wechat:\n {2}enabled: true\n {2}sourceURL: "https:\/\/blog\.bhwa233\.com\/posts\//m);
+  assert.doesNotMatch(markdown, /^ogImage:/m);
+  assert.match(render("cover.png"), /^ogImage: "cover\.png"$/m);
+  assert.match(markdown, /<img src="qr\.png"/);
+  assert.doesNotMatch(markdown.slice(markdown.indexOf("<section")), /\n\s*\n/);
 });

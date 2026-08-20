@@ -25,7 +25,7 @@ export type BlogTaskInfo = {
   episodeArticles?: boolean;
   /** 标题带 ISO 周次，例如「纽约时报书单精选｜2099年第2周」。 */
   weekLabelInTitle?: boolean;
-  /** 标题带归档日期，例如「微博热搜｜2099-01-02」。与 weekLabelInTitle 互斥。 */
+  /** 标题带归档日期，例如「每日微博热搜总结｜2099-01-02」。与 weekLabelInTitle 互斥。 */
   dateInTitle?: boolean;
   /** frontmatter 写入 `wechat.enabled`，进入公众号同步流水线。 */
   wechatEnabled?: boolean;
@@ -160,7 +160,7 @@ export const BLOG_TASKS = {
     },
   },
   "weibo-trending": {
-    titlePrefix: "微博热搜",
+    titlePrefix: "每日微博热搜总结",
     tag: "微博热搜",
     description: "每日微博热搜短条目，基于当日榜单与逐话题微博智搜结论整理。",
     fileName: "微博热搜-{date}.md",

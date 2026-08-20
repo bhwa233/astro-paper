@@ -8,7 +8,13 @@ import { join } from "node:path";
  */
 export const OG_CACHE_VERSION = 1;
 
-const CACHE_DIR = join(process.cwd(), ".cache", "og");
+/**
+ * Lives inside Astro's default `cacheDir` on purpose. That is the one directory
+ * incremental builds ask CI to restore, and Cloudflare Pages' build cache
+ * detects it for Astro projects, so the rendered PNGs ride along with both
+ * instead of needing a cache entry of their own.
+ */
+const CACHE_DIR = join(process.cwd(), "node_modules", ".astro", "og");
 
 function keyToPath(keyParts: Record<string, unknown>): string {
   const hash = createHash("sha256")
@@ -21,8 +27,8 @@ function keyToPath(keyParts: Record<string, unknown>): string {
 /**
  * Return a cached OG PNG for the given key parts, or render + persist one.
  *
- * The cache lives on disk at `.cache/og/` and survives across builds, so
- * unchanged posts skip the expensive satori + sharp render entirely. Any
+ * The cache lives on disk under Astro's cache directory and survives across
+ * builds, so unchanged posts skip the expensive satori + sharp render. Any
  * filesystem error falls back to a fresh render — the cache never breaks a
  * build.
  */

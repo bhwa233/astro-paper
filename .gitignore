@@ -1,9 +1,6 @@
 # build output
 dist/
 
-# og image render cache
-.cache/
-
 # generated types
 .astro/
 

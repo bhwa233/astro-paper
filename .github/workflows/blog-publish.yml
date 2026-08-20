@@ -135,6 +135,24 @@ jobs:
       - name: "Install dependencies"
         run: pnpm install --frozen-lockfile
 
+      # 日粒度的 key：这个仓库每天发布十几次，每次存一份 100MB+ 会很快吃满
+      # 仓库 10GB 的缓存额度。命中当天已存在的 key 就不再保存，当天后续构建
+      # 复用早上那份，只多渲染当天新增的几篇。
+      - name: "Resolve build cache day"
+        id: cache-day
+        run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+
+      # 增量构建的全部状态都在 cacheDir 里：上一轮的页面产出、content
+      # data store、下载好的字体，以及 OG PNG。不还原它，
+      # experimental.incrementalBuild 每次都从零重渲染。
+      - name: "Restore Astro build cache"
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.astro
+          key: astro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'astro.config.ts', 'astro-paper.config.ts') }}-${{ steps.cache-day.outputs.day }}
+          restore-keys: |
+            astro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'astro.config.ts', 'astro-paper.config.ts') }}-
+
       - name: "Install ffmpeg for podcast transcription"
         if: ${{ inputs.install_ffmpeg || inputs.task == 'daily-podcasts' || inputs.task == 'xyzrank-top-episodes' || inputs.task == 'all' }}
         run: |

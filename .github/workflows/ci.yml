@@ -38,6 +38,19 @@ jobs:
       - name: "Install dependencies"
         run: pnpm install --frozen-lockfile
 
+      - name: "Resolve build cache day"
+        id: cache-day
+        run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+
+      # 与发布流水线同一套 key：PR 构建能直接吃到 main 上当天已经预热好的缓存。
+      - name: "Restore Astro build cache"
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules/.astro
+          key: astro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'astro.config.ts', 'astro-paper.config.ts') }}-${{ steps.cache-day.outputs.day }}
+          restore-keys: |
+            astro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'astro.config.ts', 'astro-paper.config.ts') }}-
+
       - name: "Lint source"
         run: pnpm run lint
 

@@ -10,12 +10,12 @@ import {
   prepareArticle,
   validateAndRestoreTranslation,
 } from "../scripts/substack_content.ts";
+import { substackPostQualityViolations } from "../scripts/substack_quality.ts";
 import {
   NEWSLETTER_PUBLICATIONS,
   orderPublicationsByPriority,
 } from "../scripts/substack_publications.ts";
 import { normalizeCanonicalUrl } from "../scripts/generate_substack_translations.ts";
-import { SUBSTACK_LIMITS } from "../scripts/substack_contracts.ts";
 import {
   readSubstackLedger,
   upsertSubstackIssue,
@@ -251,13 +251,13 @@ test("image validation trusts magic bytes and decoding, not the remote filename"
   );
 });
 
-test("DOM cleanup precedes Markdown conversion and translation validation preserves structure and URLs", () => {
+test("DOM cleanup precedes Markdown conversion and translation validation preserves structure and citations", () => {
   // Production incident 2026-08-21: Curiosity Chronicle's four-block promo
   // preamble was translated and published ahead of the actual article.
   // Production incident 2026-08-21: Substack wrapped an image in a block-level
   // div inside a link, which Turndown emitted as invalid multiline link syntax.
   const imageUrl = "https://substackcdn.com/image/fetch/article.jpg";
-  const html = `<p><em>watch on <a href="https://youtube.com/watch?v=example">YouTube</a> or read and listen on sahilbloom.com</em></p><p><em>read time</em> <strong>10 minutes</strong></p><p>Welcome to The Curiosity Chronicle, a newsletter where I provide actionable ideas.</p><p><em>Forwarded this email? Join 800,000+ other readers <a href="https://www.sahilbloom.com/newsletter">here</a>.</em></p><div><hr></div><h2>Heading</h2><p>Hello <a href="/p/source">source</a>.</p><figure><a href="${imageUrl}"><div><picture><img src="${imageUrl}" alt="Article image"></picture></div></a></figure><blockquote>A claim.</blockquote><ul><li>First</li><li>Second</li></ul><p>${BODY_FILLER}</p><p class="subscribe">Subscribe now</p>`;
+  const html = `<p><em>watch on <a href="https://youtube.com/watch?v=example">YouTube</a> or read and listen on sahilbloom.com</em></p><p><em>read time</em> <strong>10 minutes</strong></p><p>Welcome to The Curiosity Chronicle, a newsletter where I provide actionable ideas.</p><p><em>Forwarded this email? Join 800,000+ other readers <a href="https://www.sahilbloom.com/newsletter">here</a>.</em></p><div><hr></div><h2>Heading</h2><p>Hello <a href="/p/source">source</a>.</p><figure><a href="${imageUrl}"><div><picture><img src="${imageUrl}" alt="Article image"></picture></div></a></figure><blockquote>A claim.</blockquote><ul><li>First</li><li>Second</li></ul><p>${BODY_FILLER}</p><h3>Support independent writing</h3><p>Become a paid subscriber today.</p><p class="subscribe">Subscribe now</p>`;
   const prepared = prepareArticle(
     html,
     "https://sahilbloom.substack.com/p/full-post",
@@ -268,6 +268,10 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
     /watch on|read time|Welcome to The Curiosity Chronicle|Forwarded this email/
   );
   assert.doesNotMatch(prepared.markdown, /Subscribe now/);
+  assert.doesNotMatch(
+    prepared.markdown,
+    /Support independent writing|paid subscriber/
+  );
   assert.match(prepared.markdown, /^## Heading/m);
   assert.equal(prepared.audit.headings, 1);
   assert.equal(prepared.audit.links, 2);
@@ -280,7 +284,7 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
 
   const response = {
     title: "中文标题",
-    description: "一段足够清楚的中文摘要",
+    description: "一段足够清楚但明显超过二十个汉字的中文摘要内容",
     blocks: prepared.blocks.map(block => ({
       id: block.id,
       markdown: block.markdown
@@ -294,30 +298,20 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
     prepared.blocks,
     publication
   );
-  // 正文只保留可读文字：链接折叠成锚文本，URL 不落进文章。
-  assert.doesNotMatch(
+  // 事实来源仍可核查；只剥掉图片外层的点击链接。
+  assert.match(
     translated.markdown,
-    /https:\/\/sahilbloom\.substack\.com\/p\/source/
+    /\[来源\]\(https:\/\/sahilbloom\.substack\.com\/p\/source\)/
   );
-  assert.match(translated.markdown, /你好 来源\./);
-  // 负向后顾排除图片：`![alt](url)` 本身也含 `](https://`，不能一刀切。
-  assert.doesNotMatch(translated.markdown, /(?<!!)\[[^\]]*\]\(https?:\/\//);
   // 图片保留，且外层的点击放大链接被剥掉，只留裸图片。
   assert.match(
     translated.markdown,
     /^!\[Article image\]\(https:\/\/substackcdn\.com\/image\/fetch\/article\.jpg\)$/m
   );
-  assert.match(translated.markdown, /^## 标题/m);
-  // description 超长时截断而不是判整篇失败：它是生成的元数据，不是原文内容。
-  assert.equal(
-    translated.description,
-    "一段足够清楚的中文摘".slice(0, SUBSTACK_LIMITS.descriptionMaxChars)
-  );
-  assert.equal(
-    [...translated.description].length,
-    SUBSTACK_LIMITS.descriptionMaxChars
-  );
-  assert.match(translated.warning ?? "", /description truncated from 11 to 10/);
+  assert.match(translated.markdown, /^### 标题/m);
+  // 模型违反摘要合同后退回标题短语，不能把原摘要生硬截成残句。
+  assert.equal(translated.description, "中文标题");
+  assert.match(translated.warning ?? "", /description replaced/);
 
   const linkBlock = response.blocks.find(block => /URL_/.test(block.markdown));
   assert.ok(linkBlock);
@@ -334,6 +328,38 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
         publication
       ),
     /paywall marker/
+  );
+});
+
+test("newsletter archive quality gate catches reader-visible generation residue", () => {
+  // Production incidents 2026-08-21: archived posts exposed orphan `**`, a
+  // missing Substack mention, duplicate body H1, and translated subscription CTAs.
+  const invalid = `---
+title: "示例标题｜Example"
+description: "本文是一段明显过长而且不合要求的摘要。"
+translation:
+  language: zh-CN
+---
+
+# 示例标题
+
+从 的《文章》中可以看到这一点。
+
+**
+
+### 请订阅高级会员以支持我的创作
+`;
+  const violations = substackPostQualityViolations(invalid, "example.md");
+  assert.deepEqual(
+    violations.map(item => item.code).sort(),
+    [
+      "body-h1",
+      "description",
+      "missing-mention",
+      "orphan-markup",
+      "promo",
+      "title-suffix",
+    ].sort()
   );
 });
 
@@ -391,7 +417,7 @@ test("archive filenames remain stable while same-day slug collisions get a conte
     sourceAuthor: "Writer",
     sourcePublishedAt: "2026-08-19T12:00:00.000Z",
     translatedTitle: "同一个标题",
-    description: "摘要",
+    description: "示例摘要",
     markdown: "正文",
     model: "test-model",
     translatedAt: "2026-08-20T12:00:00.000Z",
@@ -462,9 +488,15 @@ test("mid-article promo blocks, empty Substack mentions and footnote markers sur
     prepared.blocks,
     promoPublication
   );
-  // 脚注锚点保留成 [N]，普通链接只留锚文本，正文里不应出现无主的裸数字行。
-  assert.match(translated.markdown, /A claim with a footnote\.\[1\]/);
-  assert.match(translated.markdown, /^\[1\]$/m);
+  // 脚注锚点与目标都保留可核查链接，正文里不应出现无主的裸数字行。
+  assert.match(
+    translated.markdown,
+    /A claim with a footnote\.\[1\]\(https:\/\/sahilbloom\.substack\.com\/p\/x#footnote-1\)/
+  );
+  assert.match(
+    translated.markdown,
+    /^\[1\]\(https:\/\/sahilbloom\.substack\.com\/p\/x#footnote-anchor-1\)$/m
+  );
   assert.equal(
     translated.markdown.split("\n").filter(line => /^\d+$/.test(line.trim()))
       .length,

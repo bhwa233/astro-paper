@@ -20,6 +20,7 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
       - "src/content.config.ts"
+      - "src/content/posts/zh-cn/**"
       - "prompts/blog/**"
       - "scripts/**"
       - "tests/**"
@@ -52,6 +53,9 @@ jobs:
 
       - name: "Run blog pipeline tests"
         run: pnpm run test:blog
+
+      - name: "Verify generated content quality"
+        run: pnpm run check:conventions
 
       - name: "Type-check generation scripts"
         run: pnpm run typecheck

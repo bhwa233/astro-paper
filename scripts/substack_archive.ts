@@ -5,6 +5,7 @@ import slugify from "slugify";
 import { AUTHOR, ensureDir } from "./blog_common.ts";
 import { SUBSTACK_PROMPT_VERSION } from "./substack_content.ts";
 import type { NewsletterPublication } from "./substack_contracts.ts";
+import { assertSubstackPostQuality } from "./substack_quality.ts";
 
 function yamlString(value: string): string {
   return JSON.stringify(value);
@@ -25,6 +26,15 @@ function sourceSlug(canonicalUrl: string, sourceTitle: string): string {
   );
 }
 
+function sourceDate(canonicalUrl: string, publishedAt: string): string {
+  const pathDate = new URL(canonicalUrl).pathname.match(
+    /\/(20\d{2})\/(0[1-9]|1[0-2])\/([0-2]\d|3[01])(?:\/|$)/
+  );
+  return pathDate
+    ? `${pathDate[1]}-${pathDate[2]}-${pathDate[3]}`
+    : publishedAt.slice(0, 10);
+}
+
 export function archiveSubstackTranslation(params: {
   repo: string;
   publication: NewsletterPublication;
@@ -39,7 +49,7 @@ export function archiveSubstackTranslation(params: {
   translatedAt?: string;
 }): { postPath: string; title: string } {
   const translatedAt = params.translatedAt || new Date().toISOString();
-  const date = params.sourcePublishedAt.slice(0, 10);
+  const date = sourceDate(params.canonicalUrl, params.sourcePublishedAt);
   const prefix = `${params.publication.key}-${date.replaceAll("-", "")}-${sourceSlug(params.canonicalUrl, params.sourceTitle)}`;
   let filename = `${prefix}.md`;
   let relative = path.join("src", "content", "posts", "zh-cn", filename);
@@ -58,7 +68,7 @@ export function archiveSubstackTranslation(params: {
     relative = path.join("src", "content", "posts", "zh-cn", filename);
     absolute = path.join(params.repo, relative);
   }
-  const title = `${params.translatedTitle}｜${params.publication.displayName}`;
+  const title = params.translatedTitle;
   const authorization = params.publication.authorizedTranslation
     ? "经授权翻译"
     : "中文翻译";
@@ -96,7 +106,9 @@ export function archiveSubstackTranslation(params: {
     params.markdown.trim(),
     "",
   ];
+  const article = lines.join("\n");
+  assertSubstackPostQuality(article, relative);
   ensureDir(path.dirname(absolute));
-  fs.writeFileSync(absolute, lines.join("\n"), "utf8");
+  fs.writeFileSync(absolute, article, "utf8");
   return { postPath: relative.split(path.sep).join("/"), title };
 }

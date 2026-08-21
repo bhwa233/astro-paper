@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { repoRoot, writeStderr, writeStdout } from "./blog_common.ts";
 import { TASKS } from "./blog_tasks.ts";
+import { substackPostQualityViolations } from "./substack_quality.ts";
 
 type Violation = { file: string; message: string };
 
@@ -65,8 +66,25 @@ function checkPromptsAreReferenced(repo: string): Violation[] {
   return violations;
 }
 
+function checkSubstackPostQuality(repo: string): Violation[] {
+  const posts = path.join(repo, "src", "content", "posts", "zh-cn");
+  return listFiles(posts, ".md").flatMap(file => {
+    const text = fs.readFileSync(file, "utf8");
+    if (!/^translation:\s*$/m.test(text)) return [];
+    const rel = path.relative(repo, file).split(path.sep).join("/");
+    return substackPostQualityViolations(text, rel).map(violation => ({
+      file: rel,
+      message: `${violation.code}: ${violation.message}`,
+    }));
+  });
+}
+
 export function checkConventions(repo = repoRoot()): Violation[] {
-  return [...checkDependencyOwners(repo), ...checkPromptsAreReferenced(repo)];
+  return [
+    ...checkDependencyOwners(repo),
+    ...checkPromptsAreReferenced(repo),
+    ...checkSubstackPostQuality(repo),
+  ];
 }
 
 function main(): void {

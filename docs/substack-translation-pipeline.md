@@ -73,7 +73,7 @@ workflow input: publication=<key|all>
                        -> token 预检 + 整篇单次忠实翻译
                           -> 文章级缓存 + 完成原因校验
                              -> 块 ID / 顺序 / 链接完整性校验
-                                -> 折叠正文链接，只留锚文本
+                                -> 保留事实链接，解开图片外层跳转
                                    -> Markdown 重组 + 署名来源块
                                       -> Astro frontmatter + 动态文件名
                                          -> 内容构建检查
@@ -361,15 +361,15 @@ Feed 选择应按 `pubDate` 从旧到新处理，避免积压时先发布更新�
 
 ## 9. HTML 清洗与中间块模型
 
-清洗在模型调用之前完成，输入只来自 `content:encoded`。**删除决策由确定性规则做，格式转换交给 Turndown，两者顺序不能颠倒**：
+清洗在模型调用之前完成，输入只来自 `content:encoded`。**高置信度删除由确定性规则做；只有边界推广块交给模型分类；格式转换交给 Turndown**：
 
 1. 用 `parseHtml(contentEncoded, itemLink)` 构造 DOM，相对链接按 item URL 解析
 2. 删除栏目专属噪音：Substack 订阅按钮、分享按钮、评论入口、publication footer，再应用栏目级 `removeSelectors`
-3. 根据 `cutBeforePatterns` / `cutAfterPatterns` 去掉固定赞助、推荐和订阅尾巴，再用 `dropPatterns` 删掉正文中间的推广块；删块后连排的分隔线折成一条，首尾的直接去掉
+3. 根据 `cutBeforePatterns` / `cutAfterPatterns` 去掉固定赞助、推荐和订阅尾巴，再用栏目级 `dropPatterns` 与通用高置信度模式删掉正文中间的推广块；删块后连排的分隔线折成一条，首尾的直接去掉
 4. 删除通用危险或非正文标签，把清洗后的 DOM 交给 `scripts/html_to_markdown.ts` 调用 Turndown，得到 Markdown
 5. **转换前后对账**（见 9.1），任一项超阈值直接判该篇失败
 6. 按 Markdown 顶层块切分成中间块，URL 全部替换为带块归属的 `URL_BBBB_NNN` 占位符，拒绝 `javascript:`、`data:` 和未知协议
-7. 合并空块，拒绝只剩导航或推广文本的文章
+7. 给剩余的短订阅、捐赠、分享候选块标记 `mayDropPromo`；模型只能把这些候选块返回为空，其他空块一律拒绝
 
 第 2、3 步必须跑在 Turndown 之前：订阅 CTA、赞助段和推荐尾巴会被当作普通正文保留；而一旦转成 Markdown，CSS 选择器就失效了，只能退回正则去猜。
 
@@ -381,7 +381,8 @@ Feed 选择应按 `pubDate` 从旧到新处理，避免积压时先发布更新�
 {
   "id": "b-0012",
   "kind": "paragraph",
-  "markdown": "The original paragraph with [anchor](URL_0012_003)."
+  "markdown": "The original paragraph with [anchor](URL_0012_003).",
+  "mayDropPromo": false
 }
 ```
 
@@ -389,12 +390,12 @@ Feed 选择应按 `pubDate` 从旧到新处理，避免积压时先发布更新�
 
 全部中间块会作为同一篇文章一次性提交给模型，而不是拆成多个翻译请求。翻译完成后代码恢复 URL，并验证：
 
-- block ID 集合与顺序完全一致
+- block ID 集合与顺序完全一致；只有 `mayDropPromo=true` 的块允许返回空内容
 - 块类型标记（行首 `#`、`-`/`1.`、`>`、`![`、`---`）逐块一致
 - `URL_*` 占位符数量和归属块完全一致
 - 列表项数量不变
 - 引用块仍是引用块
-- 模型没有新增链接、标题或总结段
+- 模型没有新增链接、标题或总结段；事实来源和脚注链接完整恢复
 
 ### 9.2 三类噪音与对应武器
 
@@ -455,7 +456,7 @@ Turndown 是确定性的格式转换器，不做主内容评分，但未知标�
 }
 ```
 
-`description` 是文章卡片上的一行标签，不超过 `SUBSTACK_LIMITS.descriptionMaxChars`（10 个码点）。提示词要求模型直接写这么短；超出时由代码按码点截断并记入 `warning`，**不判整篇失败**——它是生成的元数据而非原文内容，不适用正文那套「拒绝而非截断」的规则。
+`description` 是文章卡片上的一行完整主题短语，长度为 4–20 个码点，不以「本文」开头或标点结尾。提示词要求模型直接满足合同；若模型违约，代码从中文标题中选择一个完整短句兜底并记录 `warning`，不再按字符生硬截断。
 
 提示词约束：
 
@@ -464,7 +465,7 @@ Turndown 是确定性的格式转换器，不做主内容评分，但未知标�
 - 专有名词首次出现可使用“中文（English）”，后续保持一致
 - 不把作者观点改写成编辑部观点
 - 不添加“以下是翻译”“总结”“延伸阅读”等原文不存在的结构
-- 原文中的广告或赞助若未被清洗掉，必须原样标明，不能伪装成本站推荐
+- 只有输入标为 `mayDropPromo=true` 且确属操作性推广的块可以置空；不得删除观点、事实、例子、引文或脚注
 
 不提供自动分块或截断降级。请求前必须估算输入 token、预期输出 token 和 JSON/提示词开销；预计超过模型上下文、模型最大输出或全局 `maxEstimatedTokensPerArticle` 时，直接把文章标记为 `article-token-limit` 并报警，不能只翻译前半篇。
 
@@ -536,7 +537,7 @@ src/content/posts/zh-cn/<publication-key>-<YYYYMMDD>-<source-slug>.md
 
 `source-slug` 优先取 Substack `/p/<slug>`；非法或冲突时使用标题 slug 加 canonical URL 的 8 位 hash。文件名不使用 CI 运行日期，避免延迟抓取改变文章身份。
 
-文章标题格式固定为 `中文原标题｜栏目名`，使用全角分隔符，与站内现有日期型标题的排版风格保持一致；模型只翻译原标题，不另行拟写标题。
+文章标题只保存中文原标题，不再重复追加栏目名；栏目由标签和正文来源块展示。正文标题统一下移一级，保证页面标题是唯一 H1；若正文开头重复原标题，则直接移除该重复标题。
 
 frontmatter 需要扩展 `src/content.config.ts`，增加可选 source 和 translation 元数据：
 
@@ -545,11 +546,11 @@ frontmatter 需要扩展 `src/content.config.ts`，增加可选 source 和 trans
 author: bhwa233
 pubDatetime: 2026-08-19T20:00:58Z
 modDatetime: 2026-08-20T00:00:00Z
-title: "为什么人生需要一条支线任务｜The Curiosity Chronicle"
+title: "为什么人生需要一条支线任务"
 tags:
   - 海外长文
   - Curiosity Chronicle
-description: "原文 description 的中文翻译"
+description: "用支线任务打破人生惯性"
 timezone: Asia/Shanghai
 source:
   title: "Why You Need a Side Quest in Life"
@@ -590,12 +591,13 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 - 第 9.1 节转换对账全部通过：文本保留比达标，链接、图片、列表项数量与标题层级序列完全一致
 - 中文标题非空，正文中文占比达到最低阈值
 - 所有 source block ID 在译文中恰好出现一次
-- 原始链接占位符全部恢复，没有新增模型链接；随后正文链接折叠为锚文本，成稿里除图片外不含 Markdown 链接
+- 原始链接占位符全部恢复，没有新增模型链接；事实来源和脚注链接保留，图片外层远程跳转解开以使用站内 lightbox
 - provider `finishReason` 明确表示正常完成，响应是完整且唯一的 JSON 对象
 - 以去除 URL、占位符、代码和空白后的可见字符计算中英长度比：默认 0.40–0.60 之外警告，0.30–0.75 之外硬失败；栏目可按实测收紧或调整
 - 署名块包含配置作者、栏目和 canonical URL
 - frontmatter `author` 为站点发布者，`source.author` 为原作者，schema 加载后两个来源字段仍存在
 - Markdown 不包含脚本、表单、订阅组件、模型解释或 JSON 残片
+- 最终内容质量检查拒绝超长/残缺摘要、正文 H1、推广 CTA、孤立强调标记和缺失姓名的提及
 - 生成文件通过 Astro content schema 和站点 build
 
 失败分级：
@@ -661,6 +663,7 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 15. partial success 只给成功项写各自栏目 ledger
 16. `force` 更新原路径，不创建重复文章
 17. Astro content loader 保留 `source` / `translation`，frontmatter 为本站作者且正文署名包含原作者与原文链接
+18. 最终归档质量 gate 能拦截长摘要、重复 H1、推广 CTA、孤立 `**` 与「参见 的」残句
 
 Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三方长文提交为测试数据。网络可用性不放进单元测试；CI smoke test 只请求 Feed 元数据并限制响应体，不调用模型。
 
@@ -691,7 +694,7 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 - `mirror` 只落盘通过 host、大小、MIME、magic bytes 和像素校验的图片
 - 付费或截断正文不会进入模型和归档
 - 原始 HTML、prompt 与 response 仅存在于短期 artifact
-- 文章标题固定为 `中文原标题｜栏目名`
+- 文章标题只使用中文原标题，栏目由标签与来源块展示；正文不含 H1
 - 全部测试、类型检查、约定检查和 Astro build 通过后才提交生成文章
 
 ## 18. 当前产品决策

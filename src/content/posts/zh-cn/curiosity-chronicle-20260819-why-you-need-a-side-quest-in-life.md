@@ -2,13 +2,13 @@
 author: bhwa233
 pubDatetime: 2026-08-19T20:00:58.000Z
 modDatetime: 2026-08-21T02:36:34.739Z
-title: "为什么你在生活中需要一个“支线任务”｜The Curiosity Chronicle"
+title: "为什么你在生活中需要一个“支线任务”"
 featured: false
 draft: false
 tags:
   - 海外长文
   - "Curiosity Chronicle"
-description: "人生在惯性与沉没成本中会逐渐形成无形的引力，让人陷入非注意盲视并对其他可能性视而不见。本文探讨了如何通过开启无特定目的的“支线任务”来打破认知的局限，拓宽视野并重拾初心，从而确保自己始终拥有随时掌控与改变人生的能力。"
+description: "用支线任务打破人生惯性"
 timezone: Asia/Shanghai
 source:
   title: "Why You Need a Side Quest in Life"
@@ -27,10 +27,6 @@ translation:
 > 原文：[Why You Need a Side Quest in Life](https://sahilbloom.substack.com/p/why-you-need-a-side-quest-in-life)
 > 原作者：Sahil Bloom · The Curiosity Chronicle · 2026-08-19
 > 中文翻译；版权归原作者所有。
-
----
-
-# **为什么你在生活中需要一个“支线任务”**
 
 _“你今天随手选的座位，就是你这学期剩下时间里要坐的座位。”_
 
@@ -78,7 +74,7 @@ _“你今天随手选的座位，就是你这学期剩下时间里要坐的座�
 
 他们看到了，但又并未真正看见。
 
-[![](/images/substack/curiosity-chronicle/25ee6a5e330a3e70855d.jpg)](https://substackcdn.com/image/fetch/$s_!eqve!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fd3087b78-b229-4cb8-bf54-a56fa6d48da3_955x716.jpeg)
+![](/images/substack/curiosity-chronicle/25ee6a5e330a3e70855d.jpg)
 
 _研究中展示的图像。你能找到那只大猩猩吗？_
 

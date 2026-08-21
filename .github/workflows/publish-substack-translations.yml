@@ -141,6 +141,9 @@ jobs:
       - name: Format generated posts
         run: pnpm exec prettier --write "src/content/posts/zh-cn/*.md"
 
+      - name: Verify newsletter content quality
+        run: pnpm run check:conventions
+
       - name: Build site
         run: pnpm run build
 

@@ -2,13 +2,13 @@
 author: bhwa233
 pubDatetime: 2026-08-18T15:23:40.000Z
 modDatetime: 2026-08-21T06:54:06.699Z
-title: "如果 OpenAI 倒下会发生什么？｜Where's Your Ed At"
+title: "如果 OpenAI 倒下会发生什么？"
 featured: false
 draft: false
 tags:
   - 海外长文
   - "Where's Your Ed At"
-description: "本文深入剖析了 OpenAI 极其脆弱的商业模式与潜在的生存危机。作者指出，OpenAI 面临数千亿美元的庞大算力承付债务与持续扩大的巨额亏损，随着营收增速放缓、高管频繁离职及融资环境收紧，其激进的增长假设已脱离现实。若未能维持千亿级年度融资或实现天价 IPO，OpenAI 的资金链断裂可能引发波及整个科技与云计算产业的系统性风暴。"
+description: "作者评估OpenAI的财务风险"
 timezone: Asia/Shanghai
 source:
   title: "What Happens If OpenAI Dies?"
@@ -46,7 +46,7 @@ translation:
 
 虽然我认为相关作者相信这是在保持“客观”与“公正”，但这一段文字的存在纯粹是为了给一家商业模式显然存疑的公司“制造共识”。“当前的 EBITDA 并不能充分体现投资者预期该公司在具备规模后所能达到的经济效益”，这无非是“别相信你亲眼所见”的委婉说法，是对受众的一种恳求，要求大家不要根据一家公司的*实际业务*来评判它，而是要根据一种*理论上的业务*来评判它——引用路透社的话说，就是“……随着技术进步，训练和推理成本将变得更有效率，而人员和其他运营成本在公司形成规模后占营收的比重可能会下降”。
 
-可能、可能、可能、可能，\*可能、可能、**可能、可能！\*** 这帮该死的公司嘴里永远充斥着见鬼的*“可能”*、*“将会”*或*“或许”*。把含糊其辞地说一家公司不应基于其*实际*业务、而应基于它们*未来可能建立*的且*经济效益完全不同*的某种*理论业务*进行评估视为“客观”的选择，这简直是糟糕透顶的新闻报道。
+可能、可能、可能、可能，_可能、可能、可能、可能！_ 这帮该死的公司嘴里永远充斥着见鬼的*“可能”*、*“将会”*或*“或许”*。把含糊其辞地说一家公司不应基于其*实际*业务、而应基于它们*未来可能建立*的且*经济效益完全不同*的某种*理论业务*进行评估视为“客观”的选择，这简直是糟糕透顶的新闻报道。
 
 > **旁注：**对此类言论的辩护往往是“为了展现正反两面”，但该报道同样没有披露 Anthropic 每年亏损数十亿美元，也没有提及这些 AI 实验室的盈利能力糟糕得令人发指。不过，它确实写进了 Anthropic 曾实现过一个“盈利季度”，而那一成果[完全是因为马斯克（Musk）在 2026 年 5 月和 6 月对其算力成本给予了折扣才成为可能](https://www.wheresyoured.at/anthropics-profitability-swindle/)。这一事实同样被报道略去了。
 
@@ -62,7 +62,7 @@ translation:
 
 无论如何，如果 Anthropic 抢先一步登陆公开市场，OpenAI 就真的大祸临头了。
 
-# OpenAI 的营收增长恰恰在最需要加速的时刻放缓了
+## OpenAI 的营收增长恰恰在最需要加速的时刻放缓了
 
 2025 年 10 月 31 日，[心烦意乱的山姆·奥特曼](https://youtu.be/Gnl833wXRz0?si=8C0rRusA01z3lSvf&t=738&ref=wheresyoured.at)向助推者兼投资人布拉德·格斯特纳（Brad Gerstner）表示，OpenAI 当年的营收将“远超 130 亿美元”，随后又称他会“为他的股份找到买家”。最终，[根据我自己的报道](https://www.wheresyoured.at/exclusive-openai-financials/)，“远超”实际指的就是“多出 7000 万美元”，OpenAI 在 2025 年录得 130.7 亿美元的营收，其中软银（SoftBank）一家就贡献了 8.62 亿美元。一周后的 11 月 6 日，[CNBC 报道称](https://www.cnbc.com/2025/11/06/sam-altman-says-openai-will-top-20-billion-annual-revenue-this-year.html?ref=wheresyoured.at) OpenAI “有望”实现“超过”200 亿美元的年化营收。OpenAI 计算年化营收的方法是将最近四周的数据乘以 12，我猜这意味着它在某一个四周区间内的营收达到了 16.6 亿美元？
 
@@ -82,7 +82,7 @@ OpenAI（以及 Anthropic）之所以希望你从“年化营收”的角度来�
 
 现在，你们当中有些人读到这里可能会说：“哇，57 亿美元是一大笔钱啊！”但这*毫无意义*，因为 _OpenAI 赚的钱越多，其服务的成本就越高_。这并不是什么高深的数学，但它却一直被绝大多数针对该公司的媒体报道所忽视，我猜大概是因为把这一切想透了会让人感到有些过于荒谬。
 
-# 说真的，OpenAI 真的可能会死
+## 说真的，OpenAI 真的可能会死
 
 我知道你们会叫我*煽风点火者*、_职业黑粉_、_怀疑论者_，或者*恨不得把我抓起来关进动物园*，但我必须明确指出：OpenAI 设定了荒谬乃至绝无可能的预期，并作出了同样性质的承诺。
 
@@ -117,7 +117,7 @@ OpenAI 的预测模型要求其 2025 年营收接近翻三倍，2026 年营收�
 
 而且天哪，得有多少事情完全走对才行啊。
 
-# OpenAI 到 2030 年底有超过 8000 亿美元的义务到期，预计截至 2027 年底将为甲骨文、谷歌、亚马逊和微软贡献约 1460 亿美元的云业务营收
+## OpenAI 到 2030 年底有超过 8000 亿美元的义务到期，预计截至 2027 年底将为甲骨文、谷歌、亚马逊和微软贡献约 1460 亿美元的云业务营收
 
 根据我上一期付费通讯的内容，结合[《华尔街日报》关于其截至 2030 年预计 7500 亿美元算力支出的报道](https://www.wsj.com/tech/openais-planned-cloud-spending-hits-750-billion-as-computing-efforts-ramp-up-6ac3f58a?ref=wheresyoured.at)，以及对博通（Broadcom）、微软、谷歌、亚马逊和 CoreWeave 分析师研报的梳理，[OpenAI 至少需要 8000 亿美元才能履行其在未来三年半内的各项承诺](https://www.wheresyoured.at/premium-how-much-money-does-ai-need/#openai-needs-at-least-800-billion-to-meet-its-commitments-in-the-next-three-and-a-half-years)。
 
@@ -144,11 +144,11 @@ OpenAI 的预测模型要求其 2025 年营收接近翻三倍，2026 年营收�
 - 其在 CoreWeave 上的算力开销。
 - 其在 Cerebras 上的算力开销（[三年 200 亿美元](https://www.reuters.com/technology/openai-spend-more-than-20-billion-cerebras-chips-receive-equity-stake-2026-04-17/?ref=wheresyoured.at)）。
 
-# OpenAI 该如何筹集更多资金？
+## OpenAI 该如何筹集更多资金？
 
 随着其 IPO 很可能推迟至 2027 年（如果它真能上市的话），OpenAI 几乎必然需要在 2027 年 3 月前再筹集一轮资金，规模很可能与[今年 3 月完成的 1220 亿美元融资](https://openai.com/index/accelerating-the-next-phase-ai/?ref=wheresyoured.at)相当。
 
-## 谁会来投资？
+### 谁会来投资？
 
 OpenAI 面临的最大问题是，在其上一轮 1220 亿美元融资中，有 1100 亿美元是由亚马逊（500 亿美元）、英伟达（300 亿美元）和软银（300 亿美元）包揽的，剩下的区区 120 亿美元则由一大群形形色色的风险投资机构、私人信贷基金和公立捐赠基金凑齐——后者的管理层真应该被开除，最好直接发射到太阳上去。
 
@@ -174,7 +174,7 @@ OpenAI 面临的最大问题是，在其上一轮 1220 亿美元融资中，有 
 
 作为交易的一部分，英伟达正在向 SB Energy 投资 15 亿美元，这是一家由 OpenAI 和软银共同投资的公司，[正试图在今年某个时候上市](https://www.reuters.com/world/softbank-hires-banks-us-ipos-sb-energy-ai-robotics-spinoff-roze-sources-say-2026-05-26/?ref=wheresyoured.at)，其目的很可能是为软银的资产负债表补充流动性，尽管据路透社报道，此次 IPO 仅能筹集 50 亿至 70 亿美元。
 
-# 私人信贷（Private Credit）能否救场？
+## 私人信贷（Private Credit）能否救场？
 
 OpenAI 此前已在多轮融资中从黑石（Blackstone）、贝莱德（BlackRock）和 Insight Partners 等私人信贷基金处筹集资金，这些基金完全有可能像“百兽王”合体一样联合起来，作为维持 OpenAI 生命线的一种手段。
 
@@ -190,7 +190,7 @@ OpenAI 此前已在多轮融资中从黑石（Blackstone）、贝莱德（BlackR
 
 我之所以提起这件事，是因为*如果私人信贷基金连为数据中心融资都举步维艰*，他们将面临天大的麻烦去说服投资者涌入一家亏损严重、排名第二、由[一位极不讨喜的 CEO](https://sfstandard.com/2026/08/13/openai-sam-altman-problem/?ref=wheresyoured.at) 执掌且[此人素有撒谎癖好](https://www.theguardian.com/us-news/2026/may/11/musk-v-openai-altman-trial?ref=wheresyoured.at)的 AI 实验室。
 
-## 风险投资机构能站出来吗？
+### 风险投资机构能站出来吗？
 
 如前所述，OpenAI（以及 Anthropic）一次又一次地搜刮风险投资领域的残羹冷炙，却从未能在单次融资中筹集超过 300 亿美元。
 
@@ -207,7 +207,7 @@ OpenAI 此前已在多轮融资中从黑石（Blackstone）、贝莱德（BlackR
 - 虽然风险投资机构可能*渴望*投资 OpenAI，但要实际调动超过几十亿美元的资金极其困难。
 - OpenAI 的估值实在是*高得离谱*。
 
-## 估值难题
+### 估值难题
 
 OpenAI 那轮 1220 亿美元的融资对其估值达到了 8520 亿美元。
 
@@ -239,7 +239,7 @@ OpenAI 那轮 1220 亿美元的融资对其估值达到了 8520 亿美元。
 
 而且，请原谅我不断重复：*OpenAI 还需要多得多的资金！*它每年至少需要 1000 亿美元，否则就彻底玩完了！
 
-# OpenAI 的时间（和金钱）正在耗尽
+## OpenAI 的时间（和金钱）正在耗尽
 
 OpenAI 的崩塌，很可能是由于其毁灭性的债务负担和经济模型所构筑的围墙全面合拢的结果；随着局势走向瓦解，交易对手将被迫承受亏损，各项协议也将化为废纸。
 
@@ -277,7 +277,7 @@ OpenAI 承诺了不可能完成的奇迹，并建立了一家只有在人们愿�
 
 无论拒绝该交易的人是谁，那个人都将成为扣动扳机并将 OpenAI 的尸体送进屠宰加工厂的执刑者。
 
-# OpenAI 的覆灭会是什么样子？
+## OpenAI 的覆灭会是什么样子？
 
 > **旁注：**我想声明，以下纯属推测。世界是混乱的，未来是不确定的，等等等等。
 
@@ -321,13 +321,13 @@ Cerebras——其营收的 50% 到 70% 来源于 OpenAI 的合同——则是另
 
 OpenAI 的*真正死亡*可能会呈现为几种形式，每一种都具有相当的破坏性。
 
-### 微软吞并 OpenAI
+#### 微软吞并 OpenAI
 
 如果发生这种情况，微软的第一步举措将是取消 OpenAI 签署的几乎所有云服务合同，并且必须重述业绩指引，剔除其承诺的 2500 亿美元“[Azure 增量支出](https://openai.com/index/next-chapter-of-microsoft-openai-partnership/?ref=wheresyoured.at)”。萨提亚（Satya Nadella，如果他还能保住职位的话）绝无可能给谷歌、甲骨文或亚马逊白送数千亿美元，哪怕这意味着微软必须对 GPU 资产计提巨额减值。
 
 在这种情况下，微软可能会大幅缩减（或彻底取消）免费版 ChatGPT 产品，并且很可能会收紧速率限制，或者将所有 ChatGPT Plus 或 Pro 订阅用户转为基于 token 的计费模式，[正如其在 6 月对 GitHub Copilot 所做的那样](https://www.wheresyoured.at/news-microsoft-to-shift-github-copilot-users-to-token-based-billing-reduce-rate-limits-2/)。
 
-### 任由 OpenAI 自生自灭，奥特曼成为 AI 泡沫的替罪羊
+#### 任由 OpenAI 自生自灭，奥特曼成为 AI 泡沫的替罪羊
 
 虽然我认为各方会拼凑出*某种*救援方案，但 OpenAI 也可能直接被任由耗尽资金而死，导致近 1 万亿美元的算力合同无法兑现，进而拖垮 CoreWeave、Cerebras 以及所有依赖其收入生存的企业。其客户将收到接入 Microsoft AI Foundry、Amazon Bedrock 和 Google Vertex 的 API 密钥，并被告知 OpenAI 的模型将几乎不会再有任何后续开发或训练。
 
@@ -337,7 +337,7 @@ OpenAI 的*真正死亡*可能会呈现为几种形式，每一种都具有相�
 
 微软 AI 收入的 70% 很大程度上来自 OpenAI 数百亿美元的算力开销，OpenAI 一旦倒下将导致超大规模云厂商的营收实质性暴跌，必须有人为此承担罪责。Anthropic 同样深陷亏损、同样许下了数百亿美元自身根本无法兑现的承诺，这些事实都将变得无关紧要。OpenAI 将成为一个现成的出气筒，而且是一个罪有应得的出气筒。
 
-### Anthropic 与 OpenAI 合并
+#### Anthropic 与 OpenAI 合并
 
 我知道，我知道。[山姆和达里奥在公开活动上连手都不愿意握一下](https://www.cnbc.com/2026/02/19/openai-sam-altman-anthropic-dario-amodei-india-ai-summit.html?ref=wheresyoured.at)。他们彼此憎恨。他们都是极度渴望关注的空洞伪知识分子。
 
@@ -347,7 +347,7 @@ OpenAI 的*真正死亡*可能会呈现为几种形式，每一种都具有相�
 
 我认为这种情况极不可能发生，即便发生，对所有牵涉其中的人来说都将是毁灭性的。除了刚遭遇脑震荡的患者和患有双色视觉的 AI 鼓吹者之外，这两家公司的经济账对任何人都毫无商业逻辑可言。将它们合并只会制造出一个庞大得多、丑陋得多的灾难——一个将两家公司固有顽疾全盘继承的产物，同时还要背负被寄予厚望成为*整个科技行业救世主*的荒谬预期。
 
-# OpenAI 的未来寄托于不可能完成之事
+## OpenAI 的未来寄托于不可能完成之事
 
 以下是 OpenAI 到 2030 年必须达成的客观目标清单：
 
@@ -356,7 +356,7 @@ OpenAI 的*真正死亡*可能会呈现为几种形式，每一种都具有相�
   - 在此过程中，OpenAI 必须**同时成为亚马逊云科技（AWS）、Microsoft Azure 和 Google Cloud 的最大客户之一，并持续扩大支出规模。**
 - 实现盈利。
   - OpenAI [在 2025 年亏损了 209 亿美元](https://www.wheresyoured.at/exclusive-openai-financials/)。
-    - 如果你想根据其安然（Enron）式的财务造假处理方式跳出来说“其实它并没有亏”，那我必须提醒你——卫生间里那个长得和你一模一样的人其实是一块叫“镜子”的东西，那是一块反射表面，展示的是\*你自己的倒影，**而不是另一个穿着和你一样、模仿你一举一动的大活人。\*** 我无法想象你之前有多害怕，希望这能帮到你。
+    - 如果你想根据其安然（Enron）式的财务造假处理方式跳出来说“其实它并没有亏”，那我必须提醒你——卫生间里那个长得和你一模一样的人其实是一块叫“镜子”的东西，那是一块反射表面，展示的是*你自己的倒影，而不是另一个穿着和你一样、模仿你一举一动的大活人。* 我无法想象你之前有多害怕，希望这能帮到你。
   - 截至 2026 年第一季度，其 [Non-GAAP 营业利润率为负 122%](https://www.wheresyoured.at/news-openai-had-a-negative-122-operating-margin-in-q1-2026-and-chatgpt-growth-has-stalled/)。
 
 OpenAI 的年化营收目前正在“逼近”400 亿美元，而这恰恰发生在其最需要加速狂奔的时刻。这家公司*必须*在 2026 年底达到约 750 亿美元的年化营收，才有一丝极其微茫的希望去支付其荒唐的算力成本；即便如此，我依然不清楚它究竟如何能够跟上接下来即将到期的（至少）1460 亿美元算力账单。

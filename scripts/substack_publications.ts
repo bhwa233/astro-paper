@@ -152,6 +152,13 @@ const rawPublications = {
     startAt: "2026-06-23",
     imagePolicy: "mirror",
     removeSelectors: [".sharedaddy", ".jp-relatedposts", ".post-end"],
+    excludeTitlePatterns: [
+      {
+        source:
+          "(?:career exploration|summer program|program (?:has )?(?:started|launched)|applications? (?:are )?open)",
+        flags: "i",
+      },
+    ],
     cutAfterPatterns: [
       {
         source: "^The post .+ appeared first on ",

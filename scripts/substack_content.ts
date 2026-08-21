@@ -11,8 +11,9 @@ import {
   type NewsletterPublication,
   type TranslationResponse,
 } from "./substack_contracts.ts";
+import { validSubstackDescription } from "./substack_quality.ts";
 
-export const SUBSTACK_PROMPT_VERSION = "substack-translation-v1";
+export const SUBSTACK_PROMPT_VERSION = "substack-translation-v2";
 
 export type SourceBlock = {
   id: string;
@@ -20,6 +21,7 @@ export type SourceBlock = {
   markdown: string;
   placeholders: string[];
   structure: string;
+  mayDropPromo: boolean;
 };
 
 export type PreparedArticle = {
@@ -132,6 +134,30 @@ function applyCuts(
   collapseThematicBreaks(body);
 }
 
+const GENERIC_PROMO_DROP_PATTERNS = [
+  /^(?:please )?subscribe\b/i,
+  /^become a paid subscriber\b/i,
+  /^support (?:my|independent) (?:work|writing)\b/i,
+  /^donating\s*=\s*loving$/i,
+  /^forwarded this email\?\b/i,
+  /^share this post\b/i,
+];
+
+const GENERIC_PROMO_REVIEW_PATTERN =
+  /\b(?:subscribe|subscriber|newsletter|donat(?:e|ion)|paid member|support (?:my|our|independent) (?:work|writing)|share this post)\b/i;
+
+function dropGenericPromoBlocks(body: HTMLElement): void {
+  [...body.children].forEach(child => {
+    const text = compact(child.textContent || "");
+    if (
+      text.length <= 500 &&
+      GENERIC_PROMO_DROP_PATTERNS.some(pattern => pattern.test(text))
+    )
+      child.remove();
+  });
+  collapseThematicBreaks(body);
+}
+
 /** 删块之后常留下连排的分隔线。相邻的只保留一条，首尾的直接去掉。 */
 function collapseThematicBreaks(body: HTMLElement): void {
   const children = [...body.children];
@@ -200,6 +226,7 @@ function cleanHtml(
   }
   restoreMentions(body);
   applyCuts(body, publication);
+  dropGenericPromoBlocks(body);
   body.querySelectorAll("a[href],img[src]").forEach(node => {
     const attribute = node.tagName === "A" ? "href" : "src";
     const raw = node.getAttribute(attribute) || "";
@@ -266,6 +293,9 @@ function splitBlocks(markdown: string): SourceBlock[] {
       markdown: protectedBlock.markdown,
       placeholders: protectedBlock.placeholders,
       structure: structureSignature(source),
+      mayDropPromo:
+        compact(toString(node as Parameters<typeof toString>[0])).length <=
+          500 && GENERIC_PROMO_REVIEW_PATTERN.test(source),
     };
   });
 }
@@ -361,6 +391,7 @@ export function buildTranslationPrompt(params: {
       id: block.id,
       kind: block.kind,
       markdown: block.markdown,
+      mayDropPromo: block.mayDropPromo,
     })),
   })}`;
 }
@@ -369,42 +400,58 @@ function placeholderNames(values: readonly string[]): string[] {
   return values.map(value => value.split("=", 1)[0]);
 }
 
-// 正文只保留可读文字，链接一律折叠掉。折叠跑在占位符还原之前：此时 URL 位置是 URL_NNNN_NNN，
-// 不含括号，正则不会被真实 URL 里的 `)` 截断；也跑在全部校验之后，占位符完整性这条防线不受影响。
+// 图片外层链接只用于 Substack 的点击放大，归档站有自己的 lightbox，因此只解开这一层。
 const URL_PLACEHOLDER = String.raw`URL_\d{4}_\d{3}`;
 // Substack 常把图片包在链接里做点击放大，折叠后要留下裸图片而不是把图片一起吃掉。
 const LINKED_IMAGE = new RegExp(
   String.raw`\[(!\[[^\]]*\]\(${URL_PLACEHOLDER}\))\]\(${URL_PLACEHOLDER}\)`,
   "g"
 );
-// 负向后顾排除 `![`，否则图片会被当成普通链接折成 alt 文字。
-const INLINE_LINK = new RegExp(
-  String.raw`(?<!!)\[([^\]]*)\]\((${URL_PLACEHOLDER})\)`,
-  "g"
-);
-
-/**
- * 折叠正文里的 Markdown 链接，只留锚文本；图片原样保留。
- * 脚注锚点折成 `[N]`：正文里的上标数字和文末脚注区的回跳数字，直接折成裸数字就成了
- * 「……名作。1」和一行行无主的数字，方括号形态既是通行写法，也保住了编号对应关系。
- */
-export function unlinkMarkdown(
+export function unwrapLinkedImages(
   markdown: string,
-  placeholders: readonly string[] = []
+  _placeholders: readonly string[] = []
 ): string {
-  const targets = new Map(
-    placeholders.map(entry => {
-      const splitAt = entry.indexOf("=");
-      return [entry.slice(0, splitAt), entry.slice(splitAt + 1)] as const;
-    })
-  );
-  const isFootnote = (placeholder: string): boolean =>
-    /#footnote/i.test(targets.get(placeholder) || "");
-  return markdown
-    .replace(LINKED_IMAGE, "$1")
-    .replace(INLINE_LINK, (match, text: string, placeholder: string) =>
-      isFootnote(placeholder) ? `[${text}]` : text
+  return markdown.replace(LINKED_IMAGE, "$1");
+}
+
+function descriptionFromTitle(title: string): string {
+  const cleaned = compact(title).replace(/[。！？!?；;，,：:]$/, "");
+  if (validSubstackDescription(cleaned)) return cleaned;
+  const clause = cleaned
+    .split(/[：:｜|！？!?—]/)
+    .map(value => compact(value).replace(/[。！？!?；;，,：:]$/, ""))
+    .find(value => validSubstackDescription(value));
+  return clause || "海外长文精选";
+}
+
+function normalizeTranslatedBlocks(
+  blocks: Array<{ kind: string; markdown: string; structure: string }>,
+  translatedTitle: string
+): string {
+  const content = [...blocks];
+  const firstContent = content.findIndex(block => block.kind !== "thematicBreak");
+  if (
+    firstContent >= 0 &&
+    content[firstContent].kind === "heading" &&
+    content[firstContent].structure === "h1"
+  ) {
+    const headingText = compact(
+      toString(fromMarkdown(content[firstContent].markdown))
     );
+    if (headingText === compact(translatedTitle)) content.splice(firstContent, 1);
+  }
+  const withoutRules = content.filter((block, index, values) => {
+    if (block.kind !== "thematicBreak") return true;
+    const before = values.slice(0, index).some(item => item.kind !== "thematicBreak");
+    const after = values.slice(index + 1).some(item => item.kind !== "thematicBreak");
+    return before && after && values[index - 1]?.kind !== "thematicBreak";
+  });
+  return withoutRules
+    .map(block =>
+      block.markdown.replace(/^(#{1,5})(?=\s)/gm, "#$1")
+    )
+    .join("\n\n")
+    .trim();
 }
 
 export function validateAndRestoreTranslation(
@@ -421,7 +468,11 @@ export function validateAndRestoreTranslation(
     throw new Error(
       `translated block count mismatch: ${response.blocks.length} != ${sourceBlocks.length}`
     );
-  const restored: string[] = [];
+  const restored: Array<{
+    kind: string;
+    markdown: string;
+    structure: string;
+  }> = [];
   for (let index = 0; index < sourceBlocks.length; index += 1) {
     const source = sourceBlocks[index];
     const translated = response.blocks[index];
@@ -429,6 +480,13 @@ export function validateAndRestoreTranslation(
       throw new Error(
         `translated block ID mismatch at ${source.id}: got ${translated.id}`
       );
+    if (!translated.markdown.trim()) {
+      if (!source.mayDropPromo)
+        throw new Error(
+          `translated block ${source.id} was dropped without a promotional marker`
+        );
+      continue;
+    }
     if (/https?:\/\//i.test(translated.markdown))
       throw new Error(
         `translated block ${source.id} contains an unprotected raw URL`
@@ -443,7 +501,10 @@ export function validateAndRestoreTranslation(
       throw new Error(
         `translated block ${source.id} changed Markdown structure`
       );
-    let markdown = unlinkMarkdown(translated.markdown, source.placeholders);
+    let markdown = unwrapLinkedImages(
+      translated.markdown,
+      source.placeholders
+    );
     for (const entry of source.placeholders) {
       const splitAt = entry.indexOf("=");
       markdown = markdown.replaceAll(
@@ -451,9 +512,13 @@ export function validateAndRestoreTranslation(
         entry.slice(splitAt + 1)
       );
     }
-    restored.push(markdown.trim());
+    restored.push({
+      kind: source.kind,
+      markdown: markdown.trim(),
+      structure: source.structure,
+    });
   }
-  const markdown = restored.join("\n\n").trim();
+  const markdown = normalizeTranslatedBlocks(restored, response.title);
   const sourceChars = sourceBlocks.reduce(
     (total, block) =>
       total + compact(toString(fromMarkdown(block.markdown))).length,
@@ -467,19 +532,16 @@ export function validateAndRestoreTranslation(
       `translation length ratio ${lengthRatio.toFixed(3)} outside ${limits.failMin}-${limits.failMax}`
     );
   }
-  // 按码点切，不按 UTF-16 单元，否则表情之类的代理对会被截成半个字符。
-  const descriptionChars = [...response.description];
-  const truncatedDescription =
-    descriptionChars.length > SUBSTACK_LIMITS.descriptionMaxChars;
-  const description = truncatedDescription
-    ? descriptionChars.slice(0, SUBSTACK_LIMITS.descriptionMaxChars).join("")
-    : response.description;
+  const description = validSubstackDescription(response.description)
+    ? compact(response.description)
+    : descriptionFromTitle(response.title);
+  const replacedDescription = description !== compact(response.description);
   const warnings = [
     lengthRatio < limits.warnMin || lengthRatio > limits.warnMax
       ? `translation length ratio ${lengthRatio.toFixed(3)} outside warning range ${limits.warnMin}-${limits.warnMax}`
       : "",
-    truncatedDescription
-      ? `description truncated from ${descriptionChars.length} to ${SUBSTACK_LIMITS.descriptionMaxChars} characters`
+    replacedDescription
+      ? `description replaced because generated value violated the ${SUBSTACK_LIMITS.descriptionMaxChars}-character card contract`
       : "",
   ].filter(Boolean);
   return {

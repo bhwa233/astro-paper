@@ -8,12 +8,12 @@
       "sourceSha256": "8d673b37d6493f665ddea14e49cb287c570916f65a3b615d136fd34ed6412da3",
       "status": "published",
       "postPath": "src/content/posts/zh-cn/after-babel-20260811-does-early-access-to-social-media.md",
-      "translatedAt": "2026-08-21T06:38:41.468Z",
+      "translatedAt": "2026-08-21T08:44:18.226Z",
       "model": "gemini-3.7-flash",
       "usage": {
-        "inputTokens": 4206,
-        "outputTokens": 8763,
-        "totalTokens": 12969
+        "inputTokens": 4242,
+        "outputTokens": 4599,
+        "totalTokens": 8841
       }
     }
   ]

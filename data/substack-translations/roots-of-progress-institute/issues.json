@@ -8,12 +8,12 @@
       "sourceSha256": "b5ac0d696af31c2dc4ac7e39274e0aaf3c36120ee1a3a16d49038200ae393ab3",
       "status": "published",
       "postPath": "src/content/posts/zh-cn/roots-of-progress-institute-20260623-progress-in-medicine-the-roots-of-progress-institutes-new-summer-career-exploration-program-has-started.md",
-      "translatedAt": "2026-08-21T06:40:00.064Z",
+      "translatedAt": "2026-08-21T08:46:34.212Z",
       "model": "gemini-3.7-flash",
       "usage": {
-        "inputTokens": 2272,
-        "outputTokens": 1872,
-        "totalTokens": 4144
+        "inputTokens": 2308,
+        "outputTokens": 1754,
+        "totalTokens": 4062
       }
     }
   ]

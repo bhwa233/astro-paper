@@ -8,12 +8,12 @@
       "sourceSha256": "4299cb3350f40c8579a8ca374ee79165534f9303914466c26f15b166d5fd05de",
       "status": "published",
       "postPath": "src/content/posts/zh-cn/one-useful-thing-20260723-an-opinionated-guide-to-which-ai-b22.md",
-      "translatedAt": "2026-08-21T06:39:48.615Z",
+      "translatedAt": "2026-08-21T08:45:17.783Z",
       "model": "gemini-3.7-flash",
       "usage": {
-        "inputTokens": 4367,
-        "outputTokens": 8041,
-        "totalTokens": 12408
+        "inputTokens": 4403,
+        "outputTokens": 7932,
+        "totalTokens": 12335
       }
     }
   ]

@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-21",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "62571f21d20a1007b481ff55422a32e0d6e1d3af",
+    "workflowRun": "32472107777",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-21-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-21/upstream-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vtp44f",
+      "title": "你认为历史上最令人毛骨悚然的照片是哪一张？",
+      "subreddit": "AskReddit",
+      "points": "2702 points · 1479 评论",
+      "numComments": 1479,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vtp44f/what_do_you_think_is_the_single_most_terrifying/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-21/01-1vtp44f.md",
+      "contentSha256": "a57f3fa6835415504a35b4a52156a3a0baac4eaa757b5ec072bfd5fddc2fde88",
+      "issue": 3
+    },
+    {
+      "rank": 2,
+      "postId": "1vu4oua",
+      "title": "午睡睡得太沉，结果提前了9个半小时去上班",
+      "subreddit": "tifu",
+      "points": "2536 points · 208 评论",
+      "numComments": 208,
+      "permalink": "https://www.reddit.com/r/tifu/comments/1vu4oua/tifu_by_taking_a_nap_so_hard_i_showed_up_to_work/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-21/01-1vtp44f.md",
+      "contentSha256": "a57f3fa6835415504a35b4a52156a3a0baac4eaa757b5ec072bfd5fddc2fde88",
+      "issue": 3
+    },
+    {
+      "rank": 3,
+      "postId": "1vtzbdi",
+      "title": "有哪些名人做过的大恶，只有你还记得？",
+      "subreddit": "AskReddit",
+      "points": "2457 points · 5414 评论",
+      "numComments": 5414,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vtzbdi/whats_a_horrible_thing_that_a_famous_person_did/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-21/01-1vtp44f.md",
+      "contentSha256": "a57f3fa6835415504a35b4a52156a3a0baac4eaa757b5ec072bfd5fddc2fde88",
+      "issue": 3
+    }
+  ]
+}

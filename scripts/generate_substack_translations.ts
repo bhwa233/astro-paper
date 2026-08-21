@@ -24,7 +24,11 @@ import {
   SUBSTACK_PROMPT_VERSION,
   validateAndRestoreTranslation,
 } from "./substack_content.ts";
-import { parseNewsletterFeed, type SubstackFeedItem } from "./substack_feed.ts";
+import {
+  fetchNewsletterFeed,
+  hydrateNewsletterItem,
+  type SubstackFeedItem,
+} from "./substack_feed.ts";
 import { processArticleImages } from "./substack_image.ts";
 import {
   findSubstackIssue,
@@ -36,7 +40,6 @@ import {
   compilePatterns,
   publicationsForInput,
 } from "./substack_publications.ts";
-import { restrictedFetchText } from "./restricted_fetch.ts";
 import type {
   NewsletterPublication,
   TokenUsage,
@@ -435,19 +438,20 @@ async function main(): Promise<void> {
 
   for (const publication of publicationsForInput(publicationInput)) {
     try {
-      const feed = await restrictedFetchText(publication.feedUrl, {
-        allowedHosts: publication.feedHosts,
-        maxBytes: publication.maxFeedBytes,
-      });
-      const parsed = parseNewsletterFeed(feed.text, publication);
+      const parsed = await fetchNewsletterFeed(publication);
+      if (parsed.transport === "substack-api")
+        process.stderr.write(
+          `[substack] ${publication.key} RSS returned 403; using public archive API fallback\n`
+        );
       const items = selectItems(
         parsed.items,
         publication,
         path.join(repo, substackLedgerRelPath(publication.key)),
         { force, backfill, maxPosts }
       );
-      for (const item of items) {
+      for (const selectedItem of items) {
         try {
+          const item = await hydrateNewsletterItem(selectedItem, publication);
           const processed = await processItem({
             repo,
             publication,
@@ -466,7 +470,7 @@ async function main(): Promise<void> {
         } catch (error) {
           results.push({
             publication: publication.key,
-            canonicalUrl: item.canonicalUrl,
+            canonicalUrl: selectedItem.canonicalUrl,
             status: "failed",
             reason: error instanceof Error ? error.message : String(error),
           });

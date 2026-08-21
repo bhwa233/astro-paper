@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { parseNewsletterFeed } from "../scripts/substack_feed.ts";
+import {
+  fetchNewsletterFeed,
+  hydrateNewsletterItem,
+  parseNewsletterFeed,
+} from "../scripts/substack_feed.ts";
 import {
   prepareArticle,
   validateAndRestoreTranslation,
@@ -40,6 +44,55 @@ test("newsletter feed contract reads namespaced full content instead of the summ
   assert.ok(
     parsed.items[0].contentHtml.length > parsed.items[0].description.length * 10
   );
+});
+
+test("Substack HTTP 403 falls back to the public archive API", async () => {
+  // Production incident 2026-08-21: Substack rejected /feed from GitHub Actions,
+  // so generation stopped before reaching the translation model.
+  const calls: string[] = [];
+  await withMocks(
+    {
+      fetch: async input => {
+        const url = String(input);
+        calls.push(url);
+        if (url === "https://sahilbloom.substack.com/feed")
+          return new Response("Forbidden", { status: 403 });
+        if (url.includes("/api/v1/archive?"))
+          return Response.json([
+            {
+              id: 211910339,
+              title: "Why You Need a Side Quest in Life",
+              slug: "why-you-need-a-side-quest-in-life",
+              post_date: "2026-08-19T20:00:58.342Z",
+              canonical_url:
+                "https://sahilbloom.substack.com/p/why-you-need-a-side-quest-in-life",
+              description: "A short description",
+              body_html: null,
+              publishedBylines: [{ name: "Sahil Bloom" }],
+            },
+          ]);
+        return Response.json({
+          body_html: "<h1>Full body</h1><p>Public article text.</p>",
+          publishedBylines: [{ name: "Sahil Bloom" }],
+        });
+      },
+    },
+    async () => {
+      const feed = await fetchNewsletterFeed(publication);
+      assert.equal(feed.transport, "substack-api");
+      assert.equal(feed.items.length, 1);
+      assert.equal(feed.items[0].contentHtml, "");
+
+      const item = await hydrateNewsletterItem(feed.items[0], publication);
+      assert.match(item.contentHtml, /Full body/);
+      assert.equal(item.author, "Sahil Bloom");
+    }
+  );
+  assert.deepEqual(calls, [
+    "https://sahilbloom.substack.com/feed",
+    "https://sahilbloom.substack.com/api/v1/archive?sort=new&search=&offset=0&limit=20",
+    "https://sahilbloom.substack.com/api/v1/posts/why-you-need-a-side-quest-in-life",
+  ]);
 });
 
 test("restricted fetch validates every redirect and enforces streamed byte limits", async () => {

@@ -259,8 +259,9 @@ node --import tsx scripts/generate_substack_translations.ts \
 8. 编译并应用 `excludeTitlePatterns`；命中的 item 跳过并记录具体规则
 9. 只读取公开 `content:encoded`；缺失或小于 `minTextChars` 时跳过，不抓文章页补全
 10. 命中付费、订阅者专享或截断标记时跳过，并输出明确原因
+11. `kind=substack` 的 RSS 返回 403 时，允许回退到同一 Feed origin 的公开 `/api/v1/archive` 与 `/api/v1/posts/<slug>`；两次请求仍使用 `feedHosts`、响应大小和重定向限制
 
-不用文章页 fallback 是刻意选择：公开 RSS 已提供完整正文；fallback 会把稳定的 Feed 消费变成网页爬虫，并让通用清洗器面对频繁变化的页面壳。
+不用文章页 HTML fallback 是刻意选择：备用通道只消费 Substack 的结构化公开 API。archive API 只负责候选元数据，完成去重和篇数选择后才请求被选文章的 detail API，避免为 Feed 中每篇历史文章下载正文。RSS 与 API 都不可用时整栏失败，不绕过白名单调用第三方代理。
 
 首次启用栏目时默认只处理 `startAt` 之后的最新一篇，不能把 Feed 内 20 篇历史文章一次性全部翻译。`--backfill N` 只把候选窗口扩大到最近 N 篇，不覆盖发布上限；实际处理数是 `min(N, publication.maxPostsPerRun, --max-posts, 剩余 token 预算可容纳篇数)`。未传 `--backfill` 时仍按栏目正常候选规则执行。
 
@@ -553,21 +554,22 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 需要测试的稳定合同：
 
 1. Substack RSS 能从 `content:encoded` 读取完整 HTML，而不是 description
-2. `feedHosts`、`articleHosts`、`imageHosts` 分别约束初始 URL、每次重定向和最终 URL
-3. 配置 key 解析、`all` 展开、未知 key 与非法 pattern 在网络请求前失败；effective config 可序列化
-4. `excludeTitlePatterns` 确实排除匹配 item，并留下可审计原因
-5. canonical URL 规范化和 per-publication ledger 去重；损坏 ledger 不能按空文件覆盖
-6. `--backfill N` 只扩大候选窗口，最终篇数仍取发布上限和 token 预算的最小值
-7. 栏目级删除规则跑在 Turndown 之前，且确实删掉订阅/赞助/推荐尾巴，同时保留标题、段落、引用、列表和链接
-8. 转换对账在文本被吞、链接丢失、列表项减少或标题层级被改写时判失败
-9. 整篇请求包含全部 block；模型结果缺 block ID、乱序、丢链接或 finishReason 异常时失败
-10. token 预留、实际 usage 冲销、无 usage 时按预留计费，以及 50,000/100,000 硬顶均可复现
-11. 文章缓存命中不调用模型；source、promptVersion、model 或输入 hash 变化时缓存失效
-12. 图片下载对 host、重定向、响应大小、MIME、magic bytes、像素和真实扩展名执行校验
-13. 动态文件名在同日多篇和同标题场景下不冲突
-14. partial success 只给成功项写各自栏目 ledger
-15. `force` 更新原路径，不创建重复文章
-16. Astro content loader 保留 `source` / `translation`，frontmatter 为本站作者且正文署名包含原作者与原文链接
+2. Substack RSS 在 GitHub Actions 出现 HTTP 403 时回退到同站公开 API，并且只补全最终选中的文章正文
+3. `feedHosts`、`articleHosts`、`imageHosts` 分别约束初始 URL、每次重定向和最终 URL
+4. 配置 key 解析、`all` 展开、未知 key 与非法 pattern 在网络请求前失败；effective config 可序列化
+5. `excludeTitlePatterns` 确实排除匹配 item，并留下可审计原因
+6. canonical URL 规范化和 per-publication ledger 去重；损坏 ledger 不能按空文件覆盖
+7. `--backfill N` 只扩大候选窗口，最终篇数仍取发布上限和 token 预算的最小值
+8. 栏目级删除规则跑在 Turndown 之前，且确实删掉订阅/赞助/推荐尾巴，同时保留标题、段落、引用、列表和链接
+9. 转换对账在文本被吞、链接丢失、列表项减少或标题层级被改写时判失败
+10. 整篇请求包含全部 block；模型结果缺 block ID、乱序、丢链接或 finishReason 异常时失败
+11. token 预留、实际 usage 冲销、无 usage 时按预留计费，以及 50,000/100,000 硬顶均可复现
+12. 文章缓存命中不调用模型；source、promptVersion、model 或输入 hash 变化时缓存失效
+13. 图片下载对 host、重定向、响应大小、MIME、magic bytes、像素和真实扩展名执行校验
+14. 动态文件名在同日多篇和同标题场景下不冲突
+15. partial success 只给成功项写各自栏目 ledger
+16. `force` 更新原路径，不创建重复文章
+17. Astro content loader 保留 `source` / `translation`，frontmatter 为本站作者且正文署名包含原作者与原文链接
 
 Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三方长文提交为测试数据。网络可用性不放进单元测试；CI smoke test 只请求 Feed 元数据并限制响应体，不调用模型。
 

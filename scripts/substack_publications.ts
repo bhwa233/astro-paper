@@ -29,7 +29,7 @@ const rawPublications = {
     maxImagePixels: 40_000_000,
     maxPostsPerRun: 1,
     maxEstimatedTokensPerArticle: 50_000,
-    imagePolicy: "none",
+    imagePolicy: "mirror",
     removeSelectors: [
       ".subscription-widget-wrap",
       ".post-footer",
@@ -55,7 +55,7 @@ const rawPublications = {
     maxImagePixels: 40_000_000,
     maxPostsPerRun: 1,
     maxEstimatedTokensPerArticle: 50_000,
-    imagePolicy: "none",
+    imagePolicy: "mirror",
     removeSelectors: [
       ".subscription-widget-wrap",
       ".post-footer",
@@ -91,7 +91,7 @@ const rawPublications = {
     maxImagePixels: 40_000_000,
     maxPostsPerRun: 1,
     maxEstimatedTokensPerArticle: 50_000,
-    imagePolicy: "none",
+    imagePolicy: "mirror",
     removeSelectors: [".sharedaddy", ".jp-relatedposts", ".post-end"],
   },
 } as const;

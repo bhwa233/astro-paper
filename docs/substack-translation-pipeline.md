@@ -422,9 +422,9 @@ sourceSha256 + promptVersion + model + normalizedInputSha256
 
 - `none`：不保留原文图片；默认值
 - `remote`：保留经过 host 和 MIME 校验的远程图片 URL，不下载
-- `mirror`：按内容 SHA-256 下载到 `public/images/substack/<publication>/<hash>.<ext>`，仅用于已获得图片转载许可的栏目
+- `mirror`：按内容 SHA-256 下载到 `public/images/substack/<publication>/<hash>.<ext>`；栏目发布者负责确认并遵守原图许可条件
 
-`remote` 会受到源站防盗链、URL 过期和历史文章失效影响；`mirror` 会增加仓库体积和图片授权责任。无明确授权时使用 `none`，并由站内封面渲染器生成只包含中文标题、栏目名和作者名的原创文字封面。
+`remote` 会受到源站防盗链、URL 过期和历史文章失效影响；`mirror` 会增加仓库体积和图片授权责任。未选择同步原图的栏目使用 `none`，并由站内封面渲染器生成只包含中文标题、栏目名和作者名的原创文字封面。
 
 `remote` 与 `mirror` 必须共用同一个受限图片获取器，不能因为最终不落盘或需要落盘而跳过校验：
 
@@ -609,6 +609,6 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 
 1. 首批启用 The Curiosity Chronicle、SatPost 与兼容 RSS 来源 The Marginalian
 2. 执行完整忠实翻译，正文首部明确原作者、原栏目、原始发布日期和原文链接；`author` 仍为本站发布者
-3. 首批栏目统一使用 `imagePolicy=none`；代码保留经过完整安全校验的 `remote` / `mirror` 能力，待取得图片授权后按栏目开启
+3. 首批栏目统一使用 `imagePolicy=mirror`，将通过完整安全校验的正文图片按内容哈希同步到本站；原作者、原文链接和图片许可责任不因镜像而改变
 4. `startAt` 初值为 2026-08-20；历史内容只允许手动 `--backfill N`，且不覆盖每栏目单次发布上限
 5. CI 自动归档为站内文章，不自动同步微信公众号；人工抽检每栏目首篇后再决定是否增加审核或公众号流程

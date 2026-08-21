@@ -259,11 +259,6 @@ export function prepareArticle(
       `HTML to Markdown text ratio ${textRatio.toFixed(3)} is below ${publication.extractionAudit.minTextRatio}`
     );
   }
-  if (convertedMetrics.text.length < SUBSTACK_LIMITS.minTextChars) {
-    throw new Error(
-      `article has only ${convertedMetrics.text.length} visible characters; minimum is ${SUBSTACK_LIMITS.minTextChars}`
-    );
-  }
   const blocks = splitBlocks(markdown);
   if (!blocks.length) throw new Error("article produced no Markdown blocks");
   return {

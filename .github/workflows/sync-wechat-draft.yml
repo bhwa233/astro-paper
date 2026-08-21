@@ -13,7 +13,7 @@ on:
       force_create:
         description: "Create another draft when the article already has a committed sync record"
         required: true
-        default: true
+        default: false
         type: boolean
 
 jobs:

@@ -5,8 +5,6 @@ import { z } from "zod";
 // 这些拦的都不是开销，而是 OOM、解压炸弹、paywall 残稿和上下文超限，因此取值一律按最宽松那个，
 // 宁可多跑一次也不要误杀一篇本来能翻的文章。
 export const SUBSTACK_LIMITS = {
-  /** 转换后可见文本的下限，用来识别 paywall 截断与清洗后只剩推广的残稿。 */
-  minTextChars: 2_000,
   /** RSS 响应体上限。SatPost 实测 3.4 MB，这里留足余量，只作内存边界。 */
   maxFeedBytes: 16_000_000,
   /** 单张图片的响应体上限。 */

@@ -242,7 +242,6 @@ export const NEWSLETTER_PUBLICATIONS = {
 
 | 常量 | 值 | 作用 |
 | --- | ---: | --- |
-| `minTextChars` | 2_000 | 转换后可见文本下限，识别 paywall 截断与只剩推广的残稿 |
 | `maxFeedBytes` | 16_000_000 | RSS 响应体上限，纯内存边界 |
 | `maxImageBytes` | 12_000_000 | 单图响应体上限 |
 | `maxImagePixels` | 40_000_000 | 解码后像素上限，防解压炸弹 |
@@ -312,7 +311,7 @@ Feed 获取只允许通过带 Bearer 认证的 `yt-dlp-fastapi /v1/proxy`。不�
 7. `kind=substack` 时校验 `<generator>Substack</generator>`
 8. item link 与 canonical URL 解析后的 host 必须在 `articleHosts`
 9. 编译并应用 `excludeTitlePatterns`；命中的 item 跳过并记录具体规则
-10. 只读取公开 `content:encoded`；缺失或小于 `minTextChars` 时跳过，不抓文章页补全
+10. 只读取公开 `content:encoded`；缺失时跳过，不抓文章页补全。不设正文长度下限——短文同样是完整原文，按字符数拒稿会误杀真短篇；paywall 由截断标记识别，清洗误删由提取对账兜底
 11. 命中付费、订阅者专享或截断标记时跳过，并输出明确原因
 
 首次启用栏目时默认只处理 `startAt` 之后的最新一篇，不能把 Feed 内 20 篇历史文章一次性全部翻译。`--backfill N` 只把候选窗口扩大到最近 N 篇，不覆盖发布上限；实际处理数是 `min(N, --max-posts ?? maxPostsPerRun, 剩余 token 预算可容纳篇数)`，其中 `--max-posts` 本身受 `maxPostsPerRunCeiling` 约束。未传 `--backfill` 时仍按栏目正常候选规则执行。
@@ -549,7 +548,6 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 - 来源 title、author、canonical URL、pubDate 和完整正文均存在
 - Feedsmith 解析的 generator、title、author、pubDate 和 content namespace 通过来源合同
 - 第 9.1 节转换对账全部通过：文本保留比达标，链接、图片、列表项数量与标题层级序列完全一致
-- 清洗后文本达到全局 `minTextChars`
 - 中文标题非空，正文中文占比达到最低阈值
 - 所有 source block ID 在译文中恰好出现一次
 - 原始链接占位符全部恢复，没有新增模型链接

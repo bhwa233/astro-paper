@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "guid": "https://sahilbloom.substack.com/p/why-you-need-a-side-quest-in-life",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/why-you-need-a-side-quest-in-life",
+      "sourcePublishedAt": "2026-08-19T20:00:58.000Z",
+      "sourceSha256": "0cd608ecf83b53f4f0d45fd9aa6d128ef63bfd74c851e6ffb6657a52ac103111",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260819-why-you-need-a-side-quest-in-life.md",
+      "translatedAt": "2026-08-21T01:29:06.877Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3788,
+        "outputTokens": 8939,
+        "totalTokens": 12727
+      }
+    }
+  ]
+}

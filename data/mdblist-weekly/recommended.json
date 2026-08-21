@@ -596,6 +596,15 @@
       "title": "The Westies",
       "archivedAt": "2026-08-14",
       "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-14.md"
+    },
+    {
+      "key": "show:298610:season:1",
+      "mediaType": "show",
+      "tmdbId": 298610,
+      "seasonNumber": 1,
+      "title": "Spooky in Love",
+      "archivedAt": "2026-08-21",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-21.md"
     }
   ]
 }

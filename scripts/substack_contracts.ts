@@ -81,6 +81,8 @@ export const newsletterPublicationSchema = z.object({
   removeSelectors: z.array(z.string().min(1)).default([]),
   cutBeforePatterns: z.array(patternConfigSchema).default([]),
   cutAfterPatterns: z.array(patternConfigSchema).default([]),
+  /** 删掉正文中间匹配到的顶层块本身，不截断前后。给中插的订阅 CTA 用。 */
+  dropPatterns: z.array(patternConfigSchema).default([]),
   excludeTitlePatterns: z.array(patternConfigSchema).default([]),
   extractionAudit: extractionAuditConfigSchema.default({ minTextRatio: 0.95 }),
   translationLengthRatio: translationLengthRatioSchema.default({

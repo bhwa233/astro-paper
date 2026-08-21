@@ -144,6 +144,7 @@ type NewsletterPublication = {
   removeSelectors?: string[];
   cutBeforePatterns?: PatternConfig[];
   cutAfterPatterns?: PatternConfig[];
+  dropPatterns?: PatternConfig[];
   excludeTitlePatterns?: PatternConfig[];
   extractionAudit?: {
     minTextRatio: number;
@@ -364,7 +365,7 @@ Feed 选择应按 `pubDate` 从旧到新处理，避免积压时先发布更新�
 
 1. 用 `parseHtml(contentEncoded, itemLink)` 构造 DOM，相对链接按 item URL 解析
 2. 删除栏目专属噪音：Substack 订阅按钮、分享按钮、评论入口、publication footer，再应用栏目级 `removeSelectors`
-3. 根据 `cutBeforePatterns` / `cutAfterPatterns` 去掉固定赞助、推荐和订阅尾巴
+3. 根据 `cutBeforePatterns` / `cutAfterPatterns` 去掉固定赞助、推荐和订阅尾巴，再用 `dropPatterns` 删掉正文中间的推广块；删块后连排的分隔线折成一条，首尾的直接去掉
 4. 删除通用危险或非正文标签，把清洗后的 DOM 交给 `scripts/html_to_markdown.ts` 调用 Turndown，得到 Markdown
 5. **转换前后对账**（见 9.1），任一项超阈值直接判该篇失败
 6. 按 Markdown 顶层块切分成中间块，URL 全部替换为带块归属的 `URL_BBBB_NNN` 占位符，拒绝 `javascript:`、`data:` 和未知协议
@@ -394,6 +395,29 @@ Feed 选择应按 `pubDate` 从旧到新处理，避免积压时先发布更新�
 - 列表项数量不变
 - 引用块仍是引用块
 - 模型没有新增链接、标题或总结段
+
+### 9.2 三类噪音与对应武器
+
+| 噪音 | 位置 | 武器 |
+| --- | --- | --- |
+| 订阅组件、分享条、页脚 | 有稳定 class | `removeSelectors` |
+| 捐赠段、订阅段、延伸阅读 | 文章尾部 | `cutAfterPatterns` |
+| 订阅 CTA 标题 | **正文中间** | `dropPatterns` |
+
+`dropPatterns` 是必需的第三种：截断类规则一旦命中正文中部就会砍掉后半篇，而中插 CTA 的标题往往没有 class。它只删命中的那个顶层块，不动前后。
+
+三者都跑在 DOM 阶段、**翻译之前**，所以模式必须写**英文原文**，不是成稿里看到的中文译文。写成中文一条都命中不了。
+
+已登记的两条实测规则：
+
+- **marginalian**：`^Complement\b` 与 `^donating = loving`。2026-08-21 抓的 20 篇里 `donating = loving` 每篇都有且总在末尾；`Complement` 出现在其中 9 篇，每篇仅一次且紧挨在 donating 之前，因此拿它当截断点不会腰斩正文。
+- **honest-broker**：`^Please support my work`。CTA 是 `<div><hr></div>` 夹着一个无 class 的 `h3`/`h4` 加一个 `.button-wrapper` 按钮；按钮走选择器，标题只能按文本删。
+
+### 9.3 Substack 空提及
+
+Substack 的 @提及在 RSS 里是**空的** `<span data-component-name="MentionToDOM">`，名字只存在于 `data-attrs` 的 JSON 里，由客户端渲染。不还原就会得到「参见 的《……》」这种缺主语的残句，而且译文里看不出少了东西——模型只会照着残缺的英文翻。
+
+清洗阶段读 `data-attrs.name` 回填为文本。2026-08-21 实测 experimental-history 单个 Feed 就有 28 处。
 
 ### 9.1 转换对账
 

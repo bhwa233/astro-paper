@@ -412,3 +412,62 @@ test("archive filenames remain stable while same-day slug collisions get a conte
   assert.notEqual(collision.postPath, first.postPath);
   assert.match(collision.postPath, /-[a-f0-9]{8}\.md$/);
 });
+
+test("mid-article promo blocks, empty Substack mentions and footnote markers survive cleanup intact", () => {
+  // 线上实测 2026-08-21：honest-broker 的订阅 CTA 插在正文中间，两侧各夹一条 <hr>；
+  // experimental-history 的 @提及 在 RSS 里是空 span，名字只存在于 data-attrs 里。
+  const promoPublication = {
+    ...publication,
+    dropPatterns: [{ source: "^Please support my work\\b", flags: "i" }],
+    translationLengthRatio: {
+      warnMin: 0.1,
+      warnMax: 3,
+      failMin: 0.05,
+      failMax: 5,
+    },
+  };
+  const mention = `<span class="mention-wrap" data-attrs='{"name":"Max Read","type":"user"}' data-component-name="MentionToDOM"></span>`;
+  const html =
+    "<p>Opening paragraph that carries the argument forward.</p>" +
+    "<div><hr></div>" +
+    "<h3>Please support my work by taking out a premium subscription.</h3>" +
+    "<div><hr></div>" +
+    `<p>For another take, see ${mention}'s piece.</p>` +
+    '<p>A claim with a footnote.<a href="https://sahilbloom.substack.com/p/x#footnote-1">1</a></p>' +
+    '<p><a href="https://sahilbloom.substack.com/p/x#footnote-anchor-1">1</a></p>' +
+    `<p>${BODY_FILLER}</p>`;
+  const prepared = prepareArticle(
+    html,
+    "https://sahilbloom.substack.com/p/x",
+    promoPublication
+  );
+
+  assert.doesNotMatch(prepared.markdown, /Please support my work/);
+  assert.match(prepared.markdown, /^Opening paragraph/m);
+  assert.match(prepared.markdown, /piece\./);
+  // CTA 删掉后两侧的分隔线会连在一起，只应留下一条。
+  assert.equal((prepared.markdown.match(/^\* \* \*$/gm) || []).length, 1);
+  // 空 mention span 的名字必须从 data-attrs 还原，否则译文会留下「参见 的……」这种残句。
+  assert.match(prepared.markdown, /see Max Read's piece/);
+
+  const translated = validateAndRestoreTranslation(
+    {
+      title: "标题",
+      description: "简介",
+      blocks: prepared.blocks.map(block => ({
+        id: block.id,
+        markdown: block.markdown,
+      })),
+    },
+    prepared.blocks,
+    promoPublication
+  );
+  // 脚注锚点保留成 [N]，普通链接只留锚文本，正文里不应出现无主的裸数字行。
+  assert.match(translated.markdown, /A claim with a footnote\.\[1\]/);
+  assert.match(translated.markdown, /^\[1\]$/m);
+  assert.equal(
+    translated.markdown.split("\n").filter(line => /^\d+$/.test(line.trim()))
+      .length,
+    0
+  );
+});

@@ -80,6 +80,9 @@ const rawPublications = {
       ".social-share-row",
       ".button-wrapper",
     ],
+    // 订阅 CTA 插在正文中间（`<div><hr></div>` 夹着一个无 class 的 h3/h4 加一个 .button-wrapper 按钮），
+    // 截断类规则一动就会砍掉后半篇，只能逐块删。按钮走 removeSelectors，标题只能按文本删。
+    dropPatterns: [{ source: "^Please support my work\\b", flags: "i" }],
   },
   "one-useful-thing": {
     key: "one-useful-thing",
@@ -360,6 +363,13 @@ const rawPublications = {
     startAt: "2026-08-21",
     imagePolicy: "mirror",
     removeSelectors: [".sharedaddy", ".jp-relatedposts", ".post-end"],
+    // 每篇结尾固定挂「Complement with…」延伸阅读、donating = loving 捐赠段和 newsletter 订阅段。
+    // 实测 2026-08-21 抓到的 20 篇：donating 每篇都有且总在末尾；Complement 出现在其中 9 篇，
+    // 每篇仅一次且紧挨在 donating 之前，所以拿它当截断点不会腰斩正文。
+    cutAfterPatterns: [
+      { source: "^Complement\\b", flags: "i" },
+      { source: "^donating = loving", flags: "i" },
+    ],
   },
 } as const;
 

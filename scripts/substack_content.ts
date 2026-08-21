@@ -121,6 +121,60 @@ function applyCuts(
   children.forEach((child, index) => {
     if (index < start || index >= end) child.remove();
   });
+  // 中插的订阅 CTA 既不在头也不在尾，截断类规则一动就会砍掉正文，只能逐块删。
+  const drop = compilePatterns(publication.dropPatterns);
+  if (drop.length) {
+    [...body.children].forEach(child => {
+      if (drop.some(pattern => pattern.test(compact(child.textContent || ""))))
+        child.remove();
+    });
+  }
+  collapseThematicBreaks(body);
+}
+
+/** 删块之后常留下连排的分隔线。相邻的只保留一条，首尾的直接去掉。 */
+function collapseThematicBreaks(body: HTMLElement): void {
+  const children = [...body.children];
+  const isRule = (node: Element): boolean =>
+    !compact(node.textContent || "") &&
+    (node.tagName === "HR" || Boolean(node.querySelector("hr")));
+  let seenContent = false;
+  let previousKeptIsRule = false;
+  children.forEach((child, index) => {
+    if (!isRule(child)) {
+      seenContent = true;
+      previousKeptIsRule = false;
+      return;
+    }
+    const contentFollows = children
+      .slice(index + 1)
+      .some(node => !isRule(node) && Boolean(compact(node.textContent || "")));
+    if (!seenContent || !contentFollows || previousKeptIsRule) {
+      child.remove();
+      return;
+    }
+    previousKeptIsRule = true;
+  });
+}
+
+/**
+ * Substack 的 @提及 在 RSS 里是空 span，名字只存在于 data-attrs 的 JSON 里，客户端才渲染。
+ * 不还原就会留下「参见 的《……》」这种缺主语的残句，而且译文里看不出少了东西。
+ */
+function restoreMentions(body: HTMLElement): void {
+  body
+    .querySelectorAll('span[data-component-name="MentionToDOM"]')
+    .forEach(node => {
+      if (compact(node.textContent || "")) return;
+      const raw = node.getAttribute("data-attrs") || "";
+      if (!raw) return;
+      try {
+        const name = compact(String(JSON.parse(raw)?.name || ""));
+        if (name) node.textContent = name;
+      } catch {
+        // data-attrs 不是合法 JSON 就当没有提及，交给下一步按空节点处理。
+      }
+    });
 }
 
 function cleanHtml(
@@ -144,6 +198,7 @@ function cleanHtml(
       );
     }
   }
+  restoreMentions(body);
   applyCuts(body, publication);
   body.querySelectorAll("a[href],img[src]").forEach(node => {
     const attribute = node.tagName === "A" ? "href" : "src";
@@ -324,13 +379,32 @@ const LINKED_IMAGE = new RegExp(
 );
 // 负向后顾排除 `![`，否则图片会被当成普通链接折成 alt 文字。
 const INLINE_LINK = new RegExp(
-  String.raw`(?<!!)\[([^\]]*)\]\(${URL_PLACEHOLDER}\)`,
+  String.raw`(?<!!)\[([^\]]*)\]\((${URL_PLACEHOLDER})\)`,
   "g"
 );
 
-/** 折叠正文里的 Markdown 链接，只留锚文本；图片原样保留。 */
-export function unlinkMarkdown(markdown: string): string {
-  return markdown.replace(LINKED_IMAGE, "$1").replace(INLINE_LINK, "$1");
+/**
+ * 折叠正文里的 Markdown 链接，只留锚文本；图片原样保留。
+ * 脚注锚点折成 `[N]`：正文里的上标数字和文末脚注区的回跳数字，直接折成裸数字就成了
+ * 「……名作。1」和一行行无主的数字，方括号形态既是通行写法，也保住了编号对应关系。
+ */
+export function unlinkMarkdown(
+  markdown: string,
+  placeholders: readonly string[] = []
+): string {
+  const targets = new Map(
+    placeholders.map(entry => {
+      const splitAt = entry.indexOf("=");
+      return [entry.slice(0, splitAt), entry.slice(splitAt + 1)] as const;
+    })
+  );
+  const isFootnote = (placeholder: string): boolean =>
+    /#footnote/i.test(targets.get(placeholder) || "");
+  return markdown
+    .replace(LINKED_IMAGE, "$1")
+    .replace(INLINE_LINK, (match, text: string, placeholder: string) =>
+      isFootnote(placeholder) ? `[${text}]` : text
+    );
 }
 
 export function validateAndRestoreTranslation(
@@ -369,7 +443,7 @@ export function validateAndRestoreTranslation(
       throw new Error(
         `translated block ${source.id} changed Markdown structure`
       );
-    let markdown = unlinkMarkdown(translated.markdown);
+    let markdown = unlinkMarkdown(translated.markdown, source.placeholders);
     for (const entry of source.placeholders) {
       const splitAt = entry.indexOf("=");
       markdown = markdown.replaceAll(

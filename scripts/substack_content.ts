@@ -55,6 +55,7 @@ function markdownMetrics(markdown: string): {
   text: string;
   headingLevels: number[];
   links: number;
+  linkUrls: string[];
   images: number;
   listItems: number;
 } {
@@ -63,13 +64,17 @@ function markdownMetrics(markdown: string): {
     text: compact(toString(tree as Parameters<typeof toString>[0])),
     headingLevels: [] as number[],
     links: 0,
+    linkUrls: [] as string[],
     images: 0,
     listItems: 0,
   };
   walk(tree, node => {
     if (node.type === "heading" && node.depth)
       metrics.headingLevels.push(node.depth);
-    if (node.type === "link") metrics.links += 1;
+    if (node.type === "link") {
+      metrics.links += 1;
+      if (node.url) metrics.linkUrls.push(node.url);
+    }
     if (node.type === "image") metrics.images += 1;
     if (node.type === "listItem") metrics.listItems += 1;
   });
@@ -80,15 +85,18 @@ function htmlMetrics(root: ParentNode): {
   text: string;
   headingLevels: number[];
   links: number;
+  linkUrls: string[];
   images: number;
   listItems: number;
 } {
+  const links = [...root.querySelectorAll("a[href]")];
   return {
     text: compact(root.textContent || ""),
     headingLevels: [...root.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(node =>
       Number(node.tagName.slice(1))
     ),
-    links: root.querySelectorAll("a[href]").length,
+    links: links.length,
+    linkUrls: links.map(node => node.getAttribute("href") || ""),
     images: root.querySelectorAll("img[src]").length,
     listItems: root.querySelectorAll("li").length,
   };
@@ -221,8 +229,12 @@ export function prepareArticle(
     convertedMetrics.text.length / Math.max(sourceMetrics.text.length, 1);
   for (const field of ["links", "images", "listItems"] as const) {
     if (sourceMetrics[field] !== convertedMetrics[field]) {
+      const detail =
+        field === "links"
+          ? `; source=${JSON.stringify(sourceMetrics.linkUrls)} converted=${JSON.stringify(convertedMetrics.linkUrls)}`
+          : "";
       throw new Error(
-        `HTML to Markdown ${field} mismatch: ${sourceMetrics[field]} != ${convertedMetrics[field]}`
+        `HTML to Markdown ${field} mismatch: ${sourceMetrics[field]} != ${convertedMetrics[field]}${detail}`
       );
     }
   }

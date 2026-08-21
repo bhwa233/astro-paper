@@ -1158,7 +1158,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   let source = await sourceForTask(task, date, sourceFixtureDir, repo, redditCategory);
   if (task === "mdblist-weekly" && !parseMdblistRecommendationsFromSource(source).length) {
     writeArtifact(artifactsDir, task, "source.md", source);
-    return [skippedLowQuality(task, date, "no MDBList candidates matched the previous-month release window, IMDb >= 6.0, and history-deduplication rules; see the source artifact for per-layer diagnostics")];
+    return [skippedLowQuality(task, date, "no MDBList candidates matched the rolling 30/45/60-day release windows, IMDb >= 6.0, and history-deduplication rules; see the source artifact for per-layer diagnostics")];
   }
   const contentDate = contentDateForTask(task, date, source);
   if (!force && isMagazineTask(task)) {

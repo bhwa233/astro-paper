@@ -7,7 +7,12 @@ import { dedupeItems, eventFamilyKey } from "../scripts/daily_digest_source.ts";
 import { type ResultItem, settleDailyPodcastArticleResults } from "../scripts/generate_scheduled_post.ts";
 import { buildPayload, classify, HN_CANDIDATE_COUNT, HN_SELECTION_COUNT, selectTopCommented } from "../scripts/hn_top10_source.ts";
 import { parseGitHubTrendingHtml, sanitizeReadmeText } from "../scripts/github_trending_daily_source.ts";
-import { latestStartedSeasonNumber, previousMonthReleaseWindow, selectUnrecommendedMdblistCandidates } from "../scripts/mdblist_weekly_source.ts";
+import {
+  latestStartedSeasonNumber,
+  planMdblistWeeklySelection,
+  rollingMdblistReleaseWindows,
+  selectUnrecommendedMdblistCandidates,
+} from "../scripts/mdblist_weekly_source.ts";
 import { fixture } from "./helpers/mocks.ts";
 import {
   countDroppableStories,
@@ -195,18 +200,46 @@ test("mdblist candidate selection skips recommended identities, low ratings, and
   );
 });
 
-// 上月同期窗口是真实日期算术：跨年、月末钳位、7 天闭区间，任何一处写反都会让整周选片落在错误区间，
-// 而 source builder 那条用例只用一个普通日期走通链路，看不出这些边界。
-test("mdblist previous-month window clamps month ends and crosses year boundaries", () => {
-  assert.deepEqual(previousMonthReleaseWindow("2099-01-09"), { from: "2098-12-03", to: "2098-12-09" });
-  // 12 月 31 日往前一个月落在 11 月 31 日——不存在，钳到 11 月 30 日。
-  assert.deepEqual(previousMonthReleaseWindow("2099-12-31"), { from: "2099-11-24", to: "2099-11-30" });
-  // 3 月 30 日 → 2 月 30 日不存在；平年钳到 2/28，闰年钳到 2/29。
-  assert.deepEqual(previousMonthReleaseWindow("2099-03-30"), { from: "2099-02-22", to: "2099-02-28" });
-  assert.deepEqual(previousMonthReleaseWindow("2096-03-30"), { from: "2096-02-23", to: "2096-02-29" });
-  // 窗口跨月首：1 月 3 日往前一个月是 12 月 3 日，起点回到 11 月。
-  assert.deepEqual(previousMonthReleaseWindow("2099-01-03"), { from: "2098-11-27", to: "2098-12-03" });
-  assert.throws(() => previousMonthReleaseWindow("2099-02-30"), /invalid MDBList archive date/);
+// 2026-08-14 的线上文章因 7 天窗口只剩 3 部作品。窗口现在必须留出 21 天评分成熟期，
+// 再从同一个截止日按 30/45/60 天扩展；跨年或闰日算错会让整期重新变短。
+test("mdblist rolling windows preserve the maturity cutoff across calendar boundaries", () => {
+  assert.deepEqual(rollingMdblistReleaseWindows("2099-01-09"), [
+    { days: 30, from: "2098-11-20", to: "2098-12-19" },
+    { days: 45, from: "2098-11-05", to: "2098-12-19" },
+    { days: 60, from: "2098-10-21", to: "2098-12-19" },
+  ]);
+  assert.deepEqual(rollingMdblistReleaseWindows("2096-03-21", [30]), [{ days: 30, from: "2096-01-31", to: "2096-02-29" }]);
+  assert.throws(() => rollingMdblistReleaseWindows("2099-02-30"), /invalid MDBList archive date/);
+});
+
+test("mdblist selection expands until the weekly minimum and balances categories with cross-fill", () => {
+  const candidate = (title: string, released: string) => ({ item: { title }, info: { released } });
+  const windows = rollingMdblistReleaseWindows("2099-03-22");
+  const movies = [
+    candidate("Movie 1", "2099-02-20"),
+    candidate("Movie 2", "2099-02-15"),
+    candidate("Movie 3", "2099-02-01"),
+    candidate("Movie 4", "2099-01-25"),
+    candidate("Movie 5", "2099-01-22"),
+    candidate("Movie 6", "2099-01-20"),
+  ];
+  const shows = [
+    candidate("Show 1", "2099-02-18"),
+    candidate("Show 2", "2099-02-10"),
+    candidate("Show 3", "2099-01-24"),
+    candidate("Show 4", "2099-01-19"),
+  ];
+
+  const balanced = planMdblistWeeklySelection(movies, shows, windows);
+  assert.equal(balanced.window.days, 45);
+  assert.deepEqual(balanced.eligibleCounts.map(entry => entry.total), [5, 10, 10]);
+  assert.equal(balanced.movies.length, 4);
+  assert.equal(balanced.shows.length, 4);
+
+  const crossFilled = planMdblistWeeklySelection(movies, shows.slice(0, 2), windows);
+  assert.equal(crossFilled.window.days, 45);
+  assert.equal(crossFilled.movies.length, 6);
+  assert.equal(crossFilled.shows.length, 2);
 });
 
 test("Reddit life handoff uses only the first three ordered posts and carries each story list", () => {

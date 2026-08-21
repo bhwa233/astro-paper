@@ -303,7 +303,7 @@ test("XYZ Rank top episodes source falls back to reader links when API is blocke
   assert.match(source, /- 日期：2099-01-05/);
 });
 
-test("mdblist source builder applies the previous-month window and locally enforces IMDb >= 6 candidates", async () => {
+test("mdblist source builder applies the widest rolling window and locally enforces IMDb >= 6 candidates", async () => {
   const ledgerFile = tempFile("mdblist-source", "recommended.json");
   appendMdblistRecommendations(
     [
@@ -315,17 +315,17 @@ test("mdblist source builder applies the previous-month window and locally enfor
   );
 
   // tmdb id -> detail payload. Rejection reason is encoded in the payload itself:
-  // 2/15 are outside the release window, 3/12 are below IMDb 6, 13 has no IMDb rating, 14 has no aired episodes.
+  // 2/15 are outside the widest release window, 3/12 are below IMDb 6, 13 has no IMDb rating, 14 has no aired episodes.
   const DETAILS: Record<string, unknown> = {
     "movie/1": { released: "2098-12-09", ratings: [{ source: "imdb", value: 8 }], genres: [] },
-    "movie/2": { released: "2098-12-02", ratings: [{ source: "imdb", value: 8 }], genres: [] },
+    "movie/2": { released: "2098-10-20", ratings: [{ source: "imdb", value: 8 }], genres: [] },
     "movie/3": { released: "2098-12-09", ratings: [{ source: "imdb", value: 5.9 }], genres: [] },
     "movie/4": { released: "2098-12-03", ratings: [{ source: "imdb", value: 6 }], genres: [] },
     "show/11": { released: "2098-12-09", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] },
     "show/12": { released: "2098-12-09", ratings: [{ source: "imdb", value: 5.9 }], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] },
     "show/13": { released: "2098-12-09", ratings: [], seasons: [{ season_number: 1, episodes: [{ votes: 5, rating: 8 }] }] },
     "show/14": { released: "2098-12-09", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 1, episodes: [{ votes: 0, rating: null }] }] },
-    "show/15": { released: "2098-12-02", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 2, episodes: [{ votes: 2, rating: 7 }] }] },
+    "show/15": { released: "2098-10-20", ratings: [{ source: "imdb", value: 8 }], seasons: [{ season_number: 2, episodes: [{ votes: 2, rating: 7 }] }] },
     "show/16": { released: "2098-12-09", ratings: [{ source: "imdb", value: 6 }], seasons: [{ season_number: 2, episodes: [{ votes: 2, rating: 7 }] }] },
   };
 
@@ -338,8 +338,8 @@ test("mdblist source builder applies the previous-month window and locally enfor
         if (listMatch) {
           const dateFiltered = url.searchParams.has("released_from");
           if (dateFiltered) {
-            assert.equal(url.searchParams.get("released_from"), "2098-12-03");
-            assert.equal(url.searchParams.get("released_to"), "2098-12-09");
+            assert.equal(url.searchParams.get("released_from"), "2098-10-21");
+            assert.equal(url.searchParams.get("released_to"), "2098-12-19");
           }
           const payload =
             listMatch[1] === "87667"
@@ -376,6 +376,8 @@ test("mdblist source builder applies the previous-month window and locally enfor
   assert.match(source, /## 1\. Fresh Show/);
   assert.match(source, /- TMDB ID：16/);
   assert.match(source, /- 推荐季度：2/);
+  assert.match(source, /上映日期：2098-11-20 至 2098-12-19（最终采用 30 天滚动窗口）/);
+  assert.match(source, /30 天窗口：电影 1，剧集 1，合计 2/);
   assert.doesNotMatch(source, /## \d+\. (?:Seen Movie|Seen Show|Old Movie|Low Rated Movie|Low Rated Show|Missing IMDb Show|Future Show|Old Show)/);
 });
 

@@ -294,9 +294,18 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
     prepared.blocks,
     publication
   );
-  assert.match(
+  // 正文只保留可读文字：链接折叠成锚文本，URL 不落进文章。
+  assert.doesNotMatch(
     translated.markdown,
     /https:\/\/sahilbloom\.substack\.com\/p\/source/
+  );
+  assert.match(translated.markdown, /你好 来源\./);
+  // 负向后顾排除图片：`![alt](url)` 本身也含 `](https://`，不能一刀切。
+  assert.doesNotMatch(translated.markdown, /(?<!!)\[[^\]]*\]\(https?:\/\//);
+  // 图片保留，且外层的点击放大链接被剥掉，只留裸图片。
+  assert.match(
+    translated.markdown,
+    /^!\[Article image\]\(https:\/\/substackcdn\.com\/image\/fetch\/article\.jpg\)$/m
   );
   assert.match(translated.markdown, /^## 标题/m);
   // description 超长时截断而不是判整篇失败：它是生成的元数据，不是原文内容。

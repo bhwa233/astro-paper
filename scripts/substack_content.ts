@@ -314,6 +314,25 @@ function placeholderNames(values: readonly string[]): string[] {
   return values.map(value => value.split("=", 1)[0]);
 }
 
+// 正文只保留可读文字，链接一律折叠掉。折叠跑在占位符还原之前：此时 URL 位置是 URL_NNNN_NNN，
+// 不含括号，正则不会被真实 URL 里的 `)` 截断；也跑在全部校验之后，占位符完整性这条防线不受影响。
+const URL_PLACEHOLDER = String.raw`URL_\d{4}_\d{3}`;
+// Substack 常把图片包在链接里做点击放大，折叠后要留下裸图片而不是把图片一起吃掉。
+const LINKED_IMAGE = new RegExp(
+  String.raw`\[(!\[[^\]]*\]\(${URL_PLACEHOLDER}\))\]\(${URL_PLACEHOLDER}\)`,
+  "g"
+);
+// 负向后顾排除 `![`，否则图片会被当成普通链接折成 alt 文字。
+const INLINE_LINK = new RegExp(
+  String.raw`(?<!!)\[([^\]]*)\]\(${URL_PLACEHOLDER}\)`,
+  "g"
+);
+
+/** 折叠正文里的 Markdown 链接，只留锚文本；图片原样保留。 */
+export function unlinkMarkdown(markdown: string): string {
+  return markdown.replace(LINKED_IMAGE, "$1").replace(INLINE_LINK, "$1");
+}
+
 export function validateAndRestoreTranslation(
   raw: unknown,
   sourceBlocks: readonly SourceBlock[],
@@ -350,7 +369,7 @@ export function validateAndRestoreTranslation(
       throw new Error(
         `translated block ${source.id} changed Markdown structure`
       );
-    let markdown = translated.markdown;
+    let markdown = unlinkMarkdown(translated.markdown);
     for (const entry of source.placeholders) {
       const splitAt = entry.indexOf("=");
       markdown = markdown.replaceAll(

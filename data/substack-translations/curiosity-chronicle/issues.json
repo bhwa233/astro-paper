@@ -5,15 +5,15 @@
       "guid": "https://sahilbloom.substack.com/p/why-you-need-a-side-quest-in-life",
       "canonicalUrl": "https://sahilbloom.substack.com/p/why-you-need-a-side-quest-in-life",
       "sourcePublishedAt": "2026-08-19T20:00:58.000Z",
-      "sourceSha256": "6343bb07e63e3914419c04291a9dab20b39a5cdbdf65c335ca0e2a4f5310781f",
+      "sourceSha256": "a73f29de1bc60d36334c0ad7ae1be10e73ffd3d45cabb9c682fd10266e779dba",
       "status": "published",
       "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260819-why-you-need-a-side-quest-in-life.md",
-      "translatedAt": "2026-08-21T02:16:13.190Z",
+      "translatedAt": "2026-08-21T02:36:34.740Z",
       "model": "gemini-3.7-flash",
       "usage": {
-        "inputTokens": 3859,
-        "outputTokens": 3179,
-        "totalTokens": 7038
+        "inputTokens": 3681,
+        "outputTokens": 6256,
+        "totalTokens": 9937
       }
     }
   ]

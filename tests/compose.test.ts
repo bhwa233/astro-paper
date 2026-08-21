@@ -227,7 +227,7 @@ test("Weibo trending renders only the topic link and AI summary from source evid
   verifySourceContract(repo, "weibo-trending", "weibo-trending-source.md");
   const article = archivePost({ task: "weibo-trending", date: "2099-01-02", repo, body: markdown, force: true, titleSuffix: composed.titleSuffix });
   const published = fs.readFileSync(path.join(repo, article.path), "utf8");
-  assert.match(published, /^title: "2099-01-02 热搜 ｜ 有人发布新产品,有人讨论定价与交付"$/m);
+  assert.match(published, /^title: "有人发布新产品,有人讨论定价与交付 ｜ 2099-01-02 微博热搜"$/m);
   verifyPostContract(repo, article.path, "weibo-trending");
 });
 

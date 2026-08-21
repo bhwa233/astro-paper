@@ -25,9 +25,9 @@ export type BlogTaskInfo = {
   episodeArticles?: boolean;
   /** 标题带 ISO 周次，例如「纽约时报书单精选｜2099年第2周」。 */
   weekLabelInTitle?: boolean;
-  /** 日期放在标题最前，例如「2099-01-02 热搜」。与 weekLabelInTitle/dateInTitle 互斥。 */
-  dateFirstTitle?: boolean;
-  /** 标题带归档日期，例如「日报｜2099-01-02」。与 weekLabelInTitle/dateFirstTitle 互斥。 */
+  /** 日期与栏目名收在标题末尾，例如「<AI 标题> ｜ 2099-01-02 微博热搜」；没有后缀时退成「2099-01-02 微博热搜」。与 weekLabelInTitle/dateInTitle 互斥。 */
+  trailingDateTitle?: boolean;
+  /** 标题带归档日期，例如「日报｜2099-01-02」。与 weekLabelInTitle/trailingDateTitle 互斥。 */
   dateInTitle?: boolean;
   /** AI 或栏目后缀前的分隔符，缺省为 `｜`。 */
   titleSuffixSeparator?: string;
@@ -164,11 +164,11 @@ export const BLOG_TASKS = {
     },
   },
   "weibo-trending": {
-    titlePrefix: "热搜",
+    titlePrefix: "微博热搜",
     tag: "微博热搜",
     description: "每日微博热搜短条目，基于当日榜单与逐话题微博智搜结论整理。",
     fileName: "wb-{compactDate}.md",
-    dateFirstTitle: true,
+    trailingDateTitle: true,
     titleSuffixSeparator: " ｜ ",
     bodyHeadingPattern: /^## \d+\.\s+/m,
     sourceContract: {
@@ -225,12 +225,17 @@ export function taskTags(task: Task): string[] {
 export function taskTitle(task: Task, date: string): string {
   const info = taskInfo(task);
   if (info.weekLabelInTitle) return `${info.titlePrefix}｜${isoWeekLabel(date)}`;
-  if (info.dateFirstTitle) return `${date} ${info.titlePrefix}`;
+  if (info.trailingDateTitle) return `${date} ${info.titlePrefix}`;
   return info.dateInTitle ? `${info.titlePrefix}｜${date}` : info.titlePrefix;
 }
 
 export function taskTitleWithSuffix(task: Task, date: string, suffix = ""): string {
-  return suffix ? `${taskTitle(task, date)}${taskInfo(task).titleSuffixSeparator ?? "｜"}${suffix}` : taskTitle(task, date);
+  const info = taskInfo(task);
+  const base = taskTitle(task, date);
+  if (!suffix) return base;
+  const separator = info.titleSuffixSeparator ?? "｜";
+  // trailingDateTitle 的任务把 AI 拟的话题串放首屏，日期与栏目名收在末尾。
+  return info.trailingDateTitle ? `${suffix}${separator}${base}` : `${base}${separator}${suffix}`;
 }
 
 /** 一次运行产出多篇（一集一篇）的任务。归档、编排、发布校验三层共用这一个判据。 */

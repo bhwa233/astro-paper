@@ -642,6 +642,12 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 
 可复用缓存位于 `.cache/substack-translations/`，通过 `actions/cache` 管理，不能放进 Git，也不能把 artifact 当作缓存恢复机制。
 
+### 14.1 微信草稿交接
+
+微信公众号同步由栏目配置中的 `wechat` 策略显式开启，未配置的栏目默认关闭。`cover=first-image` 使用图片安全与镜像阶段确认的第一张有效正文图片；配置要求首图但文章没有有效图片时，该篇归档失败，不能静默回落到无关封面。
+
+翻译 workflow 只把本轮 result 中 `status=published`、存在 `postPath` 且 `wechat.enabled=true` 的文章交给通用 Newsletter 微信 workflow。下游必须 checkout 已推送的生成提交，先执行 astro-wechat dry-run，只接受 `planned` 或 `already-synchronized`，再串行创建草稿。发布器台账负责幂等；部分草稿成功时先提交 `.astro-wechat/ledger.json`，然后再让 job 报告其余失败。该流程只创建草稿，不执行群发。
+
 ## 15. 测试策略
 
 需要测试的稳定合同：
@@ -664,6 +670,7 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 16. `force` 更新原路径，不创建重复文章
 17. Astro content loader 保留 `source` / `translation`，frontmatter 为本站作者且正文署名包含原作者与原文链接
 18. 最终归档质量 gate 能拦截长摘要、重复 H1、推广 CTA、孤立 `**` 与「参见 的」残句
+19. 开启 Newsletter 微信策略时，归档 frontmatter 保留 opt-in 与封面；要求首图但无有效图片时拒绝归档
 
 Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三方长文提交为测试数据。网络可用性不放进单元测试；CI smoke test 只请求 Feed 元数据并限制响应体，不调用模型。
 
@@ -695,6 +702,7 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 - 付费或截断正文不会进入模型和归档
 - 原始 HTML、prompt 与 response 仅存在于短期 artifact
 - 文章标题只使用中文原标题，栏目由标签与来源块展示；正文不含 H1
+- 只有栏目配置显式 opt-in 的本轮新文章进入微信草稿同步，重跑依靠 canonical URL 与提交台账去重
 - 全部测试、类型检查、约定检查和 Astro build 通过后才提交生成文章
 
 ## 18. 当前产品决策
@@ -703,4 +711,4 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 2. 执行完整忠实翻译，正文首部明确原作者、原栏目、原始发布日期和原文链接；`author` 仍为本站发布者
 3. 首批栏目统一使用 `imagePolicy=mirror`，将通过完整安全校验的正文图片按内容哈希同步到本站；原作者、原文链接和图片许可责任不因镜像而改变
 4. `startAt` 初值为 2026-08-20；历史内容只允许手动 `--backfill N`，且不覆盖每栏目单次发布上限
-5. CI 自动归档为站内文章，不自动同步微信公众号；人工抽检每栏目首篇后再决定是否增加审核或公众号流程
+5. Newsletter 微信草稿同步按栏目显式 opt-in；The Curiosity Chronicle 首个启用，封面使用文章第一张通过校验并镜像到本站的正文图片。其他栏目仍只归档站内文章

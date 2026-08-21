@@ -419,6 +419,7 @@ test("archive filenames remain stable while same-day slug collisions get a conte
     translatedTitle: "同一个标题",
     description: "示例摘要",
     markdown: "正文",
+    firstImage: "/images/substack/curiosity-chronicle/example.jpg",
     model: "test-model",
     translatedAt: "2026-08-20T12:00:00.000Z",
   };
@@ -437,6 +438,19 @@ test("archive filenames remain stable while same-day slug collisions get a conte
   assert.equal(rerun.postPath, first.postPath);
   assert.notEqual(collision.postPath, first.postPath);
   assert.match(collision.postPath, /-[a-f0-9]{8}\.md$/);
+  assert.match(
+    fs.readFileSync(path.join(repo, first.postPath), "utf8"),
+    /^wechat:\n {2}enabled: true\n {2}cover: "\/images\/substack\/curiosity-chronicle\/example\.jpg"$/m
+  );
+  assert.throws(
+    () =>
+      archiveSubstackTranslation({
+        ...base,
+        firstImage: undefined,
+        canonicalUrl: "https://sahilbloom.substack.com/p/no-cover",
+      }),
+    /requires a first article image/
+  );
 });
 
 test("mid-article promo blocks, empty Substack mentions and footnote markers survive cleanup intact", () => {

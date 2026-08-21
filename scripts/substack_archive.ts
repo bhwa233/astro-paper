@@ -45,6 +45,7 @@ export function archiveSubstackTranslation(params: {
   translatedTitle: string;
   description: string;
   markdown: string;
+  firstImage?: string;
   model: string;
   translatedAt?: string;
 }): { postPath: string; title: string } {
@@ -72,6 +73,21 @@ export function archiveSubstackTranslation(params: {
   const authorization = params.publication.authorizedTranslation
     ? "经授权翻译"
     : "中文翻译";
+  const wechat = params.publication.wechat;
+  if (wechat.enabled && wechat.cover === "first-image" && !params.firstImage) {
+    throw new Error(
+      `${params.publication.key} requires a first article image for its WeChat cover`
+    );
+  }
+  const wechatLines = wechat.enabled
+    ? [
+        "wechat:",
+        "  enabled: true",
+        ...(wechat.cover === "first-image"
+          ? [`  cover: ${yamlString(params.firstImage!)}`]
+          : []),
+      ]
+    : [];
   const lines = [
     "---",
     `author: ${AUTHOR}`,
@@ -83,6 +99,7 @@ export function archiveSubstackTranslation(params: {
     "tags:",
     "  - 海外长文",
     `  - ${yamlString(params.publication.tag)}`,
+    ...wechatLines,
     `description: ${yamlString(params.description)}`,
     "timezone: Asia/Shanghai",
     "source:",

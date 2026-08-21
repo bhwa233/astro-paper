@@ -49,6 +49,7 @@ import {
 type ItemResult = {
   publication: string;
   canonicalUrl: string;
+  wechat: { enabled: boolean };
   status: "published" | "dry-run" | "skipped" | "failed";
   reason?: string;
   postPath?: string;
@@ -208,6 +209,7 @@ async function processItem(params: {
   const baseResult = {
     publication: publication.key,
     canonicalUrl: item.canonicalUrl,
+    wechat: { enabled: publication.wechat.enabled },
   };
   const prepared = prepareArticle(
     item.contentHtml,
@@ -376,6 +378,7 @@ async function processItem(params: {
     translatedTitle: translated.title,
     description: translated.description,
     markdown: images.markdown,
+    firstImage: images.firstImage,
     model,
   });
   fs.copyFileSync(
@@ -478,6 +481,7 @@ async function main(): Promise<void> {
           results.push({
             publication: publication.key,
             canonicalUrl: item.canonicalUrl,
+            wechat: { enabled: publication.wechat.enabled },
             status: "failed",
             reason: error instanceof Error ? error.message : String(error),
           });
@@ -487,6 +491,7 @@ async function main(): Promise<void> {
         results.push({
           publication: publication.key,
           canonicalUrl: publication.siteUrl,
+          wechat: { enabled: publication.wechat.enabled },
           status: "skipped",
           reason: "no eligible unpublished items",
         });
@@ -494,6 +499,7 @@ async function main(): Promise<void> {
       results.push({
         publication: publication.key,
         canonicalUrl: publication.siteUrl,
+        wechat: { enabled: publication.wechat.enabled },
         status: "failed",
         reason: error instanceof Error ? error.message : String(error),
       });

@@ -8,6 +8,9 @@ draft: false
 tags:
   - 海外长文
   - "Curiosity Chronicle"
+wechat:
+  enabled: true
+  cover: "/images/substack/curiosity-chronicle/25ee6a5e330a3e70855d.jpg"
 description: "用支线任务打破人生惯性"
 timezone: Asia/Shanghai
 source:

@@ -51,6 +51,9 @@ jobs:
   translate:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    outputs:
+      generated_sha: ${{ steps.head.outputs.sha }}
+      wechat_count: ${{ steps.wechat.outputs.count }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -117,6 +120,20 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Count generated WeChat drafts
+        id: wechat
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          let count = 0;
+          if (fs.existsSync("substack-translation-result.json")) {
+            const payload = JSON.parse(fs.readFileSync("substack-translation-result.json", "utf8"));
+            count = (payload.results || []).filter(item => item.status === "published" && item.postPath && item.wechat?.enabled === true).length;
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${count}\n`);
+          NODE
+
       - name: Summarize generation
         if: always()
         run: |
@@ -165,6 +182,10 @@ jobs:
           done
           exit 1
 
+      - name: Record generated revision
+        id: head
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Report generation failures
         if: always()
         env:
@@ -174,3 +195,15 @@ jobs:
             echo "Newsletter generation reported one or more failures." >&2
             exit 1
           fi
+
+  sync-newsletter-wechat:
+    name: Sync opted-in newsletters to WeChat
+    needs: translate
+    if: ${{ always() && needs.translate.outputs.generated_sha != '' && needs.translate.outputs.wechat_count != '0' }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/newsletter-wechat.yml
+    with:
+      upstream_sha: ${{ needs.translate.outputs.generated_sha }}
+      upstream_workflow_run: ${{ github.run_id }}
+    secrets: inherit

@@ -56,6 +56,11 @@ export const translationLengthRatioSchema = z
     }
   );
 
+export const newsletterWechatSchema = z.object({
+  enabled: z.boolean().default(false),
+  cover: z.enum(["default", "first-image"]).default("default"),
+});
+
 export const newsletterPublicationSchema = z.object({
   key: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   kind: z.enum(["substack", "rss"]),
@@ -89,6 +94,10 @@ export const newsletterPublicationSchema = z.object({
     failMax: 0.75,
   }),
   authorizedTranslation: z.boolean().default(false),
+  wechat: newsletterWechatSchema.default({
+    enabled: false,
+    cover: "default",
+  }),
 });
 
 export type PatternConfig = z.infer<typeof patternConfigSchema>;

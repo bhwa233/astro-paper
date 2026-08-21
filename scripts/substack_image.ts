@@ -59,11 +59,12 @@ export async function processArticleImages(
   markdown: string,
   publication: NewsletterPublication,
   repo: string
-): Promise<{ markdown: string; files: string[] }> {
+): Promise<{ markdown: string; files: string[]; firstImage?: string }> {
   if (publication.imagePolicy === "none")
     return {
       markdown: markdown.replace(/!\[[^\]]*\]\([^)]*\)/g, ""),
       files: [],
+      firstImage: undefined,
     };
   const urls = [
     ...markdown.matchAll(/!\[[^\]]*\]\((https:\/\/[^\s)]+)(?:\s+"[^"]*")?\)/g),
@@ -99,5 +100,9 @@ export async function processArticleImages(
   let output = markdown;
   for (const [source, replacement] of replacements)
     output = output.replaceAll(source, replacement);
-  return { markdown: output, files };
+  return {
+    markdown: output,
+    files,
+    firstImage: urls[0] ? replacements.get(urls[0]) : undefined,
+  };
 }

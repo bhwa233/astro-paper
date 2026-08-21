@@ -24,6 +24,10 @@ const rawPublications = {
     enabled: true,
     startAt: "2026-08-20",
     imagePolicy: "mirror",
+    wechat: {
+      enabled: true,
+      cover: "first-image",
+    },
     removeSelectors: [
       ".subscription-widget-wrap",
       ".post-footer",

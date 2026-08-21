@@ -16,6 +16,16 @@ on:
         options:
           - all
           - curiosity-chronicle
+          - after-babel
+          - honest-broker
+          - one-useful-thing
+          - wheres-your-ed-at
+          - roots-of-progress-institute
+          - experimental-history
+          - noahpinion
+          - construction-physics
+          - intrinsic-perspective
+          - astral-codex-ten
           - satpost
           - marginalian
       force:

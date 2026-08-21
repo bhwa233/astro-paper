@@ -10,7 +10,10 @@ import {
   prepareArticle,
   validateAndRestoreTranslation,
 } from "../scripts/substack_content.ts";
-import { NEWSLETTER_PUBLICATIONS } from "../scripts/substack_publications.ts";
+import {
+  NEWSLETTER_PUBLICATIONS,
+  orderPublicationsByPriority,
+} from "../scripts/substack_publications.ts";
 import { normalizeCanonicalUrl } from "../scripts/generate_substack_translations.ts";
 import {
   readSubstackLedger,
@@ -19,6 +22,8 @@ import {
 import { restrictedFetchText } from "../scripts/restricted_fetch.ts";
 import { validateRemoteImage } from "../scripts/substack_image.ts";
 import { archiveSubstackTranslation } from "../scripts/substack_archive.ts";
+import { parseHtml } from "../scripts/html_dom.ts";
+import { htmlNodeToMarkdown } from "../scripts/html_to_markdown.ts";
 import { tempDir, withMocks } from "./helpers/mocks.ts";
 
 const publication = {
@@ -33,6 +38,29 @@ const publication = {
     failMax: 3,
   },
 };
+
+test("HTML conversion disambiguates an exclamation mark followed by a link", () => {
+  // Production feed compatibility incident 2026-08-21: Noahpinion emitted a
+  // footnote immediately after "!", which Markdown parsed as an image.
+  const document = parseHtml(
+    '<body><p>A claim!<a href="https://example.com/#footnote-1">1</a></p></body>',
+    "https://example.com/"
+  );
+  const markdown = htmlNodeToMarkdown(document.body);
+  assert.match(markdown, /A claim! \[1\]\(https:\/\/example\.com\/#footnote-1\)/);
+});
+
+test("newsletter publications are ordered by editorial priority", () => {
+  const ordered = orderPublicationsByPriority([
+    { ...publication, key: "low-priority", priority: "low" },
+    { ...publication, key: "high-priority", priority: "high" },
+    { ...publication, key: "medium-priority", priority: "medium" },
+  ]);
+  assert.deepEqual(
+    ordered.map(item => item.priority),
+    ["high", "medium", "low"]
+  );
+});
 
 test("newsletter feed contract reads namespaced full content instead of the summary", () => {
   const xml = `<?xml version="1.0"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Example</title><generator>Substack</generator><item><title>Full post</title><link>https://sahilbloom.substack.com/p/full-post</link><guid isPermaLink="true">post-1</guid><pubDate>Wed, 19 Aug 2026 12:00:00 GMT</pubDate><dc:creator>Writer</dc:creator><description>short summary</description><content:encoded><![CDATA[<h2>Full body</h2><p>${"long text ".repeat(50)}</p>]]></content:encoded></item></channel></rss>`;

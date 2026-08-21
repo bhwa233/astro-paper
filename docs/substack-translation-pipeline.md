@@ -1,11 +1,11 @@
 # 通用 Substack 长文翻译流水线技术方案
 
-状态：初版已实现，等待首次生产翻译验证（分支 `feat/substack-translation`）
-最后更新：2026-08-20
+状态：已实现并投入生产
+最后更新：2026-08-21
 
 ## 1. 背景
 
-目标是把公开 Substack 栏目的新长文自动转换为中文文章，并纳入 astro-paper 现有的生成、校验、归档和 CI 发布流程。第一批目标栏目是 The Curiosity Chronicle 与 SatPost；The Marginalian 不是 Substack，但其 RSS 同样提供完整正文，因此方案保留一个兼容的 `rss` 来源类型。
+目标是把公开长文栏目的新文章自动转换为中文文章，并纳入 astro-paper 现有的生成、校验、归档和 CI 发布流程。栏目通过同一份受信注册表接入；其中需要补充外部来源或人工判断选题的栏目只允许手动 dispatch，不进入每日 `all`。
 
 这不是“每加一个栏目就复制一套 task 和 workflow”的方案。仓库只增加一个固定任务 `substack-translation`，运行时传入 `publication` 栏目 key；栏目名称、作者、Feed、站点、标签和清洗规则统一从受信配置表解析。
 
@@ -35,15 +35,25 @@
 
 ## 3. 已验证的可行性
 
-2026-08-20 使用无 Cookie、无浏览器的普通 HTTP 请求实测：
+2026-08-20 至 2026-08-21 使用无 Cookie、无浏览器的普通 HTTP 请求实测：
 
 | 栏目                    | Feed                                             | Feed 大小 | 条目数 | 最新正文纯文本 | 最新正文图片 | 结果                       |
 | ----------------------- | ------------------------------------------------ | --------: | -----: | -------------: | -----------: | -------------------------- |
 | The Marginalian         | `https://feeds.feedburner.com/brainpickings/rss` |    365 KB |     20 |    31,298 字符 |           17 | Feed、文章页、首图均为 200 |
 | The Curiosity Chronicle | `https://sahilbloom.substack.com/feed`           |    299 KB |     20 |     9,190 字符 |            1 | Feed、文章页、首图均为 200 |
+| After Babel             | `https://www.afterbabel.com/feed`                |    883 KB |     20 |    15,105 字符 |            2 | Feed、文章页、首图均为 200 |
+| The Honest Broker       | `https://www.honest-broker.com/feed`             |    522 KB |     20 |    16,099 字符 |            3 | 完整 Substack Feed         |
+| One Useful Thing        | `https://www.oneusefulthing.org/feed`            |    916 KB |     20 |    12,982 字符 |            9 | 完整 Substack Feed         |
+| Where's Your Ed At      | `https://www.wheresyoured.at/rss/`               |    733 KB |     15 |    52,071 字符 |            3 | 完整 Ghost RSS             |
+| Roots of Progress Institute | `https://rootsofprogress.org/feed/`           |     93 KB |     10 |     6,393 字符 |            2 | 完整 RSS                    |
+| Experimental History    | `https://www.experimental-history.com/feed`      |  1,018 KB |     20 |    20,229 字符 |            9 | 完整 Substack Feed         |
+| Noahpinion               | `https://www.noahpinion.blog/feed`               |  1,171 KB |     20 |    22,514 字符 |            3 | 完整 Substack Feed         |
+| Construction Physics    | `https://www.construction-physics.com/feed`       |    586 KB |     20 |     3,851 字符 |            3 | 完整 Substack Feed         |
+| The Intrinsic Perspective | `https://www.theintrinsicperspective.com/feed`  |  1,075 KB |     20 |    13,230 字符 |            7 | 完整 Substack Feed         |
+| Astral Codex Ten        | `https://www.astralcodexten.com/feed`             |    707 KB |     20 |    10,454 字符 |            0 | 完整 Substack Feed         |
 | SatPost                 | `https://www.readtrung.com/feed`                 |    3.4 MB |     20 |    43,976 字符 |           28 | Feed、文章页、首图均为 200 |
 
-三个 Feed 都在 `content:encoded` 中提供完整 HTML，而不是只有 `description` 摘要。Substack 的 XML 通常压成一行，SatPost 又包含大量图片属性，因此必须设置响应大小上限，但不能沿用通用 `fetchText` 当前 1 MB 的默认值。
+十三个 Feed 都在 `content:encoded` 中提供完整 HTML，而不是只有 `description` 摘要。Substack 的 XML 通常压成一行，SatPost 又包含大量图片属性，因此必须按栏目设置响应大小上限，不能沿用通用 `fetchText` 当前 1 MB 的默认值。
 
 解析命名空间交给 Feedsmith，标准字段读取 `item.content?.encoded`。不得静默回落到几十个字符的 `description`，否则会把摘要误判为完整正文。
 
@@ -122,6 +132,11 @@ type NewsletterPublication = {
   articleHosts: string[];
   imageHosts: string[];
   tag: string;
+  focus?: string[];
+  priority?: "high" | "medium" | "low";
+  topics?: string[];
+  selectionMode?: "automatic" | "manual";
+  selectionRule?: string;
   enabled: boolean;
   startAt: string;
   minTextChars: number;
@@ -174,6 +189,18 @@ export const NEWSLETTER_PUBLICATIONS = {
       },
     ],
   },
+  "after-babel": {
+    kind: "substack",
+    displayName: "After Babel",
+    author: "Jon Haidt and Zach Rausch",
+    feedUrl: "https://www.afterbabel.com/feed",
+    siteUrl: "https://www.afterbabel.com/",
+    feedHosts: ["www.afterbabel.com", "afterbabel.com"],
+    articleHosts: ["www.afterbabel.com", "afterbabel.com"],
+    imageHosts: ["substackcdn.com", "substack-post-media.s3.amazonaws.com"],
+    tag: "After Babel",
+    removeSelectors: [".button-wrapper"],
+  },
   satpost: {
     kind: "substack",
     displayName: "SatPost",
@@ -211,7 +238,9 @@ export const NEWSLETTER_PUBLICATIONS = {
 
 实际配置必须填写所有安全与发布字段；上例只展示栏目差异。新增栏目只修改该表并补一个配置契约测试，不新增 task、source builder、archive formatter 或 workflow。
 
-`kind: "substack"` 要求 Feed 的 `<generator>` 为 Substack；`kind: "rss"` 只使用通用 RSS 2.0 合同。The Marginalian 走后者，不能在日志和文章中错误标为 Substack。
+`kind: "substack"` 要求 Feed 的 `<generator>` 为 Substack；`kind: "rss"` 只使用通用 RSS 2.0 合同。The Marginalian、Where's Your Ed At 和 Roots of Progress Institute 走后者，不能在日志和文章中错误标为 Substack。`focus` 保存栏目关注方向，进入 effective config 和诊断 artifact；它不改变忠实翻译合同，也不用于删选或改写原文。
+
+`publication=all` 只展开 `selectionMode=automatic` 的栏目，并按 `priority` 的 high、medium、low 顺序处理。`manual` 栏目仍可通过 workflow 的单栏目选项触发。`topics` 和 `selectionRule` 会写入 effective config 与 artifact，供人工选题审计；明确可机械判断的禁选类型同时写入 `excludeTitlePatterns`。忠实翻译任务不会自行检索资料，因此要求补充独立来源或主流研究的栏目必须设为 `manual`。
 
 ## 6. CLI 与 workflow 输入
 

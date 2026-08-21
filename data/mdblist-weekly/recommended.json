@@ -598,6 +598,65 @@
       "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-14.md"
     },
     {
+      "key": "movie:969681",
+      "mediaType": "movie",
+      "tmdbId": 969681,
+      "title": "Spider-Man: Brand New Day",
+      "archivedAt": "2026-08-21",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-21.md"
+    },
+    {
+      "key": "movie:1212763",
+      "mediaType": "movie",
+      "tmdbId": 1212763,
+      "title": "Evil Dead Burn",
+      "archivedAt": "2026-08-21",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-21.md"
+    },
+    {
+      "key": "movie:980431",
+      "mediaType": "movie",
+      "tmdbId": 980431,
+      "title": "Avatar Aang: The Last Airbender",
+      "archivedAt": "2026-08-21",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-21.md"
+    },
+    {
+      "key": "movie:1308767",
+      "mediaType": "movie",
+      "tmdbId": 1308767,
+      "title": "Young Washington",
+      "archivedAt": "2026-08-21",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-21.md"
+    },
+    {
+      "key": "show:296756:season:1",
+      "mediaType": "show",
+      "tmdbId": 296756,
+      "seasonNumber": 1,
+      "title": "President Curtis",
+      "archivedAt": "2026-08-21",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-21.md"
+    },
+    {
+      "key": "show:255358:season:1",
+      "mediaType": "show",
+      "tmdbId": 255358,
+      "seasonNumber": 1,
+      "title": "THE GHOST IN THE SHELL",
+      "archivedAt": "2026-08-21",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-21.md"
+    },
+    {
+      "key": "show:285993:season:1",
+      "mediaType": "show",
+      "tmdbId": 285993,
+      "seasonNumber": 1,
+      "title": "BLACK TORCH",
+      "archivedAt": "2026-08-21",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-21.md"
+    },
+    {
       "key": "show:298610:season:1",
       "mediaType": "show",
       "tmdbId": 298610,

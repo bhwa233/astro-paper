@@ -35,6 +35,13 @@ const rawPublications = {
       ".post-footer",
       ".social-share-row",
     ],
+    cutBeforePatterns: [
+      {
+        source:
+          "^Forwarded this email\\? Join [\\d,.]+(?:[KMB])?\\+ (?:other )?readers here\\.$",
+        flags: "i",
+      },
+    ],
   },
   satpost: {
     key: "satpost",

@@ -166,6 +166,13 @@ export const NEWSLETTER_PUBLICATIONS = {
     articleHosts: ["sahilbloom.substack.com", "www.sahilbloom.com"],
     imageHosts: ["substackcdn.com", "substack-post-media.s3.amazonaws.com"],
     tag: "Curiosity Chronicle",
+    cutBeforePatterns: [
+      {
+        source:
+          "^Forwarded this email\\? Join [\\d,.]+(?:[KMB])?\\+ (?:other )?readers here\\.$",
+        flags: "i",
+      },
+    ],
   },
   satpost: {
     kind: "substack",

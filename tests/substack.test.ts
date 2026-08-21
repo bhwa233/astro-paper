@@ -218,14 +218,20 @@ test("image validation trusts magic bytes and decoding, not the remote filename"
 });
 
 test("DOM cleanup precedes Markdown conversion and translation validation preserves structure and URLs", () => {
+  // Production incident 2026-08-21: Curiosity Chronicle's four-block promo
+  // preamble was translated and published ahead of the actual article.
   // Production incident 2026-08-21: Substack wrapped an image in a block-level
   // div inside a link, which Turndown emitted as invalid multiline link syntax.
   const imageUrl = "https://substackcdn.com/image/fetch/article.jpg";
-  const html = `<h2>Heading</h2><p>Hello <a href="/p/source">source</a>.</p><figure><a href="${imageUrl}"><div><picture><img src="${imageUrl}" alt="Article image"></picture></div></a></figure><blockquote>A claim.</blockquote><ul><li>First</li><li>Second</li></ul><p class="subscribe">Subscribe now</p>`;
+  const html = `<p><em>watch on <a href="https://youtube.com/watch?v=example">YouTube</a> or read and listen on sahilbloom.com</em></p><p><em>read time</em> <strong>10 minutes</strong></p><p>Welcome to The Curiosity Chronicle, a newsletter where I provide actionable ideas.</p><p><em>Forwarded this email? Join 800,000+ other readers <a href="https://www.sahilbloom.com/newsletter">here</a>.</em></p><div><hr></div><h2>Heading</h2><p>Hello <a href="/p/source">source</a>.</p><figure><a href="${imageUrl}"><div><picture><img src="${imageUrl}" alt="Article image"></picture></div></a></figure><blockquote>A claim.</blockquote><ul><li>First</li><li>Second</li></ul><p class="subscribe">Subscribe now</p>`;
   const prepared = prepareArticle(
     html,
     "https://sahilbloom.substack.com/p/full-post",
     publication
+  );
+  assert.doesNotMatch(
+    prepared.markdown,
+    /watch on|read time|Welcome to The Curiosity Chronicle|Forwarded this email/
   );
   assert.doesNotMatch(prepared.markdown, /Subscribe now/);
   assert.match(prepared.markdown, /^## Heading/m);

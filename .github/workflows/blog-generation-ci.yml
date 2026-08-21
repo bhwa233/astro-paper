@@ -12,9 +12,14 @@ on:
       - reopened
     paths:
       - ".github/workflows/blog-generation-ci.yml"
+      - ".github/workflows/publish-substack-translations.yml"
       - ".github/workflows/scheduled-posts.yml"
       - "docs/blog-cron-*.md"
       - "docs/hn-cron-pipeline.md"
+      - "docs/substack-translation-pipeline.md"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "src/content.config.ts"
       - "prompts/blog/**"
       - "scripts/**"
       - "tests/**"

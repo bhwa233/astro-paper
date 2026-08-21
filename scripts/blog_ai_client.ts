@@ -36,6 +36,12 @@ export type AiCallResult = {
   content: string;
   config: AiConfig;
   usedFallback: boolean;
+  usage?: {
+    inputTokens?: number;
+    outputTokens?: number;
+    totalTokens?: number;
+  };
+  finishReason?: string;
   // Populated when the primary target failed (whether or not a fallback then succeeded).
   primaryError?: string;
 };
@@ -124,7 +130,7 @@ export async function callBlogAi({
   maxTokens?: number | null;
   jsonMode?: boolean;
 }): Promise<string> {
-  return callBlogAiOnce({ prompt, apiKey, baseUrl, model, apiStyle, timeoutMs, maxTokens, jsonMode });
+  return (await callBlogAiOnce({ prompt, apiKey, baseUrl, model, apiStyle, timeoutMs, maxTokens, jsonMode })).content;
 }
 
 async function callBlogAiOnce({
@@ -145,7 +151,7 @@ async function callBlogAiOnce({
   timeoutMs?: number;
   maxTokens?: number | null;
   jsonMode?: boolean;
-}): Promise<string> {
+}): Promise<{ content: string; usage?: AiCallResult["usage"]; finishReason?: string }> {
   if (!apiKey) throw new Error("AI_API_KEY is required for live AI blog generation");
   if (!baseUrl) throw new Error("AI_BASE_URL is required for live AI blog generation");
   if (!model) throw new Error("AI_MODEL is required for live AI blog generation");
@@ -168,7 +174,12 @@ async function callBlogAiOnce({
       timeout: timeoutMs,
     });
     if (!result.text.trim()) throw new Error("AI response missing message content");
-    return result.text;
+    const usage = {
+      inputTokens: result.usage.inputTokens,
+      outputTokens: result.usage.outputTokens,
+      totalTokens: result.usage.totalTokens,
+    };
+    return { content: result.text, usage, finishReason: result.finishReason };
   } catch (error) {
     if (error instanceof Error && (error.name === "AbortError" || error.message === "This operation was aborted")) {
       throw new Error(`AI request timed out after ${timeoutMs}ms`);
@@ -262,6 +273,7 @@ export async function callBlogAiWithFailover({
   timeoutMs = envPositiveNumber("AI_TIMEOUT_MS", 120_000),
   maxTokens = envMaxTokens(),
   jsonMode = false,
+  fallbackEnabled,
 }: {
   prompt: string;
   primaryConfig?: AiConfig;
@@ -269,6 +281,7 @@ export async function callBlogAiWithFailover({
   timeoutMs?: number;
   maxTokens?: number | null;
   jsonMode?: boolean;
+  fallbackEnabled?: boolean;
 }): Promise<AiCallResult> {
   const primaryConfigError = configErrorMessage(primaryConfig, "primary");
   const fallbackConfigError = configErrorMessage(fallbackConfig, "fallback");
@@ -286,9 +299,9 @@ export async function callBlogAiWithFailover({
     let cooldownRetries = 0;
     for (;;) {
       try {
-        const content = await callBlogAi({ prompt, ...primaryConfig, timeoutMs, maxTokens, jsonMode });
+        const result = await callBlogAiOnce({ prompt, ...primaryConfig, timeoutMs, maxTokens, jsonMode });
         const retried = transientRetries > 0 || cooldownRetries > 0;
-        return { content, config: primaryConfig, usedFallback: false, primaryError: retried ? primaryError : undefined };
+        return { ...result, config: primaryConfig, usedFallback: false, primaryError: retried ? primaryError : undefined };
       } catch (error) {
         primaryError = error instanceof Error ? error.message : String(error);
         if (isCooldownAiError(primaryError) && cooldownRetries < cooldownAttempts - 1) {
@@ -316,7 +329,7 @@ export async function callBlogAiWithFailover({
   // Fallback is opt-in and off by default, so local runs fail loudly instead of silently switching
   // models. Publish workflows set AI_FALLBACK_ENABLED=true: a cooldown longer than the retry budget
   // should still produce a post, and the switch is reported (WARN log + ai_fallback_used).
-  if (!envBool("AI_FALLBACK_ENABLED", false)) {
+  if (!(fallbackEnabled ?? envBool("AI_FALLBACK_ENABLED", false))) {
     throw new Error(primaryError || primaryConfigError || "primary AI request failed");
   }
   if (fallbackConfigError) {
@@ -327,8 +340,8 @@ export async function callBlogAiWithFailover({
   }
 
   try {
-    const content = await callBlogAi({ prompt, ...fallbackConfig, timeoutMs, maxTokens, jsonMode });
-    return { content, config: fallbackConfig, usedFallback: true, primaryError: primaryError || primaryConfigError };
+    const result = await callBlogAiOnce({ prompt, ...fallbackConfig, timeoutMs, maxTokens, jsonMode });
+    return { ...result, config: fallbackConfig, usedFallback: true, primaryError: primaryError || primaryConfigError };
   } catch (error) {
     if (error instanceof Error) throw withPriorFailureContext(error, primaryError || primaryConfigError);
     throw new Error(`${String(error)} | primary failure: ${clipText(primaryError || primaryConfigError, 400)}`);

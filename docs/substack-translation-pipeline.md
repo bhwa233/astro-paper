@@ -53,7 +53,7 @@
 | Astral Codex Ten        | `https://www.astralcodexten.com/feed`             |    707 KB |     20 |    10,454 字符 |            0 | 完整 Substack Feed         |
 | SatPost                 | `https://www.readtrung.com/feed`                 |    3.4 MB |     20 |    43,976 字符 |           28 | Feed、文章页、首图均为 200 |
 
-十三个 Feed 都在 `content:encoded` 中提供完整 HTML，而不是只有 `description` 摘要。Substack 的 XML 通常压成一行，SatPost 又包含大量图片属性，因此必须按栏目设置响应大小上限，不能沿用通用 `fetchText` 当前 1 MB 的默认值。
+十三个 Feed 都在 `content:encoded` 中提供完整 HTML，而不是只有 `description` 摘要。Substack 的 XML 通常压成一行，SatPost 又包含大量图片属性，因此必须设置响应大小上限，不能沿用通用 `fetchText` 当前 1 MB 的默认值；上限由全局 `SUBSTACK_LIMITS.maxFeedBytes` 统一给出，取值覆盖最大的 SatPost。
 
 解析命名空间交给 Feedsmith，标准字段读取 `item.content?.encoded`。不得静默回落到几十个字符的 `description`，否则会把摘要误判为完整正文。
 
@@ -139,12 +139,6 @@ type NewsletterPublication = {
   selectionRule?: string;
   enabled: boolean;
   startAt: string;
-  minTextChars: number;
-  maxFeedBytes: number;
-  maxImageBytes: number;
-  maxImagePixels: number;
-  maxPostsPerRun: number;
-  maxEstimatedTokensPerArticle: number;
   imagePolicy: "none" | "remote" | "mirror";
   removeSelectors?: string[];
   cutBeforePatterns?: PatternConfig[];
@@ -242,6 +236,27 @@ export const NEWSLETTER_PUBLICATIONS = {
 
 `publication=all` 只展开 `selectionMode=automatic` 的栏目，并按 `priority` 的 high、medium、low 顺序处理。`manual` 栏目仍可通过 workflow 的单栏目选项触发。`topics` 和 `selectionRule` 会写入 effective config 与 artifact，供人工选题审计；明确可机械判断的禁选类型同时写入 `excludeTitlePatterns`。忠实翻译任务不会自行检索资料，因此要求补充独立来源或主流研究的栏目必须设为 `manual`。
 
+### 5.1 全局阈值
+
+抓取与翻译的护栏不进栏目配置，集中在 `scripts/substack_contracts.ts` 的 `SUBSTACK_LIMITS`：
+
+| 常量 | 值 | 作用 |
+| --- | ---: | --- |
+| `minTextChars` | 2_000 | 转换后可见文本下限，识别 paywall 截断与只剩推广的残稿 |
+| `maxFeedBytes` | 16_000_000 | RSS 响应体上限，纯内存边界 |
+| `maxImageBytes` | 12_000_000 | 单图响应体上限 |
+| `maxImagePixels` | 40_000_000 | 解码后像素上限，防解压炸弹 |
+| `maxPostsPerRun` | 1 | 每次运行每个栏目处理几篇 |
+| `maxPostsPerRunCeiling` | 5 | 手动 `--max-posts` 的硬顶 |
+| `maxEstimatedTokensPerArticle` | 200_000 | 单篇预估上限，只作跑飞护栏 |
+| `publicationTokenBudget` | 400_000 | 每个栏目每次运行的 token 预算 |
+
+这些拦的不是开销，而是 OOM、解压炸弹、paywall 残稿和上下文超限，所以取值一律按最宽松那个：误杀一篇本来能翻的文章，比多跑一次更糟。
+
+`publicationTokenBudget` 必须 ≥ 2 × `maxEstimatedTokensPerArticle`——开 fallback 时按估算量的两倍预留，否则长文永远预留失败。
+
+早期版本让每个栏目各带一份这些字段，13 条配置里 78 行只有三种取值，差异纯粹是按各自实测微调，没有语义分歧。收敛成常量后 `effective-config.json` 会额外快照一份 `limits`，保证事后仍能看到本次生效的上限。
+
 ## 6. CLI 与 workflow 输入
 
 生成入口：
@@ -261,10 +276,10 @@ node --import tsx scripts/generate_substack_translations.ts \
 | ----------------- | -------------------------------------------------------------- |
 | `--publication`   | 必填；配置 key 或 `all`                                        |
 | `--run-date`      | CI 运行归档日，不替代原文的 `pubDate`                          |
-| `--max-posts`     | 可选；只能收紧配置上限，不能扩大                               |
+| `--max-posts`     | 可选；覆盖每次一篇的默认值，上限是 `maxPostsPerRunCeiling`（5）|
 | `--force`         | 对已入账 canonical URL 重新翻译；仅手动运行开放                |
 | `--backfill`      | 手动扩大候选窗口到最近 N 篇；定时任务禁止                      |
-| `--token-budget`  | 可选；只能收紧 workflow 的 100,000 token 运行上限              |
+| `--token-budget`  | 可选；只能收紧每栏目 400,000 token 的预算                      |
 | `--dry-run`       | 抓取、清洗、预估 token 和校验，但不调用模型、不写文章或 ledger |
 | `--artifacts-dir` | 保存本次 source、prompt、模型响应、配置和用量                  |
 
@@ -276,7 +291,7 @@ node --import tsx scripts/generate_substack_translations.ts \
 - 将现有 `REDDIT_SOURCE_API_URL` / `REDDIT_SOURCE_API_TOKEN` secrets 映射为 `SUBSTACK_FETCH_PROXY_URL` / `SUBSTACK_FETCH_PROXY_TOKEN`，统一复用已部署的 `yt-dlp-fastapi`
 - concurrency 对所有栏目使用同一个 `substack-translation-${{ github.ref }}` group，避免 `all` 与手动单栏目运行同时写入；不取消正在翻译的长文
 - timeout 建议 180 分钟；栏目顺序执行，单篇内部不并发打模型
-- 运行级 token 硬顶默认 100,000；CLI 只能调低，不能调高
+- token 预算按栏目独立计，默认每栏目 400,000；CLI 只能调低，不能调高
 
 生成器写入独立的 `substack-translation-result.json`。workflow 保持现有 partial-success 顺序：生成步骤保留退出码但不立即中断，先上传 artifact、构建并提交成功文章，最后汇总失败项并把 job 标红。
 
@@ -300,7 +315,7 @@ Feed 获取只允许通过带 Bearer 认证的 `yt-dlp-fastapi /v1/proxy`。不�
 10. 只读取公开 `content:encoded`；缺失或小于 `minTextChars` 时跳过，不抓文章页补全
 11. 命中付费、订阅者专享或截断标记时跳过，并输出明确原因
 
-首次启用栏目时默认只处理 `startAt` 之后的最新一篇，不能把 Feed 内 20 篇历史文章一次性全部翻译。`--backfill N` 只把候选窗口扩大到最近 N 篇，不覆盖发布上限；实际处理数是 `min(N, publication.maxPostsPerRun, --max-posts, 剩余 token 预算可容纳篇数)`。未传 `--backfill` 时仍按栏目正常候选规则执行。
+首次启用栏目时默认只处理 `startAt` 之后的最新一篇，不能把 Feed 内 20 篇历史文章一次性全部翻译。`--backfill N` 只把候选窗口扩大到最近 N 篇，不覆盖发布上限；实际处理数是 `min(N, --max-posts ?? maxPostsPerRun, 剩余 token 预算可容纳篇数)`，其中 `--max-posts` 本身受 `maxPostsPerRunCeiling` 约束。未传 `--backfill` 时仍按栏目正常候选规则执行。
 
 ## 8. 去重与账本
 
@@ -425,16 +440,16 @@ Turndown 是确定性的格式转换器，不做主内容评分，但未知标�
 - 不添加“以下是翻译”“总结”“延伸阅读”等原文不存在的结构
 - 原文中的广告或赞助若未被清洗掉，必须原样标明，不能伪装成本站推荐
 
-不提供自动分块或截断降级。请求前必须估算输入 token、预期输出 token 和 JSON/提示词开销；预计超过模型上下文、模型最大输出或栏目 `maxEstimatedTokensPerArticle` 时，直接把文章标记为 `article-token-limit` 并报警，不能只翻译前半篇。
+不提供自动分块或截断降级。请求前必须估算输入 token、预期输出 token 和 JSON/提示词开销；预计超过模型上下文、模型最大输出或全局 `maxEstimatedTokensPerArticle` 时，直接把文章标记为 `article-token-limit` 并报警，不能只翻译前半篇。
 
 ### 10.1 Token 预算
 
-- 单篇输入与输出的估算总量硬顶默认 50,000 token，可由栏目配置进一步收紧
-- 单次 workflow 的输入与输出总量硬顶默认 100,000 token，fallback 和重试产生的 token 全部计入
-- 发起调用前先预留该文章的估算总量；剩余预算不足时停止处理后续文章，并记录 `run-token-budget-exhausted`
+- 单篇输入与输出的估算总量硬顶 `maxEstimatedTokensPerArticle`（200,000），超出记 `article-token-limit` 且不发请求
+- 预算按栏目独立计，默认每栏目 `publicationTokenBudget`（400,000），fallback 和重试产生的 token 全部计入。**不是整次运行共享一份**：`all` 会串起十几个栏目，共享计数器会让排在前面的长文栏目把后面的全部饿死，而处理顺序按 `priority` 固定，饿死的永远是同一批
+- 发起调用前先预留该文章的估算总量；该栏目剩余预算不足时停止处理它后续的文章，并记录 `publication-token-budget-exhausted`，不影响其他栏目
 - 模型响应后用 provider 返回的实际 input/output/total usage 冲销预留值；provider 不返回 usage 时按预留量计费，不能按零处理
 - 日志按文章、栏目和整次运行输出估算量及实际量；`result.json` 和 ledger 保存最终模型与实际 usage
-- `--token-budget` 只能调低运行上限；不能绕过栏目单篇上限、模型上下文或最大输出限制
+- `--token-budget` 只能调低栏目预算；不能绕过单篇上限、模型上下文或最大输出限制
 
 当前实测最长的 SatPost 正文为 43,976 字符，预期可以在一次调用中完成，但实现不能仅凭字符数假定安全，必须按实际模型及其上下文合同做预检。
 
@@ -534,7 +549,7 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 - 来源 title、author、canonical URL、pubDate 和完整正文均存在
 - Feedsmith 解析的 generator、title、author、pubDate 和 content namespace 通过来源合同
 - 第 9.1 节转换对账全部通过：文本保留比达标，链接、图片、列表项数量与标题层级序列完全一致
-- 清洗后文本达到栏目 `minTextChars`
+- 清洗后文本达到全局 `minTextChars`
 - 中文标题非空，正文中文占比达到最低阈值
 - 所有 source block ID 在译文中恰好出现一次
 - 原始链接占位符全部恢复，没有新增模型链接
@@ -556,7 +571,7 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 | 清洗后只剩推广内容                 | 跳过 item                                                    |
 | 转换对账不通过                     | 该篇失败并输出逐项差值；不调用模型，不回落到未对账的转换结果 |
 | 单篇预估超过上下文、输出或单篇预算 | 不调用模型；该篇失败并报告估算值和限制                       |
-| 运行剩余预算不足                   | 停止后续模型调用；已成功文章仍可归档，job 最终标记部分失败   |
+| 栏目剩余预算不足                   | 停止该栏目后续模型调用；其他栏目不受影响，已成功文章仍可归档，job 最终标记部分失败 |
 | 整篇模型超时、截断或结构失败       | 累计本次 token 后重试一次；仍失败则整篇失败                  |
 | fallback 模型成功                  | 允许发布，在 ledger 和 artifact 记录模型                     |
 | 某篇失败、其他篇成功               | 先归档成功项，最终 job 标记部分失败                          |
@@ -601,7 +616,7 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 8. 栏目级删除规则跑在 Turndown 之前，且确实删掉订阅/赞助/推荐尾巴，同时保留标题、段落、引用、列表和链接
 9. 转换对账在文本被吞、链接丢失、列表项减少或标题层级被改写时判失败
 10. 整篇请求包含全部 block；模型结果缺 block ID、乱序、丢链接或 finishReason 异常时失败
-11. token 预留、实际 usage 冲销、无 usage 时按预留计费，以及 50,000/100,000 硬顶均可复现
+11. token 预留、实际 usage 冲销、无 usage 时按预留计费，以及 200,000 单篇 / 400,000 每栏目硬顶均可复现；一个栏目耗尽预算不影响后续栏目
 12. 文章缓存命中不调用模型；source、promptVersion、model 或输入 hash 变化时缓存失效
 13. 图片下载对 host、重定向、响应大小、MIME、magic bytes、像素和真实扩展名执行校验
 14. 动态文件名在同日多篇和同标题场景下不冲突
@@ -634,7 +649,7 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 - frontmatter `author` 保持 `bhwa233`，原作者保留在 `source.author` 和正文署名；schema 加载后来源字段不被静默剥离
 - 整篇文章只发起一次正常模型调用；译文 block 数、顺序、引用、列表与链接通过代码级完整性校验
 - 同一输入重跑命中文章级缓存，不重复调用模型；截断或部分响应不能进入缓存
-- 单篇估算总量不超过 50,000 token，整次 workflow 不超过 100,000 token，实际用量写入日志、ledger 和 result.json
+- 单篇估算总量不超过 200,000 token，每个栏目每次运行不超过 400,000 token，实际用量写入日志、ledger 和 result.json
 - `mirror` 只落盘通过 host、大小、MIME、magic bytes 和像素校验的图片
 - 付费或截断正文不会进入模型和归档
 - 原始 HTML、prompt 与 response 仅存在于短期 artifact

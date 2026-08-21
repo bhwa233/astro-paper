@@ -26,9 +26,14 @@ import { parseHtml } from "../scripts/html_dom.ts";
 import { htmlNodeToMarkdown } from "../scripts/html_to_markdown.ts";
 import { tempDir, withMocks } from "./helpers/mocks.ts";
 
+// 正文长度下限现在是全局常量，装不下短小的构造样本，所以正文用 BODY_FILLER 撑到阈值以上。
+const BODY_FILLER =
+  "The remainder of this article continues for several paragraphs of ordinary prose. ".repeat(
+    30
+  );
+
 const publication = {
   ...NEWSLETTER_PUBLICATIONS["curiosity-chronicle"],
-  minTextChars: 1,
   removeSelectors: [".subscribe"],
   extractionAudit: { minTextRatio: 0.9 },
   translationLengthRatio: {
@@ -251,7 +256,7 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
   // Production incident 2026-08-21: Substack wrapped an image in a block-level
   // div inside a link, which Turndown emitted as invalid multiline link syntax.
   const imageUrl = "https://substackcdn.com/image/fetch/article.jpg";
-  const html = `<p><em>watch on <a href="https://youtube.com/watch?v=example">YouTube</a> or read and listen on sahilbloom.com</em></p><p><em>read time</em> <strong>10 minutes</strong></p><p>Welcome to The Curiosity Chronicle, a newsletter where I provide actionable ideas.</p><p><em>Forwarded this email? Join 800,000+ other readers <a href="https://www.sahilbloom.com/newsletter">here</a>.</em></p><div><hr></div><h2>Heading</h2><p>Hello <a href="/p/source">source</a>.</p><figure><a href="${imageUrl}"><div><picture><img src="${imageUrl}" alt="Article image"></picture></div></a></figure><blockquote>A claim.</blockquote><ul><li>First</li><li>Second</li></ul><p class="subscribe">Subscribe now</p>`;
+  const html = `<p><em>watch on <a href="https://youtube.com/watch?v=example">YouTube</a> or read and listen on sahilbloom.com</em></p><p><em>read time</em> <strong>10 minutes</strong></p><p>Welcome to The Curiosity Chronicle, a newsletter where I provide actionable ideas.</p><p><em>Forwarded this email? Join 800,000+ other readers <a href="https://www.sahilbloom.com/newsletter">here</a>.</em></p><div><hr></div><h2>Heading</h2><p>Hello <a href="/p/source">source</a>.</p><figure><a href="${imageUrl}"><div><picture><img src="${imageUrl}" alt="Article image"></picture></div></a></figure><blockquote>A claim.</blockquote><ul><li>First</li><li>Second</li></ul><p>${BODY_FILLER}</p><p class="subscribe">Subscribe now</p>`;
   const prepared = prepareArticle(
     html,
     "https://sahilbloom.substack.com/p/full-post",
@@ -318,6 +323,14 @@ test("canonical identity is stable and per-publication ledger never hides corrup
     publication.articleHosts
   );
   assert.equal(canonical, "https://sahilbloom.substack.com/p/example?a=1&b=2");
+  // Substack 的推荐码与欢迎参数逐次变化，漏剥就会把同一篇当成新文章再翻一遍。
+  assert.equal(
+    normalizeCanonicalUrl(
+      "https://sahilbloom.substack.com/p/example?r=2abcde&showWelcome=true&triedRedirect=true",
+      publication.articleHosts
+    ),
+    "https://sahilbloom.substack.com/p/example"
+  );
   assert.throws(
     () =>
       normalizeCanonicalUrl(

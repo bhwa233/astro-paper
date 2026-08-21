@@ -4,7 +4,10 @@ import {
   restrictedFetchText,
   validateRestrictedUrl,
 } from "./restricted_fetch.ts";
-import type { NewsletterPublication } from "./substack_contracts.ts";
+import {
+  SUBSTACK_LIMITS,
+  type NewsletterPublication,
+} from "./substack_contracts.ts";
 
 export type SubstackFeedItem = {
   title: string;
@@ -74,6 +77,7 @@ export function parseNewsletterFeed(
       title,
       guid: guid || link,
       link,
+      // 这里保留原样，去重前由 selectItems 调 normalizeCanonicalUrl 统一规范化。
       canonicalUrl: link,
       publishedAt: normalizedDate(
         item.pubDate || item.dc?.date,
@@ -130,7 +134,7 @@ export async function fetchNewsletterFeed(
   );
   const feed = await restrictedFetchText(proxy.url.href, {
     allowedHosts: [proxy.url.hostname],
-    maxBytes: publication.maxFeedBytes,
+    maxBytes: SUBSTACK_LIMITS.maxFeedBytes,
     headers: {
       Authorization: `Bearer ${proxy.token}`,
       Accept: "application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.1",

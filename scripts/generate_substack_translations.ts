@@ -39,13 +39,12 @@ import {
   compilePatterns,
   publicationsForInput,
 } from "./substack_publications.ts";
-import type {
-  NewsletterPublication,
-  TokenUsage,
-  TranslationResponse,
+import {
+  SUBSTACK_LIMITS,
+  type NewsletterPublication,
+  type TokenUsage,
+  type TranslationResponse,
 } from "./substack_contracts.ts";
-
-const DEFAULT_RUN_TOKEN_BUDGET = 100_000;
 
 type ItemResult = {
   publication: string;
@@ -88,6 +87,11 @@ function validateTrustedUrl(raw: string, hosts: readonly string[]): URL {
   return url;
 }
 
+// 去重主键靠这一步归一。Substack 的 <link> 常带 ?r=<推荐码>、?showWelcome，feedburner 侧几乎必带
+// utm_*；同一篇文章两次抓到的参数不同，按原样比对就会漏判成新文章，重新翻译并再发一篇。
+const TRACKING_PARAMS =
+  /^(?:utm_.+|r|ref|referrer|share|si|fbclid|gclid|mc_cid|mc_eid|triedRedirect|showWelcome|isFreemail|post_id|publication_id|_bhlid)$/i;
+
 export function normalizeCanonicalUrl(
   raw: string,
   hosts: readonly string[]
@@ -95,8 +99,7 @@ export function normalizeCanonicalUrl(
   const url = validateTrustedUrl(raw, hosts);
   url.hash = "";
   for (const key of [...url.searchParams.keys()]) {
-    if (/^(?:utm_.+|fbclid|gclid|mc_cid|mc_eid)$/i.test(key))
-      url.searchParams.delete(key);
+    if (TRACKING_PARAMS.test(key)) url.searchParams.delete(key);
   }
   url.searchParams.sort();
   if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/+$/, "");
@@ -133,12 +136,10 @@ function selectItems(
   const unpublished = windowed.filter(
     item => options.force || !findSubstackIssue(ledger, item.canonicalUrl)
   );
+  // 定时任务按常量走一篇；手动运行可以用 --max-posts 放大，但不越过硬顶。
   return unpublished.slice(
     0,
-    Math.min(
-      publication.maxPostsPerRun,
-      options.maxPosts ?? Number.POSITIVE_INFINITY
-    )
+    options.maxPosts ?? SUBSTACK_LIMITS.maxPostsPerRun
   );
 }
 
@@ -233,17 +234,21 @@ async function processItem(params: {
   fs.writeFileSync(path.join(dir, "extracted.md"), prepared.markdown, "utf8");
   writeJson(path.join(dir, "extraction-audit.json"), prepared.audit);
   writeJson(path.join(dir, "cleaned-blocks.json"), prepared.blocks);
-  writeJson(path.join(dir, "effective-config.json"), publication);
+  // 阈值已经不在栏目配置里，单独快照一份，否则事后排查看不到本次实际生效的上限。
+  writeJson(path.join(dir, "effective-config.json"), {
+    publication,
+    limits: SUBSTACK_LIMITS,
+  });
 
-  if (estimatedTokens > publication.maxEstimatedTokensPerArticle) {
+  if (estimatedTokens > SUBSTACK_LIMITS.maxEstimatedTokensPerArticle) {
     throw new Error(
-      `article-token-limit: estimated ${estimatedTokens}, limit ${publication.maxEstimatedTokensPerArticle}`
+      `article-token-limit: estimated ${estimatedTokens}, limit ${SUBSTACK_LIMITS.maxEstimatedTokensPerArticle}`
     );
   }
   if (params.dryRun) {
     if (estimatedTokens > params.remainingBudget) {
       throw new Error(
-        `run-token-budget-exhausted: needs ${estimatedTokens}, remaining ${params.remainingBudget}`
+        `publication-token-budget-exhausted: needs ${estimatedTokens}, remaining ${params.remainingBudget}`
       );
     }
     return {
@@ -306,7 +311,7 @@ async function processItem(params: {
   const reservedTokens = estimatedTokens * (fallbackEnabled ? 2 : 1);
   if (!cached && reservedTokens > params.remainingBudget) {
     throw new Error(
-      `run-token-budget-exhausted: needs ${reservedTokens}, remaining ${params.remainingBudget}`
+      `publication-token-budget-exhausted: needs ${reservedTokens}, remaining ${params.remainingBudget}`
     );
   }
   let cache: ItemResult["cache"] = cached ? "hit" : "miss";
@@ -414,17 +419,20 @@ async function main(): Promise<void> {
   const backfillRaw = stringArg(args, "backfill");
   const maxPostsRaw = stringArg(args, "max-posts");
   const budgetRaw = stringArg(args, "token-budget");
-  const tokenBudget = budgetRaw
+  const publicationTokenBudget = budgetRaw
     ? Math.min(
         positiveInt(budgetRaw, "--token-budget"),
-        DEFAULT_RUN_TOKEN_BUDGET
+        SUBSTACK_LIMITS.publicationTokenBudget
       )
-    : DEFAULT_RUN_TOKEN_BUDGET;
+    : SUBSTACK_LIMITS.publicationTokenBudget;
   const backfill = backfillRaw
     ? positiveInt(backfillRaw, "--backfill")
     : undefined;
   const maxPosts = maxPostsRaw
-    ? positiveInt(maxPostsRaw, "--max-posts")
+    ? Math.min(
+        positiveInt(maxPostsRaw, "--max-posts"),
+        SUBSTACK_LIMITS.maxPostsPerRunCeiling
+      )
     : undefined;
   const artifactsRoot = stringArg(args, "artifacts-dir", "artifacts");
   const resultJson = stringArg(args, "result-json");
@@ -436,6 +444,7 @@ async function main(): Promise<void> {
   let chargedTokens = 0;
 
   for (const publication of publicationsForInput(publicationInput)) {
+    let publicationChargedTokens = 0;
     try {
       const parsed = await fetchNewsletterFeed(publication);
       process.stderr.write(
@@ -457,12 +466,13 @@ async function main(): Promise<void> {
             artifactsRoot,
             dryRun,
             force,
-            remainingBudget: tokenBudget - chargedTokens,
+            remainingBudget: publicationTokenBudget - publicationChargedTokens,
           });
           results.push(processed.result);
+          publicationChargedTokens += processed.chargedTokens;
           chargedTokens += processed.chargedTokens;
           process.stderr.write(
-            `[substack] ${publication.key} ${processed.result.status} estimated=${processed.result.estimatedTokens} actual=${processed.chargedTokens}\n`
+            `[substack] ${publication.key} ${processed.result.status} estimated=${processed.result.estimatedTokens} actual=${processed.chargedTokens} publicationCharged=${publicationChargedTokens}/${publicationTokenBudget}\n`
           );
         } catch (error) {
           results.push({
@@ -496,7 +506,7 @@ async function main(): Promise<void> {
       ? "partial-failure"
       : "ok",
     dryRun,
-    tokenBudget,
+    publicationTokenBudget,
     chargedTokens,
     results,
   };

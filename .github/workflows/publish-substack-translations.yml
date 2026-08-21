@@ -38,9 +38,9 @@ on:
         required: false
         type: string
       token_budget:
-        description: "Run token limit up to the fixed 100,000 ceiling."
+        description: "Per-publication token limit up to the fixed 400,000 ceiling."
         required: false
-        default: "100000"
+        default: "400000"
         type: string
 
 concurrency:
@@ -81,7 +81,7 @@ jobs:
           INPUT_PUBLICATION: ${{ inputs.publication || 'all' }}
           INPUT_FORCE: ${{ inputs.force || false }}
           INPUT_BACKFILL: ${{ inputs.backfill || '' }}
-          INPUT_TOKEN_BUDGET: ${{ inputs.token_budget || '100000' }}
+          INPUT_TOKEN_BUDGET: ${{ inputs.token_budget || '400000' }}
           SUBSTACK_FETCH_PROXY_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
           SUBSTACK_FETCH_PROXY_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
@@ -128,7 +128,7 @@ jobs:
           } else {
             const payload = JSON.parse(fs.readFileSync("substack-translation-result.json", "utf8"));
             lines.push(`- Status: ${payload.status}`);
-            lines.push(`- Charged tokens: ${payload.chargedTokens} / ${payload.tokenBudget}`);
+            lines.push(`- Charged tokens: ${payload.chargedTokens} (per-publication budget ${payload.publicationTokenBudget})`);
             lines.push("", "| Publication | Status | Tokens | Detail |", "| --- | --- | ---: | --- |");
             for (const item of payload.results || []) {
               const detail = String(item.reason || item.postPath || item.warning || "").replaceAll("|", "\\|").replaceAll("\n", " ");

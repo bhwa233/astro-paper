@@ -6,7 +6,10 @@ import { createHash } from "node:crypto";
 import { ensureDir } from "./blog_common.ts";
 import { inspectRaster } from "./image_raster.ts";
 import { restrictedFetch } from "./restricted_fetch.ts";
-import type { NewsletterPublication } from "./substack_contracts.ts";
+import {
+  SUBSTACK_LIMITS,
+  type NewsletterPublication,
+} from "./substack_contracts.ts";
 
 const ALLOWED_MIME = new Set([
   "image/jpeg",
@@ -27,7 +30,7 @@ export async function validateRemoteImage(
 }> {
   const response = await restrictedFetch(url, {
     allowedHosts: publication.imageHosts,
-    maxBytes: publication.maxImageBytes,
+    maxBytes: SUBSTACK_LIMITS.maxImageBytes,
     headers: { Accept: "image/avif,image/webp,image/png,image/jpeg,image/gif" },
   });
   const detected = await fileTypeFromBuffer(response.bytes);
@@ -39,9 +42,9 @@ export async function validateRemoteImage(
     );
   }
   const metadata = await inspectRaster(response.bytes);
-  if (metadata.width * metadata.height > publication.maxImagePixels) {
+  if (metadata.width * metadata.height > SUBSTACK_LIMITS.maxImagePixels) {
     throw new Error(
-      `image exceeds ${publication.maxImagePixels} pixels: ${url}`
+      `image exceeds ${SUBSTACK_LIMITS.maxImagePixels} pixels: ${url}`
     );
   }
   return {

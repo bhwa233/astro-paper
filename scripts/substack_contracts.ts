@@ -1,5 +1,31 @@
 import { z } from "zod";
 
+// 抓取与翻译的护栏，全部栏目共用一套。之前每个栏目各带一份，14 条配置里 84 行只有三种取值，
+// 差异纯粹是按各自实测微调出来的，没有语义分歧，所以收敛成常量。
+// 这些拦的都不是开销，而是 OOM、解压炸弹、paywall 残稿和上下文超限，因此取值一律按最宽松那个，
+// 宁可多跑一次也不要误杀一篇本来能翻的文章。
+export const SUBSTACK_LIMITS = {
+  /** 转换后可见文本的下限，用来识别 paywall 截断与清洗后只剩推广的残稿。 */
+  minTextChars: 2_000,
+  /** RSS 响应体上限。SatPost 实测 3.4 MB，这里留足余量，只作内存边界。 */
+  maxFeedBytes: 16_000_000,
+  /** 单张图片的响应体上限。 */
+  maxImageBytes: 12_000_000,
+  /** 解码后像素上限，防解压炸弹：字节小不代表像素少。 */
+  maxImagePixels: 40_000_000,
+  /** 一次运行每个栏目最多处理几篇。定时任务按它跑，手动运行可用 --max-posts 放大。 */
+  maxPostsPerRun: 1,
+  /** 手动运行时 --max-posts 的硬顶。 */
+  maxPostsPerRunCeiling: 5,
+  /** 单篇预估 token 上限，只作跑飞护栏；模型上下文远大于它。 */
+  maxEstimatedTokensPerArticle: 200_000,
+  /**
+   * 每个栏目每次运行的 token 预算，各栏目独立计。
+   * 必须 >= 2 倍单篇上限：开 fallback 时按估算量的两倍预留。
+   */
+  publicationTokenBudget: 400_000,
+} as const;
+
 export const patternConfigSchema = z.object({
   source: z.string().min(1),
   flags: z
@@ -48,12 +74,6 @@ export const newsletterPublicationSchema = z.object({
   selectionRule: z.string().min(1).optional(),
   enabled: z.boolean(),
   startAt: z.string().date(),
-  minTextChars: z.number().int().positive(),
-  maxFeedBytes: z.number().int().positive(),
-  maxImageBytes: z.number().int().positive(),
-  maxImagePixels: z.number().int().positive(),
-  maxPostsPerRun: z.number().int().positive(),
-  maxEstimatedTokensPerArticle: z.number().int().positive(),
   imagePolicy: z.enum(["none", "remote", "mirror"]),
   removeSelectors: z.array(z.string().min(1)).default([]),
   cutBeforePatterns: z.array(patternConfigSchema).default([]),

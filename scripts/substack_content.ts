@@ -6,6 +6,7 @@ import { parseHtml } from "./html_dom.ts";
 import { htmlNodeToMarkdown } from "./html_to_markdown.ts";
 import { compilePatterns } from "./substack_publications.ts";
 import {
+  SUBSTACK_LIMITS,
   translationResponseSchema,
   type NewsletterPublication,
   type TranslationResponse,
@@ -258,9 +259,9 @@ export function prepareArticle(
       `HTML to Markdown text ratio ${textRatio.toFixed(3)} is below ${publication.extractionAudit.minTextRatio}`
     );
   }
-  if (convertedMetrics.text.length < publication.minTextChars) {
+  if (convertedMetrics.text.length < SUBSTACK_LIMITS.minTextChars) {
     throw new Error(
-      `article has only ${convertedMetrics.text.length} visible characters; minimum is ${publication.minTextChars}`
+      `article has only ${convertedMetrics.text.length} visible characters; minimum is ${SUBSTACK_LIMITS.minTextChars}`
     );
   }
   const blocks = splitBlocks(markdown);

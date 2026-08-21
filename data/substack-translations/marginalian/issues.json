@@ -15,6 +15,21 @@
         "outputTokens": 3056,
         "totalTokens": 5257
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=84625",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/20/any-common-desolation-ellen-bass",
+      "sourcePublishedAt": "2026-08-21T02:34:39.000Z",
+      "sourceSha256": "64550a910e75419e914a1773a25119a18abc3fb4028f51ab684ab361b8914023",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260821-any-common-desolation-ellen-bass.md",
+      "translatedAt": "2026-08-21T07:32:07.326Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2076,
+        "outputTokens": 1755,
+        "totalTokens": 3831
+      }
     }
   ]
 }

@@ -218,7 +218,10 @@ test("image validation trusts magic bytes and decoding, not the remote filename"
 });
 
 test("DOM cleanup precedes Markdown conversion and translation validation preserves structure and URLs", () => {
-  const html = `<h2>Heading</h2><p>Hello <a href="/p/source">source</a>.</p><blockquote>A claim.</blockquote><ul><li>First</li><li>Second</li></ul><p class="subscribe">Subscribe now</p>`;
+  // Production incident 2026-08-21: Substack wrapped an image in a block-level
+  // div inside a link, which Turndown emitted as invalid multiline link syntax.
+  const imageUrl = "https://substackcdn.com/image/fetch/article.jpg";
+  const html = `<h2>Heading</h2><p>Hello <a href="/p/source">source</a>.</p><figure><a href="${imageUrl}"><div><picture><img src="${imageUrl}" alt="Article image"></picture></div></a></figure><blockquote>A claim.</blockquote><ul><li>First</li><li>Second</li></ul><p class="subscribe">Subscribe now</p>`;
   const prepared = prepareArticle(
     html,
     "https://sahilbloom.substack.com/p/full-post",
@@ -227,7 +230,12 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
   assert.doesNotMatch(prepared.markdown, /Subscribe now/);
   assert.match(prepared.markdown, /^## Heading/m);
   assert.equal(prepared.audit.headings, 1);
-  assert.equal(prepared.audit.links, 1);
+  assert.equal(prepared.audit.links, 2);
+  assert.equal(prepared.audit.images, 1);
+  assert.match(
+    prepared.markdown,
+    /\[!\[Article image\]\(https:\/\/substackcdn\.com\/image\/fetch\/article\.jpg\)\]\(https:\/\/substackcdn\.com\/image\/fetch\/article\.jpg\)/
+  );
   assert.equal(prepared.audit.listItems, 2);
 
   const response = {

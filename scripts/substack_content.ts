@@ -155,6 +155,13 @@ function cleanHtml(
       node.removeAttribute(attribute);
     }
   });
+  // Turndown inserts blank lines for block wrappers inside anchors, producing
+  // invalid Markdown links. Flatten image-only anchors while preserving both URLs.
+  body.querySelectorAll("a[href]").forEach(node => {
+    const images = node.querySelectorAll("img[src]");
+    if (images.length === 1 && !compact(node.textContent || ""))
+      node.replaceChildren(images[0]);
+  });
   if (publication.imagePolicy === "none")
     body.querySelectorAll("img,picture,figure").forEach(node => node.remove());
   return body;

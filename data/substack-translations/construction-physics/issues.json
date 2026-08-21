@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "guid": "https://www.construction-physics.com/p/why-is-everyone-trying-to-build-a",
+      "canonicalUrl": "https://www.construction-physics.com/p/why-is-everyone-trying-to-build-a",
+      "sourcePublishedAt": "2026-07-30T12:04:25.000Z",
+      "sourceSha256": "03a3af17f6a73cdfdc73a2313cf9cd783e40f71a9c9689ab6ae89a138c3d69c0",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/construction-physics-20260730-why-is-everyone-trying-to-build-a.md",
+      "translatedAt": "2026-08-21T06:49:02.072Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3921,
+        "outputTokens": 3248,
+        "totalTokens": 7169
+      }
+    }
+  ]
+}

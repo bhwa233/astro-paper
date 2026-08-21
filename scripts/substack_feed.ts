@@ -1,11 +1,10 @@
 import { parseFeed } from "feedsmith";
 import { compact } from "./blog_common.ts";
-import { restrictedFetchText } from "./restricted_fetch.ts";
 import {
-  substackArchiveItemSchema,
-  substackPostDetailSchema,
-  type NewsletterPublication,
-} from "./substack_contracts.ts";
+  restrictedFetchText,
+  validateRestrictedUrl,
+} from "./restricted_fetch.ts";
+import type { NewsletterPublication } from "./substack_contracts.ts";
 
 export type SubstackFeedItem = {
   title: string;
@@ -16,14 +15,12 @@ export type SubstackFeedItem = {
   author: string;
   description: string;
   contentHtml: string;
-  contentApiUrl?: string;
-  audience?: string;
 };
 
 export type ParsedSubstackFeed = {
   title: string;
   generator: string;
-  transport: "rss" | "substack-api";
+  transport: "rss" | "service-proxy";
   items: SubstackFeedItem[];
 };
 
@@ -99,140 +96,48 @@ export function parseNewsletterFeed(
   };
 }
 
-function substackApiUrl(
-  publication: NewsletterPublication,
-  pathname: string
-): string {
-  return new URL(pathname, new URL(publication.feedUrl).origin).href;
-}
-
-function parseSubstackArchive(
-  text: string,
-  publication: NewsletterPublication
-): ParsedSubstackFeed {
-  let payload: unknown;
-  try {
-    payload = JSON.parse(text);
-  } catch {
-    throw new Error(`${publication.key} Substack archive returned invalid JSON`);
-  }
-  if (!Array.isArray(payload) || !payload.length)
-    throw new Error(`${publication.key} Substack archive has no items`);
-
-  const items = payload.map((value, index): SubstackFeedItem => {
-    const parsed = substackArchiveItemSchema.safeParse(value);
-    if (!parsed.success)
-      throw new Error(
-        `${publication.key} archive item ${index + 1} failed schema validation`
-      );
-    const item = parsed.data;
-    const bodyHtml = item.body_html || "";
-    return {
-      title: compact(item.title),
-      guid: String(item.id),
-      link: item.canonical_url,
-      canonicalUrl: item.canonical_url,
-      publishedAt: normalizedDate(
-        item.post_date,
-        `${publication.key} archive item ${index + 1} post_date`
-      ),
-      author: compact(item.publishedBylines?.[0]?.name || publication.author),
-      description: compact(item.description || ""),
-      contentHtml: bodyHtml,
-      contentApiUrl: bodyHtml
-        ? undefined
-        : substackApiUrl(
-            publication,
-            `/api/v1/posts/${encodeURIComponent(item.slug)}`
-          ),
-      audience: compact(item.audience || ""),
-    };
-  });
-
-  return {
-    title: publication.displayName,
-    generator: "Substack",
-    transport: "substack-api",
-    items,
-  };
-}
-
-function isSubstackFeedBlocked(error: unknown): boolean {
-  return error instanceof Error && /\bHTTP 403\b/.test(error.message);
+function requiredSourceProxy(): { url: URL; token: string } {
+  const baseUrl = process.env.SUBSTACK_FETCH_PROXY_URL?.trim().replace(/\/+$/, "");
+  const token = process.env.SUBSTACK_FETCH_PROXY_TOKEN?.trim();
+  if (!baseUrl)
+    throw new Error(
+      "SUBSTACK_FETCH_PROXY_URL is required for newsletter feed fetch"
+    );
+  if (!token)
+    throw new Error(
+      "SUBSTACK_FETCH_PROXY_TOKEN is required for newsletter feed fetch"
+    );
+  const url = new URL(`${baseUrl}/v1/proxy`);
+  if (url.protocol !== "https:")
+    throw new Error("SUBSTACK_FETCH_PROXY_URL must use HTTPS");
+  if (url.username || url.password)
+    throw new Error("SUBSTACK_FETCH_PROXY_URL must not contain credentials");
+  return { url, token };
 }
 
 export async function fetchNewsletterFeed(
   publication: NewsletterPublication
 ): Promise<ParsedSubstackFeed> {
-  try {
-    const feed = await restrictedFetchText(publication.feedUrl, {
-      allowedHosts: publication.feedHosts,
-      maxBytes: publication.maxFeedBytes,
-    });
-    return parseNewsletterFeed(feed.text, publication);
-  } catch (error) {
-    if (publication.kind !== "substack" || !isSubstackFeedBlocked(error))
-      throw error;
-    const archiveUrl = substackApiUrl(
-      publication,
-      "/api/v1/archive?sort=new&search=&offset=0&limit=20"
-    );
-    try {
-      const archive = await restrictedFetchText(archiveUrl, {
-        allowedHosts: publication.feedHosts,
-        maxBytes: publication.maxFeedBytes,
-        headers: { Accept: "application/json" },
-      });
-      return parseSubstackArchive(archive.text, publication);
-    } catch (fallbackError) {
-      const reason =
-        fallbackError instanceof Error
-          ? fallbackError.message
-          : String(fallbackError);
-      throw new Error(
-        `${publication.key} RSS was blocked and Substack archive fallback failed: ${reason}`,
-        { cause: fallbackError }
-      );
-    }
-  }
-}
-
-export async function hydrateNewsletterItem(
-  item: SubstackFeedItem,
-  publication: NewsletterPublication
-): Promise<SubstackFeedItem> {
-  if (item.audience && item.audience !== "everyone")
-    throw new Error(`Substack article is not public: ${item.canonicalUrl}`);
-  if (item.contentHtml) return item;
-  if (!item.contentApiUrl)
-    throw new Error(`Substack article body is missing: ${item.canonicalUrl}`);
-
-  const response = await restrictedFetchText(item.contentApiUrl, {
-    allowedHosts: publication.feedHosts,
+  const proxy = requiredSourceProxy();
+  const targetUrl = validateRestrictedUrl(
+    publication.feedUrl,
+    publication.feedHosts
+  );
+  proxy.url.searchParams.set("url", targetUrl.href);
+  proxy.url.searchParams.set(
+    "userAgent",
+    "astro-paper-newsletter-translator/1.0"
+  );
+  const feed = await restrictedFetchText(proxy.url.href, {
+    allowedHosts: [proxy.url.hostname],
     maxBytes: publication.maxFeedBytes,
-    headers: { Accept: "application/json" },
+    headers: {
+      Authorization: `Bearer ${proxy.token}`,
+      Accept: "application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.1",
+    },
   });
-  let payload: unknown;
-  try {
-    payload = JSON.parse(response.text);
-  } catch {
-    throw new Error(`Substack article detail returned invalid JSON`);
-  }
-  const parsed = substackPostDetailSchema.safeParse(payload);
-  if (!parsed.success)
-    throw new Error(`Substack article detail failed schema validation`);
-  const detail = parsed.data;
-  const audience = compact(detail.audience || "") || item.audience;
-  if (audience && audience !== "everyone")
-    throw new Error(`Substack article is not public: ${item.canonicalUrl}`);
-  const contentHtml = detail.body_html;
-  if (!compact(contentHtml))
-    throw new Error(`Substack article body is missing: ${item.canonicalUrl}`);
   return {
-    ...item,
-    author: compact(detail.publishedBylines?.[0]?.name || item.author),
-    contentHtml,
-    contentApiUrl: undefined,
-    audience,
+    ...parseNewsletterFeed(feed.text, publication),
+    transport: "service-proxy",
   };
 }

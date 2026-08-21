@@ -74,7 +74,7 @@ workflow input: publication=<key|all>
 
 - `scripts/html_dom.ts`：`content:encoded` 的 HTML DOM 清洗；业务模块不直接 import jsdom
 - `scripts/blog_common.ts`：日志、通用文本处理，以及 `readJsonLedger` / `writeJsonLedger`
-- `scripts/restricted_fetch.ts`：原生 fetch 的逐跳 HTTPS/host 校验、流式响应上限和超时；Feed 与图片共用
+- `scripts/restricted_fetch.ts`：原生 fetch 的逐跳 HTTPS/host 校验、流式响应上限和超时；Feed 代理响应与图片共用
 - `scripts/blog_ai_client.ts`：主模型、fallback、冷却和超时处理
 - `scripts/magazine_ledger.ts`：账本模块的形状模板（key 构造、路径解析、环境变量覆盖）
 - `blog-publish.yml`：复用其 Node/pnpm、artifact、构建、提交与有限 push 重试方式，不把新任务塞进既有封闭 task union
@@ -237,6 +237,7 @@ node --import tsx scripts/generate_substack_translations.ts \
 - `schedule` 每天轮询一次，传 `publication=all`
 - `workflow_dispatch` 允许选择已登记 key、`all`、`force` 和 `backfill`
 - 使用现有 `AI_*` / `AI_FALLBACK_*` secrets，不增加栏目级 secret
+- 将现有 `REDDIT_SOURCE_API_URL` / `REDDIT_SOURCE_API_TOKEN` secrets 映射为 `SUBSTACK_FETCH_PROXY_URL` / `SUBSTACK_FETCH_PROXY_TOKEN`，统一复用已部署的 `yt-dlp-fastapi`
 - concurrency 对所有栏目使用同一个 `substack-translation-${{ github.ref }}` group，避免 `all` 与手动单栏目运行同时写入；不取消正在翻译的长文
 - timeout 建议 180 分钟；栏目顺序执行，单篇内部不并发打模型
 - 运行级 token 硬顶默认 100,000；CLI 只能调低，不能调高
@@ -247,21 +248,21 @@ node --import tsx scripts/generate_substack_translations.ts \
 
 ## 7. Feed 获取与来源契约
 
+Feed 获取只允许通过带 Bearer 认证的 `yt-dlp-fastapi /v1/proxy`。不先尝试直连，也不保留 Substack API、文章页或其他第三方代理回退；`SUBSTACK_FETCH_PROXY_URL` 或 `SUBSTACK_FETCH_PROXY_TOKEN` 缺失时，必须在任何网络请求之前失败。
+
 每个栏目依次执行以下检查：
 
 1. `feedUrl` 必须是配置中的 HTTPS URL，不从 item 或重定向结果覆盖
-2. 最多 3 次请求，单次 30 秒，使用明确的 CI User-Agent
-3. 最终响应为 2xx；每次重定向及最终 URL 的 host 必须在 `feedHosts`
-4. `Content-Type` 接受 XML/RSS，正文最大值使用栏目 `maxFeedBytes`
-5. RSS 至少有一个 `item`，每项必须有 title、GUID 或 link、合法 pubDate
-6. `kind=substack` 时校验 `<generator>Substack</generator>`
-7. item link 与 canonical URL 解析后的 host 必须在 `articleHosts`
-8. 编译并应用 `excludeTitlePatterns`；命中的 item 跳过并记录具体规则
-9. 只读取公开 `content:encoded`；缺失或小于 `minTextChars` 时跳过，不抓文章页补全
-10. 命中付费、订阅者专享或截断标记时跳过，并输出明确原因
-11. `kind=substack` 的 RSS 返回 403 时，允许回退到同一 Feed origin 的公开 `/api/v1/archive` 与 `/api/v1/posts/<slug>`；两次请求仍使用 `feedHosts`、响应大小和重定向限制
-
-不用文章页 HTML fallback 是刻意选择：备用通道只消费 Substack 的结构化公开 API。archive API 只负责候选元数据，完成去重和篇数选择后才请求被选文章的 detail API，避免为 Feed 中每篇历史文章下载正文。RSS 与 API 都不可用时整栏失败，不绕过白名单调用第三方代理。
+2. 客户端在调用代理前校验 Feed 初始 URL 的 host 位于 `feedHosts`
+3. 代理基址必须是无内嵌凭据的 HTTPS URL；客户端只向该 host 发送 Bearer token
+4. 代理负责目标地址和每次重定向的公网 IP/SSRF 校验；客户端最多重试 3 次、单次 20 秒，并对代理响应继续执行 `maxFeedBytes` 流式硬限制
+5. 最终响应为 2xx，`Content-Type` 接受 XML/RSS
+6. RSS 至少有一个 `item`，每项必须有 title、GUID 或 link、合法 pubDate
+7. `kind=substack` 时校验 `<generator>Substack</generator>`
+8. item link 与 canonical URL 解析后的 host 必须在 `articleHosts`
+9. 编译并应用 `excludeTitlePatterns`；命中的 item 跳过并记录具体规则
+10. 只读取公开 `content:encoded`；缺失或小于 `minTextChars` 时跳过，不抓文章页补全
+11. 命中付费、订阅者专享或截断标记时跳过，并输出明确原因
 
 首次启用栏目时默认只处理 `startAt` 之后的最新一篇，不能把 Feed 内 20 篇历史文章一次性全部翻译。`--backfill N` 只把候选窗口扩大到最近 N 篇，不覆盖发布上限；实际处理数是 `min(N, publication.maxPostsPerRun, --max-posts, 剩余 token 预算可容纳篇数)`。未传 `--backfill` 时仍按栏目正常候选规则执行。
 
@@ -512,7 +513,8 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 
 | 失败                               | 处理                                                         |
 | ---------------------------------- | ------------------------------------------------------------ |
-| Feed 429/5xx/超时                  | 按现有 HTTP 策略重试；耗尽后该栏目失败                       |
+| 代理配置缺失或无效                 | 在任何网络请求前失败，不尝试直连或其他回退                   |
+| 代理 429/5xx/超时                  | 按现有 HTTP 策略重试；耗尽后该栏目失败                       |
 | Feed 结构变化                      | 该栏目失败，不回落网页抓取                                   |
 | 正文为空、过短或 paywall           | 跳过 item，记录原因                                          |
 | 清洗后只剩推广内容                 | 跳过 item                                                    |
@@ -554,7 +556,7 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 需要测试的稳定合同：
 
 1. Substack RSS 能从 `content:encoded` 读取完整 HTML，而不是 description
-2. Substack RSS 在 GitHub Actions 出现 HTTP 403 时回退到同站公开 API，并且只补全最终选中的文章正文
+2. Feed 请求强制经过认证代理；缺 URL/token 时不发网络请求，配置完整时只请求 `/v1/proxy`
 3. `feedHosts`、`articleHosts`、`imageHosts` 分别约束初始 URL、每次重定向和最终 URL
 4. 配置 key 解析、`all` 展开、未知 key 与非法 pattern 在网络请求前失败；effective config 可序列化
 5. `excludeTitlePatterns` 确实排除匹配 item，并留下可审计原因

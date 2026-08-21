@@ -26,7 +26,6 @@ import {
 } from "./substack_content.ts";
 import {
   fetchNewsletterFeed,
-  hydrateNewsletterItem,
   type SubstackFeedItem,
 } from "./substack_feed.ts";
 import { processArticleImages } from "./substack_image.ts";
@@ -439,19 +438,17 @@ async function main(): Promise<void> {
   for (const publication of publicationsForInput(publicationInput)) {
     try {
       const parsed = await fetchNewsletterFeed(publication);
-      if (parsed.transport === "substack-api")
-        process.stderr.write(
-          `[substack] ${publication.key} RSS returned 403; using public archive API fallback\n`
-        );
+      process.stderr.write(
+        `[substack] ${publication.key} feed transport=${parsed.transport}\n`
+      );
       const items = selectItems(
         parsed.items,
         publication,
         path.join(repo, substackLedgerRelPath(publication.key)),
         { force, backfill, maxPosts }
       );
-      for (const selectedItem of items) {
+      for (const item of items) {
         try {
-          const item = await hydrateNewsletterItem(selectedItem, publication);
           const processed = await processItem({
             repo,
             publication,
@@ -470,7 +467,7 @@ async function main(): Promise<void> {
         } catch (error) {
           results.push({
             publication: publication.key,
-            canonicalUrl: selectedItem.canonicalUrl,
+            canonicalUrl: item.canonicalUrl,
             status: "failed",
             reason: error instanceof Error ? error.message : String(error),
           });

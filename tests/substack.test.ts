@@ -4,7 +4,6 @@ import path from "node:path";
 import test from "node:test";
 import {
   fetchNewsletterFeed,
-  hydrateNewsletterItem,
   parseNewsletterFeed,
 } from "../scripts/substack_feed.ts";
 import {
@@ -46,53 +45,78 @@ test("newsletter feed contract reads namespaced full content instead of the summ
   );
 });
 
-test("Substack HTTP 403 falls back to the public archive API", async () => {
-  // Production incident 2026-08-21: Substack rejected /feed from GitHub Actions,
-  // so generation stopped before reaching the translation model.
-  const calls: string[] = [];
+test("newsletter fetch requires the authenticated source proxy", async () => {
+  // Production incident 2026-08-21: GitHub Actions was blocked from both the
+  // Substack RSS and public API, so every feed read must leave through the
+  // authenticated source service instead of attempting a direct request.
   await withMocks(
     {
-      fetch: async input => {
+      env: {
+        SUBSTACK_FETCH_PROXY_URL: undefined,
+        SUBSTACK_FETCH_PROXY_TOKEN: undefined,
+      },
+      fetch: async () => {
+        throw new Error("fetch must not run without proxy configuration");
+      },
+    },
+    () =>
+      assert.rejects(
+        () => fetchNewsletterFeed(publication),
+        /SUBSTACK_FETCH_PROXY_URL is required/
+      )
+  );
+
+  await withMocks(
+    {
+      env: {
+        SUBSTACK_FETCH_PROXY_URL: "https://source.example/api",
+        SUBSTACK_FETCH_PROXY_TOKEN: undefined,
+      },
+      fetch: async () => {
+        throw new Error("fetch must not run without proxy token");
+      },
+    },
+    () =>
+      assert.rejects(
+        () => fetchNewsletterFeed(publication),
+        /SUBSTACK_FETCH_PROXY_TOKEN is required/
+      )
+  );
+
+  const xml = `<?xml version="1.0"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Example</title><generator>Substack</generator><item><title>Full post</title><link>https://sahilbloom.substack.com/p/full-post</link><guid>post-1</guid><pubDate>Wed, 19 Aug 2026 12:00:00 GMT</pubDate><content:encoded><![CDATA[<p>Full proxy body</p>]]></content:encoded></item></channel></rss>`;
+  const calls: Array<{ url: string; authorization: string }> = [];
+  await withMocks(
+    {
+      env: {
+        SUBSTACK_FETCH_PROXY_URL: "https://source.example/api",
+        SUBSTACK_FETCH_PROXY_TOKEN: "proxy-token",
+      },
+      fetch: async (input, init) => {
         const url = String(input);
-        calls.push(url);
-        if (url === "https://sahilbloom.substack.com/feed")
-          return new Response("Forbidden", { status: 403 });
-        if (url.includes("/api/v1/archive?"))
-          return Response.json([
-            {
-              id: 211910339,
-              title: "Why You Need a Side Quest in Life",
-              slug: "why-you-need-a-side-quest-in-life",
-              post_date: "2026-08-19T20:00:58.342Z",
-              canonical_url:
-                "https://sahilbloom.substack.com/p/why-you-need-a-side-quest-in-life",
-              description: "A short description",
-              body_html: null,
-              publishedBylines: [{ name: "Sahil Bloom" }],
-            },
-          ]);
-        return Response.json({
-          body_html: "<h1>Full body</h1><p>Public article text.</p>",
-          publishedBylines: [{ name: "Sahil Bloom" }],
+        calls.push({
+          url,
+          authorization: new Headers(init?.headers).get("authorization") || "",
+        });
+        return new Response(xml, {
+          headers: { "Content-Type": "application/rss+xml" },
         });
       },
     },
     async () => {
       const feed = await fetchNewsletterFeed(publication);
-      assert.equal(feed.transport, "substack-api");
+      assert.equal(feed.transport, "service-proxy");
       assert.equal(feed.items.length, 1);
-      assert.equal(feed.items[0].contentHtml, "");
-
-      const item = await hydrateNewsletterItem(feed.items[0], publication);
-      assert.match(item.contentHtml, /Full body/);
-      assert.equal(item.author, "Sahil Bloom");
+      assert.match(feed.items[0].contentHtml, /Full proxy body/);
     }
   );
-  assert.deepEqual(calls, [
-    "https://sahilbloom.substack.com/feed",
-    "https://sahilbloom.substack.com/api/v1/archive?sort=new&search=&offset=0&limit=20",
-    "https://sahilbloom.substack.com/api/v1/posts/why-you-need-a-side-quest-in-life",
-  ]);
+  assert.equal(calls.length, 1);
+  const proxyUrl = new URL(calls[0].url);
+  assert.equal(
+    proxyUrl.origin + proxyUrl.pathname,
+    "https://source.example/api/v1/proxy"
+  );
+  assert.equal(proxyUrl.searchParams.get("url"), publication.feedUrl);
+  assert.equal(calls[0].authorization, "Bearer proxy-token");
 });
 
 test("restricted fetch validates every redirect and enforces streamed byte limits", async () => {

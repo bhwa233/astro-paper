@@ -13,7 +13,10 @@ export type RestrictedFetchResult = {
   finalUrl: string;
 };
 
-function validateUrl(raw: string, allowedHosts: readonly string[]): URL {
+export function validateRestrictedUrl(
+  raw: string,
+  allowedHosts: readonly string[]
+): URL {
   const url = new URL(raw);
   if (url.protocol !== "https:")
     throw new Error(`only HTTPS URLs are allowed: ${raw}`);
@@ -31,7 +34,7 @@ async function restrictedFetchOnce(
 ): Promise<RestrictedFetchResult> {
   const timeoutMs = options.timeoutMs ?? 20_000;
   const maxRedirects = options.maxRedirects ?? 5;
-  let url = validateUrl(rawUrl, options.allowedHosts);
+  let url = validateRestrictedUrl(rawUrl, options.allowedHosts);
 
   for (
     let redirectCount = 0;
@@ -65,7 +68,10 @@ async function restrictedFetchOnce(
         throw new Error(`too many redirects for ${rawUrl}`);
       const location = response.headers.get("location");
       if (!location) throw new Error(`redirect missing Location for ${url}`);
-      url = validateUrl(new URL(location, url).href, options.allowedHosts);
+      url = validateRestrictedUrl(
+        new URL(location, url).href,
+        options.allowedHosts
+      );
       continue;
     }
     if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);

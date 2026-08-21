@@ -67,28 +67,6 @@ export const newsletterPublicationSchema = z.object({
 export type PatternConfig = z.infer<typeof patternConfigSchema>;
 export type NewsletterPublication = z.infer<typeof newsletterPublicationSchema>;
 
-const substackBylineSchema = z.object({
-  name: z.string().min(1),
-});
-
-export const substackArchiveItemSchema = z.object({
-  id: z.union([z.number(), z.string()]),
-  title: z.string().min(1),
-  slug: z.string().min(1),
-  post_date: z.string().min(1),
-  canonical_url: z.string().url(),
-  description: z.string().nullish(),
-  body_html: z.string().nullish(),
-  audience: z.string().nullish(),
-  publishedBylines: z.array(substackBylineSchema).optional(),
-});
-
-export const substackPostDetailSchema = z.object({
-  body_html: z.string().min(1),
-  audience: z.string().nullish(),
-  publishedBylines: z.array(substackBylineSchema).optional(),
-});
-
 export const translationBlockSchema = z.object({
   id: z.string().regex(/^b-\d{4}$/),
   markdown: z.string(),

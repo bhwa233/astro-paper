@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "guid": "6a845a4bcd135200016bb0b1",
+      "canonicalUrl": "https://www.wheresyoured.at/what-happens-if-openai-dies",
+      "sourcePublishedAt": "2026-08-18T15:23:40.000Z",
+      "sourceSha256": "025316fea53fb1e27ac43a195348e180c5b651c9470d86b5f5ab9026d3a512e0",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/wheres-your-ed-at-20260818-what-happens-if-openai-dies.md",
+      "translatedAt": "2026-08-21T06:54:06.699Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 16426,
+        "outputTokens": 18609,
+        "totalTokens": 35035
+      }
+    }
+  ]
+}

@@ -296,6 +296,12 @@ const rawPublications = {
       { source: "^Reading List\\b", flags: "i" },
       { source: "ROAD to Housing Act", flags: "i" },
     ],
+    translationLengthRatio: {
+      warnMin: 0.3,
+      warnMax: 0.6,
+      failMin: 0.25,
+      failMax: 0.75,
+    },
   },
   "intrinsic-perspective": {
     key: "intrinsic-perspective",

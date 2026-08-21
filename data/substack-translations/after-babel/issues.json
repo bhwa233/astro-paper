@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "guid": "https://www.afterbabel.com/p/does-early-access-to-social-media",
+      "canonicalUrl": "https://www.afterbabel.com/p/does-early-access-to-social-media",
+      "sourcePublishedAt": "2026-08-11T13:11:29.000Z",
+      "sourceSha256": "8d673b37d6493f665ddea14e49cb287c570916f65a3b615d136fd34ed6412da3",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/after-babel-20260811-does-early-access-to-social-media.md",
+      "translatedAt": "2026-08-21T06:38:41.468Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 4206,
+        "outputTokens": 8763,
+        "totalTokens": 12969
+      }
+    }
+  ]
+}

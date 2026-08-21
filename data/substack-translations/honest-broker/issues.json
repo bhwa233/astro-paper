@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "guid": "https://www.honest-broker.com/p/stanfords-secret-course-on-how-to",
+      "canonicalUrl": "https://www.honest-broker.com/p/stanfords-secret-course-on-how-to",
+      "sourcePublishedAt": "2026-08-19T17:36:47.000Z",
+      "sourceSha256": "f364e4908b9009ec5faf2d79bf30a1b662a250c4cb272fb3c733f66002b45b2c",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/honest-broker-20260819-stanfords-secret-course-on-how-to.md",
+      "translatedAt": "2026-08-21T06:39:21.018Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 5310,
+        "outputTokens": 15644,
+        "totalTokens": 20954
+      }
+    }
+  ]
+}

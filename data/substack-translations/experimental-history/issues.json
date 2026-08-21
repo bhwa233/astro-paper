@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "guid": "https://www.experimental-history.com/p/i-like-em-thick",
+      "canonicalUrl": "https://www.experimental-history.com/p/i-like-em-thick",
+      "sourcePublishedAt": "2026-08-18T15:02:15.000Z",
+      "sourceSha256": "78078f97a61b431300e42923d661dbc8896a7a4bdfe3f0f8d30f3d0381846799",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/experimental-history-20260818-i-like-em-thick.md",
+      "translatedAt": "2026-08-21T06:38:15.914Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 7260,
+        "outputTokens": 6838,
+        "totalTokens": 14098
+      }
+    }
+  ]
+}

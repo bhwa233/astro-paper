@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "guid": "https://www.themarginalian.org/?p=79991",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/20/pema-chodron-loneliness",
+      "sourcePublishedAt": "2026-08-20T04:03:05.000Z",
+      "sourceSha256": "e4a2b227cd9e3e25c1949d12844a85fff3c47c35873fbc1207e3caa1ea3fd83e",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260820-pema-chodron-loneliness.md",
+      "translatedAt": "2026-08-21T06:40:27.052Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2201,
+        "outputTokens": 3056,
+        "totalTokens": 5257
+      }
+    }
+  ]
+}

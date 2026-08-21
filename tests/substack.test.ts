@@ -15,6 +15,7 @@ import {
   orderPublicationsByPriority,
 } from "../scripts/substack_publications.ts";
 import { normalizeCanonicalUrl } from "../scripts/generate_substack_translations.ts";
+import { SUBSTACK_LIMITS } from "../scripts/substack_contracts.ts";
 import {
   readSubstackLedger,
   upsertSubstackIssue,
@@ -298,6 +299,16 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
     /https:\/\/sahilbloom\.substack\.com\/p\/source/
   );
   assert.match(translated.markdown, /^## 标题/m);
+  // description 超长时截断而不是判整篇失败：它是生成的元数据，不是原文内容。
+  assert.equal(
+    translated.description,
+    "一段足够清楚的中文摘".slice(0, SUBSTACK_LIMITS.descriptionMaxChars)
+  );
+  assert.equal(
+    [...translated.description].length,
+    SUBSTACK_LIMITS.descriptionMaxChars
+  );
+  assert.match(translated.warning ?? "", /description truncated from 11 to 10/);
 
   const linkBlock = response.blocks.find(block => /URL_/.test(block.markdown));
   assert.ok(linkBlock);

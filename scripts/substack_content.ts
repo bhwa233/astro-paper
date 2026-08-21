@@ -374,11 +374,28 @@ export function validateAndRestoreTranslation(
       `translation length ratio ${lengthRatio.toFixed(3)} outside ${limits.failMin}-${limits.failMax}`
     );
   }
-  const warning =
+  // 按码点切，不按 UTF-16 单元，否则表情之类的代理对会被截成半个字符。
+  const descriptionChars = [...response.description];
+  const truncatedDescription =
+    descriptionChars.length > SUBSTACK_LIMITS.descriptionMaxChars;
+  const description = truncatedDescription
+    ? descriptionChars.slice(0, SUBSTACK_LIMITS.descriptionMaxChars).join("")
+    : response.description;
+  const warnings = [
     lengthRatio < limits.warnMin || lengthRatio > limits.warnMax
       ? `translation length ratio ${lengthRatio.toFixed(3)} outside warning range ${limits.warnMin}-${limits.warnMax}`
-      : undefined;
-  return { ...response, markdown, lengthRatio, warning };
+      : "",
+    truncatedDescription
+      ? `description truncated from ${descriptionChars.length} to ${SUBSTACK_LIMITS.descriptionMaxChars} characters`
+      : "",
+  ].filter(Boolean);
+  return {
+    ...response,
+    description,
+    markdown,
+    lengthRatio,
+    warning: warnings.length ? warnings.join("; ") : undefined,
+  };
 }
 
 export function parseAiJson(text: string): unknown {

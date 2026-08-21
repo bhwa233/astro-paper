@@ -127,7 +127,7 @@ jobs:
           version: "11.3.0"
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: "pnpm"
@@ -146,7 +146,7 @@ jobs:
       # data store、下载好的字体，以及 OG PNG。不还原它，
       # experimental.incrementalBuild 每次都从零重渲染。
       - name: "Restore Astro build cache"
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: node_modules/.astro
           key: astro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'astro.config.ts', 'astro-paper.config.ts') }}-${{ steps.cache-day.outputs.day }}
@@ -373,7 +373,7 @@ jobs:
           version: "11.3.0"
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: "pnpm"

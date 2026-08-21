@@ -50,7 +50,7 @@ jobs:
         with:
           version: "11.3.0"
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: pnpm
@@ -58,7 +58,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Restore validated article cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/substack-translations
           key: substack-translations-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'prompts/blog/substack-translation.md', 'scripts/substack_*.ts') }}-${{ github.run_id }}

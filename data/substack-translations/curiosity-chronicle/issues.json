@@ -15,6 +15,21 @@
         "outputTokens": 6256,
         "totalTokens": 9937
       }
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/why-you-need-to-subtract-the-vasa",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/why-you-need-to-subtract-the-vasa",
+      "sourcePublishedAt": "2026-08-21T19:09:26.000Z",
+      "sourceSha256": "8f7c10b6efd9c27b654835d9ef7b9b8b3d8db1e40665034bc95cd1cea914116a",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260821-why-you-need-to-subtract-the-vasa.md",
+      "translatedAt": "2026-08-22T01:53:41.747Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3252,
+        "outputTokens": 2426,
+        "totalTokens": 5678
+      }
     }
   ]
 }

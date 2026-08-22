@@ -33,10 +33,12 @@ function verifyFrontmatter(file: string, expectedTask: string): string {
   for (const field of ["author:", "pubDatetime:", "title:", "featured:", "draft: false", "tags:", "description:", "timezone: Asia/Shanghai"]) {
     if (!frontmatter.includes(field)) throw new Error(`${file} frontmatter missing ${field}`);
   }
+  // 标题前缀不再核对。跳过的条目也会走到这里，所以前缀一改名，历史归档就会把当月任务判失败：
+  // 2026-08-11 的杂志改名让月更的 Wired 与 Atlantic 连挂两轮，而文章本身没有任何问题。
+  // 前缀由 taskTitle 统一生成，重复校验一遍拦不住新问题，只会拦住改名本身。
   if (isTask(expectedTask)) {
     const info = taskInfo(expectedTask);
     if (!frontmatter.includes(info.tag)) throw new Error(`${file} frontmatter missing ${info.tag} tag`);
-    if (info.titleCarriesPrefix !== false && !frontmatter.includes(info.titlePrefix)) throw new Error(`${file} frontmatter missing ${info.titlePrefix} title`);
   }
   return text;
 }

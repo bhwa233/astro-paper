@@ -19,8 +19,6 @@ export type BlogTaskInfo = {
   fileName: string;
   /** 正文分节的标题层级。缺省 `##`；nyt-books 为微信排版去掉了分节 `##`，最高层级是每本书的 `###`。 */
   bodyHeadingPattern?: RegExp;
-  /** frontmatter 标题是否必须含 titlePrefix。播客逐集文章标题是「节目名：本期中文标题」，不带前缀。 */
-  titleCarriesPrefix?: boolean;
   /** 一次运行产出多篇（一集一篇），而不是一篇。编排、归档、发布校验三层都按它分流。 */
   episodeArticles?: boolean;
   /** 标题带 ISO 周次，例如「纽约时报书单精选｜2099年第2周」。 */
@@ -67,7 +65,6 @@ export const BLOG_TASKS = {
     tag: "播客",
     description: "每日海外 Podcasts 热门节目中文长文笔记。",
     fileName: "每日播客-{date}.md",
-    titleCarriesPrefix: false,
     episodeArticles: true,
     sourceContract: {
       requiredPatterns: [
@@ -81,7 +78,6 @@ export const BLOG_TASKS = {
     tag: "中文播客榜",
     description: "每周 XYZ Rank 中文播客热门单集 Top 5 音频长文笔记。",
     fileName: "XYZRank热门播客-{date}.md",
-    titleCarriesPrefix: false,
     episodeArticles: true,
     sourceContract: {
       minNumberedBlocks: 5,
@@ -94,7 +90,6 @@ export const BLOG_TASKS = {
     tag: "Apple播客榜",
     description: "每日 Apple Podcasts 美区 Top Shows 热门节目音频长文笔记。",
     fileName: "Apple热门播客-{date}.md",
-    titleCarriesPrefix: false,
     episodeArticles: true,
   },
   "tech-daily": {

@@ -13,21 +13,15 @@ import {
 } from "./substack_contracts.ts";
 import { validSubstackDescription } from "./substack_quality.ts";
 
-export const SUBSTACK_PROMPT_VERSION = "substack-translation-v2";
-
-export type SourceBlock = {
-  id: string;
-  kind: string;
-  markdown: string;
-  placeholders: string[];
-  structure: string;
-  mayDropPromo: boolean;
-};
+export const SUBSTACK_PROMPT_VERSION = "substack-translation-v3";
 
 export type PreparedArticle = {
   cleanedHtml: string;
   markdown: string;
-  blocks: SourceBlock[];
+  /** 同一篇 Markdown，链接换成 URL_NNNN_NNN 占位符后的样子。送进模型的是它。 */
+  protectedMarkdown: string;
+  /** `占位符=真实地址`，还原时按这个表回填。 */
+  placeholders: string[];
   sourceSha256: string;
   audit: {
     textRatio: number;
@@ -143,9 +137,6 @@ const GENERIC_PROMO_DROP_PATTERNS = [
   /^share this post\b/i,
 ];
 
-const GENERIC_PROMO_REVIEW_PATTERN =
-  /\b(?:subscribe|subscriber|newsletter|donat(?:e|ion)|paid member|support (?:my|our|independent) (?:work|writing)|share this post)\b/i;
-
 function dropGenericPromoBlocks(body: HTMLElement): void {
   [...body.children].forEach(child => {
     const text = compact(child.textContent || "");
@@ -250,55 +241,28 @@ function cleanHtml(
   return body;
 }
 
-function structureSignature(markdown: string): string {
-  const tree = fromMarkdown(markdown) as MdNode;
-  const signature: string[] = [];
-  walk(tree, node => {
-    if (node.type === "heading") signature.push(`h${node.depth}`);
-    if (node.type === "list") signature.push(node.ordered ? "ol" : "ul");
-    if (node.type === "listItem") signature.push("li");
-    if (node.type === "blockquote") signature.push("quote");
-    if (node.type === "code") signature.push("code");
-  });
-  return signature.join(",");
-}
-
-function protectUrls(
-  markdown: string,
-  blockIndex: number
-): { markdown: string; placeholders: string[] } {
+/**
+ * 把链接换成占位符再送进模型。
+ *
+ * 网址是最容易被改写坏的东西：少一个字符就指向别处，而译文里没人逐个点开检查。
+ * 占位符让模型没有机会改动它们，回来按表回填即可。
+ */
+function protectUrls(markdown: string): {
+  markdown: string;
+  placeholders: string[];
+} {
   const placeholders: string[] = [];
   const protectedMarkdown = markdown.replace(/https:\/\/[^\s)>]+/g, url => {
     const punctuation = url.match(/[.,;:!?]+$/)?.[0] || "";
     const cleanUrl = punctuation ? url.slice(0, -punctuation.length) : url;
-    const placeholder = `URL_${String(blockIndex + 1).padStart(4, "0")}_${String(placeholders.length + 1).padStart(3, "0")}`;
+    const placeholder = `URL_0001_${String(placeholders.length + 1).padStart(3, "0")}`;
     placeholders.push(`${placeholder}=${cleanUrl}`);
     return `${placeholder}${punctuation}`;
   });
   return { markdown: protectedMarkdown, placeholders };
 }
 
-function splitBlocks(markdown: string): SourceBlock[] {
-  const tree = fromMarkdown(markdown) as MdNode;
-  return (tree.children || []).map((node, index) => {
-    const start = node.position?.start?.offset;
-    const end = node.position?.end?.offset;
-    if (start === undefined || end === undefined)
-      throw new Error(`Markdown block ${index + 1} has no source offsets`);
-    const source = markdown.slice(start, end);
-    const protectedBlock = protectUrls(source, index);
-    return {
-      id: `b-${String(index + 1).padStart(4, "0")}`,
-      kind: node.type || "unknown",
-      markdown: protectedBlock.markdown,
-      placeholders: protectedBlock.placeholders,
-      structure: structureSignature(source),
-      mayDropPromo:
-        compact(toString(node as Parameters<typeof toString>[0])).length <=
-          500 && GENERIC_PROMO_REVIEW_PATTERN.test(source),
-    };
-  });
-}
+const PLACEHOLDER_TOKEN = /URL_\d{4}_\d{3,}/g;
 
 export function prepareArticle(
   html: string,
@@ -344,12 +308,13 @@ export function prepareArticle(
       `HTML to Markdown text ratio ${textRatio.toFixed(3)} is below ${publication.extractionAudit.minTextRatio}`
     );
   }
-  const blocks = splitBlocks(markdown);
-  if (!blocks.length) throw new Error("article produced no Markdown blocks");
+  if (!markdown) throw new Error("article produced no Markdown");
+  const protectedArticle = protectUrls(markdown);
   return {
     cleanedHtml: body.innerHTML,
     markdown,
-    blocks,
+    protectedMarkdown: protectedArticle.markdown,
+    placeholders: protectedArticle.placeholders,
     sourceSha256: createHash("sha256").update(markdown).digest("hex"),
     audit: {
       textRatio,
@@ -362,10 +327,8 @@ export function prepareArticle(
   };
 }
 
-export function estimateTranslationTokens(
-  blocks: readonly SourceBlock[]
-): number {
-  const text = JSON.stringify(blocks);
+export function estimateTranslationTokens(markdown: string): number {
+  const text = markdown;
   const ascii = [...text].filter(char => char.codePointAt(0)! <= 0x7f).length;
   const nonAscii = [...text].length - ascii;
   const estimatedInput = Math.ceil(ascii / 4 + nonAscii / 1.5 + 1_200);
@@ -378,26 +341,18 @@ export function buildTranslationPrompt(params: {
   sourceTitle: string;
   sourceAuthor: string;
   canonicalUrl: string;
-  blocks: readonly SourceBlock[];
+  markdown: string;
   instructions: string;
 }): string {
-  return `${params.instructions.trim()}\n\n${JSON.stringify({
+  const metadata = JSON.stringify({
     promptVersion: SUBSTACK_PROMPT_VERSION,
     publication: params.publication.displayName,
     sourceTitle: params.sourceTitle,
     sourceAuthor: params.sourceAuthor,
     canonicalUrl: params.canonicalUrl,
-    blocks: params.blocks.map(block => ({
-      id: block.id,
-      kind: block.kind,
-      markdown: block.markdown,
-      mayDropPromo: block.mayDropPromo,
-    })),
-  })}`;
-}
-
-function placeholderNames(values: readonly string[]): string[] {
-  return values.map(value => value.split("=", 1)[0]);
+  });
+  // 原文用标签括起来而不是用代码围栏：文章自己可能带围栏，围栏套围栏会在哪里结束说不清。
+  return `${params.instructions.trim()}\n\n${metadata}\n\n<article>\n${params.markdown}\n</article>`;
 }
 
 // 图片外层链接只用于 Substack 的点击放大，归档站有自己的 lightbox，因此只解开这一层。
@@ -424,16 +379,40 @@ function descriptionFromTitle(title: string): string {
   return clause || "海外长文精选";
 }
 
-function normalizeTranslatedBlocks(
-  blocks: Array<{ kind: string; markdown: string; structure: string }>,
+type TopLevelBlock = { kind: string; depth?: number; markdown: string };
+
+function topLevelBlocks(markdown: string): TopLevelBlock[] {
+  const tree = fromMarkdown(markdown) as MdNode;
+  return (tree.children || []).flatMap(node => {
+    const start = node.position?.start?.offset;
+    const end = node.position?.end?.offset;
+    if (start === undefined || end === undefined) return [];
+    return [
+      {
+        kind: node.type || "unknown",
+        depth: node.depth,
+        markdown: markdown.slice(start, end),
+      },
+    ];
+  });
+}
+
+/**
+ * 把译文整理成归档站要的形状。
+ *
+ * 站点自己渲染标题，正文里再来一个同名 h1 就是重复；标题层级整体下沉一级，
+ * 让文内小标题从 h2 起步。首尾和连排的分隔线在删掉推广段之后很常见，一并收掉。
+ */
+function normalizeTranslatedMarkdown(
+  markdown: string,
   translatedTitle: string
 ): string {
-  const content = [...blocks];
+  const content = topLevelBlocks(markdown);
   const firstContent = content.findIndex(block => block.kind !== "thematicBreak");
   if (
     firstContent >= 0 &&
     content[firstContent].kind === "heading" &&
-    content[firstContent].structure === "h1"
+    content[firstContent].depth === 1
   ) {
     const headingText = compact(
       toString(fromMarkdown(content[firstContent].markdown))
@@ -447,16 +426,21 @@ function normalizeTranslatedBlocks(
     return before && after && values[index - 1]?.kind !== "thematicBreak";
   });
   return withoutRules
-    .map(block =>
-      block.markdown.replace(/^(#{1,5})(?=\s)/gm, "#$1")
-    )
+    .map(block => block.markdown.replace(/^(#{1,5})(?=\s)/gm, "#$1"))
     .join("\n\n")
     .trim();
 }
 
-export function validateAndRestoreTranslation(
+/**
+ * 把模型返回的整篇译文还原成可归档的 Markdown。
+ *
+ * 这里不做结构比对：删掉与文章无关的段落是模型的职责，程序拿不到「这段该不该在」的判据，
+ * 硬比对只会把正常的删除判成事故。剩下的都是还原动作——回填地址、去掉重复标题、
+ * 收掉多余分隔线——以及一个用于报告的长度比。
+ */
+export function restoreTranslation(
   raw: unknown,
-  sourceBlocks: readonly SourceBlock[],
+  prepared: Pick<PreparedArticle, "markdown" | "placeholders">,
   publication: NewsletterPublication
 ): TranslationResponse & {
   markdown: string;
@@ -464,74 +448,24 @@ export function validateAndRestoreTranslation(
   warning?: string;
 } {
   const response = translationResponseSchema.parse(raw);
-  if (response.blocks.length !== sourceBlocks.length)
-    throw new Error(
-      `translated block count mismatch: ${response.blocks.length} != ${sourceBlocks.length}`
+  let markdown = unwrapLinkedImages(stripCodeFence(response.markdown));
+  for (const entry of prepared.placeholders) {
+    const splitAt = entry.indexOf("=");
+    markdown = markdown.replaceAll(
+      entry.slice(0, splitAt),
+      entry.slice(splitAt + 1)
     );
-  const restored: Array<{
-    kind: string;
-    markdown: string;
-    structure: string;
-  }> = [];
-  for (let index = 0; index < sourceBlocks.length; index += 1) {
-    const source = sourceBlocks[index];
-    const translated = response.blocks[index];
-    if (translated.id !== source.id)
-      throw new Error(
-        `translated block ID mismatch at ${source.id}: got ${translated.id}`
-      );
-    if (!translated.markdown.trim()) {
-      if (!source.mayDropPromo)
-        throw new Error(
-          `translated block ${source.id} was dropped without a promotional marker`
-        );
-      continue;
-    }
-    if (/https?:\/\//i.test(translated.markdown))
-      throw new Error(
-        `translated block ${source.id} contains an unprotected raw URL`
-      );
-    const expected = placeholderNames(source.placeholders).sort();
-    const actual = [...translated.markdown.matchAll(/URL_\d{4}_\d{3}/g)]
-      .map(match => match[0])
-      .sort();
-    if (expected.join("\0") !== actual.join("\0"))
-      throw new Error(`translated block ${source.id} changed URL placeholders`);
-    if (structureSignature(translated.markdown) !== source.structure)
-      throw new Error(
-        `translated block ${source.id} changed Markdown structure`
-      );
-    let markdown = unwrapLinkedImages(
-      translated.markdown,
-      source.placeholders
-    );
-    for (const entry of source.placeholders) {
-      const splitAt = entry.indexOf("=");
-      markdown = markdown.replaceAll(
-        entry.slice(0, splitAt),
-        entry.slice(splitAt + 1)
-      );
-    }
-    restored.push({
-      kind: source.kind,
-      markdown: markdown.trim(),
-      structure: source.structure,
-    });
   }
-  const markdown = normalizeTranslatedBlocks(restored, response.title);
-  const sourceChars = sourceBlocks.reduce(
-    (total, block) =>
-      total + compact(toString(fromMarkdown(block.markdown))).length,
-    0
-  );
+  // 模型偶尔会写出一个原文里没有的占位符。留着就是正文里一串 URL_0001_007，
+  // 抹掉至多是少一个链接。
+  markdown = markdown.replace(PLACEHOLDER_TOKEN, "");
+  markdown = normalizeTranslatedMarkdown(markdown, response.title);
+  const sourceChars = compact(
+    toString(fromMarkdown(prepared.markdown))
+  ).length;
   const translatedChars = compact(toString(fromMarkdown(markdown))).length;
   const lengthRatio = translatedChars / Math.max(sourceChars, 1);
   const limits = publication.translationLengthRatio;
-  if (lengthRatio < limits.failMin || lengthRatio > limits.failMax) {
-    throw new Error(
-      `translation length ratio ${lengthRatio.toFixed(3)} outside ${limits.failMin}-${limits.failMax}`
-    );
-  }
   const description = validSubstackDescription(response.description)
     ? compact(response.description)
     : descriptionFromTitle(response.title);
@@ -551,6 +485,16 @@ export function validateAndRestoreTranslation(
     lengthRatio,
     warning: warnings.length ? warnings.join("; ") : undefined,
   };
+}
+
+/** 模型有时会把整篇译文再包一层 ```markdown 围栏。 */
+function stripCodeFence(markdown: string): string {
+  const trimmed = markdown.trim();
+  if (!trimmed.startsWith("```")) return trimmed;
+  return trimmed
+    .replace(/^```[a-z]*\s*\n?/i, "")
+    .replace(/\n?```$/, "")
+    .trim();
 }
 
 export function parseAiJson(text: string): unknown {

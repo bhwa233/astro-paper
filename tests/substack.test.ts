@@ -8,7 +8,7 @@ import {
 } from "../scripts/substack_feed.ts";
 import {
   prepareArticle,
-  validateAndRestoreTranslation,
+  restoreTranslation,
 } from "../scripts/substack_content.ts";
 import { substackPostQualityViolations } from "../scripts/substack_quality.ts";
 import {
@@ -295,19 +295,12 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
   const response = {
     title: "中文标题",
     description: "一段足够清楚但明显超过二十个汉字的中文摘要内容",
-    blocks: prepared.blocks.map(block => ({
-      id: block.id,
-      markdown: block.markdown
-        .replace("Heading", "标题")
-        .replace("Hello", "你好")
-        .replace("source", "来源"),
-    })),
+    markdown: prepared.protectedMarkdown
+      .replace("Heading", "标题")
+      .replace("Hello", "你好")
+      .replace("source", "来源"),
   };
-  const translated = validateAndRestoreTranslation(
-    response,
-    prepared.blocks,
-    publication
-  );
+  const translated = restoreTranslation(response, prepared, publication);
   // 事实来源仍可核查；只剥掉图片外层的点击链接。
   assert.match(
     translated.markdown,
@@ -323,13 +316,13 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
   assert.equal(translated.description, "中文标题");
   assert.match(translated.warning ?? "", /description replaced/);
 
-  const linkBlock = response.blocks.find(block => /URL_/.test(block.markdown));
-  assert.ok(linkBlock);
-  linkBlock.markdown = linkBlock.markdown.replace(/URL_\d{4}_\d{3}/, "");
-  assert.throws(
-    () => validateAndRestoreTranslation(response, prepared.blocks, publication),
-    /changed URL placeholders/
+  // 模型编出一个原文里没有的占位符时，抹掉它而不是把 URL_0001_009 印给读者。
+  const invented = restoreTranslation(
+    { ...response, markdown: `${response.markdown}\n\n尾注 URL_0001_099。` },
+    prepared,
+    publication
   );
+  assert.doesNotMatch(invented.markdown, /URL_\d{4}_\d{3}/);
   assert.throws(
     () =>
       prepareArticle(
@@ -500,16 +493,13 @@ test("mid-article promo blocks, empty Substack mentions and footnote markers sur
   // 空 mention span 的名字必须从 data-attrs 还原，否则译文会留下「参见 的……」这种残句。
   assert.match(prepared.markdown, /see Max Read's piece/);
 
-  const translated = validateAndRestoreTranslation(
+  const translated = restoreTranslation(
     {
       title: "标题",
       description: "简介",
-      blocks: prepared.blocks.map(block => ({
-        id: block.id,
-        markdown: block.markdown,
-      })),
+      markdown: prepared.protectedMarkdown,
     },
-    prepared.blocks,
+    prepared,
     promoPublication
   );
   // 脚注锚点与目标都保留可核查链接，正文里不应出现无主的裸数字行。

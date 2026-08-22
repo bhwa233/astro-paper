@@ -18,5 +18,8 @@ export default [
     },
   },
   { rules: { "no-console": "error" } },
-  { ignores: ["dist/**", ".astro/**", "public/pagefind/**"] },
+  // astro-wechat 是克隆到工作区里的独立仓库，有自己的 lint 配置。
+  {
+    ignores: ["dist/**", ".astro/**", "public/pagefind/**", "astro-wechat/**"],
+  },
 ];

@@ -22,7 +22,7 @@ import {
   parseAiJson,
   prepareArticle,
   SUBSTACK_PROMPT_VERSION,
-  validateAndRestoreTranslation,
+  restoreTranslation,
 } from "./substack_content.ts";
 import {
   fetchNewsletterFeed,
@@ -216,7 +216,7 @@ async function processItem(params: {
     item.canonicalUrl,
     publication
   );
-  const estimatedTokens = estimateTranslationTokens(prepared.blocks);
+  const estimatedTokens = estimateTranslationTokens(prepared.protectedMarkdown);
   const dir = artifactDir(
     repo,
     params.artifactsRoot,
@@ -235,7 +235,11 @@ async function processItem(params: {
   );
   fs.writeFileSync(path.join(dir, "extracted.md"), prepared.markdown, "utf8");
   writeJson(path.join(dir, "extraction-audit.json"), prepared.audit);
-  writeJson(path.join(dir, "cleaned-blocks.json"), prepared.blocks);
+  fs.writeFileSync(
+    path.join(dir, "protected.md"),
+    prepared.protectedMarkdown,
+    "utf8"
+  );
   // 阈值已经不在栏目配置里，单独快照一份，否则事后排查看不到本次实际生效的上限。
   writeJson(path.join(dir, "effective-config.json"), {
     publication,
@@ -272,7 +276,7 @@ async function processItem(params: {
     sourceTitle: item.title,
     sourceAuthor: item.author,
     canonicalUrl: item.canonicalUrl,
-    blocks: prepared.blocks,
+    markdown: prepared.protectedMarkdown,
     instructions: params.promptInstructions,
   });
   fs.writeFileSync(path.join(dir, "prompt.md"), prompt, "utf8");
@@ -290,16 +294,16 @@ async function processItem(params: {
     .digest("hex");
   const articleCachePath = cachePath(repo, publication.key, key);
   let cached = params.force ? undefined : readCache(articleCachePath);
-  let translated: ReturnType<typeof validateAndRestoreTranslation> | undefined;
+  let translated: ReturnType<typeof restoreTranslation> | undefined;
   if (cached) {
     try {
       if (cached.finishReason !== "stop")
         throw new Error(
           `cached AI finishReason was ${cached.finishReason}, expected stop`
         );
-      translated = validateAndRestoreTranslation(
+      translated = restoreTranslation(
         cached.response,
-        prepared.blocks,
+        prepared,
         publication
       );
     } catch {
@@ -343,11 +347,7 @@ async function processItem(params: {
     throw new Error(
       `cached AI finishReason was ${finishReason}, expected stop`
     );
-  translated ||= validateAndRestoreTranslation(
-    rawResponse,
-    prepared.blocks,
-    publication
-  );
+  translated ||= restoreTranslation(rawResponse, prepared, publication);
   if (!cached)
     writeJson(articleCachePath, {
       version: 1,

@@ -17,7 +17,7 @@
 
 - 一个通用任务支持任意数量的已登记 Substack 栏目
 - CI 通过 `publication=<key|all>` 选择栏目，不接受任意远程 URL
-- 一篇原文对应一篇中文文章，保留原文结构、引用、列表和图片；正文链接只保留锚文本
+- 一篇原文对应一篇中文文章，保留原文结构、引用、列表和图片；与文章无关的推广内容由模型识别后不予翻译
 - 翻译忠于原文，不摘要、不扩写、不补充原文以外的事实
 - 根据 canonical URL / GUID 跨运行去重，重跑不重复发布
 - 单篇失败不阻断其他栏目；成功文章可以先归档，最终再报告部分失败
@@ -69,12 +69,11 @@ workflow input: publication=<key|all>
            -> canonical/GUID 与 ledger 去重
               -> content:encoded 栏目级 DOM 删除
                  -> Turndown 转 Markdown + 转换前后对账
-                    -> 顶层块切分 + 链接占位符
+                    -> 链接占位符替换
                        -> token 预检 + 整篇单次忠实翻译
                           -> 文章级缓存 + 完成原因校验
-                             -> 块 ID / 顺序 / 链接完整性校验
-                                -> 保留事实链接，解开图片外层跳转
-                                   -> Markdown 重组 + 署名来源块
+                             -> 占位符回填，解开图片外层跳转
+                                -> 标题下沉 + 分隔线收敛 + 署名来源块
                                       -> Astro frontmatter + 动态文件名
                                          -> 内容构建检查
                                             -> 更新 ledger
@@ -359,43 +358,40 @@ Feed 选择应按 `pubDate` 从旧到新处理，避免积压时先发布更新�
 
 全局 workflow concurrency 是避免同分支并发写的第一道保护。push 前仍要 fetch/rebase 并有限次数重试；per-publication ledger 让不同栏目重试时只涉及彼此独立的文件。
 
-## 9. HTML 清洗与中间块模型
+## 9. HTML 清洗与整篇输入
 
-清洗在模型调用之前完成，输入只来自 `content:encoded`。**高置信度删除由确定性规则做；只有边界推广块交给模型分类；格式转换交给 Turndown**：
+清洗在模型调用之前完成，输入只来自 `content:encoded`。**高置信度删除由确定性规则做；剩下的与文章无关的内容交给模型判断；格式转换交给 Turndown**：
 
 1. 用 `parseHtml(contentEncoded, itemLink)` 构造 DOM，相对链接按 item URL 解析
 2. 删除栏目专属噪音：Substack 订阅按钮、分享按钮、评论入口、publication footer，再应用栏目级 `removeSelectors`
 3. 根据 `cutBeforePatterns` / `cutAfterPatterns` 去掉固定赞助、推荐和订阅尾巴，再用栏目级 `dropPatterns` 与通用高置信度模式删掉正文中间的推广块；删块后连排的分隔线折成一条，首尾的直接去掉
 4. 删除通用危险或非正文标签，把清洗后的 DOM 交给 `scripts/html_to_markdown.ts` 调用 Turndown，得到 Markdown
 5. **转换前后对账**（见 9.1），任一项超阈值直接判该篇失败
-6. 按 Markdown 顶层块切分成中间块，URL 全部替换为带块归属的 `URL_BBBB_NNN` 占位符，拒绝 `javascript:`、`data:` 和未知协议
-7. 给剩余的短订阅、捐赠、分享候选块标记 `mayDropPromo`；模型只能把这些候选块返回为空，其他空块一律拒绝
+6. 整篇 Markdown 里的 URL 全部替换为 `URL_0001_NNN` 占位符，拒绝 `javascript:`、`data:` 和未知协议
 
 第 2、3 步必须跑在 Turndown 之前：订阅 CTA、赞助段和推荐尾巴会被当作普通正文保留；而一旦转成 Markdown，CSS 选择器就失效了，只能退回正则去猜。
 
 通用标签删除（`script`、`style`、`form`、`button`、`svg`、iframe、播放器、跟踪像素）和相对 URL 转绝对仍由 JSDOM 封装负责；HTML 到 Markdown 的嵌套列表、行内链接、代码块和引用转换由 Turndown 负责，不自写转换器。Turndown 不负责安全校验，转换结果仍要进入受限 mdast/block 合同。
 
-模型不直接接收原始 HTML。中间块示意：
+模型不直接接收原始 HTML，收到的是占位符替换后的整篇 Markdown，包在 `<article>` 标签里：
 
-```json
-{
-  "id": "b-0012",
-  "kind": "paragraph",
-  "markdown": "The original paragraph with [anchor](URL_0012_003).",
-  "mayDropPromo": false
-}
+```
+{"promptVersion":"substack-translation-v3","publication":"…","sourceTitle":"…"}
+
+<article>
+The original paragraph with [anchor](URL_0001_003).
+</article>
 ```
 
-代码记录每个顶层块的 mdast `kind`，并把它作为模型上下文；模型响应只返回 ID 与 Markdown。heading / list / blockquote / code 的实际结构仍从 Markdown AST 重新计算，不能信任模型回传类型。
+一次调用、一次响应，全文在同一个上下文里。**译文不再逐块比对。** 与文章无关的内容（商演通告、订阅捐赠、预售招生、栏目互推、页脚样板）由模型自行判断后不予输出，程序没有判断这类段落该不该在的依据，硬性比对只会把正常的删除判成事故。
 
-全部中间块会作为同一篇文章一次性提交给模型，而不是拆成多个翻译请求。翻译完成后代码恢复 URL，并验证：
+翻译完成后代码只做还原，不做结构裁决：
 
-- block ID 集合与顺序完全一致；只有 `mayDropPromo=true` 的块允许返回空内容
-- 块类型标记（行首 `#`、`-`/`1.`、`>`、`![`、`---`）逐块一致
-- `URL_*` 占位符数量和归属块完全一致
-- 列表项数量不变
-- 引用块仍是引用块
-- 模型没有新增链接、标题或总结段；事实来源和脚注链接完整恢复
+- 按占位符表回填真实地址；原文里没有的占位符（模型编出来的）直接抹掉
+- 剥掉图片外层的点击放大链接，保留裸图片
+- 与标题重复的开篇 H1 去掉，其余标题整体下沉一级
+- 首尾与连排的分隔线收掉
+- 计算长度比并在偏离栏目区间时记一条警告
 
 ### 9.2 三类噪音与对应武器
 
@@ -422,7 +418,7 @@ Substack 的 @提及在 RSS 里是**空的** `<span data-component-name="Mention
 
 ### 9.1 转换对账
 
-Turndown 是确定性的格式转换器，不做主内容评分，但未知标签、自定义 rule 或上游 HTML 变化仍可能丢失结构。这个失败模式必须在本节拦住：block ID 是在转换之后才编的，所以第 10 节之后的完整性校验无法发现转换前丢失。
+Turndown 是确定性的格式转换器，不做主内容评分，但未知标签、自定义 rule 或上游 HTML 变化仍可能丢失结构。这个失败模式必须在本节拦住：模型只看得到转换后的 Markdown，转换阶段丢掉的东西在它眼里从来不存在，之后没有任何一步能发现。
 
 对账项，比较第 3 步产物与第 4 步产物：
 
@@ -444,15 +440,13 @@ Turndown 是确定性的格式转换器，不做主内容评分，但未知标�
 
 ## 10. 整篇单次翻译
 
-每篇文章只调用一次模型。请求同时包含来源元数据、标题、description 和清洗后的全部正文块，模型返回一份完整 JSON：
+每篇文章只调用一次模型。请求包含来源元数据和清洗后的整篇 Markdown，模型返回一份完整 JSON：
 
 ```json
 {
   "title": "中文标题",
   "description": "中文简介",
-  "blocks": [
-    { "id": "b-0012", "markdown": "中文译文……[锚文本](URL_0012_003)。" }
-  ]
+  "markdown": "# 中文标题\n\n中文译文……[锚文本](URL_0001_003)。"
 }
 ```
 
@@ -465,7 +459,8 @@ Turndown 是确定性的格式转换器，不做主内容评分，但未知标�
 - 专有名词首次出现可使用“中文（English）”，后续保持一致
 - 不把作者观点改写成编辑部观点
 - 不添加“以下是翻译”“总结”“延伸阅读”等原文不存在的结构
-- 只有输入标为 `mayDropPromo=true` 且确属操作性推广的块可以置空；不得删除观点、事实、例子、引文或脚注
+- 与文章无关的内容（商演通告、订阅捐赠、预售招生、栏目互推、社交引流、页脚样板、纯行动号召）不予输出；承载观点、事实、例子、数据、引文、脚注的段落一律完整翻译
+- 中文语境下 `**` 紧贴汉字或标点时 Markdown 解析不出加粗，星号会直接显示给读者；要用强调标记，两侧必须是空格或行首行尾
 
 不提供自动分块或截断降级。请求前必须估算输入 token、预期输出 token 和 JSON/提示词开销；预计超过模型上下文、模型最大输出或全局 `maxEstimatedTokensPerArticle` 时，直接把文章标记为 `article-token-limit` 并报警，不能只翻译前半篇。
 
@@ -490,20 +485,15 @@ sourceSha256 + promptVersion + model + normalizedInputSha256
 
 缓存存放在 `.cache/substack-translations/<publication>/`，由 `actions/cache` 跨 workflow run 恢复，并设置 30 天或 500 MB 的清理上限。CI artifact 用于审计，不等同于可复用缓存，也不能假定重跑时自动存在。
 
-### 10.3 正文链接折叠
+### 10.3 正文链接
 
-正文成稿只保留可读文字：`[锚文本](URL)` 折叠为 `锚文本`，图片 `![alt](URL)` 原样保留，被链接包裹的图片（Substack 的点击放大）剥掉外层链接后留下裸图片。
+归档的 Markdown 保留事实链接：站点上它们是可点的，读者要核查来源就靠它们。被链接包裹的图片（Substack 的点击放大）剥掉外层链接后留下裸图片，因为归档站自带 lightbox。
 
-折叠位置是 `validateAndRestoreTranslation` 里、占位符还原**之前**：
+公众号那一份不同：微信正文点不开外链，`astro-wechat` 的 `outboundLinks` 决定链接变成什么。配 `text` 时只留锚文本，不编号也不生成文末的参考链接列表；配 `reference`（默认）则编号并在文末列出目标。
 
-- 跑在全部校验之后，所以块 ID、顺序、`URL_*` 占位符完整性这几条防线一条不少
-- 此时 URL 位置仍是 `URL_BBBB_NNN`，不含括号，正则不会被真实 URL 里的 `)` 截断
+文章开头的署名块由 `substack_archive.ts` 单独拼接——原作者主页与原文链接是产品要求和版权表述的一部分，站点上必须保留。
 
-文章开头的署名块由 `substack_archive.ts` 单独拼接，不参与折叠——原作者主页与原文链接是产品要求和版权表述的一部分，必须保留。
-
-代价是「点击这里」「见这篇文章」这类锚文本会语义悬空，没有自动补救手段。
-
-命中缓存后仍要按当前 schema 重新解析，并重新执行 block、链接、长度和完成原因校验；校验失败的缓存视为 miss。prompt、模型或规范化输入变化都会自然失效。只有通过全部校验的完整文章响应可以缓存，超时、截断或部分 JSON 不能写入缓存。
+命中缓存后仍要按当前 schema 重新解析并重新还原；解析失败的缓存视为 miss。prompt、模型或规范化输入变化都会自然失效。只有通过全部校验的完整文章响应可以缓存，超时、截断或部分 JSON 不能写入缓存。
 
 单次模型调用失败时允许按现有 AI client 策略重试一次或切换 fallback，但每次调用都要重新预留并累计实际 token。仍失败则整篇失败，不发布部分译文。由于没有分块，失败重试会重新翻译整篇；文章级缓存只避免已完成文章在相同输入下重复调用。
 
@@ -525,7 +515,7 @@ sourceSha256 + promptVersion + model + normalizedInputSha256
 4. 解码后像素尺寸必须合法且不超过 `maxImagePixels`，拒绝 SVG、HTML、脚本及伪装成图片的任意字节
 5. `mirror` 的扩展名从实际 MIME 推导，不沿用远程路径后缀；落盘前计算 SHA-256，重复图片复用已有文件
 
-`remote` 校验通过后才把最终 URL 写入文章；`mirror` 校验通过后才写入内容寻址路径。无论哪种策略，模型都不能生成或修改图片 URL。图片 caption 可以翻译，但必须绑定原 image block ID。
+`remote` 校验通过后才把最终 URL 写入文章；`mirror` 校验通过后才写入内容寻址路径。无论哪种策略，模型都不能生成或修改图片 URL。图片 caption 可以翻译，但图片地址走占位符，模型碰不到。
 
 ## 12. 文章归档格式
 
@@ -590,7 +580,6 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 - Feedsmith 解析的 generator、title、author、pubDate 和 content namespace 通过来源合同
 - 第 9.1 节转换对账全部通过：文本保留比达标，链接、图片、列表项数量与标题层级序列完全一致
 - 中文标题非空，正文中文占比达到最低阈值
-- 所有 source block ID 在译文中恰好出现一次
 - 原始链接占位符全部恢复，没有新增模型链接；事实来源和脚注链接保留，图片外层远程跳转解开以使用站内 lightbox
 - provider `finishReason` 明确表示正常完成，响应是完整且唯一的 JSON 对象
 - 以去除 URL、占位符、代码和空白后的可见字符计算中英长度比：默认 0.40–0.60 之外警告，0.30–0.75 之外硬失败；栏目可按实测收紧或调整
@@ -629,7 +618,7 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 ├── cleaned.html            # 栏目级删除之后、Turndown 之前
 ├── extracted.md            # Turndown 输出
 ├── extraction-audit.json   # 9.1 转换对账逐项差值
-├── cleaned-blocks.json
+├── protected.md            # 占位符替换后、送进模型的整篇原文
 ├── effective-config.json
 ├── prompt.md
 ├── response.json
@@ -661,7 +650,7 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 7. `--backfill N` 只扩大候选窗口，最终篇数仍取发布上限和 token 预算的最小值
 8. 栏目级删除规则跑在 Turndown 之前，且确实删掉订阅/赞助/推荐尾巴，同时保留标题、段落、引用、列表和链接
 9. 转换对账在文本被吞、链接丢失、列表项减少或标题层级被改写时判失败
-10. 整篇请求包含全部 block；模型结果缺 block ID、乱序、丢链接或 finishReason 异常时失败
+10. 整篇请求包含全文；响应不是完整 JSON 或 finishReason 异常时失败
 11. token 预留、实际 usage 冲销、无 usage 时按预留计费，以及 200,000 单篇 / 400,000 每栏目硬顶均可复现；一个栏目耗尽预算不影响后续栏目
 12. 文章缓存命中不调用模型；source、promptVersion、model 或输入 hash 变化时缓存失效
 13. 图片下载对 host、重定向、响应大小、MIME、magic bytes、像素和真实扩展名执行校验
@@ -681,7 +670,7 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 3. 扩展 AI client usage 返回，增加整篇 token 预检、单次 JSON 翻译、文章级缓存与完整性校验
 4. 增加动态 archiver、content schema 字段、schema 保留测试和 per-publication ledger
 5. 新增接收 `publication` 与 token budget、使用全局 concurrency 的独立发布 workflow
-6. 对单个栏目执行 `--dry-run`，人工检查 cleaned blocks、effective config 和 token 估算
+6. 对单个栏目执行 `--dry-run`，人工检查 extracted.md、effective config 和 token 估算
 7. 手动翻译每个栏目最新一篇，检查完整响应、结构、署名、链接、图片、构建和实际模型成本
 8. 先启用 `publication=<单栏目>` 的手动运行，再启用每日 `all` 调度
 
@@ -695,7 +684,7 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 - 每个栏目只写 `data/substack-translations/<publication>/issues.json`，第二次运行同一 Feed 不产生文章、ledger 或 commit 变化
 - 每篇中文文章首屏可见原作者、原栏目、原始发布日期和原文链接
 - frontmatter `author` 保持 `bhwa233`，原作者保留在 `source.author` 和正文署名；schema 加载后来源字段不被静默剥离
-- 整篇文章只发起一次正常模型调用；译文 block 数、顺序、引用、列表与链接通过代码级完整性校验
+- 整篇文章只发起一次正常模型调用；译文按占位符表还原链接，模型编造的占位符被抹掉
 - 同一输入重跑命中文章级缓存，不重复调用模型；截断或部分响应不能进入缓存
 - 单篇估算总量不超过 200,000 token，每个栏目每次运行不超过 400,000 token，实际用量写入日志、ledger 和 result.json
 - `mirror` 只落盘通过 host、大小、MIME、magic bytes 和像素校验的图片

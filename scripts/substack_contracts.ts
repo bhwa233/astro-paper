@@ -103,15 +103,12 @@ export const newsletterPublicationSchema = z.object({
 export type PatternConfig = z.infer<typeof patternConfigSchema>;
 export type NewsletterPublication = z.infer<typeof newsletterPublicationSchema>;
 
-export const translationBlockSchema = z.object({
-  id: z.string().regex(/^b-\d{4}$/),
-  markdown: z.string(),
-});
-
+// 整篇进、整篇出：模型收到完整原文，回一篇完整译文。删不删与文章无关的段落由模型自己判断，
+// 程序不再逐块核对，因此这里只剩下装载三个字段的信封。
 export const translationResponseSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
-  blocks: z.array(translationBlockSchema).min(1),
+  markdown: z.string().min(1),
 });
 
 export type TranslationResponse = z.infer<typeof translationResponseSchema>;

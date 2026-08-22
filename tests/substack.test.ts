@@ -56,6 +56,16 @@ test("HTML conversion disambiguates an exclamation mark followed by a link", () 
   assert.match(markdown, /A claim! \[1\]\(https:\/\/example\.com\/#footnote-1\)/);
 });
 
+test("HTML conversion drops emphasis wrappers inside headings", () => {
+  // 公众号主题给 strong 上的品牌色会盖掉标题的反白色，`## **标题**` 会渲染成
+  // 深蓝字压深蓝底。标题自带粗体，转换阶段就把这层强调拆掉。
+  const document = parseHtml(
+    "<body><h2><strong>人生的引力</strong></h2></body>",
+    "https://example.com/"
+  );
+  assert.match(htmlNodeToMarkdown(document.body), /^## 人生的引力$/m);
+});
+
 test("newsletter publications are ordered by editorial priority", () => {
   const ordered = orderPublicationsByPriority([
     { ...publication, key: "low-priority", priority: "low" },

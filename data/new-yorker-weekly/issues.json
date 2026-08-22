@@ -24,6 +24,14 @@
       "epubSha256": "9186b7105c08af70a3e4f5c82705bd23dcb237f65aaba11de9aa4088db9f8171",
       "archivedAt": "2026-08-08",
       "postPath": "src/content/posts/zh-cn/纽约客-2026-08-03.md"
+    },
+    {
+      "key": "new-yorker:2026-08-17:4a6745de0d2f119080053a45289e814fadce4a7355e89f3437c61601412ecf7c",
+      "issueDate": "2026-08-17",
+      "sourceCommit": "b582845c6d8109374ad121c29d4235c9aa3cb9ab",
+      "epubSha256": "4a6745de0d2f119080053a45289e814fadce4a7355e89f3437c61601412ecf7c",
+      "archivedAt": "2026-08-22",
+      "postPath": "src/content/posts/zh-cn/纽约客-2026-08-17.md"
     }
   ]
 }

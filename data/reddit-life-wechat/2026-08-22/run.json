@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-22",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "8cdc0b49a69f48a0f592a4daa90d0db6c0a49a0b",
+    "workflowRun": "32567022181",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-22-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-22/upstream-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vujdcq",
+      "title": "有哪些带点色气却让你记了很久的夸奖？",
+      "subreddit": "AskReddit",
+      "points": "5445 points · 2214 评论",
+      "numComments": 2214,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vujdcq/whats_a_dirty_compliment_that_stayed_with_you_for/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-22/01-1vujdcq.md",
+      "contentSha256": "5423e7173900f8de52fcb6ed17c60c10f38c147d382d2bb8c3a02536bbb3ce9b",
+      "issue": 4
+    },
+    {
+      "rank": 2,
+      "postId": "1vufok4",
+      "title": "哪些残酷细节能说明一个人没有自己以为的那么好看？",
+      "subreddit": "AskReddit",
+      "points": "4203 points · 1008 评论",
+      "numComments": 1008,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vufok4/whats_the_harshest_clue_that_someone_isnt_as/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-22/01-1vujdcq.md",
+      "contentSha256": "5423e7173900f8de52fcb6ed17c60c10f38c147d382d2bb8c3a02536bbb3ce9b",
+      "issue": 4
+    },
+    {
+      "rank": 3,
+      "postId": "1vuulg6",
+      "title": "曾经身材极佳后来发福的人，变胖后最让你意外的是什么？",
+      "subreddit": "AskReddit",
+      "points": "3143 points · 1568 评论",
+      "numComments": 1568,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vuulg6/fit_guys_who_let_themselves_go_what_was_the_most/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-22/01-1vujdcq.md",
+      "contentSha256": "5423e7173900f8de52fcb6ed17c60c10f38c147d382d2bb8c3a02536bbb3ce9b",
+      "issue": 4
+    },
+    {
+      "rank": 4,
+      "postId": "1vujrol",
+      "title": "曾经风靡一时但如今真正走向没落的游戏类型有哪些？",
+      "subreddit": "AskReddit",
+      "points": "2418 points · 2135 评论",
+      "numComments": 2135,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vujrol/what_video_game_genre_is_really_dying_that_used/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-22/01-1vujdcq.md",
+      "contentSha256": "5423e7173900f8de52fcb6ed17c60c10f38c147d382d2bb8c3a02536bbb3ce9b",
+      "issue": 4
+    },
+    {
+      "rank": 5,
+      "postId": "1vundi2",
+      "title": "在赌场工作或常去赌场的人，你见过最疯狂的事是什么？",
+      "subreddit": "AskReddit",
+      "points": "2012 points · 672 评论",
+      "numComments": 672,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vundi2/people_who_worked_atwere_regulars_at_casinos_what/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-22/01-1vujdcq.md",
+      "contentSha256": "5423e7173900f8de52fcb6ed17c60c10f38c147d382d2bb8c3a02536bbb3ce9b",
+      "issue": 4
+    }
+  ]
+}

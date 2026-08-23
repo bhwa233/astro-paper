@@ -1,9 +1,14 @@
-// 微博微信封面：沿用现有微信首图的 satori 排版，输入只取前三条热搜标题。
+// 微博微信封面：沿用现有微信首图的 satori 排版，输入只取前几条热搜标题。
 import satori from "satori";
 import { compact, writeStderr } from "./blog_common.ts";
 import { svgToPng } from "./image_raster.ts";
+import { coverEntryFontSize } from "./wechat_cover_layout.ts";
 
 export const WEIBO_TRENDING_WECHAT_COVER_FILE = "cover.png";
+// 封面列几条。渲染器自己再 slice 一次是防御：调用方漏截时宁可少画，也不能把条目区撑破。
+export const WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT = 5;
+// 热搜标题普遍很短，字号多半由高度约束封顶，上界 46 只在条目极短时才够得着。
+const MAX_ENTRY_FONT_SIZE = 46;
 
 const COVER_WIDTH = 1175;
 const COVER_HEIGHT = 500;
@@ -39,14 +44,6 @@ async function fetchBinary(url: string): Promise<ArrayBuffer> {
   return response.arrayBuffer();
 }
 
-function entryFontSize(titles: string[]): number {
-  const longest = Math.max(...titles.map(title => [...title].length));
-  if (longest <= 14) return 46;
-  if (longest <= 20) return 40;
-  if (longest <= 26) return 34;
-  return 30;
-}
-
 function entryLine(title: string, fontSize: number) {
   return {
     type: "div",
@@ -61,7 +58,7 @@ function entryLine(title: string, fontSize: number) {
 }
 
 function coverTree(titles: string[], archiveDate: string) {
-  const fontSize = entryFontSize(titles);
+  const fontSize = coverEntryFontSize(titles, MAX_ENTRY_FONT_SIZE);
   return {
     type: "div",
     props: {
@@ -124,7 +121,7 @@ function coverTree(titles: string[], archiveDate: string) {
 
 export async function renderWeiboTrendingWechatCover(titles: string[], archiveDate: string): Promise<Buffer | null> {
   const entries = titles
-    .slice(0, 3)
+    .slice(0, WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT)
     .map(title => compact(title))
     .filter(Boolean);
   if (!entries.length) throw new Error("Weibo trending WeChat cover needs at least one title");

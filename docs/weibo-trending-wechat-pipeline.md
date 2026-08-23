@@ -25,7 +25,7 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
 - `wechat.sourceURL` 指向同一天的站点文章，既是「阅读原文」落点，也是 astro-wechat 的同步身份。
 - 页脚不放可点击外链，显示“长按识别二维码查看更多热搜话题”、对应站点文章 URL 和 `qr.png`。二维码与 `wechat.sourceURL` 均指向同一天的站点文章。
 
-封面由 `scripts/weibo_trending_wechat_cover.ts` 使用 satori 渲染为 1175×500 PNG，列出前三条标题，页脚显示品牌与归档日期。字体下载或渲染失败只会回落到 `astro-wechat.config.mjs` 的 `defaultCover`，不会中断归档。
+封面由 `scripts/weibo_trending_wechat_cover.ts` 使用 satori 渲染为 1175×500 PNG，列出前五条标题，页脚显示品牌与归档日期。条目字号由 `scripts/wechat_cover_layout.ts` 按「最长标题不折行」与「n 行不超出条目区」两个约束算出，与 Reddit 封面共用同一套尺寸。字体下载或渲染失败只会回落到 `astro-wechat.config.mjs` 的 `defaultCover`，不会中断归档。
 
 ## 3. 长度收口
 

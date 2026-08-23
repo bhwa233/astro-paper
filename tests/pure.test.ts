@@ -242,7 +242,7 @@ test("mdblist selection expands until the weekly minimum and balances categories
   assert.equal(crossFilled.shows.length, 2);
 });
 
-test("Reddit life handoff uses only the first three ordered posts and carries each story list", () => {
+test("Reddit life handoff uses only the first five ordered posts and carries each story list", () => {
   const block = (rank: number, subreddit = "AskReddit") =>
     [
       `## ${rank}. 问题 ${rank}`,
@@ -254,10 +254,10 @@ test("Reddit life handoff uses only the first three ordered posts and carries ea
       "",
       `2. 第 ${rank} 帖的第二个故事。`,
     ].join("\n");
-  const candidates = parseRedditLifeCandidates([1, 2, 3, 4].map(rank => block(rank)).join("\n\n"));
+  const candidates = parseRedditLifeCandidates([1, 2, 3, 4, 5, 6].map(rank => block(rank)).join("\n\n"));
   assert.deepEqual(
     candidates.map(item => item.postId),
-    ["post1", "post2", "post3"],
+    ["post1", "post2", "post3", "post4", "post5"],
   );
   // 正文原样搬运：微信稿不重写上游的故事，只做选帖和长度收口。
   assert.equal(candidates[0].body, "1. 第 1 帖的第一个故事。\n\n2. 第 1 帖的第二个故事。");
@@ -320,7 +320,7 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   assert.match(markdown, /^## 问题 2\n\n1\\\. 第四个故事。/m);
   assert.doesNotMatch(markdown, /^###\s/m);
 
-  // 每帖只保留前 N 条回答：三帖全量会撞上微信 20000 字符的 HTML 上限。
+  // 每帖只保留前 N 条回答：五帖全量会撞上微信 20000 字符的 HTML 上限，N 由编排层按渲染长度二分得出。
   const capped = render({ replyLimit: 1 });
   assert.match(capped, /^## 问题 1\n\n1\\\. 第一个故事。\n\n## 问题 2$/m);
   assert.doesNotMatch(capped, /第二个故事/);

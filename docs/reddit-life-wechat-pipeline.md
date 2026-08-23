@@ -1,22 +1,22 @@
 # Reddit 人生精选微信草稿技术方案
 
-状态：已实现（前三帖 + 模型拟标题）
-最后更新：2026-08-18
+状态：已实现（前五帖 + 每帖条数自适应）
+最后更新：2026-08-23
 
 ## 1. 背景
 
-`reddit-top20` 每天产出「人生与社会」栏目文章，其中每帖的正文已经是逐条故事的有序列表（一条回答一项，无小标题、无引用块）。微信侧要的正是这个形态，因此这条管线不再自己组织内容，只把上游前三帖转成一篇微信草稿。
+`reddit-top20` 每天产出「人生与社会」栏目文章，其中每帖的正文已经是逐条故事的有序列表（一条回答一项，无小标题、无引用块）。微信侧要的正是这个形态，因此这条管线不再自己组织内容，只把上游前五帖转成一篇微信草稿。
 
 早期方案曾经深抓单帖评论树、逐讨论串调用模型、再综合成四段式文章（讨论背景 / 主流观点 / 回复补充 / 分歧边界）。上游正文改成故事集之后那套结构失去意义，已整体删除，这条管线不再请求 Reddit 深抓来源服务。
 
-正文仍然是纯规则搬运，**唯一的模型调用是标题与摘要**：一篇稿子收录三帖之后，上游 frontmatter 的 description 只覆盖第一帖，标题也不该由某一帖独占。该调用失败时回落到第一帖标题与上游 description，不影响归档。
+正文是纯规则搬运，整条管线不调用模型：标题取第一帖，摘要取上游 frontmatter 的 description。曾经有一次模型调用把多帖话题串成一个标题，读者一眼看不出在讲什么，因此改回主打第一帖。
 
 ## 2. 目标与非目标
 
 目标：
 
 - 每个归档日最多归档一篇微信稿，并自动创建到微信公众号草稿箱
-- 正文故事以上游前三帖为唯一来源；除编号规范化、每帖 30 条截断、微信页脚和超限收口外不重排、不改写
+- 正文故事以上游前五帖为唯一来源；除编号规范化、每帖条数截断、微信页脚和超限收口外不重排、不改写
 - 渲染结果必须落在微信正文长度上限内
 - 同一天重跑稳定复用 manifest，同时恢复同步所需的本地资源
 - 归档可审计：保留上游文章快照、父任务提交与父 workflow run
@@ -47,23 +47,23 @@ workflow `reddit-life-wechat.yml` 由 `publish-reddit-life.yml` 在 publish 成�
 
 ## 4. 选帖与内容转换
 
-- **选帖**：`parseRedditLifeCandidates` 解析上游文章的 `## N.` 块，取前三帖。subreddit 必须属于 life 栏目，否则报错。
-- **截断**：每帖只保留前 30 条回答。实测（2026-08-17 归档，三帖分别 57/51/39 条）全量渲染成 20557 字符 HTML，超出 20000 上限；每帖 30 条是 13506，占 67.5%。
+- **选帖**：`parseRedditLifeCandidates` 解析上游文章的 `## N.` 块，取前五帖。subreddit 必须属于 life 栏目，否则报错。
+- **截断**：每帖最多保留前 30 条回答，实际条数由第 5 节的长度收口按渲染结果定，五帖统一同一个值。实测 2026-08-21 归档收敛到每帖 24 条、2026-08-20 收敛到 19 条，故事总量不足时（2026-08-19）不触发截断。
 - **分隔**：每个问题使用 Markdown 二级标题，与其他微信日报的条目层级保持一致。
 - **正文**：事实 bullet 之后的全部故事作为输入。编号统一为 `1\.` 形式；只有撞微信正文上限时才从末尾删除故事。
-- **标题与摘要**：由 `reddit_life_wechat_digest.ts` 调模型统一拟定，标题形如 `<话题串>｜Reddit 热帖精选 #期号`。模型只产出话题串（≤34 字）与摘要（≤120 字），品牌与期号由代码拼接，因此 64 字上限在代码里可控。调用失败回落到第一帖标题与上游 frontmatter 的 `description`，打 WARN 不中断。
+- **标题与摘要**：标题取第一帖标题，形如 `<第一帖标题>｜Reddit 热帖精选 #期号`，品牌与期号由代码拼接，因此 64 字上限在代码里可控；摘要直接沿用上游 frontmatter 的 `description`（它本来就是第一帖的一句话描述）。
 - **期号**：`#N` 由 `nextRedditLifeIssue` 扫描已归档 manifest 取最大值加一，写进 manifest 后永不重算，重跑复用同一个号。微信标题上限 64 个 Unicode 码点，超长时只截话题串并加省略号，品牌与期号始终保留。
 - **页脚**：正文末尾附博客首页二维码卡片与 `https://blog.bhwa233.com/`。
 - **frontmatter**：`tags: [Reddit人生讨论]`（在 `astro-wechat.config.mjs` 的 `eligibleTags` 内）、`wechat.enabled: true`、`wechat.sourceURL` 指向第一帖（astro-wechat 用它当同步身份，一篇稿子只能有一个），另附 `redditPostId` 与 `subreddit` 便于追溯。
 
 ## 5. 长度收口
 
-微信正文上限是 20000 字符的 HTML，而一帖的故事条数不可控。`fitWechatContentLimit` 直接用 astro-wechat 的渲染器判定（`openProject` + `prepareArticle`，无网络、只写临时探针）：
+微信正文上限是 20000 字符的 HTML，而一帖的故事条数不可控。`fitWechatContentLimit` 直接用 astro-wechat 的渲染器判定（`openProject` + `prepareArticle`，无网络、只写临时探针），分两级收口：
 
-1. 整篇能渲染就原样归档
-2. 撞 `content-too-long` / `content-too-large` 时，二分找出最少需要删除的尾部故事条数
-3. 删除只发生在正文末尾。编号从 1 递增，从尾部删不会留下断号；frontmatter 与页脚永不参与截断
-4. 删掉的条数写进 `WARN` 日志，不静默截断
+1. 每帖 30 条能渲染就原样归档
+2. 撞 `content-too-long` / `content-too-large` 时，二分「每帖统一保留几条」，取仍能渲染通过的最大值。删减均摊到五帖，不会把靠后的帖子整个啃掉；实测约 5 次探针
+3. 每帖只剩一条仍超限（单条故事极长）才退到尾删：`dropTrailingStories` 二分最少的删除条数。编号从 1 递增，从尾部删不会留下断号；frontmatter 与页脚永不参与截断
+4. 收敛到的每帖条数与删掉的条数都写进 `WARN` 日志，不静默截断
 
 ## 6. 存档与重跑模型
 
@@ -77,11 +77,11 @@ data/reddit-life-wechat/
     └── 01-<reddit-post-id>.md
 ```
 
-`cover.png` 是这一篇的专属封面，由 `reddit_life_wechat_cover.ts` 用 satori 渲染后随稿子提交；缺失时 `astro-wechat` 回落到配置里的 `defaultCover`，因此渲染失败只降级不中断。
+`cover.png` 是这一篇的专属封面，由 `reddit_life_wechat_cover.ts` 用 satori 渲染后随稿子提交，逐条列出收录的五帖标题加品牌与期号；条目字号由 `wechat_cover_layout.ts` 按「最长标题不折行」与「n 行不超出条目区」两个约束算出，与微博封面共用同一套尺寸。缺失时 `astro-wechat` 回落到配置里的 `defaultCover`，因此渲染失败只降级不中断。
 
 `qr.png` 指向博客首页，内容恒定，所以按 `.gitignore` 排除，避免仓库里堆一份天天重复的二进制。每次需要同步一篇 `generated` 稿件时，生成器都必须保证稿件旁存在 `qr.png`，包括复用已有 manifest 的同日重跑。`generate-and-archive` 将它上传为本次 run 的 artifact，`sync-wechat` 下载同一份字节。没有待同步稿件（`upstream-empty`）时不上传、不下载 QR，也不启动微信发布命令。
 
-`run.json` 记录 manifest version、归档日期与时区、父任务提交 SHA / workflow run / 文章路径、上游快照路径、运行状态（`processed` 或 `upstream-empty`），以及每一帖的事实字段、处理状态、期号、产物路径和内容 hash。三帖各占一条 `posts` 记录但共享同一个 `path`——稿子只有一份，发布前按 `path` 去重。
+`run.json` 记录 manifest version、归档日期与时区、父任务提交 SHA / workflow run / 文章路径、上游快照路径、运行状态（`processed` 或 `upstream-empty`），以及每一帖的事实字段、处理状态、期号、产物路径和内容 hash。五帖各占一条 `posts` 记录但共享同一个 `path`——稿子只有一份，发布前按 `path` 去重。
 
 同一日期存在合法 manifest 时，重跑复用它而不重新转换正文；但会恢复 `generated` 稿件需要的 `qr.png`。manifest 解析失败时抛错，不回退成空快照。上游文章不存在时写入 `status: upstream-empty` 的 manifest，不产出草稿，也不把空结果当成错误。
 

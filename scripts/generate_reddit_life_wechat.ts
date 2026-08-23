@@ -1,8 +1,8 @@
 #!/usr/bin/env tsx
 // 独立的 Reddit 人生微信归档编排：不进入 Astro 内容集合，也不重新选择 Reddit 榜单。
-// 上游 life 文章的每帖正文已经是逐条故事的有序列表，这里取前三帖、每帖前 30 条回答，拼成一篇稿子。
+// 上游 life 文章的每帖正文已经是逐条故事的有序列表，这里取前五帖、每帖最多前 30 条回答，拼成一篇稿子。
 // 整条管线不调模型：标题直接取第一帖，摘要直接取上游 frontmatter 的 description。
-// 曾经有一次模型调用把三帖话题串成一个标题，读者一眼看不出在讲什么，因此改回主打第一帖。
+// 曾经有一次模型调用把多帖话题串成一个标题，读者一眼看不出在讲什么，因此改回主打第一帖。
 // 第一帖标题的长度由上游 parseRedditItemSummary 的 TITLE_MAX_CHARS 守住，这里不必再压。
 import fs from "node:fs";
 import path from "node:path";
@@ -20,6 +20,7 @@ import {
   redditLifeWechatFooter,
   REDDIT_LIFE_WECHAT_POST_LIMIT,
   REDDIT_LIFE_WECHAT_QR_FILE,
+  REDDIT_LIFE_WECHAT_REPLY_LIMIT,
   REDDIT_LIFE_WECHAT_TITLE_BRAND,
   type RedditLifeCandidate,
 } from "./reddit_life_wechat_compose.ts";
@@ -141,10 +142,13 @@ function writeArtifact(dir: string, name: string, content: string): void {
 }
 
 // 一帖的故事条数不可控，渲染出的 HTML 随时可能撞上微信 20000 字符上限，而上游无法预知渲染后的长度。
-// 这里用渲染器本身做判定：能渲染就原样归档，撞限就从末尾删故事，二分找出最少的删除量。
+// 这里用渲染器本身做判定，收口分两级：
+//   1. 先二分「每帖统一保留几条」，取能渲染通过的最大值。删减均摊到五帖，五帖各让出几条；
+//   2. 每帖只剩一条仍超限，才退到从正文末尾删故事——这一级会把最后一帖整个啃掉，只当兜底。
+// 顺序不能反：尾删对第五帖最不公平，加到五帖之后再优先用它，等于白收录后两帖。
 // probeDir 必须是真稿最终落地的目录：astro-wechat 按 Markdown 所在目录解析相对资源路径，
 // 探针放别处的话，稿子里那句 `ogImage: cover.png` 会在探针旁边找图，找不到就整个跑挂。
-export async function fitWechatContentLimit(markdown: string, repo: string, label: string, probeDir: string): Promise<string> {
+export async function fitWechatContentLimit(render: (replyLimit: number) => string, repo: string, label: string, probeDir: string): Promise<string> {
   const { openProject, prepareArticle } = await import("@lxw15337674/astro-wechat");
   const project = await openProject(repo, { root: repo });
   const probeFile = path.join(probeDir, `.content-limit-probe-${process.pid}.md`);
@@ -161,14 +165,34 @@ export async function fitWechatContentLimit(markdown: string, repo: string, labe
     }
   };
   try {
-    if (await fits(markdown)) return markdown;
-    // fits() 对删除量单调：删得越多越可能通过，因此可以二分最小可行的删除条数。
+    const full = render(REDDIT_LIFE_WECHAT_REPLY_LIMIT);
+    if (await fits(full)) return full;
+    // fits() 对每帖条数单调：条数越少越可能通过，因此可以二分最大可行的统一上限。
     let low = 1;
-    let high = countDroppableStories(markdown) - 1;
+    let high = REDDIT_LIFE_WECHAT_REPLY_LIMIT - 1;
+    let fittedLimit = 0;
+    while (low <= high) {
+      const middle = Math.floor((low + high) / 2);
+      if (await fits(render(middle))) {
+        fittedLimit = middle;
+        low = middle + 1;
+      } else {
+        high = middle - 1;
+      }
+    }
+    if (fittedLimit) {
+      // 静默截断会让归档看起来是完整讨论，因此把收敛到的条数写进日志。
+      writeStderr(`WARN: [reddit-life-wechat] ${label}: capped each post at ${fittedLimit} story(ies) (from ${REDDIT_LIFE_WECHAT_REPLY_LIMIT}) to fit the WeChat content limit`);
+      return render(fittedLimit);
+    }
+    // 每帖一条都放不下，说明单条故事本身极长。此时只剩尾删可用。
+    const minimal = render(1);
+    low = 1;
+    high = countDroppableStories(minimal) - 1;
     let fittedDrop = 0;
     while (low <= high) {
       const middle = Math.floor((low + high) / 2);
-      if (await fits(dropTrailingStories(markdown, middle))) {
+      if (await fits(dropTrailingStories(minimal, middle))) {
         fittedDrop = middle;
         high = middle - 1;
       } else {
@@ -176,9 +200,8 @@ export async function fitWechatContentLimit(markdown: string, repo: string, labe
       }
     }
     if (!fittedDrop) throw new Error(`${label}: article still exceeds the WeChat content limit even with a single story`);
-    // 静默截断会让归档看起来是完整讨论，因此把删掉的条数写进日志。
-    writeStderr(`WARN: [reddit-life-wechat] ${label}: dropped ${fittedDrop} trailing story(ies) to fit the WeChat content limit`);
-    return dropTrailingStories(markdown, fittedDrop);
+    writeStderr(`WARN: [reddit-life-wechat] ${label}: capped each post at 1 story and dropped ${fittedDrop} trailing story(ies) to fit the WeChat content limit`);
+    return dropTrailingStories(minimal, fittedDrop);
   } finally {
     fs.rmSync(probeFile, { force: true });
   }
@@ -209,8 +232,8 @@ async function fitWithOptionalCover({
   label: string;
   probeDir: string;
 }): Promise<string> {
-  const render = (cover: string) =>
-    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, footer, articleUrl, coverFile: cover });
+  const render = (cover: string) => (replyLimit: number) =>
+    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, footer, articleUrl, coverFile: cover, replyLimit });
   try {
     return await fitWechatContentLimit(render(coverFile), repo, label, probeDir);
   } catch (error) {
@@ -268,7 +291,7 @@ export async function generateRedditLifeWechat({
   if (existing) {
     const generated = existing.posts.filter(post => post.status === "generated");
     writeStderr(`[reddit-life-wechat] archive=${date}: reused manifest (${existing.status}), posts=${generated.length}`);
-    // 三帖共享同一个 path，去重后才是「要发布几篇稿子」。
+    // 收录的每一帖共享同一个 path，去重后才是「要发布几篇稿子」。
     return { manifestPath: manifestRel, generatedPaths: [...new Set(generated.map(post => post.path!).filter(Boolean))], status: existing.status };
   }
   const lifeArticlePath = taskPostRelPath("reddit-top20", date.replace(/$/, "-life"));
@@ -282,7 +305,7 @@ export async function generateRedditLifeWechat({
   }
   const upstreamMarkdown = fs.readFileSync(upstreamFile, "utf8");
   writeArtifact(artifactsDir, "upstream-life.md", upstreamMarkdown);
-  // 上游解析器本来就产出前三帖，这里全部收录，每帖只保留前 REPLY_LIMIT 条回答。
+  // 上游解析器本来就产出前五帖，这里全部收录；每帖保留几条由 fitWechatContentLimit 按渲染长度定，上界 REPLY_LIMIT。
   const candidates = parseRedditLifeCandidates(upstreamMarkdown);
   const allTitles = parseRedditLifePostTitles(upstreamMarkdown);
   const upstreamDescription = parseRedditLifeDescription(upstreamMarkdown);
@@ -298,7 +321,7 @@ export async function generateRedditLifeWechat({
   const target = path.join(repo, relPath);
   ensureDir(path.dirname(target));
   // 标题主打第一帖，摘要沿用上游那句（它本来就是第一帖的一句话描述）。
-  // 两行都指向第一帖，读者在列表页看到的是同一个话题的标题与展开，而不是三帖并列的话题串。
+  // 两行都指向第一帖，读者在列表页看到的是同一个话题的标题与展开，而不是几帖并列的话题串。
   const digest = { headline: candidates[0].title, description: upstreamDescription };
   writeStderr(`[reddit-life-wechat] ${label}: headline=${digest.headline}`);
   // 封面先落盘再写稿：ogImage 只有在图确实存在时才敢写，否则 astro-wechat 解析不到文件会直接报错，
@@ -317,7 +340,7 @@ export async function generateRedditLifeWechat({
   fs.writeFileSync(target, markdown, "utf8");
   writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);
   const contentSha256 = markdownSha256(markdown);
-  // 三帖各留一条 Entry 但共享同一个 path：manifest 要记清楚这篇稿子收录了哪几帖，
+  // 每帖各留一条 Entry 但共享同一个 path：manifest 要记清楚这篇稿子收录了哪几帖，
   // 而稿子只有一份。发布前按 path 去重。
   const posts: Entry[] = candidates.map(({ body: _body, ...facts }) => ({ ...facts, status: "generated", path: relPath, contentSha256, issue }));
   const manifest: RedditLifeRunManifest = { version: 1, archiveDate: date, timeZone: "America/Los_Angeles", status: "processed", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, rawSources, posts };

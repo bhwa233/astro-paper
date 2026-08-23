@@ -12,10 +12,11 @@ export const REDDIT_LIFE_WECHAT_TITLE_BRAND = "Reddit 热帖精选";
 // 上游 parseRedditItemSummary 已经把译名卡在 40 字，扣掉后缀仍有 47 的预算，这里正常永远不触发。
 const WECHAT_TITLE_LIMIT = 64;
 const TITLE_ELLIPSIS = "…";
-// 一篇微信稿收录上游前三帖，每帖只保留前 30 条回答。
-// 实测（2026-08-17 归档，三帖分别 57/51/39 条）：全量渲染成 20557 字符 HTML，超出 20000 上限；
-// 每帖 30 条是 13506，占 67.5%，留下三成缓冲。
-export const REDDIT_LIFE_WECHAT_POST_LIMIT = 3;
+// 一篇微信稿收录上游前五帖，每帖最多保留前 30 条回答。
+// 30 只是上界：五帖各 30 条渲染出来会撞上微信 20000 字符上限，实际条数由编排层
+// （generate_reddit_life_wechat.ts 的 fitWechatContentLimit）用渲染器二分出来，五帖统一压低同一个值。
+// 实测量级（2026-08-17 归档）：每条故事约 124 字符 HTML，固定开销约 2400，因此收敛值通常在每帖 26-28 条。
+export const REDDIT_LIFE_WECHAT_POST_LIMIT = 5;
 export const REDDIT_LIFE_WECHAT_REPLY_LIMIT = 30;
 export const REDDIT_LIFE_WECHAT_QR_FILE = "qr.png";
 const BLOG_URL = "https://blog.bhwa233.com/";
@@ -145,7 +146,7 @@ function storyItems(body: string): string[] {
     .filter(Boolean);
 }
 
-// 每帖只取前 REPLY_LIMIT 条：三帖全量渲染出的 HTML 会撞上微信 20000 字符上限（实测 20557）。
+// 每帖只取前 limit 条：全量渲染出的 HTML 会撞上微信 20000 字符上限。
 // 编号是上游给的顺序，截前 N 条不会留下断号。
 function limitedStoryText(body: string, limit = REDDIT_LIFE_WECHAT_REPLY_LIMIT): string {
   if (!Number.isInteger(limit) || limit < 1) throw new Error(`invalid Reddit life reply limit: ${limit}`);

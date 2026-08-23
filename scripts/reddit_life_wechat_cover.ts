@@ -4,6 +4,7 @@
 import satori from "satori";
 import { compact, writeStderr } from "./blog_common.ts";
 import { svgToPng } from "./image_raster.ts";
+import { coverEntryFontSize } from "./wechat_cover_layout.ts";
 
 export const REDDIT_LIFE_WECHAT_COVER_FILE = "cover.png";
 
@@ -45,15 +46,9 @@ async function fetchBinary(url: string): Promise<ArrayBuffer> {
   return response.arrayBuffer();
 }
 
-// 一篇稿子收录三帖，封面改成「大字期号 + 逐条列出帖子标题」：单帖标题当主视觉时另外两帖没有出口。
-// 条目字号按最长那条分档，短的跟着一起大会让三行长短不齐。
-function entryFontSize(titles: string[]): number {
-  const longest = Math.max(...titles.map(title => [...title].length));
-  if (longest <= 14) return 52;
-  if (longest <= 20) return 46;
-  if (longest <= 26) return 40;
-  return 34;
-}
+// 一篇稿子收录五帖，封面是「逐条列出帖子标题 + 品牌与期号」：单帖标题当主视觉时其余几帖没有出口。
+// 字号统一按最长那条算，短的跟着一起大会让各行长短不齐。上界 52 是只有一两条极短标题时的观感上限。
+const MAX_ENTRY_FONT_SIZE = 52;
 
 function entryLine(title: string, fontSize: number) {
   return {
@@ -71,7 +66,7 @@ function entryLine(title: string, fontSize: number) {
 // 版式对齐博客的 OG 图（src/pages/posts/[...slug]/index.png.ts）：白底、两张错位叠放的描边卡片、
 // 内容钉顶、页脚一行。那边是 1200×630，这里是 2.35:1，所以只有字号按标题长度分档，比例照搬。
 function coverTree(titles: string[], brand: string, issue: string) {
-  const fontSize = entryFontSize(titles);
+  const fontSize = coverEntryFontSize(titles, MAX_ENTRY_FONT_SIZE);
   return {
     type: "div",
     props: {

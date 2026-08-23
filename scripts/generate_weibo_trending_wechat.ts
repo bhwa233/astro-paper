@@ -18,7 +18,7 @@ import {
   WEIBO_TRENDING_WECHAT_QR_FILE,
   type WeiboTrendingWechatItem,
 } from "./weibo_trending_wechat_compose.ts";
-import { renderWeiboTrendingWechatCover, WEIBO_TRENDING_WECHAT_COVER_FILE } from "./weibo_trending_wechat_cover.ts";
+import { renderWeiboTrendingWechatCover, WEIBO_TRENDING_WECHAT_COVER_FILE, WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT } from "./weibo_trending_wechat_cover.ts";
 
 const ROOT_REL = "data/weibo-trending-wechat";
 const MANIFEST_VERSION = 1;
@@ -322,7 +322,7 @@ export async function generateWeiboTrendingWechat({
 
   const articleUrl = weiboTrendingArticleUrl(articlePath);
   const cover = await renderWeiboTrendingWechatCover(
-    selectedItems.slice(0, 3).map(item => item.title),
+    selectedItems.slice(0, WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT).map(item => item.title),
     date,
   );
   if (cover) {

@@ -22,7 +22,9 @@ function parseJsonOutput(text: string): unknown {
 }
 
 function splitFrontmatter(text: string): { frontmatter: string; body: string } {
-  const match = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  // Tolerate CRLF so a Windows checkout reports real problems instead of
+  // claiming every generated post is missing its frontmatter.
+  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
   if (!match) throw new Error("post has no frontmatter");
   return { frontmatter: match[1], body: match[2] };
 }

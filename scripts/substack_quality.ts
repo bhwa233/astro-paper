@@ -21,7 +21,10 @@ const PROMO_PATTERNS = [
 ];
 
 function splitPost(text: string): { frontmatter: string; body: string } {
-  const match = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  // Tolerate CRLF: a Windows checkout with core.autocrlf=true rewrites the line
+  // endings, and an LF-only pattern silently yields an empty frontmatter, which
+  // then reports every field as missing rather than as unparsed.
+  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
   if (!match) return { frontmatter: "", body: text };
   return { frontmatter: match[1], body: match[2] };
 }

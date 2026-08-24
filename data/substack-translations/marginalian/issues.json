@@ -30,6 +30,21 @@
         "outputTokens": 1253,
         "totalTokens": 2888
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=82021",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/21/the-other-significant-others",
+      "sourcePublishedAt": "2026-08-21T19:56:40.000Z",
+      "sourceSha256": "e6a79fb11c17f6151945bfb4efff1db3320a24973b8c752fee62d5ec193b657f",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260821-the-other-significant-others.md",
+      "translatedAt": "2026-08-24T02:12:52.756Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2310,
+        "outputTokens": 6306,
+        "totalTokens": 8616
+      }
     }
   ]
 }

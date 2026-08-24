@@ -1,0 +1,9 @@
+# Commits listed here rewrote whole files without changing their meaning, so
+# blame should look straight through them to the previous author.
+#
+# Enable locally with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub applies this file to its blame view automatically.
+
+# chore: store and check out every text file with LF (CRLF -> LF, 33 files)
+fd17cccb94b5ee91afab5bc3ae765e9ceeab09ec

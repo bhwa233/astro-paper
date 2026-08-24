@@ -410,32 +410,35 @@ test("Reddit item summaries keep Markdown structure and reject thin or heading-l
   }
 });
 
-test("Reddit Markets article uses only translated titles and source metadata", () => {
+test("Reddit Markets article carries the discussion summary and its own description", () => {
+  const marketsSummary = [
+    "1\\. 库存周转从 45 天掉到 62 天，管理层却还在指引扩产，这一条就够我清掉全部仓位；财报里那笔 $4.2B 的应收账款账期也从没解释过。",
+    "",
+    `2\\. 完全相反的看法：Q3 的毛利率其实是被一次性关税成本压下去的，剔掉之后同比还是在扩，NVDA 涨价 15% 反而说明下游还吃得下。${"这轮回调更像是筹码换手而不是基本面转折。".repeat(6)}`,
+  ].join("\n");
   const source = [
-    "1. [r/investing] I designed an emergency bridge after the storm. Ask me anything.",
+    "1. [r/stocks] Sold my entire position today, here is why",
     "- ⭐ 300 points · 120 评论",
-    "- 来源：r/investing",
+    "- 来源：r/stocks",
     "- 栏目：markets",
     "- 发布时间：2099-01-02T07:00:00Z",
-    "- 帖子链接：https://www.reddit.com/r/investing/comments/one/",
-    "- 正文：This body must not enter the article.",
-    "- 顶层高赞回答（按赞数排序，共 1 条）：",
-    "  1. [100 赞] This comment must not enter the article.",
-    "- 中文标题：我在暴风雨后设计应急桥梁，欢迎提问。",
+    "- 帖子链接：https://www.reddit.com/r/stocks/comments/one/",
+    "- 中文标题：今天清掉了全部仓位，理由如下",
+    "- 一句话描述：一位持仓者列出清仓理由，评论区就库存周转与关税成本是否一次性吵成两派。",
+    `- 综合摘要：${JSON.stringify(marketsSummary)}`,
   ].join("\n");
   const article = redditCategoryArticleFromSource(source, redditCategoryByKey("markets"));
 
   assert.ok(article);
-  assert.equal(article.description, "");
-  assert.match(article.markdown, /^1\. 🔴 /m);
+  // description 取自首帖，不再是空串回落到通用模板句。
+  assert.equal(article.description, "一位持仓者列出清仓理由，评论区就库存周转与关税成本是否一次性吵成两派。");
+  assert.match(article.markdown, /^1\. 🔴 今天清掉了全部仓位，理由如下$/m);
   assert.match(article.markdown, /^- ⭐ 300 points · 120 评论$/m);
-  assert.match(article.markdown, /^- 来源：r\/investing$/m);
-  assert.match(article.markdown, /^- 帖子：https:\/\/www\.reddit\.com\/r\/investing\/comments\/one\/$/m);
-  assert.doesNotMatch(article.markdown, /This body|This comment|综合摘要|正文：/);
+  assert.match(article.markdown, /^- 帖子：https:\/\/www\.reddit\.com\/r\/stocks\/comments\/one\/$/m);
+  // 数字与代码原样落地：提示词要求不得四舍五入或换算，这里守住渲染这一端。
+  assert.match(article.markdown, /\$4\.2B/);
+  assert.match(article.markdown, /NVDA 涨价 15%/);
 
-  // 线上事故：归档层要求每个条目在事实 bullet 之后必须有摘要，而只翻译标题的分类没有摘要，
-  // 于是 AMA / Markets 每次调度都以「Reddit Top 20 item 1 has an empty summary」失败。
-  // AMA 之后改为出摘要，只剩 Markets 走这条退化形态，回归覆盖跟着挪到它身上。
   const repo = tempDir("reddit-markets");
   const published = archivePost({
     task: "reddit-top20",
@@ -447,7 +450,22 @@ test("Reddit Markets article uses only translated titles and source metadata", (
     titleSuffix: article.title,
   });
   verifyPostContract(repo, published.path, "reddit-top20");
-  assert.match(fs.readFileSync(path.join(repo, published.path), "utf8"), /^## 1\. 我在暴风雨后设计应急桥梁，欢迎提问。$/m);
+  assert.match(fs.readFileSync(path.join(repo, published.path), "utf8"), /^## 1\. 今天清掉了全部仓位，理由如下$/m);
+});
+
+test("Reddit summary floor is per column: Markets accepts what Life rejects", () => {
+  // r/wallstreetbets 的梗图帖评论区就是几句嘴炮，凑不出 300 字。按栏目分开设下限，
+  // 才不会让这些帖子重试三次后整帖被丢。断言的是两个栏目对同一段摘要给出相反判定，
+  // 而不是复述某个具体数字。
+  const short = `${"讨论集中在这条 15% 的涨价通知上，有人算下游成本能不能吃得下，也有人只想笑一下。".repeat(4)}`;
+  const length = short.replace(/\s+/g, "").length;
+  const markets = redditCategoryByKey("markets");
+  const life = redditCategoryByKey("life");
+  assert.ok(length >= markets.summaryMinChars && length < life.summaryMinChars, `fixture length ${length} must sit between the two floors`);
+
+  const payload = JSON.stringify({ rank: 1, title_zh: "涨价通知引发的讨论", description: REDDIT_DESCRIPTION, summary: short });
+  assert.equal(parseRedditItemSummary(payload, 1, markets.summaryMinChars).summary, short);
+  assert.throws(() => parseRedditItemSummary(payload, 1, life.summaryMinChars), /summary is too short/);
 });
 
 test("Reddit AMA article carries the question-and-answer summary and its own description", () => {

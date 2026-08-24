@@ -3,33 +3,37 @@
 // 由这里确定性地组装成 archive 层可消费的中间契约 Markdown。
 import { ARCHIVE_PAYLOAD_MARKER, bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowSignal, normalizeMarkdownBlock, parseModelJsonObject } from "./compose_common.ts";
 
-// 单帖摘要下限；去掉空白后计长，避免模型退回一两句抽象概括。
+// 单帖摘要下限；去掉空白后计长，避免模型退回一两句抽象概括。栏目可以各自覆盖：
+// 讨论体量差得很远，一个数字压不住三个栏目。
 const SUMMARY_MIN_CHARS = 300;
 
-// summarizes=true 的栏目逐帖调用模型综合正文与评论，产出标题 + 描述 + 摘要；
-// false 的栏目只把原题翻成中文，条目退化为标题加事实 bullet。抓取层不分栏目，
-// 两种形态拿到的 source block 完全一样，差别只在这里用不用评论。
+// 每个栏目逐帖调用模型综合正文与评论，产出标题 + 描述 + 摘要。抓取层不分栏目：
+// 一个端点、一份 policy，只有 subreddits 不同，因此三个栏目拿到的 source block
+// 形状完全一样，差别只在各自的提示词怎么读它。
 export const REDDIT_CATEGORIES = [
   {
     key: "life",
     title: "人生与社会",
     fileNameSuffix: "life",
     subreddits: ["AskReddit", "confessions", "changemyview", "tifu"],
-    summarizes: true,
+    summaryMinChars: SUMMARY_MIN_CHARS,
   },
   {
     key: "markets",
     title: "市场与价值投资",
     fileNameSuffix: "markets",
     subreddits: ["stocks", "ValueInvesting", "investing", "wallstreetbets"],
-    summarizes: false,
+    // r/wallstreetbets 有大量梗图帖，评论区就是几句嘴炮。按 300 收，这些帖子会
+    // 重试三次后整帖被丢，当期条目数明显缩水；它们本来就没有 300 字的料，
+    // 下限该迁就内容，而不是让内容迁就下限。
+    summaryMinChars: 150,
   },
   {
     key: "ama",
     title: "人物与问答",
     fileNameSuffix: "ama",
     subreddits: ["IAmA", "AMA", "casualiama"],
-    summarizes: true,
+    summaryMinChars: SUMMARY_MIN_CHARS,
   },
 ] as const;
 
@@ -110,17 +114,17 @@ export function parseSourceFacts(source: string): RedditSourceFact[] {
 
 // 整帖都落在排除主题上时模型只返回 {rank, skip:true}，该帖整块不进文章。
 // 返回 null 表示丢弃；其余情况按正常摘要严格校验。
-export function parseRedditItemOutcome(raw: string, expectedRank: number): RedditModelItem | null {
+export function parseRedditItemOutcome(raw: string, expectedRank: number, minChars = SUMMARY_MIN_CHARS): RedditModelItem | null {
   const payload = parseModelJsonObject(raw, "Reddit item summary");
   if (payload.skip === true) {
     const rank = Number(payload.rank);
     if (rank !== expectedRank) throw new Error(`Reddit item summary rank mismatch: ${rank} vs ${expectedRank}`);
     return null;
   }
-  return parseRedditItemSummary(raw, expectedRank);
+  return parseRedditItemSummary(raw, expectedRank, minChars);
 }
 
-export function parseRedditItemSummary(raw: string, expectedRank: number): RedditModelItem {
+export function parseRedditItemSummary(raw: string, expectedRank: number, minChars = SUMMARY_MIN_CHARS): RedditModelItem {
   const payload = parseModelJsonObject(raw, "Reddit item summary");
   const rank = Number(payload.rank);
   const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
@@ -140,7 +144,7 @@ export function parseRedditItemSummary(raw: string, expectedRank: number): Reddi
   }
   if (/^\s{0,3}#{1,6}\s/m.test(summary)) throw new Error(`Reddit item ${expectedRank} summary must not use Markdown headings`);
   const length = summary.replace(/\s+/g, "").length;
-  if (length < SUMMARY_MIN_CHARS) throw new Error(`Reddit item ${expectedRank} summary is too short: ${length} < ${SUMMARY_MIN_CHARS}`);
+  if (length < minChars) throw new Error(`Reddit item ${expectedRank} summary is too short: ${length} < ${minChars}`);
   return { rank, title_zh: titleZh, description, summary };
 }
 
@@ -165,7 +169,7 @@ function sourceBlocks(source: string): string[] {
     .filter(block => /^\d+\.\s*\[r\//.test(block));
 }
 
-export function parseRedditItemSummaries(source: string): RedditModelItem[] {
+export function parseRedditItemSummaries(source: string, minChars = SUMMARY_MIN_CHARS): RedditModelItem[] {
   const blocks = sourceBlocks(source);
   if (!blocks.length) throw new Error("Reddit combined source has no item blocks");
   return blocks.map((block, index) => {
@@ -180,6 +184,7 @@ export function parseRedditItemSummaries(source: string): RedditModelItem[] {
         summary: decodeMarkdownBlock(bulletValue(bullets, "综合摘要")),
       }),
       rank,
+      minChars,
     );
   });
 }
@@ -210,56 +215,15 @@ export function redditMarkdownFromItemSummaries(source: string): string {
   return composeRedditBody(parseRedditItemSummaries(source), parseSourceFacts(source));
 }
 
-function composeRedditTitleOnlyBody(items: RedditTitleTranslation[], facts: RedditSourceFact[]): string {
-  if (!facts.length) throw new Error("Reddit source produced no items to compose");
-  const byRank = new Map(items.map(item => [item.rank, item]));
-  const blocks = facts.map(fact => {
-    const item = byRank.get(fact.rank);
-    if (!item) throw new Error(`Reddit title translation is missing rank ${fact.rank}`);
-    const lines = [`${fact.rank}. 🔴 ${item.title_zh}`];
-    if (fact.points) lines.push(`- ⭐ ${fact.points}`);
-    if (fact.subreddit) lines.push(`- 来源：r/${fact.subreddit}`);
-    if (fact.url) lines.push(`- 帖子：${fact.url}`);
-    return lines.join("\n");
-  });
-  return `${blocks.join("\n\n")}\n`;
-}
-
-function parseRedditTitleTranslations(source: string): RedditTitleTranslation[] {
-  const blocks = sourceBlocks(source);
-  if (!blocks.length) throw new Error("Reddit combined source has no item blocks");
-  return blocks.map((block, index) => {
-    const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
-    if (!Number.isInteger(rank) || rank !== index + 1) throw new Error(`Reddit combined source item ${index + 1} has invalid rank`);
-    return parseRedditTitleTranslation(JSON.stringify({ rank, title_zh: bulletValue(extractBullets(block), "中文标题") }), rank);
-  });
-}
-
 export function redditCategoryArticleFromSource(source: string, category: RedditCategory): RedditCategoryArticle | null {
   const facts = parseSourceFacts(source);
   const sourceFacts = facts.filter(fact => fact.category === category.key);
   if (!sourceFacts.length) return null;
   const articleFacts = sourceFacts.map((fact, index) => ({ ...fact, rank: index + 1 }));
-  if (category.summarizes) {
-    const modelByRank = new Map(parseRedditItemSummaries(source).map(item => [item.rank, item]));
-    const articleItems = sourceFacts.map((fact, index) => {
-      const item = modelByRank.get(fact.rank);
-      if (!item) throw new Error(`Reddit model JSON is missing rank ${fact.rank}`);
-      return { ...item, rank: index + 1 };
-    });
-    return {
-      category: category.key,
-      title: category.title,
-      fileNameSuffix: category.fileNameSuffix,
-      itemCount: articleItems.length,
-      markdown: composeRedditBody(articleItems, articleFacts),
-      description: redditTop20Description(articleItems),
-    };
-  }
-  const translations = parseRedditTitleTranslations(source);
+  const modelByRank = new Map(parseRedditItemSummaries(source, category.summaryMinChars).map(item => [item.rank, item]));
   const articleItems = sourceFacts.map((fact, index) => {
-    const item = translations.find(translation => translation.rank === fact.rank);
-    if (!item) throw new Error(`Reddit title translation is missing rank ${fact.rank}`);
+    const item = modelByRank.get(fact.rank);
+    if (!item) throw new Error(`Reddit model JSON is missing rank ${fact.rank}`);
     return { ...item, rank: index + 1 };
   });
   return {
@@ -267,7 +231,7 @@ export function redditCategoryArticleFromSource(source: string, category: Reddit
     title: category.title,
     fileNameSuffix: category.fileNameSuffix,
     itemCount: articleItems.length,
-    markdown: composeRedditTitleOnlyBody(articleItems, articleFacts),
-    description: "",
+    markdown: composeRedditBody(articleItems, articleFacts),
+    description: redditTop20Description(articleItems),
   };
 }

@@ -14,12 +14,10 @@ import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
   parseRedditItemOutcome,
-  parseRedditTitleTranslation,
   redditCategoryArticleFromSource,
   redditCategoryByKey,
   type RedditCategory,
   type RedditModelItem,
-  type RedditTitleTranslation,
 } from "./reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
@@ -550,28 +548,17 @@ type RedditItemSummaryOutcome = {
   error?: string;
 };
 
-type RedditTitleTranslationOutcome = {
-  translation: RedditTitleTranslation | null;
-  error?: string;
-};
-
 export type RedditItemProcessingOutcome = RedditItemSummaryOutcome & {
   block: string;
   rank: number;
 };
 
-type RedditTitleProcessingOutcome = RedditTitleTranslationOutcome & {
-  block: string;
-  rank: number;
-};
-
-type RedditProcessingOutcome = RedditItemProcessingOutcome | RedditTitleProcessingOutcome;
-
 // 显式映射供约定检查器追踪模板归属，避免动态文件名让孤儿模板悄然失效。
+// 三个栏目读的是同一形状的 source block，各自的提示词决定怎么读它。
 const REDDIT_PROMPT_BY_CATEGORY: Record<RedditCategory["key"], string> = {
   life: "reddit-item-summary",
   ama: "reddit-ama-summary",
-  markets: "reddit-markets-title-translation",
+  markets: "reddit-markets-item-summary",
 };
 
 export function partitionRedditItemOutcomes(outcomes: RedditItemProcessingOutcome[]): {
@@ -589,7 +576,7 @@ export function partitionRedditItemOutcomes(outcomes: RedditItemProcessingOutcom
 
 // summary 为 null 表示模型判定整帖落在排除主题上；error 则表示重试后仍无法产出可用摘要。
 // 单帖失败不能带走整批，因此这里给 onExhausted 而不是让它抛。
-function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditItemSummaryOutcome> {
+function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string, minChars: number): Promise<RedditItemSummaryOutcome> {
   return generateJsonStageWithRetries<RedditItemSummaryOutcome>({
     task: "reddit-top20",
     stage: `Reddit item ${rank}`,
@@ -598,22 +585,8 @@ function summarizeRedditItem(prompt: string, rank: number, model: string, artifa
     model,
     artifactsDir,
     jitterMs: 1_000,
-    parse: content => ({ summary: parseRedditItemOutcome(content, rank) }),
+    parse: content => ({ summary: parseRedditItemOutcome(content, rank, minChars) }),
     onExhausted: error => ({ summary: null, error }),
-  });
-}
-
-function translateRedditTitle(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditTitleTranslationOutcome> {
-  return generateJsonStageWithRetries<RedditTitleTranslationOutcome>({
-    task: "reddit-top20",
-    stage: `Reddit title ${rank}`,
-    artifactPrefix: `item-${String(rank).padStart(2, "0")}-title`,
-    prompt,
-    model,
-    artifactsDir,
-    jitterMs: 1_000,
-    parse: content => ({ translation: parseRedditTitleTranslation(content, rank) }),
-    onExhausted: error => ({ translation: null, error }),
   });
 }
 
@@ -641,53 +614,15 @@ async function buildCombinedRedditSource({
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const templateName = REDDIT_PROMPT_BY_CATEGORY[redditCategory.key];
   const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, templateName), "utf8");
-  // 摘要栏目逐帖传入受限 source block；标题栏目只传原题。有限并发保证三个栏目运行时不会把
-  // 候选池拼成一个巨型提示词。
-  const outcomes: RedditProcessingOutcome[] = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
+  // 逐帖传入受限 source block。有限并发保证三个栏目运行时不会把候选池拼成一个巨型提示词。
+  const outcomes: RedditItemProcessingOutcome[] = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
     if (!Number.isInteger(rank)) throw new Error("Reddit source item is missing rank");
-    const originalTitle = block.match(/^\d+\.\s*\[r\/[^\]]+\]\s+(.+)$/m)?.[1]?.trim();
-    if (!originalTitle) throw new Error(`Reddit source item ${rank} is missing its original title`);
-    const prompt = redditCategory.summarizes
-      ? template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block)
-      : template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{title}", originalTitle);
-    const outcome = redditCategory.summarizes
-      ? await summarizeRedditItem(prompt, rank, model, artifactsDir)
-      : await translateRedditTitle(prompt, rank, model, artifactsDir);
+    const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block);
+    const outcome = await summarizeRedditItem(prompt, rank, model, artifactsDir, redditCategory.summaryMinChars);
     return { block, rank, ...outcome };
   });
-  if (!redditCategory.summarizes) {
-    const titleOutcomes = outcomes.filter((outcome): outcome is RedditTitleProcessingOutcome => "translation" in outcome);
-    const kept = titleOutcomes.filter((outcome): outcome is RedditTitleProcessingOutcome & { translation: RedditTitleTranslation } => outcome.translation !== null);
-    const failed = titleOutcomes
-      .filter((outcome): outcome is { block: string; rank: number; translation: null; error?: string } => outcome.translation === null)
-      .map(outcome => ({ rank: outcome.rank, error: outcome.error || "title translation failed" }));
-    if (failed.length) {
-      writeStderr(`WARN: Reddit ${redditCategory.key} skipped ${failed.length}/${blocks.length} posts after title translation retries: ranks ${failed.map(item => item.rank).join(", ")}`);
-      writeArtifact(artifactsDir, "reddit-top20", "dropped-items.json", JSON.stringify({ failed, total: blocks.length }, null, 2));
-    }
-    if (!kept.length) throw new Error(`Reddit ${redditCategory.key} has no publishable posts after skipping ${failed.length} failed title translations`);
-    const firstBlockOffset = source.search(/^\d+\.\s*\[r\//m);
-    const header = firstBlockOffset >= 0 ? source.slice(0, firstBlockOffset).trimEnd() : "";
-    const combined = [
-      header,
-      "",
-      "以下条目只使用 AI 翻译原帖标题；热度、来源与帖子链接均保留抓取证据，正文不使用评论或模型摘要。",
-      "",
-      ...kept.flatMap(({ block, translation }, index) => {
-        const rank = index + 1;
-        const factLines = block
-          .split("\n")
-          .filter(line => /^\d+\.\s*\[r\//.test(line) || /^- (?:⭐|来源：|栏目：|发布时间：|帖子链接：)/.test(line))
-          .map(line => line.replace(/^\d+\.\s*(?=\[r\/)/, `${rank}. `));
-        return [...factLines, `- 中文标题：${translation.title_zh}`, ""];
-      }),
-    ].join("\n");
-    writeArtifact(artifactsDir, "reddit-top20", "source.dynamic.md", combined);
-    return combined;
-  }
-  const summaryOutcomes = outcomes.filter((outcome): outcome is RedditItemProcessingOutcome => "summary" in outcome);
-  const { kept, excluded, failed } = partitionRedditItemOutcomes(summaryOutcomes);
+  const { kept, excluded, failed } = partitionRedditItemOutcomes(outcomes);
   if (excluded.length || failed.length) {
     // 静默截断会让栏目数量看起来仍然完整，因此把丢弃的原始排名同时写进日志与产物。
     if (excluded.length) writeStderr(`WARN: Reddit excluded ${excluded.length}/${blocks.length} posts by topic: ranks ${excluded.join(", ")}`);

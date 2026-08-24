@@ -4,10 +4,11 @@ permissions:
   contents: write
 
 on:
-  # 错开 reddit-top20 的 10:00 / 10:05 / 10:10：两者打同一个来源服务，
-  # 而热搜还要多跑一次评论深挖作业。
-  schedule:
-    - cron: "30 11 * * *"
+  # 定时已关闭，只保留手动派发。恢复时取消下面两行的注释即可；
+  # 11:30 是为了错开 reddit-top20 的 10:00 / 10:05 / 10:10：两者打同一个来源
+  # 服务，而热搜还要多跑一次评论深挖作业。
+  # schedule:
+  #   - cron: "30 11 * * *"
   workflow_dispatch:
     inputs:
       date:

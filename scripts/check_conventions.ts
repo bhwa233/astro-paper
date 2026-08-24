@@ -35,9 +35,19 @@ function listFiles(dir: string, extension: string): string[] {
   });
 }
 
+// scripts/wechat 是整棵搬进来的微信发布器，依赖治理和代码风格都自成一套：
+// 它直接 import cheerio/juice/markdown-it，不走本仓的封装表。把它排除在两条
+// scripts 规则之外，规则就只管本仓自己写的脚本。
+function ownScriptFiles(repo: string): string[] {
+  const wechat = path.join(repo, "scripts", "wechat") + path.sep;
+  return listFiles(path.join(repo, "scripts"), ".ts").filter(
+    file => !file.startsWith(wechat)
+  );
+}
+
 function checkDependencyOwners(repo: string): Violation[] {
   const violations: Violation[] = [];
-  for (const file of listFiles(path.join(repo, "scripts"), ".ts")) {
+  for (const file of ownScriptFiles(repo)) {
     const rel = path.relative(repo, file).split(path.sep).join("/");
     const text = fs.readFileSync(file, "utf8");
     for (const [pkg, owner] of Object.entries(DEPENDENCY_OWNERS)) {
@@ -51,7 +61,7 @@ function checkDependencyOwners(repo: string): Violation[] {
 // prompts/blog 下的每个模板都必须有人用：要么是任务名，要么被脚本按名字点到。
 // 重命名任务后遗留的孤儿模板不会报错，只会让生成悄悄走别的分支——这条规则就是为它准备的。
 function checkPromptsAreReferenced(repo: string): Violation[] {
-  const scriptText = listFiles(path.join(repo, "scripts"), ".ts")
+  const scriptText = ownScriptFiles(repo)
     .map(file => fs.readFileSync(file, "utf8"))
     .join("\n");
   const taskNames = new Set<string>(TASKS);

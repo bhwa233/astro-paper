@@ -71,7 +71,7 @@ jobs:
           set -euo pipefail
           args=()
           if [ "$FORCE_CREATE" = "true" ]; then args+=(--force-create); fi
-          pnpm exec astro-wechat publish "$ARTICLE_PATH" "${args[@]}" --json | tee wechat-results.json
+          pnpm run wechat publish "$ARTICLE_PATH" "${args[@]}" --json | tee wechat-results.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";
 

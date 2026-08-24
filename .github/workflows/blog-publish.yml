@@ -415,7 +415,7 @@ jobs:
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
         run: |
           set -euo pipefail
-          pnpm exec astro-wechat publish "$ARTICLE_PATH" --dry-run --json | tee wechat-dry-run.json
+          pnpm run wechat publish "$ARTICLE_PATH" --dry-run --json | tee wechat-dry-run.json
 
       - name: "Approve planned draft creation"
         id: decision
@@ -447,7 +447,7 @@ jobs:
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
-        run: pnpm exec astro-wechat publish "$ARTICLE_PATH" --json | tee wechat-results.json
+        run: pnpm run wechat publish "$ARTICLE_PATH" --json | tee wechat-results.json
 
       - name: "Commit WeChat ledger"
         if: always() && steps.decision.outputs.publish == 'true'

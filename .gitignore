@@ -45,10 +45,6 @@ yt_dlp_fastapi/
 # directory and must remain tracked so drafts are never duplicated.
 .astro-wechat/preview/
 
-# The renderer's own repository, cloned here for local work. It carries its own
-# git history and ships to this project through the npm registry.
-astro-wechat/
-
 # A crashed run can leave the WeChat content-limit probe behind next to a draft.
 data/reddit-life-wechat/**/.content-limit-probe-*.md
 data/weibo-trending-wechat/**/.content-limit-probe-*.md

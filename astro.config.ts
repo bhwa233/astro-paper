@@ -8,7 +8,7 @@ import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { satteri } from "@astrojs/markdown-satteri";
-import astroWechat from "@lxw15337674/astro-wechat/integration";
+import astroWechat from "./scripts/wechat/src/integration";
 import {
   transformerNotationDiff,
   transformerNotationHighlight,

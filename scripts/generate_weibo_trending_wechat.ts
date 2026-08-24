@@ -155,7 +155,7 @@ async function restoreQr(repo: string, draftPath: string, artifactsDir: string, 
 }
 
 async function markdownFits(markdown: string, repo: string, probeFile: string): Promise<boolean> {
-  const { openProject, prepareArticle } = await import("@lxw15337674/astro-wechat");
+  const { openProject, prepareArticle } = await import("./wechat/src/index.ts");
   const project = await openProject(repo, { root: repo });
   fs.writeFileSync(probeFile, markdown, "utf8");
   try {

@@ -199,7 +199,7 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -t paths < weibo-trending-wechat-paths.txt
-          pnpm exec astro-wechat publish "${paths[@]}" --dry-run --json | tee wechat-dry-run.json
+          pnpm run wechat publish "${paths[@]}" --dry-run --json | tee wechat-dry-run.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
@@ -216,7 +216,7 @@ jobs:
         run: |
           set +e
           mapfile -t paths < weibo-trending-wechat-paths.txt
-          pnpm exec astro-wechat publish "${paths[@]}" --json | tee wechat-results.json
+          pnpm run wechat publish "${paths[@]}" --json | tee wechat-results.json
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Commit WeChat ledger

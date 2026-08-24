@@ -149,7 +149,7 @@ function writeArtifact(dir: string, name: string, content: string): void {
 // probeDir 必须是真稿最终落地的目录：astro-wechat 按 Markdown 所在目录解析相对资源路径，
 // 探针放别处的话，稿子里那句 `ogImage: cover.png` 会在探针旁边找图，找不到就整个跑挂。
 export async function fitWechatContentLimit(render: (replyLimit: number) => string, repo: string, label: string, probeDir: string): Promise<string> {
-  const { openProject, prepareArticle } = await import("@lxw15337674/astro-wechat");
+  const { openProject, prepareArticle } = await import("./wechat/src/index.ts");
   const project = await openProject(repo, { root: repo });
   const probeFile = path.join(probeDir, `.content-limit-probe-${process.pid}.md`);
   ensureDir(path.dirname(probeFile));

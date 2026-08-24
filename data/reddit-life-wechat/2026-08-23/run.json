@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-23",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "ffcfc261d8fe0838df9121e8d8d641a9ecbdb0f9",
+    "workflowRun": "32677722903",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-23-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-23/upstream-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vw8y56",
+      "title": "男人真的喜欢在睡梦中被做爱叫醒吗？",
+      "subreddit": "AskReddit",
+      "points": "6026 points · 1752 评论",
+      "numComments": 1752,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vw8y56/do_men_honestly_like_being_woken_up_to_sex_and_if/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-23/01-1vw8y56.md",
+      "contentSha256": "998f58dd1c849cf6378a700bb645cff4ade5ce18a82b9dd9ae67edcc6ea4b5ec",
+      "issue": 5
+    },
+    {
+      "rank": 2,
+      "postId": "1vvt695",
+      "title": "医护人员希望患者明白的就医常识",
+      "subreddit": "AskReddit",
+      "points": "4131 points · 3083 评论",
+      "numComments": 3083,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vvt695/people_who_work_in_the_medical_field_whats/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-23/01-1vw8y56.md",
+      "contentSha256": "998f58dd1c849cf6378a700bb645cff4ade5ce18a82b9dd9ae67edcc6ea4b5ec",
+      "issue": 5
+    },
+    {
+      "rank": 3,
+      "postId": "1vvv5za",
+      "title": "快餐店员工，你们店里绝对别碰的东西是什么？",
+      "subreddit": "AskReddit",
+      "points": "3756 points · 1262 评论",
+      "numComments": 1262,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vvv5za/fast_food_employees_whats_your_dont_touch_this/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-23/01-1vw8y56.md",
+      "contentSha256": "998f58dd1c849cf6378a700bb645cff4ade5ce18a82b9dd9ae67edcc6ea4b5ec",
+      "issue": 5
+    },
+    {
+      "rank": 4,
+      "postId": "1vwb468",
+      "title": "一个人智商不高的明显表现有哪些？",
+      "subreddit": "AskReddit",
+      "points": "3030 points · 2671 评论",
+      "numComments": 2671,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vwb468/what_are_some_clear_signs_of_low_intelligence_in/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-23/01-1vw8y56.md",
+      "contentSha256": "998f58dd1c849cf6378a700bb645cff4ade5ce18a82b9dd9ae67edcc6ea4b5ec",
+      "issue": 5
+    },
+    {
+      "rank": 5,
+      "postId": "1vw61u5",
+      "title": "说好只喝一杯就真的只喝一杯，到底是怎么做到的？",
+      "subreddit": "AskReddit",
+      "points": "2147 points · 2275 评论",
+      "numComments": 2275,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vw61u5/people_who_say_theyre_only_going_to_have_one/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-23/01-1vw8y56.md",
+      "contentSha256": "998f58dd1c849cf6378a700bb645cff4ade5ce18a82b9dd9ae67edcc6ea4b5ec",
+      "issue": 5
+    }
+  ]
+}

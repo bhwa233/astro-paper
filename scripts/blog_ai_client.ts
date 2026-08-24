@@ -1,6 +1,6 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
-import { APICallError, generateText, Output } from "ai";
+import { APICallError, generateText, NoObjectGeneratedError, Output } from "ai";
 import { clipText, envPositiveInt, envPositiveNumber, sleep, writeStderr } from "./blog_common.ts";
 
 export const DEFAULT_AI_BASE_URL = "https://rightapi.ai/codex/v1";
@@ -194,6 +194,14 @@ async function callBlogAiOnce({
       throw failure;
     }
     if (error instanceof Error && /^AI response missing message content/.test(error.message)) throw error;
+    if (NoObjectGeneratedError.isInstance(error)) {
+      // jsonMode 下 SDK 只说 "could not parse the response"，看不出是被安全策略拦下、
+      // 截断在半截 JSON，还是模型直接写了散文。带上 finishReason 和原始输出才能定位。
+      const finishReason = error.finishReason || "unknown";
+      throw new Error(
+        `AI request failed: ${error.message} finishReason=${finishReason} text=${clipText(error.text, 1200) || "<empty>"}`
+      );
+    }
     if (error instanceof Error) throw new Error(`AI request failed: ${error.message}`);
     throw new Error(`AI request failed: ${String(error)}`);
   }

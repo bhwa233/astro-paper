@@ -49,11 +49,12 @@
 | Experimental History    | `https://www.experimental-history.com/feed`      |  1,018 KB |     20 |    20,229 字符 |            9 | 完整 Substack Feed         |
 | Noahpinion               | `https://www.noahpinion.blog/feed`               |  1,171 KB |     20 |    22,514 字符 |            3 | 完整 Substack Feed         |
 | Construction Physics    | `https://www.construction-physics.com/feed`       |    586 KB |     20 |     3,851 字符 |            3 | 完整 Substack Feed         |
+| Commoncog               | `https://commoncog.com/rss/`                      |    322 KB |     15 |     2,888 字符 |            1 | 完整 Ghost RSS             |
 | The Intrinsic Perspective | `https://www.theintrinsicperspective.com/feed`  |  1,075 KB |     20 |    13,230 字符 |            7 | 完整 Substack Feed         |
 | Astral Codex Ten        | `https://www.astralcodexten.com/feed`             |    707 KB |     20 |    10,454 字符 |            0 | 完整 Substack Feed         |
 | SatPost                 | `https://www.readtrung.com/feed`                 |    3.4 MB |     20 |    43,976 字符 |           28 | Feed、文章页、首图均为 200 |
 
-十三个 Feed 都在 `content:encoded` 中提供完整 HTML，而不是只有 `description` 摘要。Substack 的 XML 通常压成一行，SatPost 又包含大量图片属性，因此必须设置响应大小上限，不能沿用通用 `fetchText` 当前 1 MB 的默认值；上限由全局 `SUBSTACK_LIMITS.maxFeedBytes` 统一给出，取值覆盖最大的 SatPost。
+十四个 Feed 都在 `content:encoded` 中提供完整 HTML，而不是只有 `description` 摘要。Substack 的 XML 通常压成一行，SatPost 又包含大量图片属性，因此必须设置响应大小上限，不能沿用通用 `fetchText` 当前 1 MB 的默认值；上限由全局 `SUBSTACK_LIMITS.maxFeedBytes` 统一给出，取值覆盖最大的 SatPost。
 
 解析命名空间交给 Feedsmith，标准字段读取 `item.content?.encoded`。不得静默回落到几十个字符的 `description`，否则会把摘要误判为完整正文。
 
@@ -365,7 +366,7 @@ Feed 选择应按 `pubDate` 从旧到新处理，避免积压时先发布更新�
 1. 用 `parseHtml(contentEncoded, itemLink)` 构造 DOM，相对链接按 item URL 解析
 2. 删除栏目专属噪音：Substack 订阅按钮、分享按钮、评论入口、publication footer，再应用栏目级 `removeSelectors`
 3. 根据 `cutBeforePatterns` / `cutAfterPatterns` 去掉固定赞助、推荐和订阅尾巴，再用栏目级 `dropPatterns` 与通用高置信度模式删掉正文中间的推广块；删块后连排的分隔线折成一条，首尾的直接去掉
-4. 删除通用危险或非正文标签，把清洗后的 DOM 交给 `scripts/html_to_markdown.ts` 调用 Turndown，得到 Markdown
+4. 删除通用危险或非正文标签；Ghost bookmark card 折成标题文本链接，再把清洗后的 DOM 交给 `scripts/html_to_markdown.ts` 调用 Turndown，得到 Markdown
 5. **转换前后对账**（见 9.1），任一项超阈值直接判该篇失败
 6. 整篇 Markdown 里的 URL 全部替换为 `URL_0001_NNN` 占位符，拒绝 `javascript:`、`data:` 和未知协议
 

@@ -334,6 +334,26 @@ test("DOM cleanup precedes Markdown conversion and translation validation preser
   );
 });
 
+test("Ghost bookmark cards retain their destination as an ordinary text link", () => {
+  // Production compatibility incident 2026-08-21: Commoncog's Ghost feed put
+  // block-level divs inside an anchor, so Turndown dropped the bookmark URL.
+  const commoncog = NEWSLETTER_PUBLICATIONS.commoncog;
+  const html = `<p>Before the case.</p><figure class="kg-card kg-bookmark-card"><a class="kg-bookmark-container" href="/case/example"><div class="kg-bookmark-content"><div class="kg-bookmark-title">Example business case</div><div class="kg-bookmark-description">Decorative preview copy</div></div><div class="kg-bookmark-thumbnail"><img src="/content/images/example.jpg" alt="Preview"></div></a></figure><p>${BODY_FILLER}</p>`;
+  const prepared = prepareArticle(
+    html,
+    "https://commoncog.com/source-article/",
+    commoncog
+  );
+
+  assert.match(
+    prepared.markdown,
+    /\[Example business case\]\(https:\/\/commoncog\.com\/case\/example\)/
+  );
+  assert.doesNotMatch(prepared.markdown, /Decorative preview copy|example\.jpg/);
+  assert.equal(prepared.audit.links, 1);
+  assert.equal(prepared.audit.images, 0);
+});
+
 test("newsletter archive quality gate catches reader-visible generation residue", () => {
   // Production incidents 2026-08-21: archived posts exposed orphan `**`, a
   // missing Substack mention, duplicate body H1, and translated subscription CTAs.

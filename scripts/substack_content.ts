@@ -229,6 +229,14 @@ function cleanHtml(
       node.removeAttribute(attribute);
     }
   });
+  // Ghost bookmark cards put block-level divs and decorative images inside an
+  // anchor. Markdown cannot represent that structure, so retain its title link.
+  body.querySelectorAll("a.kg-bookmark-container[href]").forEach(node => {
+    const title = compact(
+      node.querySelector(".kg-bookmark-title")?.textContent || node.textContent || ""
+    );
+    if (title) node.replaceChildren(node.ownerDocument.createTextNode(title));
+  });
   // Turndown inserts blank lines for block wrappers inside anchors, producing
   // invalid Markdown links. Flatten image-only anchors while preserving both URLs.
   body.querySelectorAll("a[href]").forEach(node => {

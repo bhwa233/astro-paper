@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-24",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "91e033e47932687a5020dd7d41fbabdb512166c7",
+    "workflowRun": "32716872197",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-24-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-24/upstream-life.md"
+  },
+  "posts": [
+    {
+      "rank": 1,
+      "postId": "1vw8y56",
+      "title": "男人真的喜欢在睡梦中被叫醒做爱吗？",
+      "subreddit": "AskReddit",
+      "points": "8323 points · 2085 评论",
+      "numComments": 2085,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vw8y56/do_men_honestly_like_being_woken_up_to_sex_and_if/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-24/01-1vw8y56.md",
+      "contentSha256": "883141d1dfe5b8fb57fbef50a9cd049342d58ed4b66dc6c3707462d142d15a65",
+      "issue": 6
+    },
+    {
+      "rank": 2,
+      "postId": "1vwb468",
+      "title": "一个人智商低有哪些明显的表现？",
+      "subreddit": "AskReddit",
+      "points": "5979 points · 4039 评论",
+      "numComments": 4039,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vwb468/what_are_some_clear_signs_of_low_intelligence_in/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-24/01-1vw8y56.md",
+      "contentSha256": "883141d1dfe5b8fb57fbef50a9cd049342d58ed4b66dc6c3707462d142d15a65",
+      "issue": 6
+    },
+    {
+      "rank": 3,
+      "postId": "1vwmhkz",
+      "title": "和随机抽取的100人比拼技能且必须夺冠，你会选什么？",
+      "subreddit": "AskReddit",
+      "points": "4112 points · 5157 评论",
+      "numComments": 5157,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vwmhkz/you_have_to_compete_against_100_randomly_selected/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-24/01-1vw8y56.md",
+      "contentSha256": "883141d1dfe5b8fb57fbef50a9cd049342d58ed4b66dc6c3707462d142d15a65",
+      "issue": 6
+    },
+    {
+      "rank": 4,
+      "postId": "1vw61u5",
+      "title": "说好只喝一杯就真的只喝一杯的人，你们是怎么做到的？",
+      "subreddit": "AskReddit",
+      "points": "2634 points · 2461 评论",
+      "numComments": 2461,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vw61u5/people_who_say_theyre_only_going_to_have_one/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-24/01-1vw8y56.md",
+      "contentSha256": "883141d1dfe5b8fb57fbef50a9cd049342d58ed4b66dc6c3707462d142d15a65",
+      "issue": 6
+    },
+    {
+      "rank": 5,
+      "postId": "1vwhnct",
+      "title": "成年后你接受的最悲伤的事实是什么？",
+      "subreddit": "AskReddit",
+      "points": "2247 points · 1350 评论",
+      "numComments": 1350,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vwhnct/whats_the_saddest_truth_youve_accepted_as_a_adult/",
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-24/01-1vw8y56.md",
+      "contentSha256": "883141d1dfe5b8fb57fbef50a9cd049342d58ed4b66dc6c3707462d142d15a65",
+      "issue": 6
+    }
+  ]
+}

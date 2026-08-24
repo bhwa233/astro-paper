@@ -8,6 +8,7 @@ import { resolveAsset } from '../assets/resolve.js'
 import { codePointLength } from '../util/text.js'
 import { computeContentHash } from './hash.js'
 import { rewriteImages } from './images.js'
+import { applyLeadingMargin } from './leading-margin.js'
 import { rewriteOutboundLinks } from './links.js'
 import { renderMarkdown } from './markdown.js'
 import { sanitizeArticleHtml } from './sanitize.js'
@@ -44,7 +45,11 @@ export async function renderArticle(
   // 6. Images to content-hash placeholders, with responsive styles forced on.
   const withPlaceholders = await rewriteImages(clean, document, project, warnings)
 
-  assertWithinContentLimits(withPlaceholders.html, document.source.absolutePath)
+  // 7. Leading margin, last so nothing can override it. Measured before the
+  //    limit check because this is the HTML that gets uploaded.
+  const html = applyLeadingMargin(withPlaceholders.html)
+
+  assertWithinContentLimits(html, document.source.absolutePath)
 
   const coverAsset = await identifyAsset(
     resolveAsset(
@@ -61,7 +66,7 @@ export async function renderArticle(
 
   const contentHash = computeContentHash({
     document,
-    html: withPlaceholders.html,
+    html,
     bodyAssets: withPlaceholders.assets,
     coverAsset,
     themeName: theme.name,
@@ -69,7 +74,7 @@ export async function renderArticle(
 
   return {
     document,
-    html: withPlaceholders.html,
+    html,
     bodyAssets: withPlaceholders.assets,
     coverAsset,
     contentHash,

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { isPlaceholder } from '../src/assets/identity.js'
 import { computeContentHash } from '../src/render/hash.js'
 import { substitutePlaceholders } from '../src/render/images.js'
+import { LEADING_MARGIN } from '../src/render/leading-margin.js'
 import { prepareArticle } from '../src/pipeline.js'
 import { createFixtureProject, TINY_PNG_BASE64, writePost, type FixtureProject } from './helpers/project.js'
 
@@ -165,6 +166,60 @@ describe('上传前哈希', () => {
     })
 
     expect(hashIfComputedAfterUpload).not.toBe(rendered.contentHash)
+  })
+})
+
+describe('正文顶部间距', () => {
+  /**
+   * 断言的是「谁最后说了算」，不是声明的排列顺序。
+   *
+   * 主题里那条 `> :first-child { margin-top: 0 }` 曾经完全失效：juice 不把
+   * :first-child 计入特异性，把它排在 `h2 { margin: 4em auto 2em }` 前面，
+   * 简写再把四个方向一起重置，已发布的文章顶上因此多了 76.8px 空白。
+   * 复述顺序的测试测不出这个——顺序一改，测试跟着一起错。
+   */
+  function effectiveMarginTop(style: string): string | undefined {
+    let value: string | undefined
+    for (const declaration of style.split(';')) {
+      const [property, raw] = declaration.split(':')
+      if (property?.trim() === 'margin-top') value = raw?.trim()
+      // 简写会重置四个方向，包括上方。
+      else if (property?.trim() === 'margin') value = raw?.trim().split(/\s+/)[0]
+    }
+    return value
+  }
+
+  function firstElementStyle(html: string): string {
+    return /<section[^>]*>\s*<[a-z0-9]+[^>]*style="([^"]*)"/i.exec(html)?.[1] ?? ''
+  }
+
+  for (const theme of ['default', 'doocs-default']) {
+    it(`${theme}：首个元素只留一点顶部间距`, async () => {
+      const rendered = await render('## 首个标题\n\n正文。\n', {}, { theme })
+      expect(effectiveMarginTop(firstElementStyle(rendered.html)), theme).toBe(LEADING_MARGIN)
+    })
+  }
+
+  it('首元素是图片时同样成立：图片的响应式简写不能盖掉它', async () => {
+    // rewriteImages 给每张图追加 margin:1.2em auto，排在最后。间距若在它之前
+    // 写入就会被这条简写吃掉，和主题那条规则栽的是同一个跟头。
+    const rendered = await render('<img src="./inline.png" alt="图">\n')
+    expect(effectiveMarginTop(firstElementStyle(rendered.html))).toBe(LEADING_MARGIN)
+  })
+
+  it('后续标题保留完整的区块间距，只有第一个被收窄', async () => {
+    const rendered = await render('## 首个标题\n\n正文。\n\n## 第二个标题\n', {}, { theme: 'doocs-default' })
+    const headings = [...rendered.html.matchAll(/<h2[^>]*style="([^"]*)"/g)]
+
+    expect(headings).toHaveLength(2)
+    expect(effectiveMarginTop(headings[0]![1]!)).toBe(LEADING_MARGIN)
+    expect(effectiveMarginTop(headings[1]![1]!)).toBe('4em')
+  })
+
+  it('居中标题的左右 auto 与下边距不受影响', async () => {
+    const rendered = await render('## 首个标题\n', {}, { theme: 'doocs-default' })
+    // 只动上方一侧：display:table 的水平居中靠 auto，区块下方的呼吸靠 2em。
+    expect(firstElementStyle(rendered.html)).toContain('margin:4em auto 2em')
   })
 })
 

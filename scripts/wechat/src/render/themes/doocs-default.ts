@@ -17,10 +17,6 @@ export const DOOCS_DEFAULT_THEME_CSS = `
   word-break: break-word;
 }
 
-.astro-wechat-article > :first-child {
-  margin-top: 0;
-}
-
 .astro-wechat-article h1 {
   display: table;
   padding: 0 1em;

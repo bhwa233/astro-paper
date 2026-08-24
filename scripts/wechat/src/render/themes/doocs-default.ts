@@ -209,19 +209,12 @@ export const DOOCS_DEFAULT_THEME_CSS = `
   background: rgba(10, 10, 10, 0.05);
 }
 
-.astro-wechat-article .link-references,
 .astro-wechat-article .footnotes {
   margin-top: 2em;
   padding-top: 0.5em;
   border-top: 1px solid rgba(10, 10, 10, 0.15);
   color: #0a0a0a;
   font-size: 80%;
-}
-
-.astro-wechat-article .link-references-title {
-  margin: 0 0 0.6em;
-  color: #0f4c81;
-  font-weight: bold;
 }
 
 .astro-wechat-article .footnotes-list {

@@ -144,19 +144,12 @@ export const DEFAULT_THEME_CSS = `
   color: #6b7580;
 }
 
-.astro-wechat-article .link-references,
 .astro-wechat-article .footnotes {
   margin-top: 2.4em;
   padding-top: 1em;
   border-top: 1px solid #e3e6e8;
   font-size: 13px;
   color: #6b7580;
-}
-
-.astro-wechat-article .link-references-title {
-  margin: 0 0 0.6em;
-  font-weight: 600;
-  color: #4a5158;
 }
 
 .astro-wechat-article .footnotes-list {

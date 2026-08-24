@@ -5,9 +5,6 @@ export default {
   defaultAuthor: "bhwa233",
   defaultCover: "/default-og.jpg",
   theme: "doocs-default",
-  // 待办：外链在微信正文里点不开，现在一律转成编号 + 文末参考列表
-  // （scripts/wechat/src/render/links.ts）。想改成只留锚文本得先给渲染器加开关，
-  // 这里曾经写过一个 outboundLinks: "text"，但那个配置项从来没有实现过。
   eligibleTags: [
     "技术日报",
     "每周图书推荐",

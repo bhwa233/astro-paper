@@ -30,16 +30,12 @@ export async function renderArticle(
   // 1. Markdown to HTML.
   const parsed = renderMarkdown(document.body)
 
-  // 2. Outbound links to numbered references, before the theme sees them so
-  //    the generated reference list gets themed like the rest.
-  const linked = rewriteOutboundLinks(parsed, {
-    clickableHosts: CLICKABLE_LINK_HOSTS,
-    referenceHeading: theme.referenceHeading,
-  })
+  // 2. Outbound links stripped to their content, before the theme sees them.
+  const linked = rewriteOutboundLinks(parsed, { clickableHosts: CLICKABLE_LINK_HOSTS })
 
   // 3. Theme, and 4. inline it. WeChat drops <style>, so `juice` is not an
   //    optimization here; without it the article renders unstyled.
-  const themed = `<style>${theme.css}</style><section class="${ARTICLE_CLASS}">${linked.html}</section>`
+  const themed = `<style>${theme.css}</style><section class="${ARTICLE_CLASS}">${linked}</section>`
   const inlined = juice(themed)
 
   // 5. Sanitize.

@@ -169,11 +169,12 @@ describe('上传前哈希', () => {
 })
 
 describe('外部链接在完整流水线中的表现', () => {
-  it('参考列表出现在最终 HTML 中', async () => {
+  it('最终 HTML 里只剩锚文本，URL 与参考列表都不出现', async () => {
     const rendered = await render('见 [文档](https://docs.example.com)。\n')
 
     expect(rendered.html).not.toContain('href="https://docs.example.com"')
-    expect(rendered.html).toContain('https://docs.example.com')
-    expect(rendered.html).toContain('参考链接')
+    expect(rendered.html).not.toContain('https://docs.example.com')
+    expect(rendered.html).not.toContain('参考链接')
+    expect(rendered.html).toContain('文档')
   })
 })

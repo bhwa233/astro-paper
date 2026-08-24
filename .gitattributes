@@ -1,0 +1,9 @@
+# Every text file is stored and checked out with LF, matching the
+# `endOfLine: "lf"` already set in .prettierrc. Without this, a Windows clone
+# with core.autocrlf=true gets CRLF in the working tree, which the frontmatter
+# parsers in scripts/ read as an unparsable post.
+* text=auto eol=lf
+
+*.jpg binary
+*.png binary
+*.webp binary

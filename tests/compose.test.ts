@@ -410,31 +410,72 @@ test("Reddit item summaries keep Markdown structure and reject thin or heading-l
   }
 });
 
-test("Reddit AMA article uses only translated titles and source metadata", () => {
+test("Reddit Markets article uses only translated titles and source metadata", () => {
   const source = [
-    "1. [r/IAmA] I designed an emergency bridge after the storm. Ask me anything.",
+    "1. [r/investing] I designed an emergency bridge after the storm. Ask me anything.",
     "- ⭐ 300 points · 120 评论",
-    "- 来源：r/IAmA",
-    "- 栏目：ama",
+    "- 来源：r/investing",
+    "- 栏目：markets",
     "- 发布时间：2099-01-02T07:00:00Z",
-    "- 帖子链接：https://www.reddit.com/r/IAmA/comments/one/",
+    "- 帖子链接：https://www.reddit.com/r/investing/comments/one/",
     "- 正文：This body must not enter the article.",
     "- 顶层高赞回答（按赞数排序，共 1 条）：",
     "  1. [100 赞] This comment must not enter the article.",
     "- 中文标题：我在暴风雨后设计应急桥梁，欢迎提问。",
   ].join("\n");
-  const article = redditCategoryArticleFromSource(source, redditCategoryByKey("ama"));
+  const article = redditCategoryArticleFromSource(source, redditCategoryByKey("markets"));
 
   assert.ok(article);
   assert.equal(article.description, "");
   assert.match(article.markdown, /^1\. 🔴 /m);
   assert.match(article.markdown, /^- ⭐ 300 points · 120 评论$/m);
-  assert.match(article.markdown, /^- 来源：r\/IAmA$/m);
-  assert.match(article.markdown, /^- 帖子：https:\/\/www\.reddit\.com\/r\/IAmA\/comments\/one\/$/m);
+  assert.match(article.markdown, /^- 来源：r\/investing$/m);
+  assert.match(article.markdown, /^- 帖子：https:\/\/www\.reddit\.com\/r\/investing\/comments\/one\/$/m);
   assert.doesNotMatch(article.markdown, /This body|This comment|综合摘要|正文：/);
 
-  // 线上事故：归档层要求每个条目在事实 bullet 之后必须有摘要，而 life 以外的分类只翻译标题，
+  // 线上事故：归档层要求每个条目在事实 bullet 之后必须有摘要，而只翻译标题的分类没有摘要，
   // 于是 AMA / Markets 每次调度都以「Reddit Top 20 item 1 has an empty summary」失败。
+  // AMA 之后改为出摘要，只剩 Markets 走这条退化形态，回归覆盖跟着挪到它身上。
+  const repo = tempDir("reddit-markets");
+  const published = archivePost({
+    task: "reddit-top20",
+    date: "2099-01-02",
+    repo,
+    body: article.markdown,
+    force: true,
+    fileNameSuffix: redditCategoryByKey("markets").fileNameSuffix,
+    titleSuffix: article.title,
+  });
+  verifyPostContract(repo, published.path, "reddit-top20");
+  assert.match(fs.readFileSync(path.join(repo, published.path), "utf8"), /^## 1\. 我在暴风雨后设计应急桥梁，欢迎提问。$/m);
+});
+
+test("Reddit AMA article carries the question-and-answer summary and its own description", () => {
+  const amaSummary = [
+    "1\\. 有人问被单身男性收养后周围人怎么看，我说小学时确实被追着问过妈妈在哪，后来干脆答“我家分工不同”，问的人反而没话讲了。",
+    "",
+    `2\\. 被问到最难的时刻，我提到十四岁那年半夜发高烧，他一个人开车送我去急诊，路上一直讲冷笑话，我当时烧得听不清，只记得他手一直在抖。${"这段经历后来成了我们之间不常提但都记得的事。".repeat(10)}`,
+  ].join("\n");
+  const source = [
+    "1. [r/AMA] I was adopted by a single man. AMA.",
+    "- ⭐ 253 points · 73 评论",
+    "- 来源：r/AMA",
+    "- 栏目：ama",
+    "- 发布时间：2099-01-02T07:00:00Z",
+    "- 帖子链接：https://www.reddit.com/r/AMA/comments/one/",
+    "- 中文标题：我被一位单身男性收养，欢迎提问",
+    "- 一句话描述：由单身男性独自抚养长大的当事人，讲成长中的相处细节与外界目光。",
+    `- 综合摘要：${JSON.stringify(amaSummary)}`,
+  ].join("\n");
+  const article = redditCategoryArticleFromSource(source, redditCategoryByKey("ama"));
+
+  assert.ok(article);
+  // description 现在取自首帖，不再是空串回落到通用模板句。
+  assert.equal(article.description, "由单身男性独自抚养长大的当事人，讲成长中的相处细节与外界目光。");
+  assert.match(article.markdown, /^1\. 🔴 我被一位单身男性收养，欢迎提问$/m);
+  assert.match(article.markdown, /^1\\\. 有人问被单身男性收养后周围人怎么看/m);
+  assert.match(article.markdown, /^2\\\. 被问到最难的时刻/m);
+
   const repo = tempDir("reddit-ama");
   const published = archivePost({
     task: "reddit-top20",
@@ -446,7 +487,9 @@ test("Reddit AMA article uses only translated titles and source metadata", () =>
     titleSuffix: article.title,
   });
   verifyPostContract(repo, published.path, "reddit-top20");
-  assert.match(fs.readFileSync(path.join(repo, published.path), "utf8"), /^## 1\. 我在暴风雨后设计应急桥梁，欢迎提问。$/m);
+  const text = fs.readFileSync(path.join(repo, published.path), "utf8");
+  assert.match(text, /^## 1\. 我被一位单身男性收养，欢迎提问$/m);
+  assert.match(text, /^1\\\. 有人问被单身男性收养后周围人怎么看/m);
 });
 
 test("normalizeMarkdownBlock moves trailing punctuation out of emphasis so CJK bold closes", () => {

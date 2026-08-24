@@ -6,24 +6,30 @@ import { ARCHIVE_PAYLOAD_MARKER, bulletValue, decodeMarkdownBlock, extractBullet
 // 单帖摘要下限；去掉空白后计长，避免模型退回一两句抽象概括。
 const SUMMARY_MIN_CHARS = 300;
 
+// summarizes=true 的栏目逐帖调用模型综合正文与评论，产出标题 + 描述 + 摘要；
+// false 的栏目只把原题翻成中文，条目退化为标题加事实 bullet。抓取层不分栏目，
+// 两种形态拿到的 source block 完全一样，差别只在这里用不用评论。
 export const REDDIT_CATEGORIES = [
   {
     key: "life",
     title: "人生与社会",
     fileNameSuffix: "life",
     subreddits: ["AskReddit", "confessions", "changemyview", "tifu"],
+    summarizes: true,
   },
   {
     key: "markets",
     title: "市场与价值投资",
     fileNameSuffix: "markets",
     subreddits: ["stocks", "ValueInvesting", "investing", "wallstreetbets"],
+    summarizes: false,
   },
   {
     key: "ama",
     title: "人物与问答",
     fileNameSuffix: "ama",
     subreddits: ["IAmA", "AMA", "casualiama"],
+    summarizes: true,
   },
 ] as const;
 
@@ -234,7 +240,7 @@ export function redditCategoryArticleFromSource(source: string, category: Reddit
   const sourceFacts = facts.filter(fact => fact.category === category.key);
   if (!sourceFacts.length) return null;
   const articleFacts = sourceFacts.map((fact, index) => ({ ...fact, rank: index + 1 }));
-  if (category.key === "life") {
+  if (category.summarizes) {
     const modelByRank = new Map(parseRedditItemSummaries(source).map(item => [item.rank, item]));
     const articleItems = sourceFacts.map((fact, index) => {
       const item = modelByRank.get(fact.rank);

@@ -570,7 +570,7 @@ type RedditProcessingOutcome = RedditItemProcessingOutcome | RedditTitleProcessi
 // 显式映射供约定检查器追踪模板归属，避免动态文件名让孤儿模板悄然失效。
 const REDDIT_PROMPT_BY_CATEGORY: Record<RedditCategory["key"], string> = {
   life: "reddit-item-summary",
-  ama: "reddit-ama-title-translation",
+  ama: "reddit-ama-summary",
   markets: "reddit-markets-title-translation",
 };
 
@@ -641,22 +641,22 @@ async function buildCombinedRedditSource({
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const templateName = REDDIT_PROMPT_BY_CATEGORY[redditCategory.key];
   const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, templateName), "utf8");
-  // 人生栏目逐帖传入受限 source block；标题栏目只传原题。有限并发保证三个栏目运行时不会把
+  // 摘要栏目逐帖传入受限 source block；标题栏目只传原题。有限并发保证三个栏目运行时不会把
   // 候选池拼成一个巨型提示词。
   const outcomes: RedditProcessingOutcome[] = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
     if (!Number.isInteger(rank)) throw new Error("Reddit source item is missing rank");
     const originalTitle = block.match(/^\d+\.\s*\[r\/[^\]]+\]\s+(.+)$/m)?.[1]?.trim();
     if (!originalTitle) throw new Error(`Reddit source item ${rank} is missing its original title`);
-    const prompt = redditCategory.key === "life"
+    const prompt = redditCategory.summarizes
       ? template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block)
       : template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{title}", originalTitle);
-    const outcome = redditCategory.key === "life"
+    const outcome = redditCategory.summarizes
       ? await summarizeRedditItem(prompt, rank, model, artifactsDir)
       : await translateRedditTitle(prompt, rank, model, artifactsDir);
     return { block, rank, ...outcome };
   });
-  if (redditCategory.key !== "life") {
+  if (!redditCategory.summarizes) {
     const titleOutcomes = outcomes.filter((outcome): outcome is RedditTitleProcessingOutcome => "translation" in outcome);
     const kept = titleOutcomes.filter((outcome): outcome is RedditTitleProcessingOutcome & { translation: RedditTitleTranslation } => outcome.translation !== null);
     const failed = titleOutcomes

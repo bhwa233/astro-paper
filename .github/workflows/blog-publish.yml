@@ -171,7 +171,9 @@ jobs:
           AI_BASE_URL: https://rightapi.ai/gemini
           AI_MODEL: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
           AI_API_STYLE: gemini
-          AI_FALLBACK_ENABLED: "true"
+          # Disabled: the codex endpoint rejects the key with HTTP 401 (无效的API Key), so the
+          # fallback only masked the primary error. Re-enable once AI_FALLBACK_API_KEY is valid.
+          AI_FALLBACK_ENABLED: "false"
           AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY || secrets.AI_API_KEY }}
           AI_FALLBACK_BASE_URL: https://rightapi.ai/codex/v1
           AI_FALLBACK_MODEL: gpt-5.6-luna

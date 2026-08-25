@@ -157,8 +157,12 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
-          // 一篇稿子收录三帖，三条 Entry 共享同一个 path；不去重会把同一篇发布三次。
-          const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).sort((a, b) => a.rank - b.rank).map(post => post.path))];
+          // 一卷收录五帖，五条 Entry 共享同一个 path；不去重会把同一卷发布五次。
+          //
+          // 按 rank 倒序发布：草稿箱是按创建时间倒序排列的，最后建的排在最上面。
+          // 顺着发，读者在草稿箱看到的就是「下 中 上」。先发下卷、最后发上卷，
+          // 列表里才是「上 中 下」。CLI 严格按参数顺序串行创建，所以这里的顺序就是最终顺序。
+          const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).sort((a, b) => b.rank - a.rank).map(post => post.path))];
           fs.writeFileSync("reddit-life-wechat-paths.txt", paths.join("\n"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
           NODE

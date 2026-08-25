@@ -121,6 +121,18 @@
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNN2EqYdHe-3neodeByvZiL3ntRdi3ejliRBjFJW28RiK",
       "coverContentHash": "08894aabb25ee69b"
     },
+    "https://blog.bhwa233.com/posts/01/": {
+      "sourceId": "https://blog.bhwa233.com/posts/01/",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/01/",
+      "contentHash": "eeb25dad90065c2fb495b4705d083d4a8275cb77537cc66d4c2e94aa13834e2f",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-25T05:19:03.303Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNL_ixZJXVL9x6XRn-bW6F1HKHq_n_iDGMtb_TBNk4lwh",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNGde_4Ae1Ca_Mhv8Wzn7_vi4NV0Cq0FkpP0Pud_jjtTm",
+      "coverContentHash": "84f80141d389e8d1"
+    },
     "https://blog.bhwa233.com/posts/curiosity-chronicle-20260819-why-you-need-a-side-quest-in-life/": {
       "sourceId": "https://blog.bhwa233.com/posts/curiosity-chronicle-20260819-why-you-need-a-side-quest-in-life/",
       "canonicalUrl": "https://blog.bhwa233.com/posts/curiosity-chronicle-20260819-why-you-need-a-side-quest-in-life/",

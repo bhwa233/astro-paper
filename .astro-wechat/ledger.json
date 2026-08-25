@@ -121,6 +121,42 @@
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNN2EqYdHe-3neodeByvZiL3ntRdi3ejliRBjFJW28RiK",
       "coverContentHash": "08894aabb25ee69b"
     },
+    "https://blog.bhwa233.com/posts/01-1vw8y56/": {
+      "sourceId": "https://blog.bhwa233.com/posts/01-1vw8y56/",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/01-1vw8y56/",
+      "contentHash": "5298a79cb5c076c182b3b2f83357b9e3ec8a5c0c87d4d737e1e2c20eea371a76",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-25T00:59:48.441Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNEyev6LRuO6_OfXSbM090P4MWTu95EL4xc4ETHxqr709",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNKWEdDxnMfHSFz0XEvz-6Dpkn8to1Q3Be4Io6_ylLZJt",
+      "coverContentHash": "190c64d4ac19e1d9"
+    },
+    "https://blog.bhwa233.com/posts/06-1vw6htn/": {
+      "sourceId": "https://blog.bhwa233.com/posts/06-1vw6htn/",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/06-1vw6htn/",
+      "contentHash": "5af2ff4d0fc10782ef41c5b784d8caab67d1b3f74192f9889c132140f2dc0c25",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-25T00:59:53.129Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNNwivRBvuLZ_ZpWG9Z-aNCimnVIrENMgsSmEpJNqfAtH",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNN4jB_nF9hOyVVkwUK7QwH5Ozx8j9Oor03GP0aCZovma",
+      "coverContentHash": "8f69fc5f414b17c9"
+    },
+    "https://blog.bhwa233.com/posts/11-1vw8mn7/": {
+      "sourceId": "https://blog.bhwa233.com/posts/11-1vw8mn7/",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/11-1vw8mn7/",
+      "contentHash": "c2fb10ba19ae107aa220cd214f3bc5dfbcad71d56d90f2e3317a4b363dcffadd",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-08-25T00:59:57.154Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNGAF23uqXaDJpBCZB-WJVpE-DaV39jQ3umU8ijergtom",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNIABiBHuzUDobGiZmXyRX91bR_roUSKvEWM1iiFVvHYF",
+      "coverContentHash": "3e932d4dd8f0b80d"
+    },
     "https://blog.bhwa233.com/posts/curiosity-chronicle-20260819-why-you-need-a-side-quest-in-life/": {
       "sourceId": "https://blog.bhwa233.com/posts/curiosity-chronicle-20260819-why-you-need-a-side-quest-in-life/",
       "canonicalUrl": "https://blog.bhwa233.com/posts/curiosity-chronicle-20260819-why-you-need-a-side-quest-in-life/",

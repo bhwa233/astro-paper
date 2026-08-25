@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-25",
+  "timeZone": "Asia/Shanghai",
+  "status": "upstream-empty",
+  "upstream": {
+    "generatedSha": "fb4d555ea2e05d9f6776f2a1b14f0ec270fcbe84",
+    "workflowRun": "32875128820",
+    "articlePath": "src/content/posts/zh-cn/wb-20260825.md"
+  }
+}

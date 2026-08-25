@@ -10,6 +10,7 @@ tags:
 ogImage: "cover-2.png"
 wechat:
   enabled: true
+  syncId: "reddit-life-2026-08-24-v2"
 description: "有哪些 App 曾红极一时却几乎彻底消失了？；你是如何兼顾全职工作、做饭、打扫卫生和锻炼的？；什么职业对心理健康的摧残最大？；如果全球24小时后彻底断网，只能离线保存一个网站，你会选哪个？；有哪些行为一眼就能看出是糟糕的父母？"
 timezone: Asia/Shanghai
 redditPostId: "1vw6htn"

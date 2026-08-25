@@ -95,7 +95,7 @@ export function toArticleDocument(
   if (!cover) {
     if (options.allowMissingPublishFields) {
       return {
-        sourceId: canonicalUrl ?? source.projectRelativePath,
+        sourceId: wechat.syncId ?? canonicalUrl ?? source.projectRelativePath,
         canonicalUrl,
         title,
         body,
@@ -115,7 +115,7 @@ export function toArticleDocument(
   }
 
   return {
-    sourceId: canonicalUrl ?? source.projectRelativePath,
+    sourceId: wechat.syncId ?? canonicalUrl ?? source.projectRelativePath,
     canonicalUrl,
     title,
     body,
@@ -210,6 +210,7 @@ function readWechat(value: unknown): WechatFrontmatter {
     author: asString(raw.author),
     digest: asString(raw.digest),
     sourceURL: asString(raw.sourceURL),
+    syncId: asString(raw.syncId),
   }
 }
 

@@ -17,6 +17,20 @@ export interface WechatFrontmatter {
   readonly author?: string
   readonly digest?: string
   readonly sourceURL?: string
+  /**
+   * Sync identity, when it must not be the canonical URL.
+   *
+   * By default an article's identity in the ledger *is* its canonical URL, which
+   * is also what becomes the draft's 阅读原文 link. Those two coincide for a blog
+   * post and conflict as soon as several drafts are cut from one article: they
+   * should all link back to the same page, yet each needs its own ledger row.
+   * Sharing a row is not a loud failure — the second draft is skipped as
+   * `already-synchronized` and simply never gets created.
+   *
+   * Set this to keep the two apart. Anything stable and unique per draft works;
+   * it is never shown to a reader.
+   */
+  readonly syncId?: string
 }
 
 /**

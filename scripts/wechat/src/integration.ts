@@ -43,6 +43,7 @@ export function wechatFrontmatterSchema(z: ZodLike): unknown {
       author: z.string().optional(),
       digest: z.string().optional(),
       sourceURL: z.string().url().optional(),
+      syncId: z.string().optional(),
     })
     .optional()
 }

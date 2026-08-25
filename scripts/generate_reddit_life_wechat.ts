@@ -14,15 +14,20 @@ import {
   markdownSha256,
   parseRedditLifeCandidates,
   parseRedditLifeDescription,
+  redditLifeArticleUrl,
+  redditLifeWechatFooter,
   renderRedditLifeWechatMarkdown,
   REDDIT_LIFE_WECHAT_POST_LIMIT,
+  REDDIT_LIFE_WECHAT_QR_FILE,
   REDDIT_LIFE_WECHAT_REPLY_LIMIT,
+  REDDIT_LIFE_WECHAT_SHOW_QR,
   REDDIT_LIFE_WECHAT_TITLE_BRAND,
   REDDIT_LIFE_WECHAT_VOLUMES,
   type RedditLifeCandidate,
   type RedditLifeVolume,
 } from "./reddit_life_wechat_compose.ts";
 import { redditLifeWechatCoverFile, renderRedditLifeWechatCover } from "./reddit_life_wechat_cover.ts";
+import { renderQrPng } from "./qr_code.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 
 const ROOT_REL = "data/reddit-life-wechat";
@@ -215,6 +220,8 @@ async function fitWithOptionalCover({
   date,
   issue,
   volume,
+  articleUrl,
+  footer,
   coverFile,
   repo,
   label,
@@ -225,13 +232,15 @@ async function fitWithOptionalCover({
   date: string;
   issue: number;
   volume: RedditLifeVolume;
+  articleUrl: string;
+  footer: string;
   coverFile: string;
   repo: string;
   label: string;
   probeDir: string;
 }): Promise<string> {
   const render = (cover: string) => (replyLimit: number) =>
-    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, volume, coverFile: cover, replyLimit });
+    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, volume, articleUrl, footer, coverFile: cover, replyLimit });
   try {
     return await fitWechatContentLimit(render(coverFile), repo, label, probeDir);
   } catch (error) {
@@ -307,6 +316,9 @@ export async function generateRedditLifeWechat({
   // 按渲染长度定，上界 REPLY_LIMIT，每卷各自二分。
   const candidates = parseRedditLifeCandidates(upstreamMarkdown);
   const upstreamDescription = parseRedditLifeDescription(upstreamMarkdown);
+  // 三卷共用这一个地址：它是「阅读原文」的落点，不是身份。身份走 syncId。
+  const articleUrl = redditLifeArticleUrl(lifeArticlePath);
+  const footer = redditLifeWechatFooter(articleUrl);
   const issue = nextRedditLifeIssue(repo);
   writeStderr(`[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, posts=${candidates.length} issue=${issue}, ranks=${candidates.map(item => item.postId).join(",")}`);
   const dayDir = path.join(ROOT_REL, date);
@@ -337,7 +349,14 @@ export async function generateRedditLifeWechat({
       fs.writeFileSync(path.join(path.dirname(target), coverFile), cover);
       writeStderr(`[reddit-life-wechat] ${label}: rendered ${coverFile} (${cover.length} bytes)`);
     }
-    const markdown = await fitWithOptionalCover({ candidates: slice, digest, date, issue, volume, coverFile: cover ? coverFile : "", repo, label, probeDir: path.dirname(target) });
+    // 页脚卡片无条件引用 qr.png，所以开着二维码时这张图必须存在，失败就得让整次归档失败——
+    // 写出一篇引用了不存在资源的稿子，只会把问题推到发布那一步才炸。三卷共用同一张。
+    if (REDDIT_LIFE_WECHAT_SHOW_QR && !fs.existsSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_QR_FILE))) {
+      const qr = await renderQrPng(articleUrl);
+      fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_QR_FILE), qr);
+      writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_QR_FILE} (${qr.length} bytes)`);
+    }
+    const markdown = await fitWithOptionalCover({ candidates: slice, digest, date, issue, volume, articleUrl, footer, coverFile: cover ? coverFile : "", repo, label, probeDir: path.dirname(target) });
     fs.writeFileSync(target, markdown, "utf8");
     writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);
     const contentSha256 = markdownSha256(markdown);

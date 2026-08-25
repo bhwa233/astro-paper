@@ -19,8 +19,11 @@ import {
   dropTrailingStories,
   parseRedditLifeCandidates,
   parseRedditLifeDescription,
+  redditLifeWechatFooter,
   redditLifeWechatTitle,
   renderRedditLifeWechatMarkdown,
+  REDDIT_LIFE_WECHAT_SHOW_QR,
+  REDDIT_LIFE_WECHAT_SHOW_SOURCE_URL,
   REDDIT_LIFE_WECHAT_TOTAL_POSTS,
   REDDIT_LIFE_WECHAT_VOLUMES,
 } from "../scripts/reddit_life_wechat_compose.ts";
@@ -40,9 +43,13 @@ import {
   parseWeiboTrendingArticle,
   parseWeiboTrendingArticleTitle,
   renderWeiboTrendingWechatMarkdown,
+  weiboTrendingArticleUrl,
   weiboTrendingWechatBody,
   weiboTrendingWechatDescription,
+  weiboTrendingWechatFooter,
   WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT,
+  WEIBO_TRENDING_WECHAT_SHOW_QR,
+  WEIBO_TRENDING_WECHAT_SHOW_SOURCE_URL,
   WEIBO_TRENDING_WECHAT_ITEM_LIMIT,
   type WeiboTrendingWechatItem,
 } from "../scripts/weibo_trending_wechat_compose.ts";
@@ -290,8 +297,9 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
     body: ["1\\. 第一个故事。", "", "2\\. 第二个故事。", "", "3\\. 第三个故事。"].join("\n"),
   };
   const second = { ...candidate, rank: 2, postId: "post2", title: "问题 2", permalink: "https://www.reddit.com/r/AskReddit/comments/post2/", body: ["1\\. 第四个故事。", "", "2\\. 第五个故事。"].join("\n") };
+  const ARTICLE_URL = "https://blog.bhwa233.com/posts/reddit-2099-01-02-life/";
   const render = (overrides = {}) =>
-    renderRedditLifeWechatMarkdown({ candidates: [candidate, second], headline: "话题一、话题二", description: "这期讲了两件事。", archiveDate: "2099-01-02", issue: 42, volume: "上", ...overrides });
+    renderRedditLifeWechatMarkdown({ candidates: [candidate, second], headline: "话题一、话题二", description: "这期讲了两件事。", archiveDate: "2099-01-02", issue: 42, volume: "上", articleUrl: ARTICLE_URL, ...overrides });
   const markdown = render();
 
   assert.match(markdown, /^title: "话题一、话题二｜Reddit 热帖精选 #42 上"$/m);
@@ -300,11 +308,8 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   assert.doesNotMatch(markdown, /^ogImage:/m);
   assert.match(render({ coverFile: "cover-1.png" }), /^ogImage: "cover-1\.png"$/m);
   assert.match(markdown, /^description: "这期讲了两件事。"$/m);
-  // 稿子里不再有任何站外引流：没有 sourceURL（也就没有「阅读原文」），没有二维码卡片，
-  // 也没有裸露的博客地址。撤掉它们是为了不让微信的推荐算法把这类稿子判成导流内容。
-  assert.doesNotMatch(markdown, /sourceURL/);
-  assert.doesNotMatch(markdown, /<section |<img |blog\.bhwa233\.com/);
-  assert.doesNotMatch(markdown, /今天还有这些热帖|长按识别二维码/);
+  // syncId 与开关无关，永远写：它是台账身份，翻转开关不该让同一卷变成一篇新稿子。
+  assert.match(markdown, /^ {2}syncId: "reddit-life-2099-01-02-v1"$/m);
   // 每个问题用二级标题分隔，编号在每帖内部重新从 1 开始。
   assert.match(markdown, /^## 问题 1\n\n1\\\. 第一个故事。/m);
   assert.match(markdown, /^## 问题 2\n\n1\\\. 第四个故事。/m);
@@ -332,9 +337,10 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   assert.throws(() => render({ description: "" }), /needs a description/);
 });
 
-// 一天三卷共用一篇上游文章，若还带着 sourceURL 就会共用同一个同步身份，
+// 三卷都指向同一篇上游文章，所以「阅读原文」相同而台账身份必须不同。这两件事共用一个字段时，
 // 后两卷会被 astro-wechat 判成 already-synchronized 静默跳过——少发两篇且不报错。
-test("Reddit life WeChat volumes carry no shared sync identity", () => {
+test("Reddit life WeChat volumes share one article link but never a sync identity", () => {
+  const ARTICLE_URL = "https://blog.bhwa233.com/posts/reddit-2099-01-02-life/";
   const post = (rank: number) => ({
     rank,
     postId: `post${rank}`,
@@ -345,23 +351,56 @@ test("Reddit life WeChat volumes carry no shared sync identity", () => {
     permalink: `https://www.reddit.com/r/AskReddit/comments/post${rank}/`,
     body: "1\\. 故事。",
   });
-  const volumes = REDDIT_LIFE_WECHAT_VOLUMES.map((volume, index) =>
-    renderRedditLifeWechatMarkdown({
-      candidates: [post(index * 5 + 1)],
-      headline: `问题 ${index * 5 + 1}`,
-      description: "描述。",
-      archiveDate: "2099-01-02",
-      issue: 42,
-      volume,
-    }),
-  );
+  const render = (showSourceUrl: boolean) =>
+    REDDIT_LIFE_WECHAT_VOLUMES.map((volume, index) =>
+      renderRedditLifeWechatMarkdown({
+        candidates: [post(index * 5 + 1)],
+        headline: `问题 ${index * 5 + 1}`,
+        description: "描述。",
+        archiveDate: "2099-01-02",
+        issue: 42,
+        volume,
+        articleUrl: ARTICLE_URL,
+        showSourceUrl,
+      }),
+    );
 
-  assert.equal(volumes.length, 3);
-  for (const markdown of volumes) assert.doesNotMatch(markdown, /sourceURL/);
-  // 三卷的标题必须互不相同：读者在列表页靠卷次区分，去重也靠它。
-  const titles = volumes.map(markdown => markdown.match(/^title: "(.+)"$/m)![1]);
-  assert.deepEqual(titles, ["问题 1｜Reddit 热帖精选 #42 上", "问题 6｜Reddit 热帖精选 #42 中", "问题 11｜Reddit 热帖精选 #42 下"]);
-  assert.equal(new Set(titles).size, 3);
+  for (const showSourceUrl of [false, true]) {
+    const volumes = render(showSourceUrl);
+    // 身份三卷互不相同，且与开关无关：翻转开关不该让同一卷变成一篇新稿子。
+    const ids = volumes.map(markdown => markdown.match(/^ {2}syncId: "(.+)"$/m)![1]);
+    assert.deepEqual(ids, ["reddit-life-2099-01-02-v1", "reddit-life-2099-01-02-v2", "reddit-life-2099-01-02-v3"]);
+    // 标题同样必须互不相同：读者在列表页靠卷次区分。
+    const titles = volumes.map(markdown => markdown.match(/^title: "(.+)"$/m)![1]);
+    assert.deepEqual(titles, ["问题 1｜Reddit 热帖精选 #42 上", "问题 6｜Reddit 热帖精选 #42 中", "问题 11｜Reddit 热帖精选 #42 下"]);
+    // 「阅读原文」反过来：开着时三卷指向同一个地址，这正是它不能兼任身份的原因。
+    for (const markdown of volumes) {
+      if (showSourceUrl) assert.match(markdown, /^ {2}sourceURL: "https:\/\/blog\.bhwa233\.com\/posts\/reddit-2099-01-02-life\/"$/m);
+      else assert.doesNotMatch(markdown, /sourceURL/);
+    }
+  }
+});
+
+// A/B 的两个变量各自独立可关，且关掉时正文里不留任何痕迹——留半截标记会让对照组不干净。
+test("WeChat offsite hooks are independently switchable on both pipelines", () => {
+  const ARTICLE_URL = "https://blog.bhwa233.com/posts/reddit-2099-01-02-life/";
+  assert.equal(redditLifeWechatFooter(ARTICLE_URL, false), "");
+  assert.equal(weiboTrendingWechatFooter(ARTICLE_URL, false), "");
+
+  for (const footer of [redditLifeWechatFooter(ARTICLE_URL, true), weiboTrendingWechatFooter(ARTICLE_URL, true)]) {
+    assert.match(footer, /<img src="qr\.png"/);
+    assert.match(footer, /长按识别二维码/);
+    assert.ok(footer.includes(ARTICLE_URL));
+    // 卡片内不能出现空行：markdown-it 的 html_block 遇空行就结束，后半段会退化成
+    // 转义过的普通段落，读者看到的是一堆尖括号。这个约束从卡片本身看不出来。
+    assert.doesNotMatch(footer, /\n\s*\n/);
+  }
+
+  // 两条管线的开关必须是各自独立的常量，否则形不成同期对照。
+  assert.equal(typeof REDDIT_LIFE_WECHAT_SHOW_SOURCE_URL, "boolean");
+  assert.equal(typeof REDDIT_LIFE_WECHAT_SHOW_QR, "boolean");
+  assert.equal(typeof WEIBO_TRENDING_WECHAT_SHOW_SOURCE_URL, "boolean");
+  assert.equal(typeof WEIBO_TRENDING_WECHAT_SHOW_QR, "boolean");
 });
 
 // 品牌与期号在标题末尾，正好落在微信 64 字符上限最先砍掉的位置，因此截断只许吃帖子标题那段。
@@ -548,23 +587,28 @@ test("Weibo trending WeChat renderer carries synchronization metadata and option
   const articlePath = taskPostRelPath("weibo-trending", "2099-01-02");
   const title = '2099-01-02 热搜 ｜ 有人接住火箭,有人问"空座该让吗"';
   assert.equal(articlePath, "src/content/posts/zh-cn/wb-20990102.md");
-  const render = (coverFile = "") =>
+  const articleUrl = "https://blog.bhwa233.com/posts/wb-20990102/";
+  assert.equal(weiboTrendingArticleUrl(articlePath), articleUrl);
+  const render = (overrides: Record<string, unknown> = {}) =>
     renderWeiboTrendingWechatMarkdown({
       items,
       archiveDate: "2099-01-02",
       title,
       description: weiboTrendingWechatDescription(items),
-      coverFile,
+      articleUrl,
+      ...overrides,
     });
-  const markdown = render();
+  const markdown = render({ showSourceUrl: false });
   assert.equal(parseWeiboTrendingArticleTitle(markdown), title);
   assert.equal(parseWeiboTrendingArticleTitle(`---\ntitle: '${title}'\n---\n`), title);
   assert.match(markdown, /^title: "2099-01-02 热搜 ｜ 有人接住火箭,有人问\\"空座该让吗\\""$/m);
-  assert.match(markdown, /^wechat:\n {2}enabled: true$/m);
   assert.doesNotMatch(markdown, /^ogImage:/m);
-  assert.match(render("cover.png"), /^ogImage: "cover\.png"$/m);
-  // 和 Reddit 那条线同一个决定：不留二维码卡片，也不留 sourceURL（「阅读原文」），
-  // 正文里因此没有任何指向站外的东西。
-  assert.doesNotMatch(markdown, /sourceURL|qr\.png|长按识别二维码|<section |<img /);
-  assert.doesNotMatch(markdown, /blog\.bhwa233\.com/);
+  assert.match(render({ coverFile: "cover.png" }), /^ogImage: "cover\.png"$/m);
+  // 关掉时正文里不留任何指向站外的东西，对照组才干净。
+  assert.match(markdown, /^wechat:\n {2}enabled: true$/m);
+  assert.doesNotMatch(markdown, /sourceURL|qr\.png|长按识别二维码|<section |<img |blog\.bhwa233\.com/);
+  // 开着时两样都回来，且落在同一天那篇站点文章上。
+  const promoted = render({ showSourceUrl: true, footer: weiboTrendingWechatFooter(articleUrl, true) });
+  assert.match(promoted, /^ {2}sourceURL: "https:\/\/blog\.bhwa233\.com\/posts\/wb-20990102\/"$/m);
+  assert.match(promoted, /<img src="qr\.png"/);
 });

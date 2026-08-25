@@ -6,12 +6,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
+import { renderQrPng } from "./qr_code.ts";
 import {
   parseWeiboTrendingArticle,
   parseWeiboTrendingArticleTitle,
   renderWeiboTrendingWechatMarkdown,
+  weiboTrendingArticleUrl,
   weiboTrendingWechatDescription,
+  weiboTrendingWechatFooter,
   WEIBO_TRENDING_WECHAT_ITEM_LIMIT,
+  WEIBO_TRENDING_WECHAT_QR_FILE,
+  WEIBO_TRENDING_WECHAT_SHOW_QR,
   type WeiboTrendingWechatItem,
 } from "./weibo_trending_wechat_compose.ts";
 import { renderWeiboTrendingWechatCover, WEIBO_TRENDING_WECHAT_COVER_FILE, WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT } from "./weibo_trending_wechat_cover.ts";
@@ -141,6 +146,17 @@ function verifyArchivedFile(repo: string, archived: ArchivedFile, label: string)
   if (sha256(fs.readFileSync(file)) !== archived.sha256) throw new Error(`Weibo trending WeChat manifest ${label} hash does not match: ${archived.path}`);
 }
 
+// 页脚卡片无条件引用 qr.png，开着二维码时这张图必须存在，包括复用已有 manifest 的同日重跑。
+async function restoreQr(repo: string, draftPath: string, artifactsDir: string, articleUrl: string): Promise<void> {
+  if (!WEIBO_TRENDING_WECHAT_SHOW_QR) return;
+  const qr = await renderQrPng(articleUrl);
+  const qrFile = path.join(repo, path.dirname(draftPath), WEIBO_TRENDING_WECHAT_QR_FILE);
+  ensureDir(path.dirname(qrFile));
+  fs.writeFileSync(qrFile, qr);
+  writeBinaryArtifact(artifactsDir, WEIBO_TRENDING_WECHAT_QR_FILE, qr);
+  writeStderr(`[weibo-trending-wechat] restored ${path.relative(repo, qrFile)} (${qr.length} bytes)`);
+}
+
 async function markdownFits(markdown: string, repo: string, probeFile: string): Promise<boolean> {
   const { openProject, prepareArticle } = await import("./wechat/src/index.ts");
   const project = await openProject(repo, { root: repo });
@@ -196,6 +212,8 @@ async function fitWithOptionalCover({
   items,
   archiveDate,
   title,
+  articleUrl,
+  footer,
   coverFile,
   repo,
   probeDir,
@@ -203,6 +221,8 @@ async function fitWithOptionalCover({
   items: WeiboTrendingWechatItem[];
   archiveDate: string;
   title: string;
+  articleUrl: string;
+  footer: string;
   coverFile: string;
   repo: string;
   probeDir: string;
@@ -218,6 +238,8 @@ async function fitWithOptionalCover({
           archiveDate,
           title,
           description: weiboTrendingWechatDescription(included),
+          articleUrl,
+          footer,
           coverFile: cover,
         }),
     });
@@ -267,6 +289,7 @@ export async function generateWeiboTrendingWechat({
       verifyArchivedFile(repo, existing.rawSources!.upstreamMarkdown, "upstream snapshot");
       verifyArchivedFile(repo, existing.draft!, "draft");
       if (existing.draft!.cover) verifyArchivedFile(repo, existing.draft!.cover!, "cover");
+      await restoreQr(repo, existing.draft!.path, artifactsDir, weiboTrendingArticleUrl(existing.upstream.articlePath));
     }
     writeStderr(`[weibo-trending-wechat] archive=${date}: reused manifest (${existing.status})`);
     return { manifestPath: manifestRel, generatedPaths: existing.draft ? [existing.draft.path] : [], status: existing.status };
@@ -299,6 +322,7 @@ export async function generateWeiboTrendingWechat({
   const coverRel = path.join(dayDir, WEIBO_TRENDING_WECHAT_COVER_FILE);
   ensureDir(path.dirname(draftFile));
 
+  const articleUrl = weiboTrendingArticleUrl(articlePath);
   const cover = await renderWeiboTrendingWechatCover(
     selectedItems.slice(0, WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT).map(item => item.title),
     date,
@@ -307,10 +331,14 @@ export async function generateWeiboTrendingWechat({
     fs.writeFileSync(path.join(repo, coverRel), cover);
     writeStderr(`[weibo-trending-wechat] rendered ${coverRel} (${cover.length} bytes)`);
   }
+  await restoreQr(repo, draftRel, artifactsDir, articleUrl);
+
   const fitted = await fitWithOptionalCover({
     items: selectedItems,
     archiveDate: date,
     title: articleTitle,
+    articleUrl,
+    footer: weiboTrendingWechatFooter(articleUrl),
     coverFile: cover ? WEIBO_TRENDING_WECHAT_COVER_FILE : "",
     repo,
     probeDir: path.dirname(draftFile),

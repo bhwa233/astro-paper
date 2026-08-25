@@ -48,3 +48,8 @@ yt_dlp_fastapi/
 # A crashed run can leave the WeChat content-limit probe behind next to a draft.
 data/reddit-life-wechat/**/.content-limit-probe-*.md
 data/weibo-trending-wechat/**/.content-limit-probe-*.md
+
+# QR payloads are constant and rebuilt from the article URL, so they are not
+# committed. Only written at all while the QR card is switched on.
+data/weibo-trending-wechat/*/qr.png
+data/reddit-life-wechat/*/qr.png

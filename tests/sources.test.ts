@@ -1,5 +1,5 @@
 // source 构建层：真实上游被 mock 掉之后，脚本对上游异常的反应——降级、丢弃、回退、契约拒收。
-// 断言的是分支走向和拒收理由，不是渲染出来的中文句子；纯计算在 pure.test.ts，账本不变量在 ledgers.test.ts。
+// 断言的是分支走向和拒收理由，不是渲染出来的中文句子；跨运行账本不变量在 ledgers.test.ts。
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import fs from "node:fs";

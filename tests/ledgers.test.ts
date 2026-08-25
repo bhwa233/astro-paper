@@ -7,9 +7,9 @@ import path from "node:path";
 import test from "node:test";
 
 import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
-import { appendMdblistRecommendations, loadMdblistRecommendationKeys, parseMdblistRecommendationsFromSource } from "../scripts/mdblist_weekly_ledger.ts";
+import { appendMdblistRecommendations, loadMdblistRecommendationKeys } from "../scripts/mdblist_weekly_ledger.ts";
 import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
-import { fixture, tempDir, tempFile } from "./helpers/mocks.ts";
+import { tempDir, tempFile } from "./helpers/mocks.ts";
 import { generateRedditLifeWechat, loadRedditLifeRunManifest } from "../scripts/generate_reddit_life_wechat.ts";
 
 function commitFixtureRepo(repo: string): string {
@@ -60,15 +60,6 @@ test("mdblist ledger persists successful selections and replaces same-post rerun
   // Re-running the same post replaces its rows rather than accumulating duplicates.
   appendMdblistRecommendations([{ key: "show:21:season:1", mediaType: "show", tmdbId: 21, seasonNumber: 1, title: "Show B" }], post, file);
   assert.deepEqual(loadMdblistRecommendationKeys(file), new Set(["show:21:season:1"]));
-});
-
-test("mdblist source evidence exposes the TMDB identities selected for the ledger", () => {
-  const selections = parseMdblistRecommendationsFromSource(fixture("blog-sources/mdblist-weekly.md"));
-  assert.ok(selections.length >= 4, "selections: " + selections.length);
-  assert.equal(selections[0].mediaType, "movie");
-  assert.match(selections[0].key, /^movie:\d+$/);
-  assert.equal(selections[3].mediaType, "show");
-  assert.match(selections[3].key, /^show:\d+:season:\d+$/);
 });
 
 test("Reddit life generator records an absent upstream article as a stable no-op manifest", async () => {

@@ -6,7 +6,7 @@ import { compact, writeStderr } from "./blog_common.ts";
 import { svgToPng } from "./image_raster.ts";
 import { coverEntryFontSize } from "./wechat_cover_layout.ts";
 
-// 一天三卷各有一张封面，同目录并存，因此文件名要带卷次。用序号而不是「上中下」：
+// 一天四卷各有一张封面，同目录并存，因此文件名要带卷次。用序号而不是展示标签：
 // 这条管线的产物要经 shell 传给 CLI，中文文件名在 WSL 与 Git Bash 之间会被拆坏。
 export function redditLifeWechatCoverFile(volumeIndex: number): string {
   if (!Number.isInteger(volumeIndex) || volumeIndex < 1) throw new Error(`invalid Reddit life WeChat cover volume: ${volumeIndex}`);
@@ -51,27 +51,28 @@ async function fetchBinary(url: string): Promise<ArrayBuffer> {
   return response.arrayBuffer();
 }
 
-// 一篇稿子收录五帖，封面是「逐条列出帖子标题 + 品牌与期号」：单帖标题当主视觉时其余几帖没有出口。
-// 字号统一按最长那条算，短的跟着一起大会让各行长短不齐。上界 52 是只有一两条极短标题时的观感上限。
-const MAX_ENTRY_FONT_SIZE = 52;
+// 一篇稿子收录五帖，封面必须给每个问题一个同等清晰的入口。字号统一按最长那条算，
+// 让短标题跟随同一基线；上界只在极短标题时生效。
+const MAX_ENTRY_FONT_SIZE = 40;
 
-function entryLine(title: string, fontSize: number) {
+function entryLine(title: string, index: number, fontSize: number) {
   return {
     type: "div",
     props: {
-      style: { display: "flex", alignItems: "baseline", width: "100%", fontSize, lineHeight: 1.35, overflow: "hidden" },
+      style: { display: "flex", alignItems: "baseline", width: "100%", fontSize, lineHeight: 1.2, overflow: "hidden" },
       children: [
-        { type: "span", props: { style: { marginRight: "14px", fontWeight: 700 }, children: "·" } },
+        { type: "span", props: { style: { width: "42px", marginRight: "8px", color: "#1687d4", fontWeight: 700 }, children: String(index + 1).padStart(2, "0") } },
         { type: "span", props: { style: { fontWeight: 700 }, children: title } },
       ],
     },
   };
 }
 
-// 版式对齐博客的 OG 图（src/pages/posts/[...slug]/index.png.ts）：白底、两张错位叠放的描边卡片、
-// 内容钉顶、页脚一行。那边是 1200×630，这里是 2.35:1，所以只有字号按标题长度分档，比例照搬。
-function coverTree(titles: string[], brand: string, issue: string) {
-  const fontSize = coverEntryFontSize(titles, MAX_ENTRY_FONT_SIZE);
+// 封面是公众号列表里的一张编辑便签：蓝底、暖白纸和笔圈的栏目名借鉴参考图，
+// 五个问题是唯一正文，不再塞入日期、卷次或解释性页脚。
+function coverTree(titles: string[], brand: string) {
+  // 这张白卡比共用布局的文本列更宽，额外的 1px 吃掉横向余量而不牺牲长标题。
+  const fontSize = Math.min(MAX_ENTRY_FONT_SIZE, coverEntryFontSize(titles, MAX_ENTRY_FONT_SIZE) + 1);
   return {
     type: "div",
     props: {
@@ -81,63 +82,66 @@ function coverTree(titles: string[], brand: string, issue: string) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#fefbfb",
+        background: "#2f91df",
         fontFamily: FONT_FAMILY,
       },
       children: [
-        // 后面这张卡只负责错位露出一条边，做出叠纸的厚度感，本身不装内容。
-        {
-          type: "div",
-          props: {
-            style: {
-              position: "absolute",
-              top: "-1px",
-              right: "-1px",
-              display: "flex",
-              justifyContent: "center",
-              margin: "2.5rem",
-              width: "88%",
-              height: "80%",
-              border: "4px solid #000",
-              borderRadius: "4px",
-              background: "#ecebeb",
-              opacity: "0.9",
-            },
-          },
-        },
         {
           type: "div",
           props: {
             style: {
               display: "flex",
-              justifyContent: "center",
-              margin: "2rem",
-              width: "88%",
-              height: "80%",
-              border: "4px solid #000",
-              borderRadius: "4px",
-              background: "#fefbfb",
+              position: "relative",
+              width: "94%",
+              height: "78%",
+              borderRadius: "34px",
+              background: "#fffdf8",
             },
             children: {
               type: "div",
               props: {
-                style: { display: "flex", flexDirection: "column", justifyContent: "space-between", margin: "20px", width: "90%", height: "90%" },
+                style: { display: "flex", flexDirection: "column", margin: "40px 60px", width: "89%", height: "80%" },
                 children: [
                   {
                     type: "div",
                     props: {
-                      style: { display: "flex", flexDirection: "column", gap: "10px", maxHeight: "84%", overflow: "hidden" },
-                      children: titles.map(title => entryLine(title, fontSize)),
+                      style: {
+                        position: "absolute",
+                        top: "-20px",
+                        left: "-24px",
+                        width: "310px",
+                        height: "66px",
+                        border: "4px solid #1687d4",
+                        borderRadius: "50%",
+                        transform: "rotate(-3deg)",
+                      },
                     },
                   },
                   {
                     type: "div",
                     props: {
-                      style: { display: "flex", justifyContent: "space-between", width: "100%", marginBottom: "8px", fontSize: 28, fontWeight: 700 },
-                      children: [
-                        { type: "span", props: { children: brand } },
-                        { type: "span", props: { children: issue } },
-                      ],
+                      style: {
+                        position: "absolute",
+                        top: "-16px",
+                        left: "-18px",
+                        width: "304px",
+                        height: "60px",
+                        border: "3px solid #1687d4",
+                        borderRadius: "50%",
+                        transform: "rotate(2deg)",
+                        opacity: "0.88",
+                      },
+                    },
+                  },
+                  {
+                    type: "div",
+                    props: { style: { display: "flex", fontSize: 36, fontWeight: 700, lineHeight: 1.1 }, children: brand },
+                  },
+                  {
+                    type: "div",
+                    props: {
+                      style: { display: "flex", flexDirection: "column", gap: "10px", marginTop: "26px", overflow: "hidden" },
+                      children: titles.map((title, index) => entryLine(title, index, fontSize)),
                     },
                   },
                 ],
@@ -154,14 +158,12 @@ function coverTree(titles: string[], brand: string, issue: string) {
  * 渲染一张封面。失败时返回 null 而不是抛：封面缺失会让 astro-wechat 回落到配置里的
  * defaultCover，也就是现在的行为，不值得为它中断整篇稿子的归档。
  */
-export async function renderRedditLifeWechatCover(titles: string[], brand: string, issue: number, volume = ""): Promise<Buffer | null> {
+export async function renderRedditLifeWechatCover(titles: string[], brand: string): Promise<Buffer | null> {
   const entries = titles.map(title => compact(title)).filter(Boolean);
   if (!entries.length) throw new Error("Reddit life WeChat cover needs at least one title");
-  // 同一期三卷的封面只有这个字不同，读者在列表页靠它区分上中下。
-  const issueLabel = volume ? `#${issue} ${volume}` : `#${issue}`;
   try {
-    const fonts = await loadSubsetFonts(`${entries.join("")}${brand}${issueLabel}·`);
-    const svg = await satori(coverTree(entries, brand, issueLabel), { width: COVER_WIDTH, height: COVER_HEIGHT, fonts });
+    const fonts = await loadSubsetFonts(`${entries.join("")}${brand}·0123456789`);
+    const svg = await satori(coverTree(entries, brand), { width: COVER_WIDTH, height: COVER_HEIGHT, fonts });
     return await svgToPng(svg);
   } catch (error) {
     writeStderr(`WARN: [reddit-life-wechat] cover rendering failed, falling back to the configured defaultCover: ${error instanceof Error ? error.message : String(error)}`);

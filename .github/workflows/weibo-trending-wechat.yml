@@ -143,7 +143,8 @@ jobs:
 
   sync-wechat:
     needs: generate-and-archive
-    if: needs.generate-and-archive.outputs.generated_count != '0'
+    # 微博微信稿照常生成归档；仓库变量打开后才恢复推送。
+    if: ${{ needs.generate-and-archive.outputs.generated_count != '0' && vars.ENABLE_WEIBO_TRENDING_WECHAT_SYNC == 'true' }}
     runs-on: ubuntu-latest
     environment: wechat-production
     concurrency:

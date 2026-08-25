@@ -206,7 +206,7 @@ jobs:
   sync-newsletter-wechat:
     name: Sync opted-in newsletters to WeChat
     needs: translate
-    if: ${{ always() && needs.translate.outputs.generated_sha != '' && needs.translate.outputs.wechat_count != '0' }}
+    if: ${{ always() && needs.translate.outputs.generated_sha != '' && needs.translate.outputs.wechat_count != '0' && vars.ENABLE_NEWSLETTER_WECHAT_SYNC == 'true' }}
     permissions:
       contents: write
     uses: ./.github/workflows/newsletter-wechat.yml

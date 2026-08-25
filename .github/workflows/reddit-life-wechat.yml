@@ -17,6 +17,10 @@ on:
         description: "Workflow run that produced upstream_sha."
         required: true
         type: string
+      ai_model:
+        description: "Selection model. Empty = Gemini 3.7 Flash."
+        required: false
+        type: string
   # 手动入口：对着某个已归档提交补跑一次转换，不必等父工作流的下一次定时执行。
   workflow_dispatch:
     inputs:
@@ -32,6 +36,10 @@ on:
         description: "Workflow run that produced the upstream article."
         required: true
         type: string
+      ai_model:
+        description: "Selection model. Empty = Gemini 3.7 Flash."
+        required: false
+        type: string
 concurrency:
   group: scheduled-posts-${{ github.ref }}
   cancel-in-progress: false
@@ -39,8 +47,7 @@ concurrency:
 jobs:
   generate-and-archive:
     runs-on: ubuntu-latest
-    # 这一步不再调模型，只剩 satori 渲染与 Google Fonts 子集下载。
-    timeout-minutes: 30
+    timeout-minutes: 60
     outputs:
       generated_sha: ${{ steps.head.outputs.sha }}
       manifest_path: ${{ steps.generate.outputs.manifest_path }}
@@ -68,6 +75,12 @@ jobs:
           UPSTREAM_GENERATED_SHA: ${{ inputs.upstream_sha }}
           UPSTREAM_WORKFLOW_RUN: ${{ inputs.upstream_workflow_run }}
           INPUT_DATE: ${{ inputs.date || '' }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: https://rightapi.ai/gemini
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+          AI_API_STYLE: gemini
+          AI_FALLBACK_ENABLED: "false"
+          AI_TIMEOUT_MS: "600000"
         run: |
           set -euo pipefail
           args=(--upstream-sha "$UPSTREAM_GENERATED_SHA" --upstream-workflow-run "$UPSTREAM_WORKFLOW_RUN" --artifacts-dir reddit-life-wechat-artifacts)
@@ -157,12 +170,11 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
-          // 一卷收录五帖，五条 Entry 共享同一个 path；不去重会把同一卷发布五次。
+          // 一篇收录五帖，五条 Entry 共享同一个 path；不去重会把同一篇发布五次。
           //
-          // 按 rank 倒序发布：草稿箱是按创建时间倒序排列的，最后建的排在最上面。
-          // 顺着发，读者在草稿箱看到的就是「下 中 上」。先发下卷、最后发上卷，
-          // 列表里才是「上 中 下」。CLI 严格按参数顺序串行创建，所以这里的顺序就是最终顺序。
-          const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).sort((a, b) => b.rank - a.rank).map(post => post.path))];
+          // manifest.posts 已按 AI 选后顺序排列，各卷连续共享 path。草稿箱按创建时间倒序，
+          // 因此先发末卷、最后发首卷，排名最高的一篇才会显示在最上面。
+          const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).map(post => post.path))].reverse();
           fs.writeFileSync("reddit-life-wechat-paths.txt", paths.join("\n"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
           NODE

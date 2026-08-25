@@ -11,7 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { compact, repoRoot, writeStderr, writeStdout } from "./blog_common.ts";
 import { REDDIT_TRENDING_MIN_TOPICS } from "./blog_tasks.ts";
-import { resolvePromptFile } from "./ai_blog_writer.ts";
+import { readPromptTemplate, resolvePromptFile } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
 import { parseModelJsonObject } from "./compose_common.ts";
 import {
@@ -24,6 +24,7 @@ import { parseRedditTitleTranslation, type RedditTitleTranslation } from "./redd
 
 const SELECTION_PROMPT_TASK = "reddit-trending-selection";
 const ITEM_TITLE_PROMPT_TASK = "reddit-trending";
+const REDDIT_PROMPT_FRAGMENTS = { reddit_translation_rules: "_reddit-translation-rules" };
 
 /** 取回的榜单深度。选题要剔掉大量时效性内容，池子太浅就凑不出十条长尾。 */
 export const REDDIT_TRENDING_BOARD_LIMIT = 100;
@@ -240,7 +241,7 @@ export async function buildCombinedRedditTrendingSource({
 
   const picked = selections.map(selection => ({ selection, candidate: candidates[selection.rank - 1] }));
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
-  const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, ITEM_TITLE_PROMPT_TASK), "utf8");
+  const template = readPromptTemplate(resolvedPromptDir, ITEM_TITLE_PROMPT_TASK, REDDIT_PROMPT_FRAGMENTS);
   const translated: Array<{ selection: RedditTrendingSelection; candidate: RedditTrendingCandidate; translation: RedditTitleTranslation }> = [];
   const failed: Array<{ rank: number; error: string }> = [];
   for (const [index, item] of picked.entries()) {

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "engineering-defaults": {
+      "source": "../bhwa233-skill",
+      "sourceType": "local",
+      "computedHash": "20b9d1a4c38fbb8192963c584cbeb52c454d96a4c4113d53b8b1700ce7d56ad4"
+    }
+  }
+}

@@ -6,7 +6,7 @@ import { compact, writeStderr } from "./blog_common.ts";
 import { svgToPng } from "./image_raster.ts";
 import { coverEntryFontSize } from "./wechat_cover_layout.ts";
 
-// 一天四卷各有一张封面，同目录并存，因此文件名要带卷次。用序号而不是展示标签：
+// 一天两卷各有一张封面，同目录并存，因此文件名要带卷次。用序号而不是展示标签：
 // 这条管线的产物要经 shell 传给 CLI，中文文件名在 WSL 与 Git Bash 之间会被拆坏。
 export function redditLifeWechatCoverFile(volumeIndex: number): string {
   if (!Number.isInteger(volumeIndex) || volumeIndex < 1) throw new Error(`invalid Reddit life WeChat cover volume: ${volumeIndex}`);

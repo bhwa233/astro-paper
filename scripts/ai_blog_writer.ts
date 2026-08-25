@@ -21,12 +21,26 @@ export function resolvePromptFile(promptDir: string, name: string): string {
   return direct;
 }
 
+// renderPrompt 会无条件拼接全局文章规则，不适合逐条返回 JSON 的提示词。
+// 这里复用同一套文件解析，只展开调用方明确声明的公共片段，避免规则隐式污染其他任务。
+export function readPromptTemplate(promptDir: string, name: string, fragments: Record<string, string> = {}): string {
+  const file = resolvePromptFile(promptDir, name);
+  if (!fs.existsSync(file)) throw new Error(`prompt template not found for task ${name}: ${file}`);
+  let template = fs.readFileSync(file, "utf8");
+  for (const [placeholder, fragmentName] of Object.entries(fragments)) {
+    const marker = `{${placeholder}}`;
+    if (!template.includes(marker)) throw new Error(`prompt template ${name} is missing fragment placeholder ${marker}`);
+    const fragmentFile = resolvePromptFile(promptDir, fragmentName);
+    if (!fs.existsSync(fragmentFile)) throw new Error(`prompt fragment not found: ${fragmentFile}`);
+    template = template.replaceAll(marker, fs.readFileSync(fragmentFile, "utf8").trim());
+  }
+  return template;
+}
+
 export function renderPrompt({ task, date, sourceText, promptDir }: { task: string; date: string; sourceText: string; promptDir: string }): string {
-  const file = resolvePromptFile(promptDir, task);
-  if (!fs.existsSync(file)) throw new Error(`prompt template not found for task ${task}: ${file}`);
   const commonFile = resolvePromptFile(promptDir, "_common-article-rules");
   const common = fs.existsSync(commonFile) ? `${fs.readFileSync(commonFile, "utf8").trim()}\n\n` : "";
-  const taskPrompt = fs.readFileSync(file, "utf8").replaceAll("{task}", task).replaceAll("{date}", date).replaceAll("{source_text}", sourceText.trim());
+  const taskPrompt = readPromptTemplate(promptDir, task).replaceAll("{task}", task).replaceAll("{date}", date).replaceAll("{source_text}", sourceText.trim());
   return `${common}${taskPrompt.trimStart()}`;
 }
 

@@ -348,7 +348,8 @@ jobs:
   sync-wechat:
     name: Sync selected article to WeChat
     needs: generate
-    if: ${{ needs.generate.result == 'success' && (inputs.task == 'tech-daily' || inputs.task == 'nyt-books-weekly') && inputs.sync_wechat }}
+    # 每类文章独立恢复微信推送，避免打开一个来源时连带恢复其他来源。
+    if: ${{ needs.generate.result == 'success' && inputs.sync_wechat && ((inputs.task == 'tech-daily' && vars.ENABLE_TECH_DAILY_WECHAT_SYNC == 'true') || (inputs.task == 'nyt-books-weekly' && vars.ENABLE_NYT_BOOKS_WECHAT_SYNC == 'true')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: wechat-production

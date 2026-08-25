@@ -49,17 +49,20 @@ jobs:
           ARTICLE_PATH: ${{ inputs.article_path }}
         run: |
           set -euo pipefail
-          case "$ARTICLE_PATH" in
-            src/content/posts/*.md) ;;
-            data/reddit-life-wechat/*.md) ;;
-            data/weibo-trending-wechat/*.md) ;;
+          test -f "$ARTICLE_PATH"
+          normalized="$(realpath --relative-to="$GITHUB_WORKSPACE" "$ARTICLE_PATH")"
+          case "$normalized" in
+            src/content/posts/*.md) is_reddit=false ;;
+            data/reddit-life-wechat/*.md) is_reddit=true ;;
+            data/weibo-trending-wechat/*.md) is_reddit=false ;;
             *) echo "article_path must be a Markdown post under src/content/posts, data/reddit-life-wechat, or data/weibo-trending-wechat" >&2; exit 1 ;;
           esac
-          test -f "$ARTICLE_PATH"
-          printf 'path=%s\n' "$ARTICLE_PATH" >> "$GITHUB_OUTPUT"
+          printf 'path=%s\n' "$normalized" >> "$GITHUB_OUTPUT"
+          printf 'is_reddit=%s\n' "$is_reddit" >> "$GITHUB_OUTPUT"
 
       - name: Create WeChat draft
         id: sync
+        if: ${{ steps.article.outputs.is_reddit == 'true' || vars.ENABLE_MANUAL_NON_REDDIT_WECHAT_SYNC == 'true' }}
         env:
           ARTICLE_PATH: ${{ steps.article.outputs.path }}
           FORCE_CREATE: ${{ inputs.force_create }}

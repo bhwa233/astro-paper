@@ -17,6 +17,8 @@ on:
 
 jobs:
   sync-wechat:
+    # 调用方之外再守一次 Newsletter 自己的软开关。
+    if: ${{ vars.ENABLE_NEWSLETTER_WECHAT_SYNC == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: wechat-production

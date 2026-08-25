@@ -1,15 +1,14 @@
 // 规则层：正文完全由上游 life 文章转换而来，本模块自身不调用模型。
 // 上游每帖的正文已经是「一条回答一个普通文本编号段」的故事集，这里只做选帖、截断、拼接和长度收口。
-// 标题与摘要由编排层传进来：标题是第一帖的标题，摘要是上游 frontmatter 的 description。
+// 标题与摘要由编排层传进来：标题是选后第一帖，摘要列出本篇收录的标题。
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
 import { REDDIT_LIFE_SUBREDDITS } from "./reddit_life_wechat_source.ts";
 
 export const REDDIT_LIFE_WECHAT_TAG = "Reddit人生讨论";
-export const REDDIT_LIFE_WECHAT_TITLE_BRAND = "Reddit 热帖精选";
-// 微信图文标题上限 64 字符。品牌与期号在末尾，正是最该固定露出的部分，所以超长时只截帖子标题那段。
-// 上游 parseRedditItemSummary 已经把译名卡在 40 字，扣掉后缀仍有 47 的预算，这里正常永远不触发。
+export const REDDIT_LIFE_WECHAT_TITLE_BRAND = "Reddit 问答精选";
+// 微信图文标题上限 64 字符。品牌在末尾，超长时只截帖子标题那段。
 const WECHAT_TITLE_LIMIT = 64;
 const TITLE_ELLIPSIS = "…";
 // 一卷收录五帖，每帖最多保留前 30 条回答。
@@ -19,9 +18,9 @@ const TITLE_ELLIPSIS = "…";
 export const REDDIT_LIFE_WECHAT_POST_LIMIT = 5;
 export const REDDIT_LIFE_WECHAT_REPLY_LIMIT = 30;
 
-// 一天的上游有 30 帖，一篇稿子只装得下五帖。分成上中下三卷推送，覆盖前 15 帖，
-// 而不是只露出前五帖再靠导流把读者送去博客看剩下的。
-export const REDDIT_LIFE_WECHAT_VOLUMES = ["上", "中", "下"] as const;
+// AI 会评估上游文章里的全部帖子，最多选十帖；一篇稿子收录五帖，因此分成两卷推送。
+// 卷号只作内部身份，不展示给读者。
+export const REDDIT_LIFE_WECHAT_VOLUMES = ["v1", "v2"] as const;
 export type RedditLifeVolume = (typeof REDDIT_LIFE_WECHAT_VOLUMES)[number];
 export const REDDIT_LIFE_WECHAT_TOTAL_POSTS = REDDIT_LIFE_WECHAT_VOLUMES.length * REDDIT_LIFE_WECHAT_POST_LIMIT;
 
@@ -52,8 +51,8 @@ export function redditLifeArticleUrl(lifeArticlePath: string): string {
 /**
  * 这一卷在台账里的身份。
  *
- * 不能用 canonical URL：三卷的「阅读原文」都指向同一天那篇 life 文章，共用一个身份
- * 会让后两卷被判 already-synchronized 静默跳过。日期加卷次天生唯一，且与文件名、
+ * 不能用 canonical URL：两卷的「阅读原文」都指向同一天那篇 life 文章，共用一个身份
+ * 会让后续卷被判 already-synchronized 静默跳过。日期加卷次天生唯一，且与文件名、
  * 与开关状态都无关——开关翻转不该让同一卷变成一篇新稿子。
  */
 export function redditLifeWechatSyncId(archiveDate: string, volume: RedditLifeVolume): string {
@@ -78,7 +77,7 @@ function qrCard(caption: string, target: string): string {
     "</td>",
     '<td style="border:none;width:96px;padding:0 0 0 14px;vertical-align:middle;">',
     // img 不写 style：CSS 内联会剥掉尾分号再追加主题样式，把最后一条声明粘坏。尺寸走属性。
-    `<img src="${REDDIT_LIFE_WECHAT_QR_FILE}" alt="Reddit 热帖精选原文二维码" width="96" height="96" />`,
+    `<img src="${REDDIT_LIFE_WECHAT_QR_FILE}" alt="Reddit 问答精选原文二维码" width="96" height="96" />`,
     "</td>",
     "</tr></tbody></table>",
     "</section>",
@@ -86,7 +85,7 @@ function qrCard(caption: string, target: string): string {
 }
 
 /**
- * 二维码关闭时返回空串，稿子就没有页脚。清单已经撤掉：三卷覆盖 15 帖，不再靠列标题钓扫码。
+ * 二维码关闭时返回空串，稿子就没有页脚。清单已经撤掉：两卷覆盖 10 帖，不再靠列标题钓扫码。
  *
  * 开关做成默认参数而不是直接读常量，测试才能把两种状态都跑到。生产调用一律不传。
  */
@@ -120,14 +119,7 @@ function sourceBlocks(markdown: string): string[] {
     .filter(block => /^##\s+\d+\.\s+/.test(block));
 }
 
-// 上游文章的 frontmatter description 就是排名第一那帖的一句话描述（redditTop20Description 取 items[0]）。
-export function parseRedditLifeDescription(markdown: string): string {
-  const description = markdown.match(/^description:\s*"((?:[^"\\]|\\.)*)"\s*$/m)?.[1];
-  if (!description) throw new Error("Reddit life article is missing its frontmatter description");
-  return compact(description.replaceAll('\\"', '"'));
-}
-
-export function parseRedditLifeCandidates(markdown: string, limit = REDDIT_LIFE_WECHAT_TOTAL_POSTS): RedditLifeCandidate[] {
+export function parseRedditLifeCandidates(markdown: string, limit = Number.POSITIVE_INFINITY): RedditLifeCandidate[] {
   const blocks = sourceBlocks(markdown);
   if (!blocks.length) throw new Error("Reddit life article has no numbered post blocks");
   return blocks.slice(0, limit).map((block, index) => {
@@ -243,14 +235,12 @@ function splitWechatMarkdown(markdown: string): { front: string; body: string; f
   return { front, body: rest.slice(0, footerIndex).trim(), footer: rest.slice(footerIndex + 1).trim() };
 }
 
-export function redditLifeWechatTitle(title: string, issue: number, volume: RedditLifeVolume): string {
-  if (!Number.isInteger(issue) || issue < 1) throw new Error(`invalid Reddit life WeChat issue number: ${issue}`);
-  if (!REDDIT_LIFE_WECHAT_VOLUMES.includes(volume)) throw new Error(`invalid Reddit life WeChat volume: ${volume || "missing"}`);
+export function redditLifeWechatTitle(title: string): string {
   const headline = compact(title);
   if (!headline) throw new Error("Reddit life WeChat article needs a title");
-  const suffix = `｜${REDDIT_LIFE_WECHAT_TITLE_BRAND} #${issue} ${volume}`;
+  const suffix = `｜${REDDIT_LIFE_WECHAT_TITLE_BRAND}`;
   const budget = WECHAT_TITLE_LIMIT - suffix.length;
-  if (budget <= TITLE_ELLIPSIS.length) throw new Error(`Reddit life WeChat issue number leaves no room for a title: #${issue}`);
+  if (budget <= TITLE_ELLIPSIS.length) throw new Error("Reddit life WeChat title brand leaves no room for a title");
   // 按码点切，不按 UTF-16 单元，否则表情之类的代理对会被截成半个字符。
   const chars = [...headline];
   return `${chars.length <= budget ? headline : `${chars.slice(0, budget - TITLE_ELLIPSIS.length).join("")}${TITLE_ELLIPSIS}`}${suffix}`;
@@ -259,11 +249,11 @@ export function redditLifeWechatTitle(title: string, issue: number, volume: Redd
 // coverFile 为空时不写 ogImage，astro-wechat 会回落到配置里的 defaultCover。
 // 路径按相对写法：astro-wechat 先相对 Markdown 所在目录解析，封面就躺在稿子旁边，不必往 public/ 里塞。
 //
-// headline 是本卷第一帖的标题，只占标题前半段，品牌、期号与卷次由 redditLifeWechatTitle 拼上。
+// headline 是本卷第一帖的标题，只占标题前半段，品牌由 redditLifeWechatTitle 拼上。
 //
 // wechat.syncId 无条件写入，wechat.sourceURL 由 A/B 开关决定。两者必须分开：
-// sourceURL 变成草稿的 content_source_url（「阅读原文」），三卷都该落在同一天那篇 life 文章上，
-// 而台账身份必须三卷各不相同，否则后两卷被判 already-synchronized 静默跳过。
+// sourceURL 变成草稿的 content_source_url（「阅读原文」），两卷都该落在同一天那篇 life 文章上，
+// 而台账身份必须两卷各不相同，否则后续卷被判 already-synchronized 静默跳过。
 // 身份走 syncId 之后，开关翻转只改变读者看不看得到「阅读原文」，不会让同一卷变成一篇新稿子。
 //
 // 不给锚点：落到文章顶部就够了，锚点还要赌 Astro 给标题生成的 id，赌输了也只是落到同一处。
@@ -273,7 +263,6 @@ export function renderRedditLifeWechatMarkdown({
   headline,
   description,
   archiveDate,
-  issue,
   volume,
   articleUrl,
   footer = "",
@@ -285,7 +274,6 @@ export function renderRedditLifeWechatMarkdown({
   headline: string;
   description: string;
   archiveDate: string;
-  issue: number;
   volume: RedditLifeVolume;
   articleUrl: string;
   footer?: string;
@@ -300,7 +288,7 @@ export function renderRedditLifeWechatMarkdown({
   const wechatFields = [`  syncId: "${redditLifeWechatSyncId(archiveDate, volume)}"`];
   if (showSourceUrl) wechatFields.push(`  sourceURL: "${articleUrl}"`);
   const metadata = frontmatter({
-    title: redditLifeWechatTitle(headline, issue, volume),
+    title: redditLifeWechatTitle(headline),
     date: archiveDate,
     description,
     tags: [REDDIT_LIFE_WECHAT_TAG],

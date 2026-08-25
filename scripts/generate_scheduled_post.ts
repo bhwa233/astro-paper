@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { resizeToWebp } from "./image_raster.ts";
 import { archivePost } from "./astro_paper_archive.ts";
-import { validateMarkdown, renderPrompt, resolvePromptFile } from "./ai_blog_writer.ts";
+import { readPromptTemplate, validateMarkdown, renderPrompt, resolvePromptFile } from "./ai_blog_writer.ts";
 import { callAi, generateJsonStageWithRetries, retryAttempts, retryDelayMs, writeAiArtifact as writeArtifact } from "./ai_json_stage.ts";
 import { type AiCallResult, envAiConfig } from "./blog_ai_client.ts";
 import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, envPositiveInt, fetchJson, parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
@@ -561,6 +561,8 @@ const REDDIT_PROMPT_BY_CATEGORY: Record<RedditCategory["key"], string> = {
   markets: "reddit-markets-item-summary",
 };
 
+const REDDIT_PROMPT_FRAGMENTS = { reddit_translation_rules: "_reddit-translation-rules" };
+
 export function partitionRedditItemOutcomes(outcomes: RedditItemProcessingOutcome[]): {
   kept: Array<RedditItemProcessingOutcome & { summary: RedditModelItem }>;
   excluded: number[];
@@ -613,7 +615,7 @@ async function buildCombinedRedditSource({
   writeArtifact(artifactsDir, "reddit-top20", "source.raw.md", source);
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const templateName = REDDIT_PROMPT_BY_CATEGORY[redditCategory.key];
-  const template = fs.readFileSync(resolvePromptFile(resolvedPromptDir, templateName), "utf8");
+  const template = readPromptTemplate(resolvedPromptDir, templateName, REDDIT_PROMPT_FRAGMENTS);
   // 逐帖传入受限 source block。有限并发保证三个栏目运行时不会把候选池拼成一个巨型提示词。
   const outcomes: RedditItemProcessingOutcome[] = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);

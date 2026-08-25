@@ -45,6 +45,21 @@
         "outputTokens": 6306,
         "totalTokens": 8616
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=78918",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/21/anais-nin-d-h-lawrence",
+      "sourcePublishedAt": "2026-08-22T01:03:18.000Z",
+      "sourceSha256": "796a17258a2406360c369ab2f43abd9d8bb655cf2a0d06054dc3521f74db4956",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260821-anais-nin-d-h-lawrence.md",
+      "translatedAt": "2026-08-25T01:55:45.666Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2031,
+        "outputTokens": 4602,
+        "totalTokens": 6633
+      }
     }
   ]
 }

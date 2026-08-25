@@ -272,11 +272,19 @@ export async function generateWeiboTrendingWechat({
 
   const manifestRel = runRelPath(date);
   const manifestFile = path.join(repo, manifestRel);
+  const articlePath = taskPostRelPath("weibo-trending", date);
+  const upstreamFile = path.join(repo, articlePath);
   assertCommittedPath(repo, manifestRel);
+  assertCommittedPath(repo, articlePath);
   const existing = loadWeiboTrendingWechatRunManifest(manifestFile);
   if (existing) {
     if (existing.archiveDate !== date) throw new Error(`Weibo trending WeChat manifest date does not match its directory: ${manifestRel}`);
-    if (existing.status === "processed") {
+    // 空上游只是当次父任务的快照，不能挡住同一天的人工补跑：新 handoff 已经带来文章时，
+    // 用它替换旧的空 manifest；仍然缺文时才保持幂等复用。
+    if (existing.status === "upstream-empty" && fs.existsSync(upstreamFile)) {
+      writeStderr(`[weibo-trending-wechat] archive=${date}: upstream article is now available; replacing upstream-empty manifest\n`);
+    } else {
+      if (existing.status === "processed") {
       const expectedDayDir = path.join(ROOT_REL, date);
       if (
         existing.rawSources!.upstreamMarkdown.path !== path.join(expectedDayDir, "upstream.md") ||
@@ -290,14 +298,12 @@ export async function generateWeiboTrendingWechat({
       verifyArchivedFile(repo, existing.draft!, "draft");
       if (existing.draft!.cover) verifyArchivedFile(repo, existing.draft!.cover!, "cover");
       await restoreQr(repo, existing.draft!.path, artifactsDir, weiboTrendingArticleUrl(existing.upstream.articlePath));
+      }
+      writeStderr(`[weibo-trending-wechat] archive=${date}: reused manifest (${existing.status})`);
+      return { manifestPath: manifestRel, generatedPaths: existing.draft ? [existing.draft.path] : [], status: existing.status };
     }
-    writeStderr(`[weibo-trending-wechat] archive=${date}: reused manifest (${existing.status})`);
-    return { manifestPath: manifestRel, generatedPaths: existing.draft ? [existing.draft.path] : [], status: existing.status };
   }
 
-  const articlePath = taskPostRelPath("weibo-trending", date);
-  assertCommittedPath(repo, articlePath);
-  const upstreamFile = path.join(repo, articlePath);
   if (!fs.existsSync(upstreamFile)) {
     const manifest: WeiboTrendingWechatRunManifest = {
       version: 1,

@@ -19,9 +19,10 @@ import {
   dropTrailingStories,
   parseRedditLifeCandidates,
   parseRedditLifeDescription,
-  redditLifeWechatFooter,
   redditLifeWechatTitle,
   renderRedditLifeWechatMarkdown,
+  REDDIT_LIFE_WECHAT_TOTAL_POSTS,
+  REDDIT_LIFE_WECHAT_VOLUMES,
 } from "../scripts/reddit_life_wechat_compose.ts";
 import {
   REDDIT_TRENDING_MIN_COMMENTS,
@@ -39,10 +40,8 @@ import {
   parseWeiboTrendingArticle,
   parseWeiboTrendingArticleTitle,
   renderWeiboTrendingWechatMarkdown,
-  weiboTrendingArticleUrl,
   weiboTrendingWechatBody,
   weiboTrendingWechatDescription,
-  weiboTrendingWechatFooter,
   WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT,
   WEIBO_TRENDING_WECHAT_ITEM_LIMIT,
   type WeiboTrendingWechatItem,
@@ -242,7 +241,7 @@ test("mdblist selection expands until the weekly minimum and balances categories
   assert.equal(crossFilled.shows.length, 2);
 });
 
-test("Reddit life handoff uses only the first five ordered posts and carries each story list", () => {
+test("Reddit life handoff uses the first fifteen ordered posts and carries each story list", () => {
   const block = (rank: number, subreddit = "AskReddit") =>
     [
       `## ${rank}. 问题 ${rank}`,
@@ -254,11 +253,17 @@ test("Reddit life handoff uses only the first five ordered posts and carries eac
       "",
       `2. 第 ${rank} 帖的第二个故事。`,
     ].join("\n");
-  const candidates = parseRedditLifeCandidates([1, 2, 3, 4, 5, 6].map(rank => block(rank)).join("\n\n"));
-  assert.deepEqual(
-    candidates.map(item => item.postId),
-    ["post1", "post2", "post3", "post4", "post5"],
-  );
+  // 上游一天 30 帖，取前 15 帖再由编排层切成上中下三卷各五帖。
+  const upstream = Array.from({ length: 20 }, (_, index) => block(index + 1)).join("\n\n");
+  const candidates = parseRedditLifeCandidates(upstream);
+  assert.equal(candidates.length, REDDIT_LIFE_WECHAT_TOTAL_POSTS);
+  assert.equal(candidates.length, 15);
+  assert.deepEqual(candidates.slice(0, 3).map(item => item.postId), ["post1", "post2", "post3"]);
+  assert.equal(candidates.at(-1)!.postId, "post15");
+  // 三卷各取五帖，卷与卷之间不重叠也不留空档。
+  const volumes = REDDIT_LIFE_WECHAT_VOLUMES.map((_, index) => candidates.slice(index * 5, index * 5 + 5));
+  assert.deepEqual(volumes.map(volume => volume[0].rank), [1, 6, 11]);
+  assert.deepEqual(volumes.map(volume => volume.length), [5, 5, 5]);
   // 正文原样搬运：微信稿不重写上游的故事，只做选帖和长度收口。
   assert.equal(candidates[0].body, "1. 第 1 帖的第一个故事。\n\n2. 第 1 帖的第二个故事。");
   assert.throws(() => parseRedditLifeCandidates(`${block(1)}\n\n${block(3)}`), /handoff contract/);
@@ -285,36 +290,21 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
     body: ["1\\. 第一个故事。", "", "2\\. 第二个故事。", "", "3\\. 第三个故事。"].join("\n"),
   };
   const second = { ...candidate, rank: 2, postId: "post2", title: "问题 2", permalink: "https://www.reddit.com/r/AskReddit/comments/post2/", body: ["1\\. 第四个故事。", "", "2\\. 第五个故事。"].join("\n") };
-  const ARTICLE_URL = "https://blog.bhwa233.com/posts/reddit-2099-01-02-life/";
-  const footer = redditLifeWechatFooter({
-    rest: [
-      { rank: 3, title: "第三个话题" },
-      { rank: 4, title: "第四个话题" },
-    ],
-    total: 4,
-    articleUrl: ARTICLE_URL,
-  });
   const render = (overrides = {}) =>
-    renderRedditLifeWechatMarkdown({ candidates: [candidate, second], headline: "话题一、话题二", description: "这期讲了两件事。", archiveDate: "2099-01-02", issue: 42, footer, articleUrl: ARTICLE_URL, ...overrides });
+    renderRedditLifeWechatMarkdown({ candidates: [candidate, second], headline: "话题一、话题二", description: "这期讲了两件事。", archiveDate: "2099-01-02", issue: 42, volume: "上", ...overrides });
   const markdown = render();
 
-  // 标题由模型给的话题串加品牌与期号拼成，不再由某一帖独占。
-  assert.match(markdown, /^title: "话题一、话题二｜Reddit 热帖精选 #42"$/m);
+  assert.match(markdown, /^title: "话题一、话题二｜Reddit 热帖精选 #42 上"$/m);
   // 封面渲染失败时不写 ogImage，astro-wechat 才能回落到配置里的 defaultCover；
   // 写了却没有对应文件反而会让它解析资源时直接报错。
   assert.doesNotMatch(markdown, /^ogImage:/m);
-  assert.match(render({ coverFile: "cover.png" }), /^ogImage: "cover\.png"$/m);
-  // sourceURL 既是微信「阅读原文」的落点，也是 astro-wechat 的同步身份；指博客文章而非 Reddit 原帖。
-  assert.match(markdown, /^ {2}sourceURL: "https:\/\/blog\.bhwa233\.com\/posts\/reddit-2099-01-02-life\/"$/m);
+  assert.match(render({ coverFile: "cover-1.png" }), /^ogImage: "cover-1\.png"$/m);
   assert.match(markdown, /^description: "这期讲了两件事。"$/m);
-  // 二维码卡片内不能出现空行：markdown-it 的 html_block 遇空行就结束，后半段会退化成
-  // 转义过的普通段落，读者看到的是一堆尖括号。这个约束从卡片本身看不出来，容易在编辑时踩到。
-  assert.doesNotMatch(markdown.slice(markdown.indexOf("<section")), /\n\s*\n/);
-  // 剩余热帖清单沿用上游编号，读者扫码过去能按号对上。
-  assert.match(markdown, /^3\\\. 第三个话题$/m);
-  assert.match(markdown, /^4\\\. 第四个话题$/m);
-  assert.match(markdown, /长按识别二维码，在博客看全部 4 个热帖/);
-  assert.match(markdown, /https:\/\/blog\.bhwa233\.com\/posts\/reddit-2099-01-02-life\//);
+  // 稿子里不再有任何站外引流：没有 sourceURL（也就没有「阅读原文」），没有二维码卡片，
+  // 也没有裸露的博客地址。撤掉它们是为了不让微信的推荐算法把这类稿子判成导流内容。
+  assert.doesNotMatch(markdown, /sourceURL/);
+  assert.doesNotMatch(markdown, /<section |<img |blog\.bhwa233\.com/);
+  assert.doesNotMatch(markdown, /今天还有这些热帖|长按识别二维码/);
   // 每个问题用二级标题分隔，编号在每帖内部重新从 1 开始。
   assert.match(markdown, /^## 问题 1\n\n1\\\. 第一个故事。/m);
   assert.match(markdown, /^## 问题 2\n\n1\\\. 第四个故事。/m);
@@ -333,85 +323,74 @@ test("Reddit life WeChat article keeps plain-numbered upstream stories and drops
   assert.doesNotMatch(droppedTwo, /第四个故事|第五个故事/);
   assert.doesNotMatch(droppedTwo, /^## 问题 2$/m);
   assert.match(droppedTwo, /^## 问题 1$/m);
-  // frontmatter 和页脚是稿子的骨架，任何截断都不能动它们。
+  // frontmatter 是稿子的骨架，任何截断都不能动它。页脚没了之后，正文末尾就是可删区的末尾，
+  // 不再需要哨兵把尾部圈起来保护。
   assert.match(droppedTwo, /^---\nauthor:/);
-  assert.match(droppedTwo, /<section /);
-
-  // 清单和二维码卡片都在页脚里，撞长度上限时该删的是回答，导流入口必须活下来。
-  assert.match(droppedTwo, /^3\\\. 第三个话题$/m);
-  assert.match(droppedTwo, /<section /);
+  assert.match(droppedTwo, /^## 问题 1\n\n1\\\. 第一个故事。\n$/m);
 
   assert.throws(() => dropTrailingStories(markdown, 5), /fewer than 5 droppable stories/);
   assert.throws(() => render({ description: "" }), /needs a description/);
 });
 
-// 品牌与期号在标题末尾，正好落在微信 64 字符上限最先砍掉的位置，因此截断只许吃帖子标题那段。
-test("Reddit life WeChat title keeps the brand suffix intact and truncates only the headline", () => {
-  assert.equal(redditLifeWechatTitle("问题 1", 42), "问题 1｜Reddit 热帖精选 #42");
-  // 后缀占 16 字符，标题预算是 48；正好用满不截断。
-  const suffix = "｜Reddit 热帖精选 #42";
-  assert.equal(suffix.length, 16);
-  const exact = "题".repeat(48);
-  assert.equal(redditLifeWechatTitle(exact, 42), `${exact}${suffix}`);
-  assert.equal(redditLifeWechatTitle(exact, 42).length, 64);
+// 一天三卷共用一篇上游文章，若还带着 sourceURL 就会共用同一个同步身份，
+// 后两卷会被 astro-wechat 判成 already-synchronized 静默跳过——少发两篇且不报错。
+test("Reddit life WeChat volumes carry no shared sync identity", () => {
+  const post = (rank: number) => ({
+    rank,
+    postId: `post${rank}`,
+    title: `问题 ${rank}`,
+    subreddit: "AskReddit",
+    points: "99 points · 10 评论",
+    numComments: 10,
+    permalink: `https://www.reddit.com/r/AskReddit/comments/post${rank}/`,
+    body: "1\\. 故事。",
+  });
+  const volumes = REDDIT_LIFE_WECHAT_VOLUMES.map((volume, index) =>
+    renderRedditLifeWechatMarkdown({
+      candidates: [post(index * 5 + 1)],
+      headline: `问题 ${index * 5 + 1}`,
+      description: "描述。",
+      archiveDate: "2099-01-02",
+      issue: 42,
+      volume,
+    }),
+  );
 
-  const overlong = redditLifeWechatTitle("题".repeat(60), 42);
-  assert.equal(overlong.length, 64);
-  assert.ok(overlong.endsWith(suffix));
-  assert.equal(overlong, `${"题".repeat(47)}…${suffix}`);
-
-  // 按码点切，代理对不能被截成半个字符。
-  const emoji = redditLifeWechatTitle("😀".repeat(60), 42);
-  assert.equal([...emoji].length, 64);
-  assert.ok(emoji.endsWith(`…${suffix}`));
-  assert.ok(!emoji.includes("�"));
-
-  assert.equal(redditLifeWechatTitle("  问题 1  ", 7), "问题 1｜Reddit 热帖精选 #7");
-  assert.throws(() => redditLifeWechatTitle("问题 1", 0), /invalid Reddit life WeChat issue number/);
-  assert.throws(() => redditLifeWechatTitle("问题 1", 1.5), /invalid Reddit life WeChat issue number/);
-  assert.throws(() => redditLifeWechatTitle("   ", 42), /needs a title/);
+  assert.equal(volumes.length, 3);
+  for (const markdown of volumes) assert.doesNotMatch(markdown, /sourceURL/);
+  // 三卷的标题必须互不相同：读者在列表页靠卷次区分，去重也靠它。
+  const titles = volumes.map(markdown => markdown.match(/^title: "(.+)"$/m)![1]);
+  assert.deepEqual(titles, ["问题 1｜Reddit 热帖精选 #42 上", "问题 6｜Reddit 热帖精选 #42 中", "问题 11｜Reddit 热帖精选 #42 下"]);
+  assert.equal(new Set(titles).size, 3);
 });
 
-// 编码交给 qrcode-generator，这里守的是自己写的那半截：SVG 栅格化必须逐格还原模块矩阵。
-// 错一格或静区被涂黑，图看着像二维码但扫不出来。
-test("QR rasterization reproduces the module matrix and keeps the quiet zone clear", async () => {
-  const { renderQrPng } = await import("../scripts/qr_code.ts");
-  const qrcode = (await import("qrcode-generator")).default;
-  const sharp = (await import("sharp")).default;
+// 品牌与期号在标题末尾，正好落在微信 64 字符上限最先砍掉的位置，因此截断只许吃帖子标题那段。
+test("Reddit life WeChat title keeps the brand suffix intact and truncates only the headline", () => {
+  assert.equal(redditLifeWechatTitle("问题 1", 42, "上"), "问题 1｜Reddit 热帖精选 #42 上");
+  // 后缀占 18 字符（比不分卷时多「空格 + 卷次」两个），标题预算是 46；正好用满不截断。
+  const suffix = "｜Reddit 热帖精选 #42 上";
+  assert.equal(suffix.length, 18);
+  const exact = "题".repeat(46);
+  assert.equal(redditLifeWechatTitle(exact, 42, "上"), `${exact}${suffix}`);
+  assert.equal(redditLifeWechatTitle(exact, 42, "上").length, 64);
 
-  const text = "https://blog.bhwa233.com/";
-  const size = 240;
-  const margin = 4;
-  const qr = qrcode(0, "M");
-  qr.addData(text);
-  qr.make();
-  const modules = qr.getModuleCount();
-  const scale = size / (modules + margin * 2);
+  const overlong = redditLifeWechatTitle("题".repeat(60), 42, "上");
+  assert.equal(overlong.length, 64);
+  assert.ok(overlong.endsWith(suffix));
+  assert.equal(overlong, `${"题".repeat(45)}…${suffix}`);
 
-  const { data, info } = await sharp(await renderQrPng(text, { size, marginModules: margin }))
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  const luminanceAt = (x: number, y: number) => data[(y * info.width + x) * info.channels];
+  // 按码点切，代理对不能被截成半个字符。
+  const emoji = redditLifeWechatTitle("😀".repeat(60), 42, "下");
+  assert.equal([...emoji].length, 64);
+  assert.ok(emoji.endsWith("…｜Reddit 热帖精选 #42 下"));
+  assert.ok(!emoji.includes("�"));
 
-  assert.equal(info.width, size);
-  assert.equal(info.height, size);
-  for (let row = 0; row < modules; row += 1) {
-    for (let column = 0; column < modules; column += 1) {
-      const x = Math.floor((column + margin + 0.5) * scale);
-      const y = Math.floor((row + margin + 0.5) * scale);
-      assert.equal(luminanceAt(x, y) < 128, qr.isDark(row, column), `module ${row},${column} does not match the matrix`);
-    }
-  }
-  for (let y = 0; y < Math.floor(margin * scale) - 1; y += 1) {
-    for (let x = 0; x < info.width; x += 1) {
-      assert.ok(luminanceAt(x, y) >= 128, `quiet zone is not blank at ${x},${y}`);
-    }
-  }
-
-  await assert.rejects(() => renderQrPng("  "), /needs a non-empty payload/);
-  await assert.rejects(() => renderQrPng(text, { size: 0 }), /invalid QR size/);
-  await assert.rejects(() => renderQrPng(text, { marginModules: -1 }), /invalid QR margin/);
+  assert.equal(redditLifeWechatTitle("  问题 1  ", 7, "中"), "问题 1｜Reddit 热帖精选 #7 中");
+  assert.throws(() => redditLifeWechatTitle("问题 1", 0, "上"), /invalid Reddit life WeChat issue number/);
+  assert.throws(() => redditLifeWechatTitle("问题 1", 1.5, "上"), /invalid Reddit life WeChat issue number/);
+  assert.throws(() => redditLifeWechatTitle("   ", 42, "上"), /needs a title/);
+  // 卷次是拼进标题的自由文本，写错就是三卷标题撞车，必须在这里拦下。
+  assert.throws(() => redditLifeWechatTitle("问题 1", 42, "左" as never), /invalid Reddit life WeChat volume/);
 });
 
 // ------------------------------------------------------- Reddit 全站热搜选题
@@ -567,29 +546,25 @@ test("Weibo trending WeChat description falls back by title count and truncates 
 test("Weibo trending WeChat renderer carries synchronization metadata and optional cover", () => {
   const items = [weiboWechatItem(1, "甲"), weiboWechatItem(2, "乙")];
   const articlePath = taskPostRelPath("weibo-trending", "2099-01-02");
-  const articleUrl = "https://blog.bhwa233.com/posts/wb-20990102/";
   const title = '2099-01-02 热搜 ｜ 有人接住火箭,有人问"空座该让吗"';
   assert.equal(articlePath, "src/content/posts/zh-cn/wb-20990102.md");
-  assert.equal(weiboTrendingArticleUrl(articlePath), articleUrl);
   const render = (coverFile = "") =>
     renderWeiboTrendingWechatMarkdown({
       items,
       archiveDate: "2099-01-02",
       title,
       description: weiboTrendingWechatDescription(items),
-      footer: weiboTrendingWechatFooter(articleUrl),
-      articleUrl,
       coverFile,
     });
   const markdown = render();
   assert.equal(parseWeiboTrendingArticleTitle(markdown), title);
   assert.equal(parseWeiboTrendingArticleTitle(`---\ntitle: '${title}'\n---\n`), title);
   assert.match(markdown, /^title: "2099-01-02 热搜 ｜ 有人接住火箭,有人问\\"空座该让吗\\""$/m);
-  assert.match(markdown, /^wechat:\n {2}enabled: true\n {2}sourceURL: "https:\/\/blog\.bhwa233\.com\/posts\/wb-20990102\/"$/m);
+  assert.match(markdown, /^wechat:\n {2}enabled: true$/m);
   assert.doesNotMatch(markdown, /^ogImage:/m);
   assert.match(render("cover.png"), /^ogImage: "cover\.png"$/m);
-  assert.match(markdown, /<img src="qr\.png"/);
-  assert.match(markdown, /长按识别二维码查看更多热搜话题/);
-  assert.match(markdown, />https:\/\/blog\.bhwa233\.com\/posts\/wb-20990102\/<\/p>/);
-  assert.doesNotMatch(markdown.slice(markdown.indexOf("<section")), /\n\s*\n/);
+  // 和 Reddit 那条线同一个决定：不留二维码卡片，也不留 sourceURL（「阅读原文」），
+  // 正文里因此没有任何指向站外的东西。
+  assert.doesNotMatch(markdown, /sourceURL|qr\.png|长按识别二维码|<section |<img /);
+  assert.doesNotMatch(markdown, /blog\.bhwa233\.com/);
 });

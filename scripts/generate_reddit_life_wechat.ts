@@ -15,17 +15,14 @@ import {
   parseRedditLifeCandidates,
   parseRedditLifeDescription,
   renderRedditLifeWechatMarkdown,
-  parseRedditLifePostTitles,
-  redditLifeArticleUrl,
-  redditLifeWechatFooter,
   REDDIT_LIFE_WECHAT_POST_LIMIT,
-  REDDIT_LIFE_WECHAT_QR_FILE,
   REDDIT_LIFE_WECHAT_REPLY_LIMIT,
   REDDIT_LIFE_WECHAT_TITLE_BRAND,
+  REDDIT_LIFE_WECHAT_VOLUMES,
   type RedditLifeCandidate,
+  type RedditLifeVolume,
 } from "./reddit_life_wechat_compose.ts";
-import { REDDIT_LIFE_WECHAT_COVER_FILE, renderRedditLifeWechatCover } from "./reddit_life_wechat_cover.ts";
-import { renderQrPng } from "./qr_code.ts";
+import { redditLifeWechatCoverFile, renderRedditLifeWechatCover } from "./reddit_life_wechat_cover.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 
 const ROOT_REL = "data/reddit-life-wechat";
@@ -39,6 +36,9 @@ type Entry = Omit<RedditLifeCandidate, "body"> & {
   // 标题里的期号。写进 manifest 才能让重跑复用同一个号，而不是重新分配一个。
   // 引入期号之前归档的 manifest 没有这个字段，因此保持可选。
   issue?: number;
+  // 这一帖被分到哪一卷。同期号下三卷各一篇稿子，卷次同样要能被重跑复用。
+  // 分卷之前的归档没有这个字段，理由同 issue。
+  volume?: RedditLifeVolume;
 };
 
 export type RedditLifeRunManifest = {
@@ -212,10 +212,9 @@ export async function fitWechatContentLimit(render: (replyLimit: number) => stri
 async function fitWithOptionalCover({
   candidates,
   digest,
-  footer,
-  articleUrl,
   date,
   issue,
+  volume,
   coverFile,
   repo,
   label,
@@ -223,17 +222,16 @@ async function fitWithOptionalCover({
 }: {
   candidates: RedditLifeCandidate[];
   digest: { headline: string; description: string };
-  footer: string;
-  articleUrl: string;
   date: string;
   issue: number;
+  volume: RedditLifeVolume;
   coverFile: string;
   repo: string;
   label: string;
   probeDir: string;
 }): Promise<string> {
   const render = (cover: string) => (replyLimit: number) =>
-    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, footer, articleUrl, coverFile: cover, replyLimit });
+    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, issue, volume, coverFile: cover, replyLimit });
   try {
     return await fitWechatContentLimit(render(coverFile), repo, label, probeDir);
   } catch (error) {
@@ -305,50 +303,54 @@ export async function generateRedditLifeWechat({
   }
   const upstreamMarkdown = fs.readFileSync(upstreamFile, "utf8");
   writeArtifact(artifactsDir, "upstream-life.md", upstreamMarkdown);
-  // 上游解析器本来就产出前五帖，这里全部收录；每帖保留几条由 fitWechatContentLimit 按渲染长度定，上界 REPLY_LIMIT。
+  // 上游有 30 帖，这里取前 15 帖，分成上中下三卷各五帖；每帖保留几条由 fitWechatContentLimit
+  // 按渲染长度定，上界 REPLY_LIMIT，每卷各自二分。
   const candidates = parseRedditLifeCandidates(upstreamMarkdown);
-  const allTitles = parseRedditLifePostTitles(upstreamMarkdown);
   const upstreamDescription = parseRedditLifeDescription(upstreamMarkdown);
-  // 二维码指向那天的 life 文章：清单里的标题在微信里点不动，读者要看全部只能扫码过去。
-  const articleUrl = redditLifeArticleUrl(lifeArticlePath);
-  const footer = redditLifeWechatFooter({ rest: allTitles.slice(REDDIT_LIFE_WECHAT_POST_LIMIT), total: allTitles.length, articleUrl });
   const issue = nextRedditLifeIssue(repo);
-  const label = `posts=${candidates.length} issue=${issue}`;
-  writeStderr(`[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, ${label}, ranks=${candidates.map(item => item.postId).join(",")}`);
+  writeStderr(`[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, posts=${candidates.length} issue=${issue}, ranks=${candidates.map(item => item.postId).join(",")}`);
   const dayDir = path.join(ROOT_REL, date);
   const rawSources = { upstreamLifeMarkdown: path.join(dayDir, "upstream-life.md") };
-  const relPath = path.join(dayDir, `${String(candidates[0].rank).padStart(2, "0")}-${candidates[0].postId}.md`);
-  const target = path.join(repo, relPath);
-  ensureDir(path.dirname(target));
-  // 标题主打第一帖，摘要沿用上游那句（它本来就是第一帖的一句话描述）。
-  // 两行都指向第一帖，读者在列表页看到的是同一个话题的标题与展开，而不是几帖并列的话题串。
-  const digest = { headline: candidates[0].title, description: upstreamDescription };
-  writeStderr(`[reddit-life-wechat] ${label}: headline=${digest.headline}`);
-  // 封面先落盘再写稿：ogImage 只有在图确实存在时才敢写，否则 astro-wechat 解析不到文件会直接报错，
-  // 那比回落到 defaultCover 糟得多。渲染失败返回 null，稿子照常出，只是没有专属封面。
-  const cover = await renderRedditLifeWechatCover(candidates.map(item => item.title), REDDIT_LIFE_WECHAT_TITLE_BRAND, issue);
-  if (cover) {
-    fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_COVER_FILE), cover);
-    writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_COVER_FILE} (${cover.length} bytes)`);
-  }
-  // 页脚卡片无条件引用 qr.png，所以这张图必须存在，失败就得让整次归档失败——
-  // 写出一篇引用了不存在资源的稿子，只会把问题推到发布那一步才炸。
-  const qr = await renderQrPng(articleUrl);
-  fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_QR_FILE), qr);
-  writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_QR_FILE} (${qr.length} bytes)`);
-  const markdown = await fitWithOptionalCover({ candidates, digest, footer, articleUrl, date, issue, coverFile: cover ? REDDIT_LIFE_WECHAT_COVER_FILE : "", repo, label, probeDir: path.dirname(target) });
-  fs.writeFileSync(target, markdown, "utf8");
-  writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);
-  const contentSha256 = markdownSha256(markdown);
-  // 每帖各留一条 Entry 但共享同一个 path：manifest 要记清楚这篇稿子收录了哪几帖，
-  // 而稿子只有一份。发布前按 path 去重。
-  const posts: Entry[] = candidates.map(({ body: _body, ...facts }) => ({ ...facts, status: "generated", path: relPath, contentSha256, issue }));
-  const manifest: RedditLifeRunManifest = { version: 1, archiveDate: date, timeZone: "America/Los_Angeles", status: "processed", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, rawSources, posts };
   ensureDir(path.join(repo, dayDir));
+
+  const posts: Entry[] = [];
+  const generatedPaths: string[] = [];
+  for (const [index, volume] of REDDIT_LIFE_WECHAT_VOLUMES.entries()) {
+    const slice = candidates.slice(index * REDDIT_LIFE_WECHAT_POST_LIMIT, (index + 1) * REDDIT_LIFE_WECHAT_POST_LIMIT);
+    // 上游不足 15 帖时后面的卷就是空的。少推一卷，而不是硬凑或整次失败。
+    if (!slice.length) break;
+    const label = `issue=${issue} ${volume} posts=${slice.length}`;
+    // 文件名带本卷首帖的全局排名，三卷因此天然不同名，也一眼看得出收录的是第几帖起。
+    const relPath = path.join(dayDir, `${String(slice[0].rank).padStart(2, "0")}-${slice[0].postId}.md`);
+    const target = path.join(repo, relPath);
+    ensureDir(path.dirname(target));
+    // 标题主打本卷第一帖。摘要只有第一卷能拿到上游那句现成的（它本来就是第 1 帖的一句话描述），
+    // 后两卷上游没有对应的句子，退而列出本卷收录的标题——比套用一句描述别帖的话诚实。
+    const description = index === 0 ? upstreamDescription : slice.map(item => item.title).join("；");
+    const digest = { headline: slice[0].title, description };
+    writeStderr(`[reddit-life-wechat] ${label}: headline=${digest.headline}`);
+    // 封面先落盘再写稿：ogImage 只有在图确实存在时才敢写，否则 astro-wechat 解析不到文件会直接报错，
+    // 那比回落到 defaultCover 糟得多。渲染失败返回 null，稿子照常出，只是没有专属封面。
+    const coverFile = redditLifeWechatCoverFile(index + 1);
+    const cover = await renderRedditLifeWechatCover(slice.map(item => item.title), REDDIT_LIFE_WECHAT_TITLE_BRAND, issue, volume);
+    if (cover) {
+      fs.writeFileSync(path.join(path.dirname(target), coverFile), cover);
+      writeStderr(`[reddit-life-wechat] ${label}: rendered ${coverFile} (${cover.length} bytes)`);
+    }
+    const markdown = await fitWithOptionalCover({ candidates: slice, digest, date, issue, volume, coverFile: cover ? coverFile : "", repo, label, probeDir: path.dirname(target) });
+    fs.writeFileSync(target, markdown, "utf8");
+    writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);
+    const contentSha256 = markdownSha256(markdown);
+    generatedPaths.push(relPath);
+    // 同一卷的五帖各留一条 Entry 但共享同一个 path：manifest 要记清楚每篇稿子收录了哪几帖，
+    // 而稿子一卷只有一份。发布前按 path 去重。
+    posts.push(...slice.map(({ body: _body, ...facts }) => ({ ...facts, status: "generated" as const, path: relPath, contentSha256, issue, volume })));
+  }
+  const manifest: RedditLifeRunManifest = { version: 1, archiveDate: date, timeZone: "America/Los_Angeles", status: "processed", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, rawSources, posts };
   fs.writeFileSync(path.join(repo, rawSources.upstreamLifeMarkdown), upstreamMarkdown, "utf8");
   writeJson(manifestFile, manifest);
-  writeStderr(`[reddit-life-wechat] archive=${date}: complete status=${manifest.status} posts=${posts.length}`);
-  return { manifestPath: manifestRel, generatedPaths: [relPath], status: manifest.status };
+  writeStderr(`[reddit-life-wechat] archive=${date}: complete status=${manifest.status} volumes=${generatedPaths.length} posts=${posts.length}`);
+  return { manifestPath: manifestRel, generatedPaths, status: manifest.status };
 }
 
 async function main(): Promise<void> {

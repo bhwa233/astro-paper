@@ -20,7 +20,6 @@ const DEPENDENCY_OWNERS: Record<string, string> = {
   "fast-xml-parser": "scripts/magazine.ts",
   "@mozilla/readability": "scripts/hn_top10_source.ts",
   sharp: "scripts/image_raster.ts",
-  "qrcode-generator": "scripts/qr_code.ts",
   feedsmith: "scripts/substack_feed.ts",
   turndown: "scripts/html_to_markdown.ts",
   "file-type": "scripts/substack_image.ts",

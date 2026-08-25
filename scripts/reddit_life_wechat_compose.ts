@@ -2,7 +2,6 @@
 // 上游每帖的正文已经是「一条回答一个普通文本编号段」的故事集，这里只做选帖、截断、拼接和长度收口。
 // 标题与摘要由编排层传进来：标题是第一帖的标题，摘要是上游 frontmatter 的 description。
 import { createHash } from "node:crypto";
-import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
 import { REDDIT_LIFE_SUBREDDITS } from "./reddit_life_wechat_source.ts";
 
@@ -12,64 +11,18 @@ export const REDDIT_LIFE_WECHAT_TITLE_BRAND = "Reddit 热帖精选";
 // 上游 parseRedditItemSummary 已经把译名卡在 40 字，扣掉后缀仍有 47 的预算，这里正常永远不触发。
 const WECHAT_TITLE_LIMIT = 64;
 const TITLE_ELLIPSIS = "…";
-// 一篇微信稿收录上游前五帖，每帖最多保留前 30 条回答。
+// 一卷收录五帖，每帖最多保留前 30 条回答。
 // 30 只是上界：五帖各 30 条渲染出来会撞上微信 20000 字符上限，实际条数由编排层
 // （generate_reddit_life_wechat.ts 的 fitWechatContentLimit）用渲染器二分出来，五帖统一压低同一个值。
 // 实测量级（2026-08-17 归档）：每条故事约 124 字符 HTML，固定开销约 2400，因此收敛值通常在每帖 26-28 条。
 export const REDDIT_LIFE_WECHAT_POST_LIMIT = 5;
 export const REDDIT_LIFE_WECHAT_REPLY_LIMIT = 30;
-export const REDDIT_LIFE_WECHAT_QR_FILE = "qr.png";
-const BLOG_URL = "https://blog.bhwa233.com/";
-// 清单只是导流诱饵，不是目录：标题在微信里点不动，读者想去哪一条都得先扫码。
-// 上游帖数不固定，超出上限时把总数交代掉即可，无节制地列会把 HTML 预算吃光。
-export const REDDIT_LIFE_WECHAT_REST_LIMIT = 30;
-// 页脚以这一行开头，它同时是正文与页脚的分割哨兵：清单每天不同，不能再拿整段页脚当常量比对。
-const FOOTER_HEADING = "**今天还有这些热帖**";
 
-// 微信正文里的外链点不动（astro-wechat 会把 <a> 拆成文字加尾注），二维码是唯一能把读者送出去的通道。
-// 两栏用 table 而不是 flex：微信编辑器对 flex 支持不稳，table 在 doocs-default 主题里本来就有样式。
-// 卡片内不能出现空行——markdown-it 的 html_block 遇到空行就结束，后半段会被当成普通段落。
-function qrCard(caption: string, target: string): string {
-  return [
-    '<section style="margin:24px 0 0;padding:16px 18px;background:#f7f7f7;border-radius:6px;">',
-    // 主题会给 table/td 补上外边距和格线，这里逐条覆盖回去；内联样式后写的胜出。
-    '<table style="width:100%;min-width:0;margin:0;border-collapse:collapse;">',
-    "<tbody><tr>",
-    '<td style="border:none;padding:0;vertical-align:middle;">',
-    `<p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:#8a8a8a;">${caption}</p>`,
-    `<p style="margin:0;font-size:13px;line-height:1.5;color:#576b95;word-break:break-all;">${target}</p>`,
-    "</td>",
-    '<td style="border:none;width:96px;padding:0 0 0 14px;vertical-align:middle;">',
-    // img 不写 style：CSS 内联会剥掉尾分号再追加主题样式，把最后一条声明粘坏。尺寸走属性。
-    `<img src="${REDDIT_LIFE_WECHAT_QR_FILE}" alt="Reddit 热帖精选原文二维码" width="96" height="96" />`,
-    "</td>",
-    "</tr></tbody></table>",
-    "</section>",
-  ].join("\n");
-}
-
-/** 那天 life 文章的博客地址。slug 就是文件名，站点按 /posts/:slug/ 出页。 */
-export function redditLifeArticleUrl(lifeArticlePath: string): string {
-  const slug = path.basename(lifeArticlePath, ".md");
-  if (!slug) throw new Error(`cannot derive a blog URL from ${lifeArticlePath || "an empty path"}`);
-  return `${BLOG_URL}posts/${slug}/`;
-}
-
-export type RedditLifePostTitle = { rank: number; title: string };
-
-/** 只取标题，不解析正文：清单要列到第 30 帖，而正文解析每帖都要校验来源和故事列表。 */
-export function parseRedditLifePostTitles(markdown: string): RedditLifePostTitle[] {
-  return [...markdown.matchAll(/^##\s+(\d+)\.\s+(.+)$/gm)].map(match => ({ rank: Number(match[1]), title: compact(match[2].replace(/^🔴\s*/, "")) }));
-}
-
-// 页脚 = 剩余热帖清单 + 二维码卡片。整块不参与截断：撞长度上限时该删的是回答，
-// 而清单正好在末尾，不保护的话它会先被啃光，正好把导流入口删掉。
-export function redditLifeWechatFooter({ rest, total, articleUrl, restLimit = REDDIT_LIFE_WECHAT_REST_LIMIT }: { rest: RedditLifePostTitle[]; total: number; articleUrl: string; restLimit?: number }): string {
-  const listed = rest.slice(0, restLimit);
-  const lines = [FOOTER_HEADING, "", ...listed.flatMap(item => [`${item.rank}\\. ${item.title}`, ""])];
-  if (rest.length > listed.length) lines.push(`等 ${total} 个话题，全部在博客原文里。`, "");
-  return `${lines.join("\n").trimEnd()}\n\n${qrCard(`长按识别二维码，在博客看全部 ${total} 个热帖`, articleUrl)}`;
-}
+// 一天的上游有 30 帖，一篇稿子只装得下五帖。分成上中下三卷推送，覆盖前 15 帖，
+// 而不是只露出前五帖再靠导流把读者送去博客看剩下的。
+export const REDDIT_LIFE_WECHAT_VOLUMES = ["上", "中", "下"] as const;
+export type RedditLifeVolume = (typeof REDDIT_LIFE_WECHAT_VOLUMES)[number];
+export const REDDIT_LIFE_WECHAT_TOTAL_POSTS = REDDIT_LIFE_WECHAT_VOLUMES.length * REDDIT_LIFE_WECHAT_POST_LIMIT;
 
 export type RedditLifeCandidate = {
   rank: number;
@@ -103,10 +56,10 @@ export function parseRedditLifeDescription(markdown: string): string {
   return compact(description.replaceAll('\\"', '"'));
 }
 
-export function parseRedditLifeCandidates(markdown: string): RedditLifeCandidate[] {
+export function parseRedditLifeCandidates(markdown: string, limit = REDDIT_LIFE_WECHAT_TOTAL_POSTS): RedditLifeCandidate[] {
   const blocks = sourceBlocks(markdown);
   if (!blocks.length) throw new Error("Reddit life article has no numbered post blocks");
-  return blocks.slice(0, REDDIT_LIFE_WECHAT_POST_LIMIT).map((block, index) => {
+  return blocks.slice(0, limit).map((block, index) => {
     const heading = block.match(/^##\s+(\d+)\.\s+(.+)$/m);
     const source = block.match(/^- (?:\*\*)?来源(?:\*\*)?：\[r\/([^\]]+)\]\([^\n]+\)$/m);
     const url = block.match(/^- (?:\*\*)?帖子(?:\*\*)?：\s*(https:\/\/[^\s]+)\s*$/m)?.[1] || "";
@@ -181,7 +134,7 @@ export function redditLifeWechatBody(candidates: RedditLifeCandidate[], limit = 
 // 删到某帖一条不剩时，它的标题也要跟着走——留一个后面没有内容的标题比少一帖更难看。
 export function dropTrailingStories(markdown: string, drop: number): string {
   if (drop <= 0) return markdown;
-  const { front, body, footer } = splitWechatMarkdown(markdown);
+  const { front, body } = splitWechatMarkdown(markdown);
   const blocks = bodyBlocks(body);
   const stories = blocks.filter(block => !HEADING_BLOCK.test(block));
   if (drop >= stories.length) throw new Error(`Reddit life WeChat markdown has fewer than ${drop} droppable stories`);
@@ -196,27 +149,28 @@ export function dropTrailingStories(markdown: string, drop: number): string {
     if (!kept.length && HEADING_BLOCK.test(block)) continue;
     kept.unshift(block);
   }
-  return `${front}\n${kept.join("\n\n")}\n\n${footer}\n`;
+  return `${front}\n${kept.join("\n\n")}\n`;
 }
 
 export function countDroppableStories(markdown: string): number {
   return bodyBlocks(splitWechatMarkdown(markdown).body).filter(block => !HEADING_BLOCK.test(block)).length;
 }
 
-function splitWechatMarkdown(markdown: string): { front: string; body: string; footer: string } {
+// frontmatter 之后的一切都是正文。稿子不再有页脚，因此也不再需要一个哨兵把尾部圈起来保护：
+// 撞长度上限时该删的就是最末尾的故事，没有别的东西排在它们后面会被误删。
+function splitWechatMarkdown(markdown: string): { front: string; body: string } {
   const frontEnd = markdown.indexOf("\n---\n", markdown.indexOf("---\n") + 1);
   if (!markdown.startsWith("---\n") || frontEnd < 0) throw new Error("Reddit life WeChat markdown is missing frontmatter");
-  const footerIndex = markdown.lastIndexOf(`\n${FOOTER_HEADING}`);
-  if (footerIndex < 0) throw new Error("Reddit life WeChat markdown is missing its footer");
   const front = markdown.slice(0, frontEnd + "\n---\n".length);
-  return { front, body: markdown.slice(front.length, footerIndex).trim(), footer: markdown.slice(footerIndex + 1).trim() };
+  return { front, body: markdown.slice(front.length).trim() };
 }
 
-export function redditLifeWechatTitle(title: string, issue: number): string {
+export function redditLifeWechatTitle(title: string, issue: number, volume: RedditLifeVolume): string {
   if (!Number.isInteger(issue) || issue < 1) throw new Error(`invalid Reddit life WeChat issue number: ${issue}`);
+  if (!REDDIT_LIFE_WECHAT_VOLUMES.includes(volume)) throw new Error(`invalid Reddit life WeChat volume: ${volume || "missing"}`);
   const headline = compact(title);
   if (!headline) throw new Error("Reddit life WeChat article needs a title");
-  const suffix = `｜${REDDIT_LIFE_WECHAT_TITLE_BRAND} #${issue}`;
+  const suffix = `｜${REDDIT_LIFE_WECHAT_TITLE_BRAND} #${issue} ${volume}`;
   const budget = WECHAT_TITLE_LIMIT - suffix.length;
   if (budget <= TITLE_ELLIPSIS.length) throw new Error(`Reddit life WeChat issue number leaves no room for a title: #${issue}`);
   // 按码点切，不按 UTF-16 单元，否则表情之类的代理对会被截成半个字符。
@@ -227,18 +181,22 @@ export function redditLifeWechatTitle(title: string, issue: number): string {
 // coverFile 为空时不写 ogImage，astro-wechat 会回落到配置里的 defaultCover。
 // 路径按相对写法：astro-wechat 先相对 Markdown 所在目录解析，封面就躺在稿子旁边，不必往 public/ 里塞。
 //
-// headline 是第一帖的标题，只占标题前半段，品牌与期号由 redditLifeWechatTitle 拼上。
-// sourceURL 指向那天的 life 文章：它既是微信的「阅读原文」落点，也是 astro-wechat 的同步身份。
-// 指 Reddit 原帖有两个毛病——大陆读者点开是打不开的墙外链接；而且同一帖跨天登顶时身份会撞车，
-// 按归档日走的文章地址天然唯一。redditPostId / subreddit 仍记第一帖，用于追溯。
+// headline 是本卷第一帖的标题，只占标题前半段，品牌、期号与卷次由 redditLifeWechatTitle 拼上。
+//
+// 刻意不写 wechat.sourceURL。它有两个作用，这里都不要：
+// 一是变成草稿的 content_source_url，也就是文末的「阅读原文」——那是站外引流，和撤掉二维码
+// 是同一个决定；二是当 astro-wechat 的同步身份，而一天三卷共用同一篇上游文章的地址会撞车，
+// 后两卷会被判 already-synchronized 静默跳过。没有它时身份退回稿子的仓库相对路径，三卷天然唯一。
+// 代价记在这里：上一次同步中断留下 pending 记录时，astro-wechat 无法再去微信侧核对草稿是否建成，
+// 会抛 reconcile-impossible 要求人工确认，而不是自动恢复。
+// redditPostId / subreddit 仍记本卷第一帖，用于追溯。
 export function renderRedditLifeWechatMarkdown({
   candidates,
   headline,
   description,
   archiveDate,
   issue,
-  footer,
-  articleUrl,
+  volume,
   coverFile = "",
   replyLimit = REDDIT_LIFE_WECHAT_REPLY_LIMIT,
 }: {
@@ -247,8 +205,7 @@ export function renderRedditLifeWechatMarkdown({
   description: string;
   archiveDate: string;
   issue: number;
-  footer: string;
-  articleUrl: string;
+  volume: RedditLifeVolume;
   coverFile?: string;
   replyLimit?: number;
 }): string {
@@ -256,16 +213,14 @@ export function renderRedditLifeWechatMarkdown({
   if (!candidates.length) throw new Error("Reddit life WeChat article needs at least one post");
   const [primary] = candidates;
   const metadata = frontmatter({
-    title: redditLifeWechatTitle(headline, issue),
+    title: redditLifeWechatTitle(headline, issue, volume),
     date: archiveDate,
     description,
     tags: [REDDIT_LIFE_WECHAT_TAG],
     ogImage: coverFile,
     wechatEnabled: true,
-  })
-    .replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${articleUrl}"`)
-    .replace("---\n\n", [`redditPostId: "${primary.postId}"`, `subreddit: "${primary.subreddit}"`, "---", ""].join("\n"));
-  return `${metadata}${redditLifeWechatBody(candidates, replyLimit)}\n\n${footer}\n`;
+  }).replace("---\n\n", [`redditPostId: "${primary.postId}"`, `subreddit: "${primary.subreddit}"`, "---", ""].join("\n"));
+  return `${metadata}${redditLifeWechatBody(candidates, replyLimit)}\n`;
 }
 
 export function markdownSha256(markdown: string): string {

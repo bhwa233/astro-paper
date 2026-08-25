@@ -1,24 +1,26 @@
 # Reddit 人生精选微信草稿技术方案
 
-状态：已实现（前五帖 + 每帖条数自适应）
-最后更新：2026-08-23
+状态：已实现（一天三卷，每卷五帖 + 每帖条数自适应）
+最后更新：2026-08-25
 
 ## 1. 背景
 
-`reddit-top20` 每天产出「人生与社会」栏目文章，其中每帖的正文已经是逐条故事的有序列表（一条回答一项，无小标题、无引用块）。微信侧要的正是这个形态，因此这条管线不再自己组织内容，只把上游前五帖转成一篇微信草稿。
+`reddit-top20` 每天产出「人生与社会」栏目文章，其中每帖的正文已经是逐条故事的有序列表（一条回答一项，无小标题、无引用块）。微信侧要的正是这个形态，因此这条管线不再自己组织内容，只把上游前 15 帖转成上中下三篇微信草稿。
 
 早期方案曾经深抓单帖评论树、逐讨论串调用模型、再综合成四段式文章（讨论背景 / 主流观点 / 回复补充 / 分歧边界）。上游正文改成故事集之后那套结构失去意义，已整体删除，这条管线不再请求 Reddit 深抓来源服务。
 
-正文是纯规则搬运，整条管线不调用模型：标题取第一帖，摘要取上游 frontmatter 的 description。曾经有一次模型调用把多帖话题串成一个标题，读者一眼看不出在讲什么，因此改回主打第一帖。
+正文是纯规则搬运，整条管线不调用模型：每卷标题取本卷第一帖，第一卷的摘要取上游 frontmatter 的 description。曾经有一次模型调用把多帖话题串成一个标题，读者一眼看不出在讲什么，因此改回主打第一帖。
+
+稿子里没有任何站外引流：不写 `wechat.sourceURL`（也就没有「阅读原文」），正文末尾也没有二维码卡片和「今天还有这些热帖」清单。撤掉它们是因为带导流入口会影响微信的推荐算法；读者要看的内容因此改为直接多推两卷，而不是引到站外。
 
 ## 2. 目标与非目标
 
 目标：
 
-- 每个归档日最多归档一篇微信稿，并自动创建到微信公众号草稿箱
-- 正文故事以上游前五帖为唯一来源；除编号规范化、每帖条数截断、微信页脚和超限收口外不重排、不改写
+- 每个归档日最多归档三篇微信稿（上 / 中 / 下），并自动创建到微信公众号草稿箱
+- 正文故事以上游前 15 帖为唯一来源；除编号规范化、每帖条数截断和超限收口外不重排、不改写
 - 渲染结果必须落在微信正文长度上限内
-- 同一天重跑稳定复用 manifest，同时恢复同步所需的本地资源
+- 同一天重跑稳定复用 manifest
 - 归档可审计：保留上游文章快照、父任务提交与父 workflow run
 
 非目标：
@@ -33,11 +35,12 @@
 reddit-top20 (publish)
   └─ src/content/posts/zh-cn/reddit-<date>-life.md   ← 唯一内容输入
        └─ scripts/generate_reddit_life_wechat.ts     ← 纯规则转换，无 AI
-            ├─ data/reddit-life-wechat/<date>/01-<postId>.md
+            ├─ data/reddit-life-wechat/<date>/01-<postId>.md  ← 上卷（第 1-5 帖）
+            ├─ data/reddit-life-wechat/<date>/06-<postId>.md  ← 中卷（第 6-10 帖）
+            ├─ data/reddit-life-wechat/<date>/11-<postId>.md  ← 下卷（第 11-15 帖）
             ├─ data/reddit-life-wechat/<date>/upstream-life.md
             ├─ data/reddit-life-wechat/<date>/run.json
-            ├─ data/reddit-life-wechat/<date>/cover.png
-            ├─ data/reddit-life-wechat/<date>/qr.png  ← 仅 job artifact，不提交
+            ├─ data/reddit-life-wechat/<date>/cover-1.png … cover-3.png
                  └─ astro-wechat dry-run
                       └─ 创建微信公众号草稿
                            └─ 提交 .astro-wechat/ledger.json
@@ -47,22 +50,21 @@ workflow `reddit-life-wechat.yml` 由 `publish-reddit-life.yml` 在 publish 成�
 
 ## 4. 选帖与内容转换
 
-- **选帖**：`parseRedditLifeCandidates` 解析上游文章的 `## N.` 块，取前五帖。subreddit 必须属于 life 栏目，否则报错。
-- **截断**：每帖最多保留前 30 条回答，实际条数由第 5 节的长度收口按渲染结果定，五帖统一同一个值。实测 2026-08-21 归档收敛到每帖 24 条、2026-08-20 收敛到 19 条，故事总量不足时（2026-08-19）不触发截断。
+- **选帖与分卷**：`parseRedditLifeCandidates` 解析上游文章的 `## N.` 块，取前 15 帖，编排层按顺序切成上（1-5）、中（6-10）、下（11-15）三卷，每卷一篇稿子。subreddit 必须属于 life 栏目，否则报错。上游不足 15 帖时后面的卷为空，少推一卷而不是硬凑。
+- **截断**：每帖最多保留前 30 条回答，实际条数由第 5 节的长度收口按渲染结果定，同一卷内五帖统一同一个值，三卷各自二分。撤掉页脚后每篇省出的 HTML 预算会让收敛值比过去更高。实测 2026-08-21 归档收敛到每帖 24 条、2026-08-20 收敛到 19 条，故事总量不足时（2026-08-19）不触发截断。
 - **分隔**：每个问题使用 Markdown 二级标题，与其他微信日报的条目层级保持一致。
 - **正文**：事实 bullet 之后的全部故事作为输入。编号统一为 `1\.` 形式；只有撞微信正文上限时才从末尾删除故事。
-- **标题与摘要**：标题取第一帖标题，形如 `<第一帖标题>｜Reddit 热帖精选 #期号`，品牌与期号由代码拼接，因此 64 字上限在代码里可控；摘要直接沿用上游 frontmatter 的 `description`（它本来就是第一帖的一句话描述）。
-- **期号**：`#N` 由 `nextRedditLifeIssue` 扫描已归档 manifest 取最大值加一，写进 manifest 后永不重算，重跑复用同一个号。微信标题上限 64 个 Unicode 码点，超长时只截话题串并加省略号，品牌与期号始终保留。
-- **页脚**：正文末尾附博客首页二维码卡片与 `https://blog.bhwa233.com/`。
-- **frontmatter**：`tags: [Reddit人生讨论]`（在 `astro-wechat.config.mjs` 的 `eligibleTags` 内）、`wechat.enabled: true`、`wechat.sourceURL` 指向第一帖（astro-wechat 用它当同步身份，一篇稿子只能有一个），另附 `redditPostId` 与 `subreddit` 便于追溯。
+- **标题与摘要**：标题取本卷第一帖标题，形如 `<本卷第一帖标题>｜Reddit 热帖精选 #期号 上`，品牌、期号与卷次由代码拼接，因此 64 字上限在代码里可控。摘要只有上卷能沿用上游 frontmatter 的 `description`（它本来就是第 1 帖的一句话描述）；中下两卷上游没有对应句子，退而列出本卷收录的五个标题。
+- **期号与卷次**：`#N` 由 `nextRedditLifeIssue` 扫描已归档 manifest 取最大值加一，一天只取一次号，三卷共用；写进 manifest 后永不重算，重跑复用同一个号。卷次 `上 / 中 / 下` 同样写进 manifest。微信标题上限 64 个 Unicode 码点，超长时只截话题串并加省略号，品牌与期号始终保留。
+- **frontmatter**：`tags: [Reddit人生讨论]`（在 `astro-wechat.config.mjs` 的 `eligibleTags` 内）、`wechat.enabled: true`，另附 `redditPostId` 与 `subreddit` 记本卷第一帖，便于追溯。**不写 `wechat.sourceURL`**：它既是「阅读原文」的落点，也是 astro-wechat 的同步身份，而三卷共用同一篇上游文章的地址会撞车，后两卷会被判 `already-synchronized` 静默跳过。没有它时身份退回稿子的仓库相对路径，三卷天然唯一。代价是上一次同步中断留下 `pending` 记录时无法自动对账，astro-wechat 会抛 `reconcile-impossible` 要求人工确认。
 
 ## 5. 长度收口
 
 微信正文上限是 20000 字符的 HTML，而一帖的故事条数不可控。`fitWechatContentLimit` 直接用 astro-wechat 的渲染器判定（`openProject` + `prepareArticle`，无网络、只写临时探针），分两级收口：
 
 1. 每帖 30 条能渲染就原样归档
-2. 撞 `content-too-long` / `content-too-large` 时，二分「每帖统一保留几条」，取仍能渲染通过的最大值。删减均摊到五帖，不会把靠后的帖子整个啃掉；实测约 5 次探针
-3. 每帖只剩一条仍超限（单条故事极长）才退到尾删：`dropTrailingStories` 二分最少的删除条数。编号从 1 递增，从尾部删不会留下断号；frontmatter 与页脚永不参与截断
+2. 撞 `content-too-long` / `content-too-large` 时，二分「每帖统一保留几条」，取仍能渲染通过的最大值。删减均摊到本卷五帖，不会把靠后的帖子整个啃掉；实测约 5 次探针
+3. 每帖只剩一条仍超限（单条故事极长）才退到尾删：`dropTrailingStories` 二分最少的删除条数。编号从 1 递增，从尾部删不会留下断号；frontmatter 永不参与截断。稿子不再有页脚，正文末尾就是可删区的末尾，因此也不再需要哨兵把尾部圈起来保护
 4. 收敛到的每帖条数与删掉的条数都写进 `WARN` 日志，不静默截断
 
 ## 6. 存档与重跑模型
@@ -72,25 +74,26 @@ data/reddit-life-wechat/
 └── 2026-08-17/
     ├── run.json
     ├── upstream-life.md
-    ├── cover.png          # 提交
-    ├── qr.png             # 不提交，由每次需要同步的运行恢复
-    └── 01-<reddit-post-id>.md
+    ├── cover-1.png        # 提交，三卷各一张
+    ├── cover-2.png
+    ├── cover-3.png
+    ├── 01-<reddit-post-id>.md   # 上卷
+    ├── 06-<reddit-post-id>.md   # 中卷
+    └── 11-<reddit-post-id>.md   # 下卷
 ```
 
-`cover.png` 是这一篇的专属封面，由 `reddit_life_wechat_cover.ts` 用 satori 渲染后随稿子提交，逐条列出收录的五帖标题加品牌与期号；条目字号由 `wechat_cover_layout.ts` 按「最长标题不折行」与「n 行不超出条目区」两个约束算出，与微博封面共用同一套尺寸。缺失时 `astro-wechat` 回落到配置里的 `defaultCover`，因此渲染失败只降级不中断。
+`cover-N.png` 是每一卷的专属封面，由 `reddit_life_wechat_cover.ts` 用 satori 渲染后随稿子提交，逐条列出本卷五帖标题加品牌、期号与卷次；文件名用序号而不是「上中下」，因为产物要经 shell 传给 CLI，中文文件名在 WSL 与 Git Bash 之间会被拆坏；条目字号由 `wechat_cover_layout.ts` 按「最长标题不折行」与「n 行不超出条目区」两个约束算出，与微博封面共用同一套尺寸。缺失时 `astro-wechat` 回落到配置里的 `defaultCover`，因此渲染失败只降级不中断。
 
-`qr.png` 指向博客首页，内容恒定，所以按 `.gitignore` 排除，避免仓库里堆一份天天重复的二进制。每次需要同步一篇 `generated` 稿件时，生成器都必须保证稿件旁存在 `qr.png`，包括复用已有 manifest 的同日重跑。`generate-and-archive` 将它上传为本次 run 的 artifact，`sync-wechat` 下载同一份字节。没有待同步稿件（`upstream-empty`）时不上传、不下载 QR，也不启动微信发布命令。
+`run.json` 记录 manifest version、归档日期与时区、父任务提交 SHA / workflow run / 文章路径、上游快照路径、运行状态（`processed` 或 `upstream-empty`），以及每一帖的事实字段、处理状态、期号、卷次、产物路径和内容 hash。同一卷的五帖各占一条 `posts` 记录但共享同一个 `path`——一卷只有一篇稿子，发布前按 `path` 去重，去重后正好是三条路径。
 
-`run.json` 记录 manifest version、归档日期与时区、父任务提交 SHA / workflow run / 文章路径、上游快照路径、运行状态（`processed` 或 `upstream-empty`），以及每一帖的事实字段、处理状态、期号、产物路径和内容 hash。五帖各占一条 `posts` 记录但共享同一个 `path`——稿子只有一份，发布前按 `path` 去重。
-
-同一日期存在合法 manifest 时，重跑复用它而不重新转换正文；但会恢复 `generated` 稿件需要的 `qr.png`。manifest 解析失败时抛错，不回退成空快照。上游文章不存在时写入 `status: upstream-empty` 的 manifest，不产出草稿，也不把空结果当成错误。
+同一日期存在合法 manifest 时，重跑复用它而不重新转换正文。manifest 解析失败时抛错，不回退成空快照。上游文章不存在时写入 `status: upstream-empty` 的 manifest，不产出草稿，也不把空结果当成错误。
 
 
 ## 7. 微信同步
 
-草稿放在 `data/reddit-life-wechat/` 下，不进内容集合，所以博客站点不会出现重复内容。自动 workflow 会先运行 astro-wechat dry-run，只接受 `planned` 或已同步跳过，然后串行创建微信草稿；部分成功时先提交 `.astro-wechat/ledger.json`，再让 job 以失败结束，避免重跑重复创建已经成功的草稿。
+草稿放在 `data/reddit-life-wechat/` 下，不进内容集合，所以博客站点不会出现重复内容。自动 workflow 会先运行 astro-wechat dry-run，只接受 `planned` 或已同步跳过，然后串行创建三篇微信草稿；部分成功时先提交 `.astro-wechat/ledger.json`，再让 job 以失败结束，避免重跑重复创建已经成功的草稿。
 
-`sync-wechat-draft.yml` 仍保留为人工补同步入口，路径校验同时接受 `src/content/posts/*.md` 与 `data/reddit-life-wechat/*.md`。由于 `qr.png` 不提交，绕开自动 workflow 前必须在目标稿件旁恢复二维码：
+`sync-wechat-draft.yml` 仍保留为人工补同步入口，路径校验同时接受 `src/content/posts/*.md` 与 `data/reddit-life-wechat/*.md`。稿子及其封面都已提交，本地直接调用 astro-wechat 前不再需要恢复任何资源；要重新生成整天的三卷可以跑：
 
 ```bash
 node --import tsx scripts/generate_reddit_life_wechat.ts \

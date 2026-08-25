@@ -6,7 +6,12 @@ import { compact, writeStderr } from "./blog_common.ts";
 import { svgToPng } from "./image_raster.ts";
 import { coverEntryFontSize } from "./wechat_cover_layout.ts";
 
-export const REDDIT_LIFE_WECHAT_COVER_FILE = "cover.png";
+// 一天三卷各有一张封面，同目录并存，因此文件名要带卷次。用序号而不是「上中下」：
+// 这条管线的产物要经 shell 传给 CLI，中文文件名在 WSL 与 Git Bash 之间会被拆坏。
+export function redditLifeWechatCoverFile(volumeIndex: number): string {
+  if (!Number.isInteger(volumeIndex) || volumeIndex < 1) throw new Error(`invalid Reddit life WeChat cover volume: ${volumeIndex}`);
+  return `cover-${volumeIndex}.png`;
+}
 
 // 微信首图按 2.35:1 裁剪，用别的比例会被两侧切掉。
 const COVER_WIDTH = 1175;
@@ -149,10 +154,11 @@ function coverTree(titles: string[], brand: string, issue: string) {
  * 渲染一张封面。失败时返回 null 而不是抛：封面缺失会让 astro-wechat 回落到配置里的
  * defaultCover，也就是现在的行为，不值得为它中断整篇稿子的归档。
  */
-export async function renderRedditLifeWechatCover(titles: string[], brand: string, issue: number): Promise<Buffer | null> {
+export async function renderRedditLifeWechatCover(titles: string[], brand: string, issue: number, volume = ""): Promise<Buffer | null> {
   const entries = titles.map(title => compact(title)).filter(Boolean);
   if (!entries.length) throw new Error("Reddit life WeChat cover needs at least one title");
-  const issueLabel = `#${issue}`;
+  // 同一期三卷的封面只有这个字不同，读者在列表页靠它区分上中下。
+  const issueLabel = volume ? `#${issue} ${volume}` : `#${issue}`;
   try {
     const fonts = await loadSubsetFonts(`${entries.join("")}${brand}${issueLabel}·`);
     const svg = await satori(coverTree(entries, brand, issueLabel), { width: COVER_WIDTH, height: COVER_HEIGHT, fonts });

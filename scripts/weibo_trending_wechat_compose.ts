@@ -1,14 +1,10 @@
 // 微博微信稿的规则层：唯一输入是已经归档的站点文章，本模块不拉榜、不调用模型。
-import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
 import { bulletValue, extractBullets, numberedBlocks } from "./compose_common.ts";
 
 export const WEIBO_TRENDING_WECHAT_ITEM_LIMIT = 30;
 export const WEIBO_TRENDING_WECHAT_TAG = "微博热搜";
 export const WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT = 120;
-export const WEIBO_TRENDING_WECHAT_QR_FILE = "qr.png";
-
-const BLOG_URL = "https://blog.bhwa233.com/";
 
 export type WeiboTrendingWechatItem = {
   rank: number;
@@ -71,50 +67,22 @@ export function weiboTrendingWechatDescription(items: WeiboTrendingWechatItem[])
   return `${[...description].slice(0, WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT - 1).join("")}…`;
 }
 
-// 微信正文里的外链会被拆成尾注，因此正文只保留二维码这个固定出口。
-// 卡片沿用 Reddit 微信稿验证过的 table 结构，避免微信编辑器破坏 flex 布局。
-function qrCard(target: string): string {
-  return [
-    '<section style="margin:24px 0 0;padding:16px 18px;background:#f7f7f7;border-radius:6px;">',
-    '<table style="width:100%;min-width:0;margin:0;border-collapse:collapse;">',
-    "<tbody><tr>",
-    '<td style="border:none;padding:0;vertical-align:middle;">',
-    '<p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:#8a8a8a;">长按识别二维码查看更多热搜话题</p>',
-    `<p style="margin:0;font-size:13px;line-height:1.5;color:#576b95;word-break:break-all;">${target}</p>`,
-    "</td>",
-    '<td style="border:none;width:96px;padding:0 0 0 14px;vertical-align:middle;">',
-    `<img src="${WEIBO_TRENDING_WECHAT_QR_FILE}" alt="微博热搜原文二维码" width="96" height="96" />`,
-    "</td>",
-    "</tr></tbody></table>",
-    "</section>",
-  ].join("\n");
-}
-
-export function weiboTrendingWechatFooter(articleUrl: string): string {
-  return qrCard(articleUrl);
-}
-
-export function weiboTrendingArticleUrl(articlePath: string): string {
-  const slug = path.basename(articlePath, ".md");
-  if (!slug) throw new Error(`cannot derive a blog URL from ${articlePath || "an empty path"}`);
-  return `${BLOG_URL}posts/${encodeURIComponent(slug)}/`;
-}
-
+// 刻意不写 wechat.sourceURL：它会变成草稿的 content_source_url，也就是文末的「阅读原文」。
+// 那和已经撤掉的二维码卡片是同一类站外引流，一并去掉。没有它时 astro-wechat 的同步身份
+// 退回稿子的仓库相对路径，这条线一天只出一篇，路径天然唯一。
+// 代价：上一次同步中断留下 pending 记录时，无法再去微信侧核对草稿是否建成，
+// astro-wechat 会抛 reconcile-impossible 要求人工确认，而不是自动恢复。
 export function renderWeiboTrendingWechatMarkdown({
   items,
   archiveDate,
   title,
   description,
-  footer,
-  articleUrl,
   coverFile = "",
 }: {
   items: WeiboTrendingWechatItem[];
   archiveDate: string;
   title: string;
   description: string;
-  footer: string;
-  articleUrl: string;
   coverFile?: string;
 }): string {
   if (!description) throw new Error("Weibo trending WeChat article needs a description");
@@ -127,6 +95,6 @@ export function renderWeiboTrendingWechatMarkdown({
     tags: [WEIBO_TRENDING_WECHAT_TAG],
     ogImage: coverFile,
     wechatEnabled: true,
-  }).replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${articleUrl}"`);
-  return `${metadata}${weiboTrendingWechatBody(items)}\n\n${footer}\n`;
+  });
+  return `${metadata}${weiboTrendingWechatBody(items)}\n`;
 }

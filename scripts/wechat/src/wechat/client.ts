@@ -157,7 +157,7 @@ export class WeChatClient {
       content: input.content,
       thumb_media_id: input.thumbMediaId,
       content_source_url: input.contentSourceUrl ?? '',
-      need_open_comment: 0,
+      need_open_comment: 1,
       only_fans_can_comment: 0,
     }
 

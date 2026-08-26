@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { resolvePromptFile } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
-import { compact, fetchJson, repoRoot, writeStderr, writeStdout } from "./blog_common.ts";
+import { compact, envPositiveInt, fetchJson, repoRoot, writeStderr, writeStdout } from "./blog_common.ts";
 import { bulletValue, extractBullets, hasChinese, normalizeMarkdownBlock, numberedBlocks, parseModelJsonObject } from "./compose_common.ts";
 import { parseWeiboTrendingTitleResponse } from "./weibo_trending_title.ts";
 
@@ -13,6 +13,17 @@ export const WEIBO_TRENDING_LIMIT = 50;
 const DEFAULT_SUMMARY_URL = "https://raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/{date}/summary.json";
 const SUMMARY_PROMPT_TASK = "weibo-trending";
 const TITLE_PROMPT_TASK = "weibo-trending-title";
+
+// 智搜代理整段宕机时，逐条话题只退避几秒是白挨打：2026-08-25 那次 502 持续了四十多分钟，
+// 50 条话题各打满 fetchText 的默认三次、耗光整个 job，才得出「一条都没有」。
+// 退避拉长到分钟级吸收短暂重启，连续失败到阈值就直接判定整个上游不可用并抛错，
+// 既省下剩余话题的空转，也让 CI 变红——静默 skip 是这次没人发现的根因。
+const AISEARCH_RETRIES = envPositiveInt("WEIBO_AISEARCH_RETRIES", 4);
+const AISEARCH_RETRY_DELAY_MS = envPositiveInt("WEIBO_AISEARCH_RETRY_DELAY_MS", 5_000);
+const AISEARCH_ABORT_AFTER = envPositiveInt("WEIBO_AISEARCH_ABORT_AFTER", 5);
+
+/** 连续多条话题都拿不到智搜结论：不是话题的问题，是智搜代理挂了。 */
+export class WeiboAiSearchUnavailableError extends Error {}
 
 export type WeiboTrendingItem = {
   rank: number;
@@ -183,7 +194,14 @@ async function fetchWeiboAiSearch(topic: string): Promise<WeiboAiSearchResult> {
   const endpoint = weiboSourceEndpoint();
   const request = new URL(`${endpoint.baseUrl}/v1/weibo/aisearch`);
   request.searchParams.set("url", aiSearchUrl(topic));
-  return parseWeiboAiSearchResponse(await fetchJson(request.toString(), { headers: endpoint.headers, timeoutMs: 90_000 }));
+  return parseWeiboAiSearchResponse(
+    await fetchJson(request.toString(), {
+      headers: endpoint.headers,
+      timeoutMs: 90_000,
+      retries: AISEARCH_RETRIES,
+      retryDelayMs: AISEARCH_RETRY_DELAY_MS,
+    }),
+  );
 }
 
 function itemPrompt(template: string, date: string, rank: number, title: string, answer: string): string {
@@ -218,23 +236,36 @@ export async function buildCombinedWeiboTrendingSource({
   writeAiArtifact(artifactsDir, "weibo-trending", "candidates.md", source);
   const candidates = parseWeiboTrendingCandidates(source);
   const header = `# 微博热搜 ${date}`;
-  if (!candidates.length) return `${header}\n\n- 结果：当天榜单没有可用的非广告话题。\n`;
+  if (!candidates.length) throw new Error(`weibo-trending ${date} 榜单里没有可用的非广告话题；上游榜单异常，不静默跳过`);
 
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   writeStdout(`[weibo-trending] topics=${candidates.length}/${WEIBO_TRENDING_LIMIT}\n`);
   const summaryTemplate = fs.readFileSync(resolvePromptFile(resolvedPromptDir, SUMMARY_PROMPT_TASK), "utf8");
   const completed: Array<{ item: WeiboTrendingItem; result: WeiboAiSearchResult; summary: WeiboTrendingSummary }> = [];
   const dropped: Array<{ rank: number; stage: "aisearch" | "summary"; error: string }> = [];
-  for (const item of candidates) {
+  const flushDropped = () => {
+    if (dropped.length) writeAiArtifact(artifactsDir, "weibo-trending", "dropped-items.json", JSON.stringify({ dropped }, null, 2));
+  };
+  let consecutiveAiSearchFailures = 0;
+  for (const [index, item] of candidates.entries()) {
     let result: WeiboAiSearchResult;
     try {
       result = await fetchWeiboAiSearch(item.title);
+      consecutiveAiSearchFailures = 0;
       writeAiArtifact(artifactsDir, "weibo-trending", `item-${String(item.rank).padStart(2, "0")}-aisearch.json`, JSON.stringify(result, null, 2));
     } catch (error) {
       if (isConfigurationOrLoginFailure(error)) throw error;
       const message = error instanceof Error ? error.message : String(error);
       dropped.push({ rank: item.rank, stage: "aisearch", error: message });
       writeStderr(`WARN: [weibo-trending] dropped #${item.rank} after AI Search failure: ${message}`);
+      consecutiveAiSearchFailures += 1;
+      if (consecutiveAiSearchFailures >= AISEARCH_ABORT_AFTER) {
+        // 诊断信息先落盘再抛，否则这一趟唯一能看的证据也没了。
+        flushDropped();
+        throw new WeiboAiSearchUnavailableError(
+          `weibo-trending ${date} 智搜连续 ${consecutiveAiSearchFailures} 条失败，判定上游不可用并中止（剩余 ${candidates.length - index - 1} 条未尝试）；最后一次错误：${message}`,
+        );
+      }
       continue;
     }
     const prompt = itemPrompt(summaryTemplate, date, item.rank, item.title, result.answerMarkdown);
@@ -252,8 +283,10 @@ export async function buildCombinedWeiboTrendingSource({
     if (outcome.summary) completed.push({ item, result, summary: outcome.summary });
     else dropped.push({ rank: item.rank, stage: "summary", error: outcome.error || "summary generation failed" });
   }
-  if (dropped.length) writeAiArtifact(artifactsDir, "weibo-trending", "dropped-items.json", JSON.stringify({ dropped }, null, 2));
-  if (!completed.length) return `${header}\n\n- 结果：没有取得可发布的完整微博智搜结论。\n`;
+  flushDropped();
+  if (!completed.length) {
+    throw new Error(`weibo-trending ${date} 的 ${candidates.length} 条话题全部在智搜或摘要阶段失败，没有可发布内容；诊断见 dropped-items.json`);
+  }
 
   const titleTemplate = fs.readFileSync(resolvePromptFile(resolvedPromptDir, TITLE_PROMPT_TASK), "utf8");
   const headlinePrompt = titlePrompt(titleTemplate, date, completed);

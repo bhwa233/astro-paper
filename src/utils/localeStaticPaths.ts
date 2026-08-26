@@ -129,9 +129,12 @@ export async function getPostOgPaths(locale: SiteLocale) {
   return posts.map(post => ({
     params: { slug: getPostSlug(post.id, post.filePath) },
     props: post,
+    // tags 必须进键：OG 图的底色由 tag 解析出的平台主题决定（resolvePlatformKey），
+    // 只按标题作者取键，改了 tag 的文章在增量构建里会命中旧路径、渲不出新配色。
     cacheKey: getStaticPathCacheKey({
       title: post.data.title,
       author: post.data.author,
+      tags: post.data.tags,
     }),
   }));
 }

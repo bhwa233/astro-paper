@@ -6,7 +6,7 @@ import { join } from "node:path";
  * Bump whenever the OG image template markup or the fonts change, so that
  * previously cached PNGs are invalidated and re-rendered on the next build.
  */
-export const OG_CACHE_VERSION = 1;
+export const OG_CACHE_VERSION = 2;
 
 /**
  * Lives inside Astro's default `cacheDir` on purpose. That is the one directory

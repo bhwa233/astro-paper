@@ -94,6 +94,21 @@ export function rankedRedditLifeCandidates(candidates: RedditLifeCandidate[], se
   });
 }
 
+/**
+ * 两篇微信稿需要均摊 AI 的高优先级选题：第 1、3、5… 名进第一篇，第 2、4、6… 名进第二篇。
+ * 只有凑满十题才拆成两篇；不足时保留成一篇，避免为少量选题额外发一篇短稿。
+ */
+export function splitRedditLifeWechatCandidates(candidates: RedditLifeCandidate[]): RedditLifeCandidate[][] {
+  if (candidates.length > REDDIT_LIFE_WECHAT_TOTAL_POSTS) {
+    throw new Error(`Reddit life WeChat can split at most ${REDDIT_LIFE_WECHAT_TOTAL_POSTS} selected posts`);
+  }
+  if (candidates.length < REDDIT_LIFE_WECHAT_TOTAL_POSTS) return candidates.length ? [candidates] : [];
+  return [
+    candidates.filter((_, index) => index % 2 === 0),
+    candidates.filter((_, index) => index % 2 === 1),
+  ];
+}
+
 function storyExcerpts(body: string): string[] {
   return body
     .split(/\n+(?=\d+\\?\.\s)/)

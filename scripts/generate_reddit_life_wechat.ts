@@ -28,6 +28,7 @@ import { redditLifeWechatCoverFile, renderRedditLifeWechatCover } from "./reddit
 import {
   rankedRedditLifeCandidates,
   selectRedditLifeWechatCandidates,
+  splitRedditLifeWechatCandidates,
   validateRedditLifeWechatSelection,
   type RedditLifeWechatSelection,
 } from "./reddit_life_wechat_selection.ts";
@@ -318,7 +319,9 @@ export async function generateRedditLifeWechat({
     artifactsDir,
   });
   const candidates = rankedRedditLifeCandidates(sourceCandidates, selection);
-  // 选后最多 10 帖，按新顺序分成两篇、每篇五帖；合格不足时宁缺毋滥。
+  const candidateVolumes = splitRedditLifeWechatCandidates(candidates);
+  const selectionRankBySourceRank = new Map(candidates.map((candidate, index) => [candidate.rank, index + 1]));
+  // 凑满十帖时两篇交错分配，避免第二篇只有低优先级题目；不足十帖就保留为一篇。
   // 每帖保留几条仍由 fitWechatContentLimit 按渲染长度决定，每篇各自二分。
   // 两卷共用这一个地址：它是「阅读原文」的落点，不是身份。身份走 syncId。
   const articleUrl = redditLifeArticleUrl(lifeArticlePath);
@@ -330,15 +333,15 @@ export async function generateRedditLifeWechat({
   const rawSources = { upstreamLifeMarkdown: path.join(dayDir, "upstream-life.md") };
   ensureDir(path.join(repo, dayDir));
 
-  const posts: Entry[] = [];
+  const postsBySourceRank = new Map<number, Entry>();
   const generatedPaths: string[] = [];
-  for (const [index, volume] of REDDIT_LIFE_WECHAT_VOLUMES.entries()) {
-    const slice = candidates.slice(index * REDDIT_LIFE_WECHAT_POST_LIMIT, (index + 1) * REDDIT_LIFE_WECHAT_POST_LIMIT);
-    // 合格帖子不足 10 条时后面的卷就是空的。少推一卷，而不是用低质量帖子补齐。
-    if (!slice.length) break;
+  for (const [index, slice] of candidateVolumes.entries()) {
+    const volume = REDDIT_LIFE_WECHAT_VOLUMES[index];
+    if (!volume) throw new Error(`Reddit life WeChat has no volume for split ${index + 1}`);
     const label = `${volume} posts=${slice.length}`;
-    // 文件名按选后位置编号；postId 保证即使首帖变化也能直接追溯来源。
-    const firstSelectionRank = index * REDDIT_LIFE_WECHAT_POST_LIMIT + 1;
+    // 文件名按本卷首题的 AI 排名编号；postId 保证即使首帖变化也能直接追溯来源。
+    const firstSelectionRank = selectionRankBySourceRank.get(slice[0].rank);
+    if (!firstSelectionRank) throw new Error(`Reddit life WeChat split lost selection rank for source rank ${slice[0].rank}`);
     const relPath = path.join(dayDir, `${String(firstSelectionRank).padStart(2, "0")}-${slice[0].postId}.md`);
     const target = path.join(repo, relPath);
     ensureDir(path.dirname(target));
@@ -368,18 +371,26 @@ export async function generateRedditLifeWechat({
     generatedPaths.push(relPath);
     // 同一卷的五帖各留一条 Entry 但共享同一个 path：manifest 要记清楚每篇稿子收录了哪几帖，
     // 而稿子一卷只有一份。发布前按 path 去重。
-    posts.push(
-      ...slice.map(({ body: _body, rank: sourceRank, ...facts }, sliceIndex) => ({
+    for (const { body: _body, rank: sourceRank, ...facts } of slice) {
+      const selectionRank = selectionRankBySourceRank.get(sourceRank);
+      if (!selectionRank) throw new Error(`Reddit life WeChat split lost selection rank for source rank ${sourceRank}`);
+      postsBySourceRank.set(sourceRank, {
         ...facts,
         sourceRank,
-        selectionRank: firstSelectionRank + sliceIndex,
+        selectionRank,
         status: "generated" as const,
         path: relPath,
         contentSha256,
         volume,
-      })),
-    );
+      });
+    }
   }
+  // 审计记录仍按 AI 的总排序写入，卷次只描述最终发布去向，不能反过来篡改选择结果的顺序。
+  const posts = candidates.map(candidate => {
+    const post = postsBySourceRank.get(candidate.rank);
+    if (!post) throw new Error(`Reddit life WeChat split did not generate source rank ${candidate.rank}`);
+    return post;
+  });
   const manifest: RedditLifeRunManifest = {
     version: MANIFEST_VERSION,
     archiveDate: date,

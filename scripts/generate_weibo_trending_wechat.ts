@@ -329,10 +329,7 @@ export async function generateWeiboTrendingWechat({
   ensureDir(path.dirname(draftFile));
 
   const articleUrl = weiboTrendingArticleUrl(articlePath);
-  const cover = await renderWeiboTrendingWechatCover(
-    selectedItems.slice(0, WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT).map(item => item.title),
-    date,
-  );
+  const cover = await renderWeiboTrendingWechatCover(selectedItems.slice(0, WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT).map(item => item.title));
   if (cover) {
     fs.writeFileSync(path.join(repo, coverRel), cover);
     writeStderr(`[weibo-trending-wechat] rendered ${coverRel} (${cover.length} bytes)`);

@@ -49,8 +49,14 @@ export type RedditSourcePolicy = {
   maxDetailCandidates: number;
 };
 
+type ParsedRedditSourcePolicy = RedditSourcePolicy & {
+  topLevelCommentLimit: number;
+  directReplyLimit: number;
+  detailCommentLimit: number;
+};
+
 export const MAX_REDDIT_SOURCE_ITEMS = 2_000;
-function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourcePolicy {
+function parseRedditSourcePolicy(value: unknown, sha256: unknown): ParsedRedditSourcePolicy {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Reddit source API returned an invalid policy");
   const record = value as Record<string, unknown>;
   const integerFields = [
@@ -97,6 +103,9 @@ function parseRedditSourcePolicy(value: unknown, sha256: unknown): RedditSourceP
     minScore: record.min_score as number,
     listingLimit: record.listing_limit as number,
     maxDetailCandidates: record.max_detail_candidates as number,
+    topLevelCommentLimit: record.top_level_comment_limit as number,
+    directReplyLimit: record.direct_reply_limit as number,
+    detailCommentLimit: record.detail_comment_limit as number,
   };
 }
 
@@ -180,6 +189,18 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
     throw new Error("Reddit source API source_sha256 does not match source content");
   }
   const policy = parseRedditSourcePolicy(payload.policy, payload.policy_sha256);
+  const requestedLimits = category.sourceLimits;
+  if (
+    requestedLimits &&
+    (policy.topLevelCommentLimit !== requestedLimits.topLevelCommentLimit ||
+      policy.directReplyLimit !== requestedLimits.directReplyLimit ||
+      policy.detailCommentLimit !== requestedLimits.detailCommentLimit)
+  ) {
+    throw new Error(
+      `Reddit source API did not apply requested comment limits: ` +
+      `${policy.topLevelCommentLimit}/${policy.directReplyLimit}/${policy.detailCommentLimit}`,
+    );
+  }
   const facts = parseRedditSourceFacts(payload.source);
   const maxItems = category.subreddits.length * policy.listingLimit;
   if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > maxItems) {
@@ -243,11 +264,19 @@ const REDDIT_SOURCE_JOB_PATH = "/v3/reddit/top20-source/jobs";
 
 export async function fetchRedditSourceFromApi(date: string, category: RedditCategory): Promise<string> {
   const endpoint = redditServiceEndpoint("reddit-top20 generation");
+  const limits = category.sourceLimits;
   const submitted = await fetchJson<RedditSourceJobApiResponse>(`${endpoint.baseUrl}${REDDIT_SOURCE_JOB_PATH}`, {
     method: "POST",
     body: JSON.stringify({
       archive_date: date,
       subreddits: category.subreddits,
+      ...(limits
+        ? {
+            top_level_comment_limit: limits.topLevelCommentLimit,
+            direct_reply_limit: limits.directReplyLimit,
+            detail_comment_limit: limits.detailCommentLimit,
+          }
+        : {}),
     }),
     ...endpoint.request,
   });

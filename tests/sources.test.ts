@@ -433,7 +433,27 @@ function redditStats(finalBySubreddit: Record<string, number>, category = reddit
     });
 }
 
-function redditPayload(source: string, itemCount: number, finalBySubreddit: Record<string, number>, category = redditCategoryByKey("life")) {
+function redditPolicyResponse(category = redditCategoryByKey("life")) {
+  const limits = category.sourceLimits;
+  return {
+    ...REDDIT_POLICY_RESPONSE,
+    ...(limits
+      ? {
+          top_level_comment_limit: limits.topLevelCommentLimit,
+          direct_reply_limit: limits.directReplyLimit,
+          detail_comment_limit: limits.detailCommentLimit,
+        }
+      : {}),
+  };
+}
+
+function redditPayload(
+  source: string,
+  itemCount: number,
+  finalBySubreddit: Record<string, number>,
+  category = redditCategoryByKey("life"),
+  policy = redditPolicyResponse(category),
+) {
   return {
     contract_version: "reddit-top20-source.v7",
     archive_date: "2099-01-02",
@@ -441,8 +461,8 @@ function redditPayload(source: string, itemCount: number, finalBySubreddit: Reco
     item_count: itemCount,
     source_sha256: createHash("sha256").update(source, "utf8").digest("hex"),
     source,
-    policy: REDDIT_POLICY_RESPONSE,
-    policy_sha256: createHash("sha256").update(JSON.stringify(REDDIT_POLICY_RESPONSE), "utf8").digest("hex"),
+    policy,
+    policy_sha256: createHash("sha256").update(JSON.stringify(policy), "utf8").digest("hex"),
     subreddit_stats: redditStats(finalBySubreddit, category),
   };
 }
@@ -485,6 +505,13 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
     [`${index + 1}. [r/AskReddit] Fixture post ${index + 1}`, "- 来源：r/AskReddit", "- 发布时间：2099-01-02T07:00:00Z"].join("\n"),
   ).join("\n\n")}\n\n===ARCHIVE_PAYLOAD===\n{"items": []}\n`;
   assert.equal(parseRedditSourceApiResponse(redditPayload(overLimitSource, 41, { AskReddit: 41 }), "2099-01-02", category), overLimitSource);
+
+  const amaCategory = redditCategoryByKey("ama");
+  const amaSource = `${redditSourceItem(1, { subreddit: "IAmA", points: 20 })}\n===ARCHIVE_PAYLOAD===\n${JSON.stringify({ items: [] })}\n`;
+  assert.throws(
+    () => parseRedditSourceApiResponse(redditPayload(amaSource, 1, { IAmA: 1 }, amaCategory, REDDIT_POLICY_RESPONSE), "2099-01-02", amaCategory),
+    /did not apply requested comment limits/,
+  );
 });
 
 test("Reddit source fetch sends one subreddit-list request to the v7 service", async () => {
@@ -511,6 +538,9 @@ test("Reddit source fetch sends one subreddit-list request to the v7 service", a
   assert.deepEqual(JSON.parse(requests.find(request => request.body)?.body || "{}"), {
     archive_date: "2099-01-02",
     subreddits: category.subreddits,
+    top_level_comment_limit: 60,
+    direct_reply_limit: 30,
+    detail_comment_limit: 200,
   });
   // 要证的是「提交一次 + 轮询一次」，不是服务端的路由字符串长什么样。
   assert.equal(requests.length, 2);

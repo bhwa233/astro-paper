@@ -16,6 +16,8 @@
 | `ama` | Reddit 人物与问答 | `r/IAmA`、`r/AMA`、`r/casualiama` | `reddit-<date>-ama.md` | 仅博客 |
 | `markets` | Reddit 市场与价值投资 | `r/stocks`、`r/ValueInvesting`、`r/investing`、`r/wallstreetbets` | `reddit-<date>-markets.md` | 仅博客 |
 
+人物与问答需要从顶层问题的直接回复中恢复当事人回答，因此 `ama` 请求来源服务时使用更深的通用证据额度：每帖最多 60 条顶层评论、30 条直接回复，详情总预算 200。其他分类不传额度覆盖，继续使用服务默认的 50 / 10 / 100。客户端会核对来源响应中的 applied policy，额度没有真正生效时拒绝归档。
+
 `r/askscience` 与 `r/AskReddit` 都是问题驱动的内容，使用同一篇问答文章和同一套逐条回答整理格式。科学回答仍只依据帖子及评论证据，不额外补充模型常识或外部事实。
 
 `r/confessions`、`r/changemyview` 和 `r/tifu` 组成独立的人生讨论文章。它们不再输出逐条回答列表，而是将每个帖子整理成连续叙事：交代处境与核心冲突，展开评论区最有张力的分歧与回应，再保留关键细节、转折和未解决之处。正文不得出现用户名、回答编号、人工拼出的共识、道德评判或编辑式升华；叙述需要保留 Reddit 原帖的情绪起伏、自嘲、犹疑与反转。

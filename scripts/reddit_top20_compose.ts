@@ -16,6 +16,7 @@ export const REDDIT_CATEGORIES = [
     title: "问答精选",
     fileNameSuffix: "life",
     subreddits: ["AskReddit", "askscience"],
+    sourceLimits: null,
     summaryMinChars: SUMMARY_MIN_CHARS,
     summaryFormat: "numbered",
   },
@@ -24,6 +25,7 @@ export const REDDIT_CATEGORIES = [
     title: "人生讨论",
     fileNameSuffix: "life-discussions",
     subreddits: ["confessions", "changemyview", "tifu"],
+    sourceLimits: null,
     summaryMinChars: SUMMARY_MIN_CHARS,
     summaryFormat: "narrative",
   },
@@ -32,6 +34,7 @@ export const REDDIT_CATEGORIES = [
     title: "市场与价值投资",
     fileNameSuffix: "markets",
     subreddits: ["stocks", "ValueInvesting", "investing", "wallstreetbets"],
+    sourceLimits: null,
     // r/wallstreetbets 有大量梗图帖，评论区就是几句嘴炮。按 300 收，这些帖子会
     // 重试三次后整帖被丢，当期条目数明显缩水；它们本来就没有 300 字的料，
     // 下限该迁就内容，而不是让内容迁就下限。
@@ -43,6 +46,11 @@ export const REDDIT_CATEGORIES = [
     title: "人物与问答",
     fileNameSuffix: "ama",
     subreddits: ["IAmA", "AMA", "casualiama"],
+    sourceLimits: {
+      topLevelCommentLimit: 60,
+      directReplyLimit: 30,
+      detailCommentLimit: 200,
+    },
     summaryMinChars: SUMMARY_MIN_CHARS,
     summaryFormat: "numbered",
   },

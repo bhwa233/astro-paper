@@ -20,6 +20,19 @@ export interface ImageRewriteResult {
 const RESPONSIVE_STYLE = 'max-width:100%;height:auto;display:block;margin:1.2em auto;'
 
 /**
+ * Add the draft cover as the first body image before the shared image rewrite.
+ *
+ * Going through `rewriteImages` keeps the inline cover on the same placeholder,
+ * normalization, and upload path as every other body image.
+ */
+export function prependCoverImage(html: string, source: string): string {
+  const $ = cheerio.load(html, null, false)
+  const cover = $('<p>').append($('<img>').attr('src', source).attr('alt', '封面'))
+  $.root().prepend(cover)
+  return $.html()
+}
+
+/**
  * Replace image sources with content-hash placeholders.
  *
  * Placeholders are what make the pre-upload content hash well defined: the HTML

@@ -6,7 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { dateStringInTimeZone, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { booleanArg, dateStringInTimeZone, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import {
   countDroppableStories,
   dropTrailingStories,
@@ -277,6 +277,7 @@ export async function generateRedditLifeWechat({
   artifactsDir = "",
   model = process.env.AI_MODEL || "gemini-3.7-flash",
   promptDir = "",
+  force = false,
 }: {
   repo?: string;
   date: string;
@@ -285,6 +286,8 @@ export async function generateRedditLifeWechat({
   artifactsDir?: string;
   model?: string;
   promptDir?: string;
+  /** Explicit backfill only: rebuild an existing archive instead of returning its cached manifest. */
+  force?: boolean;
 }): Promise<{ manifestPath: string; generatedPaths: string[]; status: RedditLifeRunManifest["status"] }> {
   if (!upstreamSha) throw new Error("--upstream-sha is required; Reddit life WeChat must read the committed parent handoff");
   if (!/^\d+$/.test(workflowRun)) throw new Error("--upstream-workflow-run is required and must be a GitHub Actions run ID");
@@ -293,12 +296,13 @@ export async function generateRedditLifeWechat({
   const manifestFile = path.join(repo, manifestRel);
   assertCommittedPath(repo, manifestRel);
   const existing = loadRedditLifeRunManifest(manifestFile);
-  if (existing) {
+  if (existing && !force) {
     const generated = existing.posts.filter(post => post.status === "generated");
     writeStderr(`[reddit-life-wechat] archive=${date}: reused manifest (${existing.status}), posts=${generated.length}`);
     // 收录的每一帖共享同一个 path，去重后才是「要发布几篇稿子」。
     return { manifestPath: manifestRel, generatedPaths: [...new Set(generated.map(post => post.path!).filter(Boolean))], status: existing.status };
   }
+  if (existing) writeStderr(`[reddit-life-wechat] archive=${date}: force rebuilding existing manifest (${existing.status})`);
   const lifeArticlePath = taskPostRelPath("reddit-top20", date.replace(/$/, "-life"));
   assertCommittedPath(repo, lifeArticlePath);
   const upstreamFile = path.join(repo, lifeArticlePath);
@@ -418,6 +422,7 @@ async function main(): Promise<void> {
     artifactsDir: path.resolve(stringArg(args, "artifacts-dir", "reddit-life-wechat-artifacts")),
     model: stringArg(args, "model", process.env.AI_MODEL || "gemini-3.7-flash"),
     promptDir: stringArg(args, "prompt-dir"),
+    force: booleanArg(args, "force"),
   });
   writeStdout(`${JSON.stringify({ date, ...result })}\n`);
 }

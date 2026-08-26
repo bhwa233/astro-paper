@@ -21,6 +21,11 @@ on:
         description: "Selection model. Empty = Gemini 3.7 Flash."
         required: false
         type: string
+      force_rebuild:
+        description: "Rebuild an existing archive and create replacement WeChat drafts."
+        required: false
+        default: false
+        type: boolean
   # 手动入口：对着某个已归档提交补跑一次转换，不必等父工作流的下一次定时执行。
   workflow_dispatch:
     inputs:
@@ -40,6 +45,11 @@ on:
         description: "Selection model. Empty = Gemini 3.7 Flash."
         required: false
         type: string
+      force_rebuild:
+        description: "Rebuild this date and create duplicate replacement drafts. Manual backfill only."
+        required: false
+        default: false
+        type: boolean
 concurrency:
   group: scheduled-posts-${{ github.ref }}
   cancel-in-progress: false
@@ -75,6 +85,7 @@ jobs:
           UPSTREAM_GENERATED_SHA: ${{ inputs.upstream_sha }}
           UPSTREAM_WORKFLOW_RUN: ${{ inputs.upstream_workflow_run }}
           INPUT_DATE: ${{ inputs.date || '' }}
+          INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
           AI_MODEL: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
@@ -85,6 +96,7 @@ jobs:
           set -euo pipefail
           args=(--upstream-sha "$UPSTREAM_GENERATED_SHA" --upstream-workflow-run "$UPSTREAM_WORKFLOW_RUN" --artifacts-dir reddit-life-wechat-artifacts)
           if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
+          if [ "$INPUT_FORCE_REBUILD" = "true" ]; then args+=(--force); fi
           node --import tsx scripts/generate_reddit_life_wechat.ts "${args[@]}" | tee reddit-life-wechat-result.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";
@@ -185,10 +197,13 @@ jobs:
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
         run: |
           set -euo pipefail
           mapfile -t paths < reddit-life-wechat-paths.txt
-          pnpm run wechat publish "${paths[@]}" --dry-run --json | tee wechat-dry-run.json
+          args=()
+          if [ "$INPUT_FORCE_REBUILD" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --dry-run --json | tee wechat-dry-run.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
@@ -202,10 +217,13 @@ jobs:
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
         run: |
           set +e
           mapfile -t paths < reddit-life-wechat-paths.txt
-          pnpm run wechat publish "${paths[@]}" --json | tee wechat-results.json
+          args=()
+          if [ "$INPUT_FORCE_REBUILD" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --json | tee wechat-results.json
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Commit WeChat ledger

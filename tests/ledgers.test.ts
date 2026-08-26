@@ -62,7 +62,7 @@ test("mdblist ledger persists successful selections and replaces same-post rerun
   assert.deepEqual(loadMdblistRecommendationKeys(file), new Set(["show:21:season:1"]));
 });
 
-test("Reddit life generator records an absent upstream article as a stable no-op manifest", async () => {
+test("Reddit life generator reuses a normal rerun but force rebuilds a backfill", async () => {
   const repo = tempDir("reddit-life-upstream-empty");
   const upstreamSha = commitFixtureRepo(repo);
   const result = await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "123456789" });
@@ -76,10 +76,20 @@ test("Reddit life generator records an absent upstream article as a stable no-op
 
   execFileSync("git", ["-C", repo, "add", "."]);
   execFileSync("git", ["-C", repo, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--quiet", "-m", "archive"]);
+  const archiveSha = execFileSync("git", ["-C", repo, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+
   await assert.rejects(
-    generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "123456789" }),
+    generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "234567890" }),
     /does not match --upstream-sha/,
   );
+
+  await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: archiveSha, workflowRun: "234567890" });
+  assert.equal(loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`)?.upstream.workflowRun, "123456789");
+
+  await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: archiveSha, workflowRun: "234567890", force: true });
+  const rebuilt = loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`);
+  assert.equal(rebuilt?.upstream.generatedSha, archiveSha);
+  assert.equal(rebuilt?.upstream.workflowRun, "234567890");
 });
 
 // 2026-08-18: qr.png is intentionally gitignored, so reusing a committed manifest used to

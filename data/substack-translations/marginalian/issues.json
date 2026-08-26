@@ -60,6 +60,21 @@
         "outputTokens": 4602,
         "totalTokens": 6633
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87752",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/21/odds-and-ends-maija-hurme",
+      "sourcePublishedAt": "2026-08-22T01:46:05.000Z",
+      "sourceSha256": "75c6a4ea759e4d9e744604616a34f060cc05b31e595c55dd7ba26e5a82e5ea8f",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260821-odds-and-ends-maija-hurme.md",
+      "translatedAt": "2026-08-26T02:03:24.763Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 1707,
+        "outputTokens": 2311,
+        "totalTokens": 4018
+      }
     }
   ]
 }

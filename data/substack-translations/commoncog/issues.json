@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "guid": "6a8d78569e0f27686afa563c",
+      "canonicalUrl": "https://commoncog.com/why-tactical-decision-games-work",
+      "sourcePublishedAt": "2026-08-25T11:22:59.000Z",
+      "sourceSha256": "24dfd260f4513778f119d0c78f3a834351dba058e0c3f288da91ce0b04a6f916",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/commoncog-20260825-why-tactical-decision-games-work.md",
+      "translatedAt": "2026-08-26T02:03:07.035Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 10347,
+        "outputTokens": 10026,
+        "totalTokens": 20373
+      }
+    }
+  ]
+}

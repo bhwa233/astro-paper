@@ -15,6 +15,21 @@
         "outputTokens": 7161,
         "totalTokens": 14466
       }
+    },
+    {
+      "guid": "https://www.experimental-history.com/p/actually-good-advice",
+      "canonicalUrl": "https://www.experimental-history.com/p/actually-good-advice",
+      "sourcePublishedAt": "2026-08-25T14:28:03.000Z",
+      "sourceSha256": "e92a357240a39b4375b22075e7d320db879e2ef2bd850de33354a1ef22120205",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/experimental-history-20260825-actually-good-advice.md",
+      "translatedAt": "2026-08-26T02:01:48.517Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 945,
+        "outputTokens": 1356,
+        "totalTokens": 2301
+      }
     }
   ]
 }

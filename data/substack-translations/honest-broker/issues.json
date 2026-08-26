@@ -30,6 +30,21 @@
         "outputTokens": 612,
         "totalTokens": 1914
       }
+    },
+    {
+      "guid": "https://www.honest-broker.com/p/how-our-leisure-time-got-monetized",
+      "canonicalUrl": "https://www.honest-broker.com/p/how-our-leisure-time-got-monetized",
+      "sourcePublishedAt": "2026-08-25T17:30:27.000Z",
+      "sourceSha256": "398c9892f0e058f70e28b3f2170ad3ae40faf1c4b7f542dedb4246db8124429b",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/honest-broker-20260825-how-our-leisure-time-got-monetized.md",
+      "translatedAt": "2026-08-26T02:02:15.415Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3400,
+        "outputTokens": 3670,
+        "totalTokens": 7070
+      }
     }
   ]
 }

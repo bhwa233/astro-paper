@@ -4,7 +4,7 @@
   "timeZone": "America/Los_Angeles",
   "status": "processed",
   "upstream": {
-    "generatedSha": "d98221e8ceeb49fee728bd739fe34979e14c69a0",
+    "generatedSha": "59a9c43a8902a5acbc1e630a2fd07e2e94533834",
     "workflowRun": "32928022673",
     "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-25-life.md"
   },
@@ -19,163 +19,163 @@
         "rank": 1,
         "longTail": 5,
         "resonance": 5,
-        "reason": "专业急救人员与医生的硬核安全警示兼具猎奇与实用价值，跨越文化且长期具备极高讨论度。"
-      },
-      {
-        "rank": 9,
-        "longTail": 5,
-        "resonance": 5,
-        "reason": "反直觉的心理健康与情绪调节洞察，直击现代人的精神内耗，极易引发强烈普遍共鸣。"
+        "reason": "来自急救与一线医生的硬核安全警示，兼具反直觉常识与生动案例，具有长期的警示价值和极高讨论度。"
       },
       {
         "rank": 29,
         "longTail": 5,
         "resonance": 5,
-        "reason": "精准捕捉请病假负罪感、空手出店心虚等普遍职场与社交心理现象，代入感极强。"
+        "reason": "精准击中请病假负罪感、空手出店心虚等现代人普遍的社会心理痛点，极易引发广泛的情感共鸣。"
+      },
+      {
+        "rank": 9,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "反直觉地探讨发呆、释放负面情绪与痛哭对身心的积极作用，兼具实用心理学价值与治愈共鸣。"
       },
       {
         "rank": 14,
         "longTail": 5,
         "resonance": 5,
-        "reason": "硕博过来人对学术追求、职业规划与现实代价的深度剖析，对年轻求学者具有长期参考价值。"
+        "reason": "深入剖析硕博学位的本质差异与科研现实，对青年求学与人生选择具有长期指导和警醒意义。"
+      },
+      {
+        "rank": 26,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "聚焦成年人失去秒睡、手写字与结交新朋友能力的普遍困境，唤起强烈的成长怀旧与现实共鸣。"
       },
       {
         "rank": 21,
         "longTail": 5,
         "resonance": 5,
-        "reason": "探讨表达能力退化、即时通讯侵蚀隐私等时代变迁痕迹，能唤起不同代际读者的深层共鸣。"
+        "reason": "敏锐捕捉完整表达能力退化、即时敲门社交消逝与隐私流失等时代变迁细节，启发深层社会反思。"
       },
       {
         "rank": 6,
         "longTail": 5,
-        "resonance": 4,
-        "reason": "将社交算法与信息茧房类比为新型武器，视角深刻且契合全球网民面临的普遍现实危机。"
+        "resonance": 5,
+        "reason": "深刻洞察社交媒体算法蚕食认知能力与加剧群体极化的现实，具备跨越周期的警示意义。"
       },
       {
         "rank": 23,
         "longTail": 4,
         "resonance": 5,
-        "reason": "下班后在车内静坐充电的心理细节深刻刻画了成年人的社交疲惫，极易引起现代打工人共情。"
+        "reason": "生动展现打工人在家庭与职场夹缝中对独处充电空间的渴求，直击当代成年人的隐秘情绪。"
       },
       {
         "rank": 2,
         "longTail": 5,
         "resonance": 4,
-        "reason": "揭示养船、养马等奢侈消费背后的高昂隐性维护成本，打破常人幻想且具有反直觉洞察。"
+        "reason": "揭示买船、养马、造锦鲤池等中产或高端享受背后繁琐的维护成本，打破大众消费幻想且耐读常青。"
       },
       {
-        "rank": 10,
+        "rank": 8,
         "longTail": 5,
         "resonance": 4,
-        "reason": "聚焦经期剧痛的真实生理体验与非常规应对技巧，兼具经验迁移价值与人文关怀。"
-      },
-      {
-        "rank": 3,
-        "longTail": 5,
-        "resonance": 4,
-        "reason": "宇宙起止、意识涌现等经典哲学与逻辑悖论解析，具备长青的科普思考与烧脑讨论价值。"
+        "reason": "以蜡烛、传真机与空间探测器为例梳理旧技术的顽强生命力，兼具科技史趣味与社会学洞察。"
       }
     ],
     "rejected": [
       {
+        "rank": 3,
+        "category": "low_resonance",
+        "reason": "宇宙起源与忒修斯之船等悖论较为抽象，偏向泛科普讨论，缺少个人叙事与大众情绪共鸣。"
+      },
+      {
         "rank": 4,
         "category": "low_resonance",
-        "reason": "属于偶发的家庭尴尬轶事，缺乏深度讨论价值和经验沉淀。"
+        "reason": "单一的语音助手口误尴尬短故事，体量较小且缺乏延展讨论空间。"
       },
       {
         "rank": 5,
         "category": "low_resonance",
-        "reason": "校园离奇个案的碎片化拼盘，缺乏可迁移的讨论深度。"
+        "reason": "个别极端的历史或校园偶发奇闻，读者难以产生切身体会和普遍共鸣。"
       },
       {
         "rank": 7,
         "category": "narrow_interest",
-        "reason": "高度依赖对特定欧美名人群体背景及公众形象的了解。"
+        "reason": "盘点怪人奥尔、多莉·帕顿等欧美特定文化圈名人，对缺乏背景知识的读者吸引力有限。"
       },
       {
-        "rank": 8,
+        "rank": 10,
         "category": "low_resonance",
-        "reason": "偏向对过时物件的常规事实盘点，情绪唤起和讨论深度有限。"
+        "reason": "应对痛经的非常规物理偏方讨论维度偏窄，整体信息量与讨论丰富度不足。"
       },
       {
         "rank": 11,
         "category": "region_specific",
-        "reason": "讨论高度依赖北美特定的树木法（tree law）法律条文及小额法庭诉讼规则。"
+        "reason": "核心围绕美国特有的树木法（tree law）索赔与小额法庭诉讼规则展开，高度依赖当地法律。"
       },
       {
         "rank": 12,
         "category": "low_resonance",
-        "reason": "回答多为零碎的个人消遣，缺少引发广泛共鸣的深度内容。"
+        "reason": "回答包含无节制刷手机与自制蒸馏酒等，内容较为散漫零碎，缺乏深度启发。"
       },
       {
         "rank": 13,
         "category": "narrow_interest",
-        "reason": "仅为特定英文播客节目的清单推荐，受众群体过于狭窄。"
+        "reason": "单纯罗列特定英文播客节目推荐，高度依赖特定语言环境与小众听众群体。"
       },
       {
         "rank": 15,
         "category": "low_resonance",
-        "reason": "偏向极端猎奇的家庭丑闻与犯罪个案，缺乏普适共鸣与迁移价值。"
+        "reason": "极端家庭或熟人隐秘犯罪个案分享，多为耸动猎奇故事，缺乏可迁移的生活经验。"
       },
       {
         "rank": 16,
         "category": "low_resonance",
-        "reason": "围绕存钱和常规指数基金定投，观点较为同质化且包含安全提示梗。"
+        "reason": "存钱策略偏向常规的指数基金投资说教与安全问答烂梗，讨论深度较浅。"
       },
       {
         "rank": 17,
         "category": "narrow_interest",
-        "reason": "高度依赖欧美特定播客节目与名流嘉宾八卦，圈层壁垒过高。"
+        "reason": "依赖对欧美播客特定节目及嘉宾表现的了解，圈层壁垒过高。"
       },
       {
         "rank": 18,
         "category": "low_resonance",
-        "reason": "多为晕针、纹身等待期等个体生理反应和规定罗列，延展度较低。"
+        "reason": "不献血的原因多为晕针或特定时期英国旅居史等零散生理与政策限制，缺少讨论深度。"
       },
       {
         "rank": 19,
         "category": "low_resonance",
-        "reason": "泛泛的自然风景打卡点赞叹，缺少独特的洞见或深度故事。"
+        "reason": "阿尔卑斯山与班夫等常见风景点清单分享，缺乏实质讨论深度与观点输出。"
       },
       {
         "rank": 20,
         "category": "low_resonance",
-        "reason": "小众性偏好导致的亲密关系崩塌个案，受众面窄且缺少普遍社会价值。"
+        "reason": "针对极端特定性癖婚姻破裂的情感倾诉，受众面过窄且难以引发广泛认同。"
       },
       {
         "rank": 22,
         "category": "low_resonance",
-        "reason": "主要针对律师等特定职业的个体偏见与刻板印象吐槽，视角较单一。"
+        "reason": "围绕律师职业展开的刻板印象吐槽，观点较为局限且缺乏多元视角。"
       },
       {
         "rank": 24,
         "category": "region_specific",
-        "reason": "集中批判美国本土连锁甜品品牌 Crumbl，非当地读者难以感同身受。"
+        "reason": "完全聚焦于吐槽美国本土连锁品牌 Crumbl 饼干的口感，严重依赖当地消费体验。"
       },
       {
         "rank": 25,
         "category": "region_specific",
-        "reason": "严重依赖北美特定车型（如美版 Altima）在当地路况下的驾驶刻板印象梗。"
-      },
-      {
-        "rank": 26,
-        "category": "low_resonance",
-        "reason": "手写退化与交友变难属于常见感慨，但在优质候选众多的情况下深度略显不足。"
+        "reason": "严重依赖北美特定车型如日产 Altima 及改装皮卡的本地道路文化梗。"
       },
       {
         "rank": 27,
         "category": "region_specific",
-        "reason": "完全基于美国各州的地理气候、就业环境与本地党派政治展开讨论。"
+        "reason": "完全围绕美国密西西比、西弗吉尼亚等具体州的地理、气候与就业环境展开评价。"
       },
       {
         "rank": 28,
         "category": "low_resonance",
-        "reason": "假想情境下的个人选歌清单，泛互动属性强但缺少深层讨论价值。"
+        "reason": "死前最后一首歌的选择多为个人歌单列举或儿歌烂梗，缺乏严肃而深入的共鸣价值。"
       },
       {
         "rank": 30,
         "category": "low_resonance",
-        "reason": "围绕衣服擦眼镜的生活细节讨论，内容过于琐碎，缺乏传播价值。"
+        "reason": "T恤擦眼镜导致衣服破洞的琐碎生活小事，内容单薄且缺少长尾讨论价值。"
       }
     ]
   },
@@ -191,21 +191,7 @@
       "selectionRank": 1,
       "status": "generated",
       "path": "data/reddit-life-wechat/2026-08-25/01-1vy58of.md",
-      "contentSha256": "0a2826c62cb5324b1b8a75ec369366913866e6eaafc1182050eee63cc67a6858",
-      "volume": "v1"
-    },
-    {
-      "postId": "1vybtxg",
-      "title": "有哪些事情感觉很不健康，但实际上对身心非常有益？",
-      "subreddit": "AskReddit",
-      "points": "751 points · 345 评论",
-      "numComments": 345,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vybtxg/whats_something_that_feels_unhealthy_but_is/",
-      "sourceRank": 9,
-      "selectionRank": 2,
-      "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-25/01-1vy58of.md",
-      "contentSha256": "0a2826c62cb5324b1b8a75ec369366913866e6eaafc1182050eee63cc67a6858",
+      "contentSha256": "bc31d5dba1262ef6a8c58477b9c7a6a2cf9e02867f1d8b04b2e130ccdb06df01",
       "volume": "v1"
     },
     {
@@ -216,10 +202,24 @@
       "numComments": 326,
       "permalink": "https://www.reddit.com/r/AskReddit/comments/1vxvuic/what_is_something_that_feels_completely_illegal/",
       "sourceRank": 29,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-25/02-1vxvuic.md",
+      "contentSha256": "06b3f56848a6531932e3be10b2c57e2bdcad4d087ce217de96cc32af2f2e02e0",
+      "volume": "v2"
+    },
+    {
+      "postId": "1vybtxg",
+      "title": "有哪些事情感觉很不健康，但实际上对身心非常有益？",
+      "subreddit": "AskReddit",
+      "points": "751 points · 345 评论",
+      "numComments": 345,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vybtxg/whats_something_that_feels_unhealthy_but_is/",
+      "sourceRank": 9,
       "selectionRank": 3,
       "status": "generated",
       "path": "data/reddit-life-wechat/2026-08-25/01-1vy58of.md",
-      "contentSha256": "0a2826c62cb5324b1b8a75ec369366913866e6eaafc1182050eee63cc67a6858",
+      "contentSha256": "bc31d5dba1262ef6a8c58477b9c7a6a2cf9e02867f1d8b04b2e130ccdb06df01",
       "volume": "v1"
     },
     {
@@ -232,8 +232,22 @@
       "sourceRank": 14,
       "selectionRank": 4,
       "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-25/02-1vxvuic.md",
+      "contentSha256": "06b3f56848a6531932e3be10b2c57e2bdcad4d087ce217de96cc32af2f2e02e0",
+      "volume": "v2"
+    },
+    {
+      "postId": "1vy56yl",
+      "title": "小时候掌握得炉火纯青、长大后却再也做不到的技能有哪些？",
+      "subreddit": "AskReddit",
+      "points": "186 points · 571 评论",
+      "numComments": 571,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vy56yl/what_is_a_skill_you_mastered_as_a_child_which_you/",
+      "sourceRank": 26,
+      "selectionRank": 5,
+      "status": "generated",
       "path": "data/reddit-life-wechat/2026-08-25/01-1vy58of.md",
-      "contentSha256": "0a2826c62cb5324b1b8a75ec369366913866e6eaafc1182050eee63cc67a6858",
+      "contentSha256": "bc31d5dba1262ef6a8c58477b9c7a6a2cf9e02867f1d8b04b2e130ccdb06df01",
       "volume": "v1"
     },
     {
@@ -244,11 +258,11 @@
       "numComments": 770,
       "permalink": "https://www.reddit.com/r/AskReddit/comments/1vxzd2a/what_disappeared_from_everyday_life_so_gradually/",
       "sourceRank": 21,
-      "selectionRank": 5,
+      "selectionRank": 6,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-25/01-1vy58of.md",
-      "contentSha256": "0a2826c62cb5324b1b8a75ec369366913866e6eaafc1182050eee63cc67a6858",
-      "volume": "v1"
+      "path": "data/reddit-life-wechat/2026-08-25/02-1vxvuic.md",
+      "contentSha256": "06b3f56848a6531932e3be10b2c57e2bdcad4d087ce217de96cc32af2f2e02e0",
+      "volume": "v2"
     },
     {
       "postId": "1vxq3eu",
@@ -258,11 +272,11 @@
       "numComments": 984,
       "permalink": "https://www.reddit.com/r/AskReddit/comments/1vxq3eu/after_nuclear_weapons_what_will_be_the_next_big/",
       "sourceRank": 6,
-      "selectionRank": 6,
+      "selectionRank": 7,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-25/06-1vxq3eu.md",
-      "contentSha256": "a28597d5f1dc8e37a080af6aef0bdeae5e11ec7a3b804bd96b03d0525680949f",
-      "volume": "v2"
+      "path": "data/reddit-life-wechat/2026-08-25/01-1vy58of.md",
+      "contentSha256": "bc31d5dba1262ef6a8c58477b9c7a6a2cf9e02867f1d8b04b2e130ccdb06df01",
+      "volume": "v1"
     },
     {
       "postId": "1vxv8em",
@@ -272,10 +286,10 @@
       "numComments": 30,
       "permalink": "https://www.reddit.com/r/confessions/comments/1vxv8em/i_sometimes_sit_in_my_car_for_an_hour_after_work/",
       "sourceRank": 23,
-      "selectionRank": 7,
+      "selectionRank": 8,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-25/06-1vxq3eu.md",
-      "contentSha256": "a28597d5f1dc8e37a080af6aef0bdeae5e11ec7a3b804bd96b03d0525680949f",
+      "path": "data/reddit-life-wechat/2026-08-25/02-1vxvuic.md",
+      "contentSha256": "06b3f56848a6531932e3be10b2c57e2bdcad4d087ce217de96cc32af2f2e02e0",
       "volume": "v2"
     },
     {
@@ -286,38 +300,24 @@
       "numComments": 2442,
       "permalink": "https://www.reddit.com/r/AskReddit/comments/1vy0z05/what_is_a_common_luxury_that_is_actually_a/",
       "sourceRank": 2,
-      "selectionRank": 8,
-      "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-25/06-1vxq3eu.md",
-      "contentSha256": "a28597d5f1dc8e37a080af6aef0bdeae5e11ec7a3b804bd96b03d0525680949f",
-      "volume": "v2"
-    },
-    {
-      "postId": "1vyez43",
-      "title": "女性朋友们，面对剧烈痛经你们有什么非常规的应对妙招吗？",
-      "subreddit": "AskReddit",
-      "points": "697 points · 1406 评论",
-      "numComments": 1406,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vyez43/ladies_do_you_have_an_unusual_life_hack_when_it/",
-      "sourceRank": 10,
       "selectionRank": 9,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-25/06-1vxq3eu.md",
-      "contentSha256": "a28597d5f1dc8e37a080af6aef0bdeae5e11ec7a3b804bd96b03d0525680949f",
-      "volume": "v2"
+      "path": "data/reddit-life-wechat/2026-08-25/01-1vy58of.md",
+      "contentSha256": "bc31d5dba1262ef6a8c58477b9c7a6a2cf9e02867f1d8b04b2e130ccdb06df01",
+      "volume": "v1"
     },
     {
-      "postId": "1vxy6v4",
-      "title": "哪个逻辑悖论（logical paradox）让你越想越烧脑？",
+      "postId": "1vxwl6z",
+      "title": "有哪些物件早已彻底过时，却依然顽强地存在了极长时间？",
       "subreddit": "AskReddit",
-      "points": "2406 points · 2342 评论",
-      "numComments": 2342,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vxy6v4/what_is_a_logical_paradox_that_completely_breaks/",
-      "sourceRank": 3,
+      "points": "782 points · 571 评论",
+      "numComments": 571,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vxwl6z/what_object_has_survived_the_longest_despite/",
+      "sourceRank": 8,
       "selectionRank": 10,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-25/06-1vxq3eu.md",
-      "contentSha256": "a28597d5f1dc8e37a080af6aef0bdeae5e11ec7a3b804bd96b03d0525680949f",
+      "path": "data/reddit-life-wechat/2026-08-25/02-1vxvuic.md",
+      "contentSha256": "06b3f56848a6531932e3be10b2c57e2bdcad4d087ce217de96cc32af2f2e02e0",
       "volume": "v2"
     }
   ]

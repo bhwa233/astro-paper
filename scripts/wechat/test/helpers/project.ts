@@ -8,6 +8,16 @@ import type { ProjectConfig, ResolvedProject } from '../../src/types.js'
 export const TINY_PNG_BASE64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
 
+/**
+ * A second 1x1 PNG, red rather than transparent.
+ *
+ * Different bytes on purpose: tests about per-image identity cannot use the
+ * same file twice, because two identical images share a content hash and would
+ * make "uploaded once and reused" indistinguishable from "uploaded twice".
+ */
+export const SECOND_TINY_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC'
+
 export interface FixtureProject {
   readonly root: string
   /** Write a text file at a project-relative path, creating parents. */

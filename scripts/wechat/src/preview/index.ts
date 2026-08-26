@@ -1,6 +1,11 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises'
 import { extname, join, resolve } from 'node:path'
-import type { AssetIdentity, RenderedArticle, ResolvedProject } from '../types.js'
+import type {
+  AssetIdentity,
+  RenderedArticle,
+  RenderedNewspicArticle,
+  ResolvedProject,
+} from '../types.js'
 import { substitutePlaceholders } from '../render/images.js'
 import { rasterizeSvg } from '../image/rasterize.js'
 
@@ -31,7 +36,10 @@ export async function renderPreviewPage(rendered: RenderedArticle): Promise<stri
     substitutions.set(asset.placeholder, await previewSource(asset))
   }
 
-  const body = substitutePlaceholders(rendered.html, substitutions)
+  const body =
+    rendered.articleType === 'newspic'
+      ? newspicBody(rendered, substitutions)
+      : substitutePlaceholders(rendered.html, substitutions)
   const cover = substitutions.get(rendered.coverAsset.placeholder) ?? ''
   const { title, author, digest } = rendered.document
 
@@ -69,6 +77,25 @@ export async function renderPreviewPage(rendered: RenderedArticle): Promise<stri
 </body>
 </html>
 `
+}
+
+/**
+ * Approximate a 图片消息 for review.
+ *
+ * Stacked images with the caption above them, which is the reading order WeChat
+ * uses. It is not the swipeable carousel the reader gets — the preview exists to
+ * check that the right pictures are in the right order, not to imitate the app.
+ */
+function newspicBody(
+  rendered: RenderedNewspicArticle,
+  substitutions: ReadonlyMap<string, string>,
+): string {
+  const images = rendered.bodyAssets
+    .map((asset) => substitutions.get(asset.placeholder) ?? '')
+    .filter((source) => source !== '')
+    .map((source) => `<img src="${source}" alt="" style="max-width:100%;display:block;margin:12px auto;">`)
+
+  return `<p style="white-space:pre-wrap;font-size:15px;line-height:1.75;color:#1a1d1f;">${escapeHtml(rendered.content)}</p>${images.join('')}`
 }
 
 /** Write the preview next to the project and return its path. */

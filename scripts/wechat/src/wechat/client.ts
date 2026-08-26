@@ -10,13 +10,9 @@ export interface ImageUpload {
   readonly contentType: string
 }
 
-export interface CreateDraftInput {
+interface CreateDraftBase {
   readonly title: string
   readonly author?: string
-  readonly digest: string
-  /** Sanitized HTML with real image URLs already substituted. */
-  readonly content: string
-  readonly thumbMediaId: string
   /**
    * Canonical article URL.
    *
@@ -25,6 +21,27 @@ export interface CreateDraftInput {
    */
   readonly contentSourceUrl?: string
 }
+
+export interface CreateNewsDraftInput extends CreateDraftBase {
+  readonly articleType: 'news'
+  readonly digest: string
+  /** Sanitized HTML with real image URLs already substituted. */
+  readonly content: string
+  readonly thumbMediaId: string
+}
+
+export interface CreateNewspicDraftInput extends CreateDraftBase {
+  readonly articleType: 'newspic'
+  /** Plain text. WeChat renders no markup in a 图片消息. */
+  readonly content: string
+  /**
+   * Permanent material ids in display order. The first one is the cover, which
+   * is why no `thumb_media_id` is sent.
+   */
+  readonly imageMediaIds: readonly string[]
+}
+
+export type CreateDraftInput = CreateNewsDraftInput | CreateNewspicDraftInput
 
 export interface FindDraftOptions {
   /**
@@ -119,13 +136,19 @@ export class WeChatClient {
   }
 
   /**
-   * Upload a cover as permanent material.
+   * Upload an image as permanent material.
+   *
+   * Used for a news cover and for every image in a 图片消息 list — the latter
+   * accepts nothing else, since `uploadimg` returns a URL rather than a
+   * `media_id`.
    *
    * Deliberately not retried: permanent material counts against a per-account
    * quota and is never reclaimed by draft operations, so a retry leaks quota
    * permanently. Reuse is handled upstream by content hash.
    */
-  async uploadCover(image: ImageUpload): Promise<{ mediaId: string; url: string | undefined }> {
+  async uploadPermanentImage(
+    image: ImageUpload,
+  ): Promise<{ mediaId: string; url: string | undefined }> {
     const payload = await this.#authorized<AddMaterialResponse>((token) => ({
       path: PATHS.addMaterial,
       method: 'POST',
@@ -148,17 +171,31 @@ export class WeChatClient {
    * Never retried. A timeout here surfaces as `OutcomeUnknownError`, which the
    * synchronizer resolves by reconciling against WeChat rather than by trying
    * again — that retry is precisely how duplicate drafts appear.
+   *
+   * UNVERIFIED: whether a `newspic` draft stores `content_source_url`, and
+   * whether `draft/batchget` reports it under `news_item`. If it does not, the
+   * remote reconciliation path cannot find image drafts. That failure direction
+   * is the safe one — `reconcile()` raises `reconcile-impossible` instead of
+   * creating a second draft — but it does mean an interrupted image publish
+   * needs the operator rather than resolving itself.
    */
   async createDraft(input: CreateDraftInput): Promise<string> {
     const article: Record<string, unknown> = {
       title: input.title,
       author: input.author ?? '',
-      digest: input.digest,
       content: input.content,
-      thumb_media_id: input.thumbMediaId,
       content_source_url: input.contentSourceUrl ?? '',
       need_open_comment: 1,
       only_fans_can_comment: 0,
+      ...(input.articleType === 'newspic'
+        ? {
+            article_type: 'newspic',
+            // No thumb and no digest: the first image is the cover, and the
+            // 图片消息 form has no summary field. Sending either invites an
+            // errcode for a field the endpoint does not accept here.
+            image_info: { image_list: input.imageMediaIds.map((id) => ({ image_media_id: id })) },
+          }
+        : { digest: input.digest, thumb_media_id: input.thumbMediaId }),
     }
 
     const payload = await this.#authorized<AddDraftResponse>((token) => ({

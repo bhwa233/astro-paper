@@ -62,6 +62,17 @@ export function redditLifeWechatSyncId(archiveDate: string, volume: RedditLifeVo
   return `reddit-life-${archiveDate}-v${index + 1}`;
 }
 
+/**
+ * 图片消息那一篇在台账里的身份。
+ *
+ * 与两卷图文同源同日，因此同样不能用 canonical URL 当身份；后缀 `-np` 把它与 `-v1`/`-v2`
+ * 分开。它是「同一天的第三种形态」，不是第三卷，所以不进 REDDIT_LIFE_WECHAT_VOLUMES。
+ */
+export function redditLifeWechatNewspicSyncId(archiveDate: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(archiveDate)) throw new Error(`invalid Reddit life WeChat archive date: ${archiveDate || "missing"}`);
+  return `reddit-life-${archiveDate}-np`;
+}
+
 // 微信正文里的外链点不动（astro-wechat 会把 <a> 拆成文字加尾注），二维码是唯一能把读者送出去的通道。
 // 两栏用 table 而不是 flex：微信编辑器对 flex 支持不稳，table 在 doocs-default 主题里本来就有样式。
 // 卡片内不能出现空行——markdown-it 的 html_block 遇到空行就结束，后半段会被当成普通段落。
@@ -159,6 +170,18 @@ function storyItems(body: string): string[] {
   return body
     .split(/\n+(?=\d+\\?\.\s)/)
     .map(item => item.trim())
+    .filter(Boolean);
+}
+
+/**
+ * 一帖的回答列表，去掉编号前缀。
+ *
+ * 图文稿保留编号（它靠编号分段），图片消息不保留：那边一条回答就是一张卡，
+ * 序号由卡片自己画在角上，正文里再带一个「7.」只会重复。
+ */
+export function redditLifeStoryTexts(body: string): string[] {
+  return storyItems(body)
+    .map(item => compact(item.replace(/^\d+\\?\.\s*/, "")))
     .filter(Boolean);
 }
 

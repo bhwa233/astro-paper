@@ -46,6 +46,24 @@ export const CONTENT_LIMITS = {
 } as const
 
 /**
+ * Limits that apply only to 图片消息 (`article_type: "newspic"`).
+ *
+ * The image ceiling is documented. The text ceiling is not: the reference says
+ * `content` is plain text without saying how much of it fits. 1000 is a working
+ * value chosen below every reported bound, because the two failure directions
+ * are not symmetric — rejecting a caption during rendering costs nothing, while
+ * learning the real limit from `draft/add` happens only after every image has
+ * already been uploaded as permanent material and charged to the quota.
+ */
+export const NEWSPIC_LIMITS = {
+  /** Images per draft. The first one is the cover; there is no separate thumb. */
+  maxImages: 20,
+  /** Characters of plain text, counted as Unicode code points. */
+  maxContentCharacters: 1000,
+  unverified: UNVERIFIED,
+} as const
+
+/**
  * Formats the body-image upload endpoint accepts.
  *
  * This is deliberately narrower than the set of source formats the package

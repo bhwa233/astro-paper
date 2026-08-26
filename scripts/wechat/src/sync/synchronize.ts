@@ -2,7 +2,14 @@ import { AstroWechatError, WarningCollector, type Warning } from '../errors.js'
 import { normalizeImage, type NormalizedImage } from '../image/normalize.js'
 import { substitutePlaceholders } from '../render/images.js'
 import type { StateStore } from '../state/store.js'
-import type { ArticleResult, ArticleStatus, AssetIdentity, RenderedArticle } from '../types.js'
+import type {
+  ArticleResult,
+  ArticleStatus,
+  AssetIdentity,
+  DraftIdentity,
+  RenderedArticle,
+  RenderedNewspicArticle,
+} from '../types.js'
 import type { WeChatClient } from '../wechat/client.js'
 
 /**
@@ -84,12 +91,7 @@ export async function synchronizeArticle(
       return { ...base, status: 'planned' }
     }
 
-    const outcome = await create(
-      rendered,
-      deps,
-      existing?.coverMaterialId,
-      existing?.coverContentHash,
-    )
+    const outcome = await create(rendered, deps, existing)
     return { ...base, ...outcome, warnings: outcome.warnings ?? base.warnings }
   } catch (error) {
     return {
@@ -139,16 +141,19 @@ async function reconcile(
   }
 }
 
+type Normalizer = (asset: AssetIdentity, warnings: WarningCollector) => Promise<NormalizedImage>
+
+function normalizerFor(deps: SynchronizeDeps): Normalizer {
+  return deps.normalize ?? ((asset, warnings) =>
+    normalizeImage(asset, warnings, { remoteImageHosts: deps.remoteImageHosts }))
+}
+
 async function create(
   rendered: RenderedArticle,
   deps: SynchronizeDeps,
-  reusableCoverMaterialId: string | undefined,
-  reusableCoverHash: string | undefined,
+  existing: DraftIdentity | undefined,
 ): Promise<SyncOutcome> {
   const { document } = rendered
-  const normalize = deps.normalize ?? ((asset, warnings) =>
-    normalizeImage(asset, warnings, { remoteImageHosts: deps.remoteImageHosts }))
-  const warnings = new WarningCollector()
 
   // Written before any WeChat call. A pending entry found on a later run is the
   // signal that the previous outcome is unknown.
@@ -159,14 +164,20 @@ async function create(
     hashSchemaVersion: rendered.hashSchemaVersion,
   })
 
+  if (rendered.articleType === 'newspic') return createNewspic(rendered, deps, existing)
+
+  const normalize = normalizerFor(deps)
+  const warnings = new WarningCollector()
+  const reusableCoverMaterialId = existing?.coverMaterialId
   const reuseCover =
-    reusableCoverMaterialId !== undefined && reusableCoverHash === rendered.coverAsset.contentHash
+    reusableCoverMaterialId !== undefined &&
+    existing?.coverContentHash === rendered.coverAsset.contentHash
 
   let coverMaterialId = reusableCoverMaterialId
 
   if (!reuseCover) {
     const image = await normalize(rendered.coverAsset, warnings)
-    const uploaded = await deps.client.uploadCover(image)
+    const uploaded = await deps.client.uploadPermanentImage(image)
     coverMaterialId = uploaded.mediaId
 
     // Recorded immediately: if draft creation fails, this material is already
@@ -183,6 +194,7 @@ async function create(
   const content = substitutePlaceholders(rendered.html, substitutions)
 
   const mediaId = await deps.client.createDraft({
+    articleType: 'news',
     title: document.title,
     author: document.author,
     digest: document.digest,
@@ -202,6 +214,74 @@ async function create(
   // happened would leave a reused cover marked as an orphan, and cleanup would
   // then delete a material a published draft depends on.
   await deps.store.clearOrphan(document.sourceId, coverMaterialId!)
+
+  return {
+    status: 'created',
+    mediaId,
+    warnings: [...rendered.warnings, ...warnings.warnings],
+  }
+}
+
+/**
+ * Create a 图片消息.
+ *
+ * Every image goes up as permanent material, which makes this the one path in
+ * the package where a failed run leaks quota at scale: twenty uploads, then a
+ * draft call that never returns. Two records bound that. Each material is
+ * written against its content hash the moment it exists, so the retry reuses
+ * what the failed run already paid for instead of buying twenty more; and each
+ * is also recorded as an orphan, so `cleanup-orphans` can still find material
+ * that never made it into a draft.
+ */
+async function createNewspic(
+  rendered: RenderedNewspicArticle,
+  deps: SynchronizeDeps,
+  existing: DraftIdentity | undefined,
+): Promise<SyncOutcome> {
+  const { document } = rendered
+  const normalize = normalizerFor(deps)
+  const warnings = new WarningCollector()
+
+  const known = new Map(
+    (existing?.imageMaterialIds ?? []).map((material) => [material.contentHash, material.materialId]),
+  )
+  const imageMediaIds: string[] = []
+
+  for (const asset of rendered.bodyAssets) {
+    const reused = known.get(asset.contentHash)
+    if (reused !== undefined) {
+      imageMediaIds.push(reused)
+      continue
+    }
+
+    const image = await normalize(asset, warnings)
+    const uploaded = await deps.client.uploadPermanentImage(image)
+
+    known.set(asset.contentHash, uploaded.mediaId)
+    await deps.store.recordImageMaterial(document.sourceId, {
+      contentHash: asset.contentHash,
+      materialId: uploaded.mediaId,
+    })
+    await deps.store.recordOrphan(document.sourceId, uploaded.mediaId)
+    imageMediaIds.push(uploaded.mediaId)
+  }
+
+  const mediaId = await deps.client.createDraft({
+    articleType: 'newspic',
+    title: document.title,
+    author: document.author,
+    content: rendered.content,
+    imageMediaIds,
+    contentSourceUrl: document.canonicalUrl,
+  })
+
+  await deps.store.commit(document.sourceId, { mediaId })
+
+  // Same invariant as the cover: material a draft references is not an orphan.
+  // Reused ids are cleared too, because an earlier failed run recorded them.
+  for (const id of new Set(imageMediaIds)) {
+    await deps.store.clearOrphan(document.sourceId, id)
+  }
 
   return {
     status: 'created',

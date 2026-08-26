@@ -9,9 +9,31 @@ export interface SourceArticle {
   readonly format: 'md'
 }
 
+/**
+ * Which WeChat draft form an article becomes.
+ *
+ * `news` is the ordinary 图文消息: one cover plus an HTML body. `newspic` is
+ * 图片消息, where the draft *is* an ordered list of images and the body is a
+ * short piece of plain text with no markup at all.
+ *
+ * The two are not variations on a theme. They differ in what gets uploaded
+ * (permanent material for every image rather than one cover), in what the
+ * renderer produces, and in what the draft endpoint accepts — which is why the
+ * distinction is carried on the document rather than decided at upload time.
+ */
+export type ArticleType = 'news' | 'newspic'
+
 /** The optional `wechat` frontmatter object. Technical design section 6. */
 export interface WechatFrontmatter {
   readonly enabled?: boolean
+  /**
+   * Draft form. Absent means `news`.
+   *
+   * Deliberately not inferred from the body: an article that happens to be all
+   * images is still an ordinary 图文, and guessing wrong here uploads twenty
+   * permanent materials that cannot be reclaimed.
+   */
+  readonly articleType?: ArticleType
   readonly title?: string
   readonly cover?: string
   readonly author?: string
@@ -43,6 +65,7 @@ export interface ArticleDocument {
   /** Canonical URL when available, otherwise the normalized relative path. */
   readonly sourceId: string
   readonly canonicalUrl: string | undefined
+  readonly articleType: ArticleType
   readonly title: string
   readonly body: string
   readonly author: string | undefined
@@ -87,21 +110,60 @@ export interface AssetIdentity {
 }
 
 /**
- * Technical design section 4.4, pre-upload state.
- *
- * This is what the create decision reads. It contains no uploaded URL, because
- * the content hash must be computable before anything is uploaded.
+ * Fields both draft forms carry. See `RenderedArticle`.
  */
-export interface RenderedArticle {
+export interface RenderedArticleBase {
   readonly document: ArticleDocument
-  /** Sanitized HTML with asset references still in placeholder form. */
-  readonly html: string
+  /**
+   * Images the draft carries, in document order.
+   *
+   * For `news` these are body images that get spliced back into the HTML. For
+   * `newspic` they are the draft itself — WeChat's `image_list`, whose first
+   * entry is the cover.
+   */
   readonly bodyAssets: readonly AssetIdentity[]
+  /**
+   * The article's declared cover.
+   *
+   * Still resolved for `newspic`, where WeChat takes the cover from the first
+   * image instead: it participates in the content hash, and a source whose
+   * `ogImage` changed is a source that changed.
+   */
   readonly coverAsset: AssetIdentity
   readonly contentHash: string
   readonly hashSchemaVersion: number
   readonly rendererVersion: string
   readonly warnings: readonly Warning[]
+}
+
+export interface RenderedNewsArticle extends RenderedArticleBase {
+  readonly articleType: 'news'
+  /** Sanitized HTML with asset references still in placeholder form. */
+  readonly html: string
+}
+
+export interface RenderedNewspicArticle extends RenderedArticleBase {
+  readonly articleType: 'newspic'
+  /** Plain text. WeChat renders no markup in a 图片消息 body. */
+  readonly content: string
+}
+
+/**
+ * Technical design section 4.4, pre-upload state.
+ *
+ * This is what the create decision reads. It contains no uploaded URL, because
+ * the content hash must be computable before anything is uploaded.
+ *
+ * A union rather than one shape with both bodies optional: there is no article
+ * that has HTML *and* plain text, and every consumer has to know which one it
+ * is holding before it can do anything with it.
+ */
+export type RenderedArticle = RenderedNewsArticle | RenderedNewspicArticle
+
+/** One uploaded permanent material, tied to the bytes that produced it. */
+export interface ImageMaterial {
+  readonly contentHash: string
+  readonly materialId: string
 }
 
 /** Technical design section 4.5. Persisted by the state store in ADR-0002. */
@@ -114,6 +176,15 @@ export interface DraftIdentity {
   readonly coverMaterialId?: string
   /** Content hash of the cover that produced `coverMaterialId`. */
   readonly coverContentHash?: string
+  /**
+   * Permanent material uploaded for a `newspic` image list, keyed by content.
+   *
+   * Written as each upload returns rather than at commit time. A run that dies
+   * between the uploads and the draft call would otherwise leave twenty
+   * materials charged to the quota with no way to find them again, and the
+   * retry would upload twenty more.
+   */
+  readonly imageMaterialIds?: readonly ImageMaterial[]
   readonly orphanedCoverMaterialIds?: readonly string[]
   readonly writeState: 'pending' | 'committed'
   readonly updatedAt?: string

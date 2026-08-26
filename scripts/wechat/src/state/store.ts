@@ -1,6 +1,6 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
-import type { DraftIdentity, ResolvedProject } from '../types.js'
+import type { DraftIdentity, ImageMaterial, ResolvedProject } from '../types.js'
 
 export interface StateStore {
   get(sourceId: string): Promise<DraftIdentity | undefined>
@@ -10,6 +10,15 @@ export interface StateStore {
   commit(sourceId: string, result: CommitResult): Promise<void>
   /** Note a permanent material that no draft references. */
   recordOrphan(sourceId: string, materialId: string): Promise<void>
+  /**
+   * Remember which bytes produced which permanent material.
+   *
+   * Separate from `recordOrphan`, which answers "what can be deleted": this
+   * answers "what must not be uploaded again". A 图片消息 uploads up to twenty
+   * materials before it has a draft to attach them to, and without this a
+   * retried run would buy every one of them a second time.
+   */
+  recordImageMaterial(sourceId: string, material: ImageMaterial): Promise<void>
   /**
    * Drop an orphan record once a draft references that material.
    *
@@ -77,8 +86,10 @@ export class JsonLedgerStore implements StateStore {
       ...previous,
       ...entry,
       // Orphan records survive a rewrite: they are the only trace of material
-      // that is already consuming quota.
+      // that is already consuming quota. Image materials survive for the same
+      // reason, and because they are what makes a retry free.
       orphanedCoverMaterialIds: previous?.orphanedCoverMaterialIds ?? [],
+      imageMaterialIds: previous?.imageMaterialIds ?? [],
       writeState: 'pending',
       updatedAt: new Date().toISOString(),
     }
@@ -117,6 +128,23 @@ export class JsonLedgerStore implements StateStore {
     ledger.entries[sourceId] = {
       ...previous,
       orphanedCoverMaterialIds: [...existing, materialId],
+      updatedAt: new Date().toISOString(),
+    }
+
+    await this.#save(ledger)
+  }
+
+  async recordImageMaterial(sourceId: string, material: ImageMaterial): Promise<void> {
+    const ledger = await this.#load()
+    const previous = ledger.entries[sourceId]
+    if (!previous) return
+
+    const existing = previous.imageMaterialIds ?? []
+    if (existing.some((entry) => entry.contentHash === material.contentHash)) return
+
+    ledger.entries[sourceId] = {
+      ...previous,
+      imageMaterialIds: [...existing, material],
       updatedAt: new Date().toISOString(),
     }
 
@@ -226,6 +254,7 @@ export class MemoryStateStore implements StateStore {
       ...previous,
       ...entry,
       orphanedCoverMaterialIds: previous?.orphanedCoverMaterialIds ?? [],
+      imageMaterialIds: previous?.imageMaterialIds ?? [],
       writeState: 'pending',
     })
   }
@@ -252,6 +281,14 @@ export class MemoryStateStore implements StateStore {
       ...previous,
       orphanedCoverMaterialIds: [...existing, materialId],
     })
+  }
+
+  async recordImageMaterial(sourceId: string, material: ImageMaterial): Promise<void> {
+    const previous = this.#entries.get(sourceId)
+    if (!previous) return
+    const existing = previous.imageMaterialIds ?? []
+    if (existing.some((entry) => entry.contentHash === material.contentHash)) return
+    this.#entries.set(sourceId, { ...previous, imageMaterialIds: [...existing, material] })
   }
 
   async clearOrphan(sourceId: string, materialId: string): Promise<void> {

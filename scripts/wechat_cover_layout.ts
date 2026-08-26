@@ -61,21 +61,25 @@ export function coverEntryFontSize(titles: string[]): number {
 // 代价：参考图里末字微微探出圈外的手绘感没有了，现在圈总是完整套住品牌。
 //
 // 外层必须 alignSelf: flex-start，否则它在列里被拉伸到满宽，椭圆会跟着横跨整张卡片。
-const BRAND_CIRCLE_INSET_X = 30;
-const BRAND_CIRCLE_INSET_TOP = 14;
-const BRAND_CIRCLE_INSET_BOTTOM = 12;
+// 全部按字号的比例给，图片消息的卡片用同一个圈但字号大得多；写死的 30/14/12 换到 72px
+// 品牌上会细成一根发丝。比例取自原先在 36px 下量定的值，因此封面那张图一像素不变。
+const BRAND_CIRCLE_INSET_X_EM = 30 / 36;
+const BRAND_CIRCLE_INSET_TOP_EM = 14 / 36;
+const BRAND_CIRCLE_INSET_BOTTOM_EM = 12 / 36;
+const BRAND_CIRCLE_OUTER_BORDER_EM = 4 / 36;
+const BRAND_CIRCLE_INNER_BORDER_EM = 3 / 36;
 
-function brandEllipse(accent: string, border: string, grow: number, rotate: number, opacity: string): SatoriNode {
+function brandEllipse(accent: string, fontSize: number, border: number, grow: number, rotate: number, opacity: string): SatoriNode {
   return {
     type: "div",
     props: {
       style: {
         position: "absolute",
-        top: `${-BRAND_CIRCLE_INSET_TOP - grow}px`,
-        bottom: `${-BRAND_CIRCLE_INSET_BOTTOM - grow}px`,
-        left: `${-BRAND_CIRCLE_INSET_X - grow}px`,
-        right: `${-BRAND_CIRCLE_INSET_X - grow}px`,
-        border: `${border} solid ${accent}`,
+        top: `${-Math.round(fontSize * BRAND_CIRCLE_INSET_TOP_EM) - grow}px`,
+        bottom: `${-Math.round(fontSize * BRAND_CIRCLE_INSET_BOTTOM_EM) - grow}px`,
+        left: `${-Math.round(fontSize * BRAND_CIRCLE_INSET_X_EM) - grow}px`,
+        right: `${-Math.round(fontSize * BRAND_CIRCLE_INSET_X_EM) - grow}px`,
+        border: `${border}px solid ${accent}`,
         borderRadius: "50%",
         transform: `rotate(${rotate}deg)`,
         opacity,
@@ -84,7 +88,9 @@ function brandEllipse(accent: string, border: string, grow: number, rotate: numb
   };
 }
 
-function circledBrand(brand: string, accent: string): SatoriNode {
+/** 笔圈栏目名。封面与图片消息卡片共用，字号由调用方给。 */
+export function circledBrand(brand: string, accent: string, fontSize: number = BRAND_FONT_SIZE): SatoriNode {
+  const outerBorder = Math.round(fontSize * BRAND_CIRCLE_OUTER_BORDER_EM);
   return {
     type: "div",
     props: {
@@ -92,13 +98,13 @@ function circledBrand(brand: string, accent: string): SatoriNode {
         display: "flex",
         position: "relative",
         alignSelf: "flex-start",
-        fontSize: BRAND_FONT_SIZE,
+        fontSize,
         fontWeight: 700,
         lineHeight: BRAND_LINE_HEIGHT,
       },
       children: [
-        brandEllipse(accent, "4px", 4, -3, "1"),
-        brandEllipse(accent, "3px", 0, 2, "0.88"),
+        brandEllipse(accent, fontSize, outerBorder, outerBorder, -3, "1"),
+        brandEllipse(accent, fontSize, Math.round(fontSize * BRAND_CIRCLE_INNER_BORDER_EM), 0, 2, "0.88"),
         { type: "div", props: { style: { display: "flex" }, children: brand } },
       ],
     },

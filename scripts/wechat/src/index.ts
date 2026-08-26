@@ -16,6 +16,7 @@ export {
   FIELD_LIMITS,
   HASH_SCHEMA_VERSION,
   IMAGE_BOUNDS,
+  NEWSPIC_LIMITS,
   RENDERER_VERSION,
 } from './constants.js'
 
@@ -77,7 +78,13 @@ export { rasterizeSvg, assertSafeSvg } from './image/rasterize.js'
 export { renderPreviewPage, writePreview } from './preview/index.js'
 
 export { WeChatClient } from './wechat/client.js'
-export type { CreateDraftInput, FindDraftOptions, ImageUpload } from './wechat/client.js'
+export type {
+  CreateDraftInput,
+  CreateNewsDraftInput,
+  CreateNewspicDraftInput,
+  FindDraftOptions,
+  ImageUpload,
+} from './wechat/client.js'
 export { readWechatConfig, DEFAULT_TIMEOUT_MS, DEFAULT_MAX_RETRIES } from './wechat/config.js'
 export type { WechatConfig } from './wechat/config.js'
 export {

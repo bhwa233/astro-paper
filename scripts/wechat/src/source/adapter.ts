@@ -1,7 +1,7 @@
 import { basename, extname } from 'node:path'
 import { SourceValidationError, type WarningCollector } from '../errors.js'
 import { checkEligibility } from '../eligibility.js'
-import type { ArticleDocument, ProjectConfig, ResolvedProject, SourceArticle, WechatFrontmatter } from '../types.js'
+import type { ArticleDocument, ArticleType, ProjectConfig, ResolvedProject, SourceArticle, WechatFrontmatter } from '../types.js'
 import { stripMarkdown } from '../util/text.js'
 import { assertWithinLimit, fitDigest } from './validate.js'
 
@@ -29,7 +29,7 @@ export function checkSourceEligibility(
     {
       draft: source.frontmatter.draft === true,
       tags: readTags(source.frontmatter.tags),
-      wechat: readWechat(source.frontmatter.wechat),
+      wechat: readWechat(source.frontmatter.wechat, source.absolutePath),
       source,
     },
     config,
@@ -45,8 +45,8 @@ export function toArticleDocument(
   options: AdapterOptions = {},
 ): ArticleDocument {
   const frontmatter = source.frontmatter
-  const wechat = readWechat(frontmatter.wechat)
   const sourcePath = source.absolutePath
+  const wechat = readWechat(frontmatter.wechat, sourcePath)
 
   const firstHeading = findFirstH1(source.body)
   const title = firstDefined(
@@ -97,6 +97,7 @@ export function toArticleDocument(
       return {
         sourceId: wechat.syncId ?? canonicalUrl ?? source.projectRelativePath,
         canonicalUrl,
+        articleType: wechat.articleType ?? 'news',
         title,
         body,
         author,
@@ -117,6 +118,7 @@ export function toArticleDocument(
   return {
     sourceId: wechat.syncId ?? canonicalUrl ?? source.projectRelativePath,
     canonicalUrl,
+    articleType: wechat.articleType ?? 'news',
     title,
     body,
     author,
@@ -199,12 +201,13 @@ function resolveCanonicalUrl(
   return new URL(path, siteUrl).href
 }
 
-function readWechat(value: unknown): WechatFrontmatter {
+function readWechat(value: unknown, sourcePath?: string): WechatFrontmatter {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
   const raw = value as Record<string, unknown>
 
   return {
     enabled: raw.enabled === true,
+    articleType: readArticleType(raw.articleType, sourcePath),
     title: asString(raw.title),
     cover: asString(raw.cover),
     author: asString(raw.author),
@@ -212,6 +215,25 @@ function readWechat(value: unknown): WechatFrontmatter {
     sourceURL: asString(raw.sourceURL),
     syncId: asString(raw.syncId),
   }
+}
+
+/**
+ * Read the draft form, rejecting anything that is not one of the two.
+ *
+ * A typo must not silently fall back to `news`: the author asked for the image
+ * form, and quietly publishing an HTML article instead is a content change made
+ * on their behalf. Absent is different from wrong and stays absent.
+ */
+function readArticleType(value: unknown, sourcePath?: string): ArticleType | undefined {
+  const raw = asString(value)
+  if (raw === undefined) return undefined
+  if (raw !== 'news' && raw !== 'newspic') {
+    throw new SourceValidationError(
+      `wechat.articleType 只能是 news 或 newspic，收到 ${raw}。`,
+      { code: 'invalid-article-type', sourcePath },
+    )
+  }
+  return raw
 }
 
 /**

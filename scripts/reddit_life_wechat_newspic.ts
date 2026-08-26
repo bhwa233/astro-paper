@@ -12,7 +12,6 @@ import { svgToPng } from "./image_raster.ts";
 import {
   redditLifeStoryTexts,
   redditLifeWechatNewspicSyncId,
-  redditLifeWechatTitle,
   REDDIT_LIFE_WECHAT_SHOW_SOURCE_URL,
   REDDIT_LIFE_WECHAT_TAG,
   REDDIT_LIFE_WECHAT_TITLE_BRAND,
@@ -129,18 +128,22 @@ export function renderRedditLifeWechatNewspicMarkdown({
   articleUrl: string;
   showSourceUrl?: boolean;
 }): string {
-  const title = compact(candidate.title);
-  if (!title) throw new Error("Reddit life WeChat newspic needs a post title");
+  const question = compact(candidate.title);
+  if (!question) throw new Error("Reddit life WeChat newspic needs a post title");
   if (!articleUrl) throw new Error("Reddit life WeChat newspic needs the upstream article URL");
   if (cardCount !== storyCount + 1) throw new Error(`Reddit life WeChat newspic card count ${cardCount} does not match ${storyCount} stories`);
 
   const wechatFields = [`  syncId: "${redditLifeWechatNewspicSyncId(archiveDate)}"`, '  articleType: "newspic"'];
   if (showSourceUrl) wechatFields.push(`  sourceURL: "${articleUrl}"`);
 
+  // 标题直接用上游标题，既不加「｜Reddit 问答精选」品牌后缀也不再压缩。
+  // 长度由 prompts/blog/daily/reddit-item-summary.md 在生成 life 文章时就守住（20 字以内），
+  // 那里是标题唯一被写出来的地方；在这里再截一次只会得到两套规则和一个更差的结果。
+  // 品牌后缀省掉是因为图片消息的栏目归属已经由首图卡上的笔圈交代过了。
   const metadata = frontmatter({
-    title: redditLifeWechatTitle(title),
+    title: question,
     date: archiveDate,
-    description: title,
+    description: question,
     tags: [REDDIT_LIFE_WECHAT_TAG],
     // 首张卡同时是封面。ogImage 仍要写：astro-wechat 的稿件校验要求有封面，
     // 而指向同一张图既满足校验，也不会多出一张与卡片不一致的图。
@@ -150,7 +153,7 @@ export function renderRedditLifeWechatNewspicMarkdown({
     .replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"))
     .replace("---\n\n", [`redditPostId: "${candidate.postId}"`, `subreddit: "${candidate.subreddit}"`, "---", ""].join("\n"));
 
-  const caption = `${title}\n\n来自 Reddit r/${candidate.subreddit}，本篇收录 ${storyCount} 条回答。`;
+  const caption = `来自 Reddit r/${candidate.subreddit}，本篇收录 ${storyCount} 条回答。`;
   const images = Array.from({ length: cardCount }, (_, index) => `![](${redditLifeWechatNewspicCardFile(index)})`);
 
   return `${metadata}${caption}\n\n${images.join("\n\n")}\n`;

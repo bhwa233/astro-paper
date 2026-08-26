@@ -9,6 +9,7 @@ import { bulletValue, extractBullets, hasChinese, normalizeMarkdownBlock, number
 import { parseWeiboTrendingTitleResponse } from "./weibo_trending_title.ts";
 
 export const WEIBO_TRENDING_LIMIT = 50;
+export const WEIBO_TRENDING_SUMMARY_LIMIT = 250;
 
 const DEFAULT_SUMMARY_URL = "https://raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/{date}/summary.json";
 const SUMMARY_PROMPT_TASK = "weibo-trending";
@@ -137,12 +138,15 @@ export function parseWeiboTrendingCandidates(source: string): WeiboTrendingItem[
   });
 }
 
-function parseWeiboTrendingItemSummary(raw: string, expectedRank: number): WeiboTrendingSummary {
+export function parseWeiboTrendingItemSummary(raw: string, expectedRank: number): WeiboTrendingSummary {
   const payload = parseModelJsonObject(raw, "Weibo trending item summary");
   const rank = Number(payload.rank);
   const summary = normalizeMarkdownBlock(payload.summary);
   if (rank !== expectedRank) throw new Error(`Weibo trending item summary rank mismatch: ${rank} vs ${expectedRank}`);
   if (!summary || !hasChinese(summary)) throw new Error(`Weibo trending item ${expectedRank} needs a Chinese summary`);
+  if ([...summary].length > WEIBO_TRENDING_SUMMARY_LIMIT) {
+    throw new Error(`Weibo trending item ${expectedRank} summary exceeds ${WEIBO_TRENDING_SUMMARY_LIMIT} Unicode characters`);
+  }
   if (/^\s{0,3}(?:#{1,6}\s|[-*+]\s|\d+\.\s)/m.test(summary)) {
     throw new Error(`Weibo trending item ${expectedRank} summary must be plain paragraphs, not a Markdown list or heading`);
   }

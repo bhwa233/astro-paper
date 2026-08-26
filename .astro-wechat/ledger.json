@@ -485,6 +485,62 @@
       "mediaId": "lAMaLd-mzPj_bm0zorBkNKu3v1SWr5iqoLk4f2POHgwSdh1kZHF4Jqn6xC6YYc27",
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNFivkZqZ_-3DikdKPaFy2DgplB4NbpOCtTMFBbpmFUec",
       "coverContentHash": "26f4a86809c3d11b"
+    },
+    "weibo-trending-2026-08-25": {
+      "sourceId": "weibo-trending-2026-08-25",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/weibo/",
+      "contentHash": "61b4d67bdd5e2bac1bb69c1e40d6d72086988dbec445bed24d25f726b7ec5484",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "imageMaterialIds": [
+        {
+          "contentHash": "134331ae7ed94068",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNCkuDPkGfgNz97UQVSQ8TzgbD3vWh0R9MqPhzmgrqPD3"
+        },
+        {
+          "contentHash": "82691699824ef27d",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNHTg8iVz9r4ebAl3lhG8bS23ML_eCZiMelnsipVs-1uN"
+        },
+        {
+          "contentHash": "aba6be9d1c479e13",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNOSvXzVE0__pj_kXuz9ET98733nUt2nB_dwHZbjPV2n7"
+        },
+        {
+          "contentHash": "365635f49e4d3c3e",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNNqPHlIQHk762ACtf-HSaMdPsStACRcvCsqi2G2fRH47"
+        },
+        {
+          "contentHash": "2ed94e0259df4c88",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNEn0DrevgSWx9codYaZ9BFkw9BtcnTqdp0NSOlg61Bcz"
+        },
+        {
+          "contentHash": "1fc22a51a540810c",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNDnfEwGbQTXVmfVfFbo8SAUNZ-sHpVJ9_mZ4sybAbG7A"
+        },
+        {
+          "contentHash": "dfd318d128c71720",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNFZ5May0I47F3ArObFWnkv-NqhmmxOAGqJJnCsU7DyGW"
+        },
+        {
+          "contentHash": "780e0c4dc4b6ce54",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNDu1uuY5gDxXmLcVS_AAgVaUyKyp_GpD9Pt6MVe6TsbU"
+        },
+        {
+          "contentHash": "52074bb6ad1dfc5b",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNKRFEjnBeHouvkSjxs3fwpq8t9KYsfy2uJHpvxuhzFwq"
+        },
+        {
+          "contentHash": "60595a2897719b73",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNLdumg_7A9hIZ3ZOa_DhzKTKETaEG2F88Z9JAN10_r8k"
+        },
+        {
+          "contentHash": "e56ce77670fb3c7b",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNDnd8iVHPPhSeLab2aGecy1Gm9CzNiJknG_fcM_Bltlo"
+        }
+      ],
+      "writeState": "committed",
+      "updatedAt": "2026-08-26T10:10:50.071Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNHIXcDWEB01syI32QZ-jJhysTc9Y-XoBMbN0w94ztnYk"
     }
   }
 }

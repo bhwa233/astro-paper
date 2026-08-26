@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  fitWeiboTrendingWechatSummary,
   renderWeiboTrendingWechatMarkdown,
   weiboTrendingWechatSyncId,
 } from "../scripts/weibo_trending_wechat_compose.ts";
@@ -28,14 +27,4 @@ test("Weibo trending WeChat drafts use a date-specific sync identity", () => {
   assert.match(markdown, /articleType: "newspic"/);
   assert.match(markdown, /!\[\]\(card-00\.png\)[\s\S]*!\[\]\(card-01\.png\)/);
   assert.doesNotMatch(markdown, /sourceURL:/);
-});
-
-test("Weibo trending image cards shorten summaries only at sentence boundaries", () => {
-  const summary = "第一句完整。第二句也完整。第三句保留。";
-
-  assert.equal(fitWeiboTrendingWechatSummary(summary, 14), "第一句完整。第二句也完整。…");
-  assert.throws(
-    () => fitWeiboTrendingWechatSummary("没有句号的超长第一句话", 8),
-    /starts with a sentence longer than 7 characters/,
-  );
 });

@@ -7,7 +7,6 @@ export const WEIBO_TRENDING_WECHAT_IMAGE_LIMIT = 20;
 export const WEIBO_TRENDING_WECHAT_ITEM_LIMIT = 10;
 export const WEIBO_TRENDING_WECHAT_TAG = "微博热搜";
 export const WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT = 120;
-export const WEIBO_TRENDING_WECHAT_SUMMARY_LIMIT = 300;
 
 const BLOG_URL = "https://blog.bhwa233.com/";
 
@@ -72,30 +71,6 @@ export function weiboTrendingWechatCardFile(index: number): string {
     throw new Error(`invalid Weibo trending WeChat card index: ${index}`);
   }
   return `card-${String(index).padStart(2, "0")}.png`;
-}
-
-/** 保留尽可能多的完整句；图片卡片不能靠裁切隐藏半句话。 */
-export function fitWeiboTrendingWechatSummary(summary: string, limit = WEIBO_TRENDING_WECHAT_SUMMARY_LIMIT): string {
-  const text = compact(summary);
-  if (!text) throw new Error("Weibo trending WeChat card needs a summary");
-  if (!Number.isInteger(limit) || limit < 2) throw new Error(`invalid Weibo trending WeChat summary limit: ${limit}`);
-  if ([...text].length <= limit) return text;
-
-  const sentences = [...new Intl.Segmenter("zh-CN", { granularity: "sentence" }).segment(text)]
-    .map(part => compact(part.segment))
-    .filter(Boolean);
-  const selected: string[] = [];
-  let characters = 0;
-  for (const sentence of sentences) {
-    const length = [...sentence].length;
-    if (characters + length > limit - 1) break;
-    selected.push(sentence);
-    characters += length;
-  }
-  if (!selected.length) {
-    throw new Error(`Weibo trending WeChat summary starts with a sentence longer than ${limit - 1} characters`);
-  }
-  return `${selected.join("")}…`;
 }
 
 function descriptionWithTitles(items: WeiboTrendingWechatItem[], titleCount: number): string {

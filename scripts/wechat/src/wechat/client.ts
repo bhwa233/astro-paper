@@ -172,12 +172,17 @@ export class WeChatClient {
    * synchronizer resolves by reconciling against WeChat rather than by trying
    * again — that retry is precisely how duplicate drafts appear.
    *
-   * UNVERIFIED: whether a `newspic` draft stores `content_source_url`, and
-   * whether `draft/batchget` reports it under `news_item`. If it does not, the
-   * remote reconciliation path cannot find image drafts. That failure direction
-   * is the safe one — `reconcile()` raises `reconcile-impossible` instead of
-   * creating a second draft — but it does mean an interrupted image publish
-   * needs the operator rather than resolving itself.
+   * Verified against a live account on 2026-08-26: a `newspic` draft is created
+   * and visible in the account's draft box, but neither read endpoint can see
+   * it. `draft/batchget` omits it from `item` entirely (the account's two news
+   * drafts came back, the image draft did not), and `draft/get` rejects its
+   * `media_id` with errcode 40007. Both endpoints appear to be news-only.
+   *
+   * So remote reconciliation does not work for image drafts at all — this is
+   * stronger than "the source URL might be missing". The failure direction is
+   * still the safe one: `reconcile()` raises `reconcile-impossible` rather than
+   * creating a second draft. But an interrupted image publish needs an operator
+   * looking at the draft box, because nothing here can resolve it.
    */
   async createDraft(input: CreateDraftInput): Promise<string> {
     const article: Record<string, unknown> = {

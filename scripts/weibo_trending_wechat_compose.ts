@@ -25,6 +25,13 @@ export function weiboTrendingArticleUrl(articlePath: string): string {
   return `${BLOG_URL}posts/${encodeURIComponent(slug)}/`;
 }
 
+export function weiboTrendingWechatSyncId(archiveDate: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(archiveDate)) {
+    throw new Error(`invalid Weibo trending WeChat archive date: ${archiveDate || "missing"}`);
+  }
+  return `weibo-trending-${archiveDate}`;
+}
+
 // 卡片沿用 Reddit 微信稿验证过的 table 结构，避免微信编辑器破坏 flex 布局。
 function qrCard(target: string): string {
   return [
@@ -112,8 +119,9 @@ export function weiboTrendingWechatDescription(items: WeiboTrendingWechatItem[])
 
 // sourceURL 由 A/B 开关决定：它变成草稿的 content_source_url，也就是文末的「阅读原文」，
 // 和二维码卡片是同一类站外引流，两者各自可关。
-// 这条线一天只出一篇，身份不会撞车，因此不需要 syncId：关掉 sourceURL 时 astro-wechat
-// 会按 siteUrl + permalinkPattern + 文件名推导一个 canonical URL 当身份，稳定且唯一。
+// 生成文件固定名为 01.md，不能把 canonical URL 当作草稿身份，否则跨日会被误判为同一篇。
+// syncId 按归档日期区分，而 sourceURL 仍只控制读者是否能看到「阅读原文」；翻转 A/B 开关
+// 不会让同一天的稿子被当作一篇新草稿。
 export function renderWeiboTrendingWechatMarkdown({
   items,
   archiveDate,
@@ -137,16 +145,15 @@ export function renderWeiboTrendingWechatMarkdown({
   if (!items.length) throw new Error("Weibo trending WeChat article needs at least one item");
   if (!title) throw new Error("Weibo trending WeChat article needs a title");
   if (!articleUrl) throw new Error("Weibo trending WeChat article needs the upstream article URL");
-  let metadata = frontmatter({
+  const wechatFields = [`  syncId: "${weiboTrendingWechatSyncId(archiveDate)}"`];
+  if (showSourceUrl) wechatFields.push(`  sourceURL: "${articleUrl}"`);
+  const metadata = frontmatter({
     title,
     date: archiveDate,
     description,
     tags: [WEIBO_TRENDING_WECHAT_TAG],
     ogImage: coverFile,
     wechatEnabled: true,
-  });
-  if (showSourceUrl) {
-    metadata = metadata.replace("wechat:\n  enabled: true", `wechat:\n  enabled: true\n  sourceURL: "${articleUrl}"`);
-  }
+  }).replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"));
   return `${metadata}${[weiboTrendingWechatBody(items), footer].filter(Boolean).join("\n\n")}\n`;
 }

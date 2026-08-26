@@ -201,6 +201,11 @@ function assertNewspicImages(assets: readonly AssetIdentity[], sourcePath: strin
   }
 }
 
+/**
+ * Only an upper bound. An empty caption is valid and is the common case: a
+ * 图片消息 renders its text below the images, where a reader arrives only after
+ * swiping through the whole set, so most of these drafts carry pictures alone.
+ */
 function assertNewspicContent(content: string, sourcePath: string): void {
   const characters = codePointLength(content)
   if (characters > NEWSPIC_LIMITS.maxContentCharacters) {

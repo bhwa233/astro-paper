@@ -153,8 +153,9 @@ export function renderRedditLifeWechatNewspicMarkdown({
     .replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"))
     .replace("---\n\n", [`redditPostId: "${candidate.postId}"`, `subreddit: "${candidate.subreddit}"`, "---", ""].join("\n"));
 
-  const caption = `来自 Reddit r/${candidate.subreddit}，本篇收录 ${storyCount} 条回答。`;
+  // 正文只有图，没有一句说明文字：图片消息里那段文字排在图下方，读者要先划完二十张卡才看得到，
+  // 而那时候「本篇收录 19 条回答」已经不再是信息。卡片自己带页码，栏目归属由首图的笔圈交代。
   const images = Array.from({ length: cardCount }, (_, index) => `![](${redditLifeWechatNewspicCardFile(index)})`);
 
-  return `${metadata}${caption}\n\n${images.join("\n\n")}\n`;
+  return `${metadata}${images.join("\n\n")}\n`;
 }

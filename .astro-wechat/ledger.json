@@ -465,26 +465,26 @@
     "reddit-life-2026-08-25-v1": {
       "sourceId": "reddit-life-2026-08-25-v1",
       "canonicalUrl": "https://blog.bhwa233.com/posts/01-1vy58of/",
-      "contentHash": "11d502728366c3c9b5d3c3b7c80acb902db231cf4dc28224834bdb2099266020",
+      "contentHash": "ae5e2435de855befc143f3478a6f13d955fe88dab9205028d3430052eaac5e96",
       "hashSchemaVersion": 1,
       "orphanedCoverMaterialIds": [],
       "writeState": "committed",
-      "updatedAt": "2026-08-26T04:04:31.686Z",
-      "mediaId": "lAMaLd-mzPj_bm0zorBkNMTEznNsZC3_6Gd84urFWDA3qCh38qMJPHPKHfAqS_wP",
-      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNMejGEmFlWevasbKMIRjQatKuNaTjZUMMcmYLyc1EuMw",
-      "coverContentHash": "21db5c78946e7f23"
+      "updatedAt": "2026-08-26T06:53:43.506Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNNxU__R4KbdfWFn9dDA9ISCowNueO1M4ZfGIpetdO2TD",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNEh6pLPM3-flQt4gL-ZbOXqVipC5ZRaIftxO9Fw1ge8e",
+      "coverContentHash": "4b50ac95bd8038f4"
     },
     "reddit-life-2026-08-25-v2": {
       "sourceId": "reddit-life-2026-08-25-v2",
-      "canonicalUrl": "https://blog.bhwa233.com/posts/06-1vxq3eu/",
-      "contentHash": "032b028f01369dcdd9534bcabde3f7d9661f91651a14a77227b027091425d2a8",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/02-1vxvuic/",
+      "contentHash": "ab49df1a11eeba768433d9920e5f5bed5f8018c61e891a82cd495f9dd57a510d",
       "hashSchemaVersion": 1,
       "orphanedCoverMaterialIds": [],
       "writeState": "committed",
-      "updatedAt": "2026-08-26T04:04:26.458Z",
-      "mediaId": "lAMaLd-mzPj_bm0zorBkNA6CFnkmskUmRLiSIV-XiLmYc_T7NmlYBmBcsGRE3_Sn",
-      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNPjTquY_eLMjS_MGIgsjfLnF7dreby_r2ha0ur3-bUG5",
-      "coverContentHash": "7a15033260288732"
+      "updatedAt": "2026-08-26T06:53:38.549Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNKu3v1SWr5iqoLk4f2POHgwSdh1kZHF4Jqn6xC6YYc27",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNFivkZqZ_-3DikdKPaFy2DgplB4NbpOCtTMFBbpmFUec",
+      "coverContentHash": "26f4a86809c3d11b"
     }
   }
 }

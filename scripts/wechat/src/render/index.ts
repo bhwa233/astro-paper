@@ -48,9 +48,11 @@ export async function renderArticle(
   // 2. Outbound links stripped to their content, before the theme sees them.
   const linked = rewriteOutboundLinks(parsed, { clickableHosts: CLICKABLE_LINK_HOSTS })
 
-  // 3. The draft cover is always the first body image. It then follows the
-  //    normal body-image path through styling, hashing, and upload.
-  const withCover = prependCoverImage(linked, document.cover)
+  // 3. The draft cover is normally the first body image. A source can keep it
+  //    solely as the list thumbnail when its body has a stronger opening.
+  const withCover = document.wechat.showCoverInBody === false
+    ? linked
+    : prependCoverImage(linked, document.cover)
 
   // 4. Theme, and 5. inline it. WeChat drops <style>, so `juice` is not an
   //    optimization here; without it the article renders unstyled.

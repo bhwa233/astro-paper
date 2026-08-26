@@ -1,11 +1,11 @@
-name: Publish Reddit Life
+name: Publish Reddit Life Discussions
 
 permissions:
   contents: write
 
 on:
   schedule:
-    - cron: "0 10 * * *"
+    - cron: "15 10 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -24,28 +24,15 @@ on:
 
 jobs:
   publish:
-    name: Publish Reddit Q&A
+    name: Publish Reddit Life Discussions
     permissions:
       contents: write
     uses: ./.github/workflows/blog-publish.yml
     with:
       task: reddit-top20
-      reddit_category: life
+      reddit_category: life-discussions
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '0 10 * * *' }}
+      event_schedule: ${{ github.event.schedule || '15 10 * * *' }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
-    secrets: inherit
-
-  reddit-life-wechat:
-    name: Archive Reddit Life WeChat Drafts
-    needs: publish
-    permissions:
-      contents: write
-    uses: ./.github/workflows/reddit-life-wechat.yml
-    with:
-      date: ${{ inputs.date || '' }}
-      upstream_sha: ${{ needs.publish.outputs.generated_sha }}
-      upstream_workflow_run: ${{ github.run_id }}
       ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
     secrets: inherit

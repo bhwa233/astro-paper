@@ -127,7 +127,7 @@ raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/<date>/s
 
 博客侧新增 `weibo-trending` 任务，落点与 `reddit-trending` 完全一致：`BLOG_TASKS` 一条、`SOURCE_BUILDERS` / `SOURCE_COMBINERS` / `LEDGER_APPENDERS` / `ARCHIVE_FORMATTERS` 各一项、逐条摘要与整篇标题提示词、一个 `publish-*.yml`。
 
-站点文章发布成功后还会进入独立的[微博热搜微信草稿管线](./weibo-trending-wechat-pipeline.md)：它只读取已提交文章，移除话题链接并保留前 30 条，通过纯规则生成公众号草稿，不再调用模型。
+站点文章发布成功后还会进入独立的[微博热搜微信草稿管线](./weibo-trending-wechat-pipeline.md)：它只读取已提交文章，保留前 10 条并通过纯规则渲染为一张 Top 10 总封面加 10 张话题卡，不再调用模型。
 
 ## 6. 已定决策
 

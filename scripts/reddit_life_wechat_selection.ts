@@ -1,4 +1,4 @@
-// Reddit 人生微信稿的 AI 选题层：一次比较整篇文章的全部候选，只返回过滤与排序决定。
+// Reddit 人生微信稿的 AI 编辑层：一次比较整篇文章的全部候选，返回过滤、排序与每卷导语。
 // JSON 重试、模型调用和提示词寻址均复用博客生成基础设施；本模块只持有该栏目的判断契约。
 import { readPromptTemplate } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
@@ -29,6 +29,8 @@ export type RedditLifeWechatRejectedPost = {
 export type RedditLifeWechatSelection = {
   selected: RedditLifeWechatSelectedPost[];
   rejected: RedditLifeWechatRejectedPost[];
+  /** One AI-written opening per generated volume, in volume order. */
+  leads: string[];
 };
 
 function validRank(value: unknown, candidateCount: number, label: string): number {
@@ -49,7 +51,13 @@ function reason(value: unknown, rank: number): string {
   return parsed;
 }
 
-export function validateRedditLifeWechatSelection(raw: unknown, candidateCount: number): RedditLifeWechatSelection {
+function lead(value: unknown, index: number): string {
+  const parsed = String(value || "").trim();
+  if (!parsed || !/[一-鿿]/.test(parsed)) throw new Error(`Reddit life WeChat lead ${index + 1} needs Chinese copy`);
+  return parsed;
+}
+
+export function validateRedditLifeWechatSelection(raw: unknown, candidateCount: number, requireLeads = true): RedditLifeWechatSelection {
   if (!Number.isInteger(candidateCount) || candidateCount < 1) throw new Error(`invalid Reddit life WeChat candidate count: ${candidateCount}`);
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life WeChat selection must be a JSON object");
   const value = raw as Record<string, unknown>;
@@ -78,7 +86,13 @@ export function validateRedditLifeWechatSelection(raw: unknown, candidateCount: 
   if (ranks.length !== candidateCount || new Set(ranks).size !== candidateCount) {
     throw new Error(`Reddit life WeChat selection must cover all ${candidateCount} candidates exactly once`);
   }
-  return { selected, rejected };
+  const expectedLeadCount = selected.length === REDDIT_LIFE_WECHAT_TOTAL_POSTS ? 2 : selected.length ? 1 : 0;
+  const rawLeads = value.leads;
+  if (rawLeads === undefined && !requireLeads) return { selected, rejected, leads: [] };
+  if (!Array.isArray(rawLeads) || rawLeads.length !== expectedLeadCount) {
+    throw new Error(`Reddit life WeChat selection needs ${expectedLeadCount} lead(s)`);
+  }
+  return { selected, rejected, leads: rawLeads.map(lead) };
 }
 
 export function parseRedditLifeWechatSelection(raw: string, candidateCount: number): RedditLifeWechatSelection {

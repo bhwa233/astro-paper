@@ -26,6 +26,8 @@ export type ArticleType = 'news' | 'newspic'
 /** The optional `wechat` frontmatter object. Technical design section 6. */
 export interface WechatFrontmatter {
   readonly enabled?: boolean
+  /** Keep the draft cover as the WeChat list thumbnail without repeating it in the article body. */
+  readonly showCoverInBody?: boolean
   /**
    * Draft form. Absent means `news`.
    *

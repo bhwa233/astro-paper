@@ -62,17 +62,6 @@ export function redditLifeWechatSyncId(archiveDate: string, volume: RedditLifeVo
   return `reddit-life-${archiveDate}-v${index + 1}`;
 }
 
-/**
- * 图片消息那一篇在台账里的身份。
- *
- * 与两卷图文同源同日，因此同样不能用 canonical URL 当身份；后缀 `-np` 把它与 `-v1`/`-v2`
- * 分开。它是「同一天的第三种形态」，不是第三卷，所以不进 REDDIT_LIFE_WECHAT_VOLUMES。
- */
-export function redditLifeWechatNewspicSyncId(archiveDate: string): string {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(archiveDate)) throw new Error(`invalid Reddit life WeChat archive date: ${archiveDate || "missing"}`);
-  return `reddit-life-${archiveDate}-np`;
-}
-
 // 微信正文里的外链点不动（astro-wechat 会把 <a> 拆成文字加尾注），二维码是唯一能把读者送出去的通道。
 // 两栏用 table 而不是 flex：微信编辑器对 flex 支持不稳，table 在 doocs-default 主题里本来就有样式。
 // 卡片内不能出现空行——markdown-it 的 html_block 遇到空行就结束，后半段会被当成普通段落。
@@ -173,18 +162,6 @@ function storyItems(body: string): string[] {
     .filter(Boolean);
 }
 
-/**
- * 一帖的回答列表，去掉编号前缀。
- *
- * 图文稿保留编号（它靠编号分段），图片消息不保留：那边一条回答就是一张卡，
- * 序号由卡片自己画在角上，正文里再带一个「7.」只会重复。
- */
-export function redditLifeStoryTexts(body: string): string[] {
-  return storyItems(body)
-    .map(item => compact(item.replace(/^\d+\\?\.\s*/, "")))
-    .filter(Boolean);
-}
-
 // 每帖只取前 limit 条：全量渲染出的 HTML 会撞上微信 20000 字符上限。
 // 编号是上游给的顺序，截前 N 条不会留下断号。
 function limitedStoryText(body: string, limit = REDDIT_LIFE_WECHAT_REPLY_LIMIT): string {
@@ -222,12 +199,13 @@ export function dropTrailingStories(markdown: string, drop: number): string {
   if (drop <= 0) return markdown;
   const { front, body, footer } = splitWechatMarkdown(markdown);
   const blocks = bodyBlocks(body);
-  const stories = blocks.filter(block => !HEADING_BLOCK.test(block));
+  const firstHeading = blocks.findIndex(block => HEADING_BLOCK.test(block));
+  const stories = blocks.filter((block, index) => index > firstHeading && !HEADING_BLOCK.test(block));
   if (drop >= stories.length) throw new Error(`Reddit life WeChat markdown has fewer than ${drop} droppable stories`);
   let remaining = drop;
   const kept: string[] = [];
-  for (const block of [...blocks].reverse()) {
-    if (remaining > 0 && !HEADING_BLOCK.test(block)) {
+  for (const [index, block] of [...blocks.entries()].reverse()) {
+    if (remaining > 0 && index > firstHeading && !HEADING_BLOCK.test(block)) {
       remaining -= 1;
       continue;
     }
@@ -239,7 +217,9 @@ export function dropTrailingStories(markdown: string, drop: number): string {
 }
 
 export function countDroppableStories(markdown: string): number {
-  return bodyBlocks(splitWechatMarkdown(markdown).body).filter(block => !HEADING_BLOCK.test(block)).length;
+  const blocks = bodyBlocks(splitWechatMarkdown(markdown).body);
+  const firstHeading = blocks.findIndex(block => HEADING_BLOCK.test(block));
+  return blocks.filter((block, index) => index > firstHeading && !HEADING_BLOCK.test(block)).length;
 }
 
 // 二维码卡片开着时它排在正文之后，必须留在截断范围之外——撞长度上限时该删的是回答，
@@ -285,6 +265,7 @@ export function renderRedditLifeWechatMarkdown({
   candidates,
   headline,
   description,
+  lead,
   archiveDate,
   volume,
   articleUrl,
@@ -296,6 +277,7 @@ export function renderRedditLifeWechatMarkdown({
   candidates: RedditLifeCandidate[];
   headline: string;
   description: string;
+  lead: string;
   archiveDate: string;
   volume: RedditLifeVolume;
   articleUrl: string;
@@ -305,10 +287,11 @@ export function renderRedditLifeWechatMarkdown({
   showSourceUrl?: boolean;
 }): string {
   if (!description) throw new Error("Reddit life WeChat article needs a description");
+  if (!lead.trim()) throw new Error("Reddit life WeChat article needs an AI-written lead");
   if (!candidates.length) throw new Error("Reddit life WeChat article needs at least one post");
   if (!articleUrl) throw new Error("Reddit life WeChat article needs the upstream article URL");
   const [primary] = candidates;
-  const wechatFields = [`  syncId: "${redditLifeWechatSyncId(archiveDate, volume)}"`];
+  const wechatFields = [`  syncId: "${redditLifeWechatSyncId(archiveDate, volume)}"`, "  showCoverInBody: false"];
   if (showSourceUrl) wechatFields.push(`  sourceURL: "${articleUrl}"`);
   const metadata = frontmatter({
     title: redditLifeWechatTitle(headline),
@@ -320,7 +303,7 @@ export function renderRedditLifeWechatMarkdown({
   })
     .replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"))
     .replace("---\n\n", [`redditPostId: "${primary.postId}"`, `subreddit: "${primary.subreddit}"`, "---", ""].join("\n"));
-  return `${metadata}${[redditLifeWechatBody(candidates, replyLimit), footer].filter(Boolean).join("\n\n")}\n`;
+  return `${metadata}${[lead.trim(), redditLifeWechatBody(candidates, replyLimit), footer].filter(Boolean).join("\n\n")}\n`;
 }
 
 export function markdownSha256(markdown: string): string {

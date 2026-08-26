@@ -554,9 +554,10 @@ export type RedditItemProcessingOutcome = RedditItemSummaryOutcome & {
 };
 
 // 显式映射供约定检查器追踪模板归属，避免动态文件名让孤儿模板悄然失效。
-// 三个栏目读的是同一形状的 source block，各自的提示词决定怎么读它。
+// 四个栏目读的是同一形状的 source block，各自的提示词决定怎么读它。
 const REDDIT_PROMPT_BY_CATEGORY: Record<RedditCategory["key"], string> = {
   life: "reddit-item-summary",
+  "life-discussions": "reddit-life-discussions-summary",
   ama: "reddit-ama-summary",
   markets: "reddit-markets-item-summary",
 };
@@ -578,7 +579,14 @@ export function partitionRedditItemOutcomes(outcomes: RedditItemProcessingOutcom
 
 // summary 为 null 表示模型判定整帖落在排除主题上；error 则表示重试后仍无法产出可用摘要。
 // 单帖失败不能带走整批，因此这里给 onExhausted 而不是让它抛。
-function summarizeRedditItem(prompt: string, rank: number, model: string, artifactsDir: string, minChars: number): Promise<RedditItemSummaryOutcome> {
+function summarizeRedditItem(
+  prompt: string,
+  rank: number,
+  model: string,
+  artifactsDir: string,
+  minChars: number,
+  summaryFormat: RedditCategory["summaryFormat"],
+): Promise<RedditItemSummaryOutcome> {
   return generateJsonStageWithRetries<RedditItemSummaryOutcome>({
     task: "reddit-top20",
     stage: `Reddit item ${rank}`,
@@ -587,7 +595,7 @@ function summarizeRedditItem(prompt: string, rank: number, model: string, artifa
     model,
     artifactsDir,
     jitterMs: 1_000,
-    parse: content => ({ summary: parseRedditItemOutcome(content, rank, minChars) }),
+    parse: content => ({ summary: parseRedditItemOutcome(content, rank, minChars, summaryFormat) }),
     onExhausted: error => ({ summary: null, error }),
   });
 }
@@ -616,12 +624,12 @@ async function buildCombinedRedditSource({
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const templateName = REDDIT_PROMPT_BY_CATEGORY[redditCategory.key];
   const template = readPromptTemplate(resolvedPromptDir, templateName, REDDIT_PROMPT_FRAGMENTS);
-  // 逐帖传入受限 source block。有限并发保证三个栏目运行时不会把候选池拼成一个巨型提示词。
+  // 逐帖传入受限 source block。有限并发保证各栏目运行时不会把候选池拼成一个巨型提示词。
   const outcomes: RedditItemProcessingOutcome[] = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
     if (!Number.isInteger(rank)) throw new Error("Reddit source item is missing rank");
     const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{post_text}", block);
-    const outcome = await summarizeRedditItem(prompt, rank, model, artifactsDir, redditCategory.summaryMinChars);
+    const outcome = await summarizeRedditItem(prompt, rank, model, artifactsDir, redditCategory.summaryMinChars, redditCategory.summaryFormat);
     return { block, rank, ...outcome };
   });
   const { kept, excluded, failed } = partitionRedditItemOutcomes(outcomes);

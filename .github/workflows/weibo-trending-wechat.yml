@@ -171,7 +171,7 @@ jobs:
           node-version: "24"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Collect draft path and restore QR code
+      - name: Collect draft path
         id: paths
         env:
           MANIFEST_PATH: ${{ needs.generate-and-archive.outputs.manifest_path }}
@@ -179,15 +179,8 @@ jobs:
           set -euo pipefail
           node --input-type=module <<'NODE'
           import fs from "node:fs";
-          import path from "node:path";
           const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
           const paths = manifest.status === "processed" && manifest.draft?.path ? [manifest.draft.path] : [];
-          // 二维码不提交，由生成 job 作为 artifact 交过来。卡片开关关掉时生成 job 不产出这张图，
-          // 稿子也不引用它，因此缺失是正常状态，不能当成失败。
-          const qrSource = "weibo-trending-wechat-artifacts/qr.png";
-          if (paths.length && fs.existsSync(qrSource)) {
-            fs.copyFileSync(qrSource, path.join(path.dirname(paths[0]), "qr.png"));
-          }
           fs.writeFileSync("weibo-trending-wechat-paths.txt", paths.join("\n"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
           NODE

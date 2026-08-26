@@ -11,6 +11,7 @@ import { appendMdblistRecommendations, loadMdblistRecommendationKeys } from "../
 import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
 import { tempDir, tempFile } from "./helpers/mocks.ts";
 import { generateRedditLifeWechat, loadRedditLifeRunManifest } from "../scripts/generate_reddit_life_wechat.ts";
+import { shouldRebuildWeiboTrendingWechatManifest } from "../scripts/generate_weibo_trending_wechat.ts";
 
 function commitFixtureRepo(repo: string): string {
   execFileSync("git", ["-C", repo, "init", "--quiet"]);
@@ -90,6 +91,16 @@ test("Reddit life generator reuses a normal rerun but force rebuilds a backfill"
   const rebuilt = loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`);
   assert.equal(rebuilt?.upstream.generatedSha, archiveSha);
   assert.equal(rebuilt?.upstream.workflowRun, "234567890");
+});
+
+test("Weibo WeChat generator rebuilds a processed archive from a new parent handoff", () => {
+  const existing = {
+    status: "processed" as const,
+    upstream: { generatedSha: "aaaaaaaa", workflowRun: "123456789", articlePath: "src/content/posts/01.md" },
+  };
+
+  assert.equal(shouldRebuildWeiboTrendingWechatManifest(existing, "aaaaaaaa", true), false);
+  assert.equal(shouldRebuildWeiboTrendingWechatManifest(existing, "bbbbbbbb", true), true);
 });
 
 // 2026-08-18: qr.png is intentionally gitignored, so reusing a committed manifest used to

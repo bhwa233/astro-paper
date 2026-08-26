@@ -23,7 +23,7 @@ on:
         required: false
         type: string
       reddit_category:
-        description: "Reddit category key required by reddit-top20: life, ama, or markets."
+        description: "Reddit category key required by reddit-top20: life, life-discussions, ama, or markets."
         required: false
         type: string
       force:
@@ -66,7 +66,7 @@ on:
         required: false
         type: string
       reddit_category:
-        description: "Reddit category key required by reddit-top20: life, ama, or markets."
+        description: "Reddit category key required by reddit-top20: life, life-discussions, ama, or markets."
         required: false
         type: string
       force:

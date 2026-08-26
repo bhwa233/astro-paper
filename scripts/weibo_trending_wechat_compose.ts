@@ -3,21 +3,20 @@ import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
 import { bulletValue, extractBullets, numberedBlocks } from "./compose_common.ts";
 
-export const WEIBO_TRENDING_WECHAT_ITEM_LIMIT = 30;
+export const WEIBO_TRENDING_WECHAT_IMAGE_LIMIT = 20;
+export const WEIBO_TRENDING_WECHAT_ITEM_LIMIT = 10;
 export const WEIBO_TRENDING_WECHAT_TAG = "微博热搜";
 export const WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT = 120;
-export const WEIBO_TRENDING_WECHAT_QR_FILE = "qr.png";
+export const WEIBO_TRENDING_WECHAT_SUMMARY_LIMIT = 300;
 
 const BLOG_URL = "https://blog.bhwa233.com/";
 
 // ------------------------------------------------------------------ A/B 开关
 //
-// 与 Reddit 那条线同样的两个站外引流入口，但**独立取值**：让一条开着、另一条关着，
-// 才能在同一时间窗内形成对照。前后期对比会被这期间任何别的改动污染。
-// 改动时在下面记一行日期与意图。
-//   2026-08-25 两项同时关闭，作为无引流入口的基线。
+// 图片消息没有图文页脚，唯一可用的站外入口是「阅读原文」。保留独立开关，避免改动
+// Reddit 的实验状态；翻转时在这里记录日期与意图。
+//   2026-08-25 关闭，作为无站外入口的基线。
 export const WEIBO_TRENDING_WECHAT_SHOW_SOURCE_URL = false;
-export const WEIBO_TRENDING_WECHAT_SHOW_QR = false;
 
 export function weiboTrendingArticleUrl(articlePath: string): string {
   const slug = path.basename(articlePath, ".md");
@@ -30,30 +29,6 @@ export function weiboTrendingWechatSyncId(archiveDate: string): string {
     throw new Error(`invalid Weibo trending WeChat archive date: ${archiveDate || "missing"}`);
   }
   return `weibo-trending-${archiveDate}`;
-}
-
-// 卡片沿用 Reddit 微信稿验证过的 table 结构，避免微信编辑器破坏 flex 布局。
-function qrCard(target: string): string {
-  return [
-    '<section style="margin:24px 0 0;padding:16px 18px;background:#f7f7f7;border-radius:6px;">',
-    '<table style="width:100%;min-width:0;margin:0;border-collapse:collapse;">',
-    "<tbody><tr>",
-    '<td style="border:none;padding:0;vertical-align:middle;">',
-    '<p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:#8a8a8a;">长按识别二维码查看更多热搜话题</p>',
-    `<p style="margin:0;font-size:13px;line-height:1.5;color:#576b95;word-break:break-all;">${target}</p>`,
-    "</td>",
-    '<td style="border:none;width:96px;padding:0 0 0 14px;vertical-align:middle;">',
-    `<img src="${WEIBO_TRENDING_WECHAT_QR_FILE}" alt="微博热搜原文二维码" width="96" height="96" />`,
-    "</td>",
-    "</tr></tbody></table>",
-    "</section>",
-  ].join("\n");
-}
-
-/** 二维码关闭时返回空串，稿子就没有页脚。开关做成默认参数，测试才能跑到两种状态。 */
-export function weiboTrendingWechatFooter(articleUrl: string, showQr = WEIBO_TRENDING_WECHAT_SHOW_QR): string {
-  if (!showQr) return "";
-  return qrCard(articleUrl);
 }
 
 export type WeiboTrendingWechatItem = {
@@ -92,12 +67,35 @@ export function parseWeiboTrendingArticle(markdown: string): WeiboTrendingWechat
   });
 }
 
-export function weiboTrendingWechatBody(items: WeiboTrendingWechatItem[]): string {
-  if (!items.length) throw new Error("Weibo trending WeChat article needs at least one item");
-  return items
-    .slice(0, WEIBO_TRENDING_WECHAT_ITEM_LIMIT)
-    .map((item, index) => `## ${index + 1}. ${compact(item.title)}\n\n${compact(item.summary)}`)
-    .join("\n\n");
+export function weiboTrendingWechatCardFile(index: number): string {
+  if (!Number.isInteger(index) || index < 0 || index >= WEIBO_TRENDING_WECHAT_IMAGE_LIMIT) {
+    throw new Error(`invalid Weibo trending WeChat card index: ${index}`);
+  }
+  return `card-${String(index).padStart(2, "0")}.png`;
+}
+
+/** 保留尽可能多的完整句；图片卡片不能靠裁切隐藏半句话。 */
+export function fitWeiboTrendingWechatSummary(summary: string, limit = WEIBO_TRENDING_WECHAT_SUMMARY_LIMIT): string {
+  const text = compact(summary);
+  if (!text) throw new Error("Weibo trending WeChat card needs a summary");
+  if (!Number.isInteger(limit) || limit < 2) throw new Error(`invalid Weibo trending WeChat summary limit: ${limit}`);
+  if ([...text].length <= limit) return text;
+
+  const sentences = [...new Intl.Segmenter("zh-CN", { granularity: "sentence" }).segment(text)]
+    .map(part => compact(part.segment))
+    .filter(Boolean);
+  const selected: string[] = [];
+  let characters = 0;
+  for (const sentence of sentences) {
+    const length = [...sentence].length;
+    if (characters + length > limit - 1) break;
+    selected.push(sentence);
+    characters += length;
+  }
+  if (!selected.length) {
+    throw new Error(`Weibo trending WeChat summary starts with a sentence longer than ${limit - 1} characters`);
+  }
+  return `${selected.join("")}…`;
 }
 
 function descriptionWithTitles(items: WeiboTrendingWechatItem[], titleCount: number): string {
@@ -117,43 +115,41 @@ export function weiboTrendingWechatDescription(items: WeiboTrendingWechatItem[])
   return `${[...description].slice(0, WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT - 1).join("")}…`;
 }
 
-// sourceURL 由 A/B 开关决定：它变成草稿的 content_source_url，也就是文末的「阅读原文」，
-// 和二维码卡片是同一类站外引流，两者各自可关。
+// sourceURL 由 A/B 开关决定：它变成草稿的 content_source_url，也就是「阅读原文」。
 // 生成文件固定名为 01.md，不能把 canonical URL 当作草稿身份，否则跨日会被误判为同一篇。
 // syncId 按归档日期区分，而 sourceURL 仍只控制读者是否能看到「阅读原文」；翻转 A/B 开关
 // 不会让同一天的稿子被当作一篇新草稿。
 export function renderWeiboTrendingWechatMarkdown({
-  items,
+  itemCount,
   archiveDate,
   title,
   description,
   articleUrl,
-  footer = "",
-  coverFile = "",
   showSourceUrl = WEIBO_TRENDING_WECHAT_SHOW_SOURCE_URL,
 }: {
-  items: WeiboTrendingWechatItem[];
+  itemCount: number;
   archiveDate: string;
   title: string;
   description: string;
   articleUrl: string;
-  footer?: string;
-  coverFile?: string;
   showSourceUrl?: boolean;
 }): string {
   if (!description) throw new Error("Weibo trending WeChat article needs a description");
-  if (!items.length) throw new Error("Weibo trending WeChat article needs at least one item");
+  if (!Number.isInteger(itemCount) || itemCount < 1 || itemCount > WEIBO_TRENDING_WECHAT_ITEM_LIMIT) {
+    throw new Error(`Weibo trending WeChat article needs 1-${WEIBO_TRENDING_WECHAT_ITEM_LIMIT} items`);
+  }
   if (!title) throw new Error("Weibo trending WeChat article needs a title");
   if (!articleUrl) throw new Error("Weibo trending WeChat article needs the upstream article URL");
-  const wechatFields = [`  syncId: "${weiboTrendingWechatSyncId(archiveDate)}"`];
+  const wechatFields = [`  syncId: "${weiboTrendingWechatSyncId(archiveDate)}"`, '  articleType: "newspic"'];
   if (showSourceUrl) wechatFields.push(`  sourceURL: "${articleUrl}"`);
   const metadata = frontmatter({
     title,
     date: archiveDate,
     description,
     tags: [WEIBO_TRENDING_WECHAT_TAG],
-    ogImage: coverFile,
+    ogImage: weiboTrendingWechatCardFile(0),
     wechatEnabled: true,
   }).replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"));
-  return `${metadata}${[weiboTrendingWechatBody(items), footer].filter(Boolean).join("\n\n")}\n`;
+  const images = Array.from({ length: itemCount + 1 }, (_, index) => `![](${weiboTrendingWechatCardFile(index)})`);
+  return `${metadata}${images.join("\n\n")}\n`;
 }

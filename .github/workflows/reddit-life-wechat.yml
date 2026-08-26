@@ -183,12 +183,10 @@ jobs:
           import fs from "node:fs";
           const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
           // 一篇收录五帖，五条 Entry 共享同一个 path；不去重会把同一篇发布五次。
-          const drafts = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).map(post => post.path))];
-          // 图片消息那一篇接在末尾。它是加发的形态实验，不该把两卷图文挤下去。
-          if (manifest.newspic?.path) drafts.push(manifest.newspic.path);
+          //
           // manifest.posts 已按 AI 选后顺序排列，各卷连续共享 path。草稿箱按创建时间倒序，
-          // 因此倒过来发：排名最高的一篇最后创建，才会显示在最上面。
-          const paths = drafts.reverse();
+          // 因此先发末卷、最后发首卷，排名最高的一篇才会显示在最上面。
+          const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).map(post => post.path))].reverse();
           fs.writeFileSync("reddit-life-wechat-paths.txt", paths.join("\n"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
           NODE

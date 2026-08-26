@@ -207,6 +207,12 @@ function readWechat(value: unknown, sourcePath?: string): WechatFrontmatter {
 
   return {
     enabled: raw.enabled === true,
+    showCoverInBody:
+      raw.showCoverInBody === true
+        ? true
+        : raw.showCoverInBody === false
+          ? false
+          : undefined,
     articleType: readArticleType(raw.articleType, sourcePath),
     title: asString(raw.title),
     cover: asString(raw.cover),

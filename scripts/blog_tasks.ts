@@ -143,7 +143,7 @@ export const BLOG_TASKS = {
   "reddit-top20": {
     titlePrefix: "Reddit 每日精选",
     tag: "Reddit热门",
-    description: "每日 Reddit 分类精选，按人生与社会、人物与问答、市场与价值投资三个独立栏目归档通过来源服务筛选的帖子。",
+    description: "每日 Reddit 分类精选，按问答精选、人生讨论、人物与问答、市场与价值投资四个独立栏目归档通过来源服务筛选的帖子。",
     fileName: "reddit-{date}.md",
   },
   "reddit-trending": {
@@ -194,7 +194,8 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "0 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   "5 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   "10 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
-  // 错开上面三个栏目：它们和热搜打的是同一个来源服务，热搜还要额外跑一次深挖作业。
+  "15 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
+  // 错开上面四条分类发布工作流：它们和热搜打的是同一个来源服务，热搜还要额外跑一次深挖作业。
   "30 11 * * *": { task: "reddit-trending", dateTimeZone: "America/Los_Angeles" },
   // 北京时间次日 00:20 读取前一天完整累积榜，避免当天中午只拿到半天热搜。
   "20 16 * * *": { task: "weibo-trending", dateOffset: -1, dateTimeZone: "Asia/Shanghai" },

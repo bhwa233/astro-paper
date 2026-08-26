@@ -2,7 +2,7 @@
 
 ## 1. 目标
 
-`weibo-trending` 发布站点文章后，独立管线把同一天的文章转换为一篇微信公众号草稿。转换过程不重新拉榜、不调用模型、不改写摘要，只保留前 30 条并移除微博话题链接；自动化只创建草稿，不执行群发。
+`weibo-trending` 发布站点文章后，独立管线把同一天的文章转换为一篇微信公众号图片消息草稿。转换过程不重新拉榜、不调用模型，只读取前 10 条并把每条渲染成一张方形卡片；自动化只创建草稿，不执行群发。
 
 站点文章是唯一内容输入：
 
@@ -11,7 +11,7 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
   -> scripts/generate_weibo_trending_wechat.ts
        -> data/weibo-trending-wechat/<date>/01.md
        -> data/weibo-trending-wechat/<date>/upstream.md
-       -> data/weibo-trending-wechat/<date>/cover.png
+       -> data/weibo-trending-wechat/<date>/card-00.png ... card-10.png
        -> data/weibo-trending-wechat/<date>/run.json
 ```
 
@@ -19,24 +19,26 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
 
 - 标题完整复用站点文章 frontmatter，格式固定为 `<date> 热搜 ｜ <AI 标题后半句>`。后半句由站点文章生成阶段基于最终成功收录的话题统一生成，公众号管线不再调用模型。站点标签和微信 `eligibleTags` 匹配键仍是 `微博热搜`，文章文件名统一为 `wb-<YYYYMMDD>.md`，站点 URL 为 `/posts/wb-<YYYYMMDD>/`。
 - `parseWeiboTrendingArticle` 严格读取连续的 `## N.` 块，标题或摘要为空、编号断号都会终止转换。
-- 正文按上游顺序保留前 30 条，只输出二级标题和摘要段。`- **话题**` 行不进入微信稿，避免超长 URL 被 astro-wechat 转成尾注。
+- `card-00.png` 是总封面，显示栏目、日期与前 10 条标题；后 10 张各承载一条热搜总结，按上游排名排列。
+- 话题卡包含排名、标题、摘要和页码。摘要超过 300 个 Unicode 码点时只保留能完整放入的句子并加省略号；第一句本身超限则生成失败，不允许卡片静默裁掉半句话。
 - 微信摘要默认拼接前三条标题，超过 120 个 Unicode 码点时依次退到两条、一条，仍超长才按码点截断。
-- **不写 `wechat.sourceURL`**：它会变成草稿的 `content_source_url`，也就是文末的「阅读原文」，和已经撤掉的二维码卡片是同一类站外引流。没有它时 astro-wechat 的同步身份退回稿子的仓库相对路径，这条线一天只出一篇，路径天然唯一。代价是上一次同步中断留下 `pending` 记录时无法自动对账，astro-wechat 会抛 `reconcile-impossible` 要求人工确认。
-- 正文没有页脚，也没有任何指向站外的东西：二维码卡片已撤掉，理由是带导流入口会影响微信的推荐算法。
+- `wechat.articleType` 固定为 `newspic`，正文只按顺序引用卡片图片，不附加图后说明文字。
+- **不写 `wechat.sourceURL`**：它会变成草稿的「阅读原文」。同步身份固定为 `weibo-trending-<date>`，与读者是否看到站外入口无关。
+- 图片消息的第一张图同时是微信封面；`ogImage` 因此也指向 `card-00.png`，不会再生成独立横版封面或二维码。
 
-封面由 `scripts/weibo_trending_wechat_cover.ts` 使用 satori 渲染为 1175×500 PNG，列出前五条标题，页脚显示品牌与归档日期。条目字号由 `scripts/wechat_cover_layout.ts` 按「最长标题不折行」与「n 行不超出条目区」两个约束算出，与 Reddit 封面共用同一套尺寸。字体下载或渲染失败只会回落到 `astro-wechat.config.mjs` 的 `defaultCover`，不会中断归档。
+卡片由 `scripts/weibo_trending_wechat_cards.ts` 使用 satori 渲染为 1080×1080 PNG，沿用站点微博主题色、`platformCard` 骨架、手绘笔圈品牌和字体子集加载器。字号按可用面积与文本长度动态计算。图片是消息正文，任何一张渲染失败都会终止归档，不回落到默认封面。
 
-## 3. 长度收口
+## 3. 容量收口
 
-生成器在稿件最终目录写入临时探针，并通过 astro-wechat 的 `openProject` 与 `prepareArticle` 检查真实 HTML 长度。完整 30 条超限时，二分查找可通过的最大前缀，只删除热度最低的尾部条目；frontmatter 不参与截断。实际收录数与删除数写入 `run.json`，发生删除时同时输出 WARN。
+图片消息每天确定性地取一张 Top 10 总封面和 10 张话题卡，不再执行普通图文 HTML 长度探测。astro-wechat 在 dry-run 时还会校验图片数量、图片资源和纯文本附言长度。
 
 ## 4. 归档与幂等
 
-生成器要求 `--date`、`--upstream-sha` 和 `--upstream-workflow-run`，并校验当前 `HEAD` 等于父任务提交。`run.json` 记录北京时间归档日、父提交及 workflow run、上游文章与快照路径、稿件/封面路径、SHA-256、收录数和截断数。
+生成器要求 `--date`、`--upstream-sha` 和 `--upstream-workflow-run`，并校验当前 `HEAD` 等于父任务提交。v2 `run.json` 记录北京时间归档日、父提交及 workflow run、上游文章与快照路径、稿件路径、全部卡片路径与 SHA-256，以及收录数。
 
-同一天已有合法 manifest 时直接复用，不重新转换正文。复用前会校验已归档文件仍与 manifest 的 SHA-256 一致，。manifest 无法解析或归档文件不匹配时直接失败，防止把损坏状态当作空归档。上游文章不存在时写入 `upstream-empty` manifest，不创建草稿，也不把空结果当作错误。
+同一天已有合法 manifest 且父提交不变时直接复用，不重新转换正文。复用前会校验已归档文件仍与 manifest 的 SHA-256 一致。读取器继续接受 v1 普通图文历史归档，普通重跑不会改写它；只有显式传入不同的父提交时才按当前规则重建为 v2 图片消息，并清理旧 manifest 记录但已不再引用的封面或卡片。manifest 无法解析或归档文件不匹配时直接失败，防止把损坏状态当作空归档。上游文章不存在时写入 `upstream-empty` manifest，不创建草稿，也不把空结果当作错误。
 
-`cover.png`、`01.md`、`upstream.md` 和 `run.json` 会提交；稿子不再引用任何运行时生成的资源。
+`card-*.png`、`01.md`、`upstream.md` 和 `run.json` 都会提交；同步 job checkout 归档提交后即可解析全部图片，不需要恢复运行时资源。
 
 ## 5. Workflow
 
@@ -49,7 +51,9 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
 
 所有微信同步 job 使用 `wechat-sync-${{ github.repository }}` 并发组串行执行。正式发布即使部分失败，也会先提交 `.astro-wechat/ledger.json`，再让 job 失败，避免重跑重复创建已成功的草稿。
 
-专用 workflow 同时提供 `workflow_dispatch` 补跑入口。对已有归档补跑时应传原始归档日期、包含上游文章的提交 SHA 和对应 workflow run；它会复用 manifest。`sync-wechat-draft.yml` 的路径白名单也接受该目录；稿件及其封面都已提交，本地直接调用 astro-wechat 前不再需要恢复任何资源。
+专用 workflow 同时提供 `workflow_dispatch` 补跑入口。对已有归档补跑时应传原始归档日期、包含上游文章的提交 SHA 和对应 workflow run；它会复用 manifest。`sync-wechat-draft.yml` 的路径白名单也接受该目录；稿件及卡片都已提交，本地直接调用 astro-wechat 前不需要恢复任何资源。
+
+图片消息的所有卡片会作为永久图片素材上传。微信当前的草稿读取接口看不到 `newspic`，因此创建请求结果未知时系统会保留 pending 台账并停止自动重试；操作人员需要先到公众号草稿箱确认，不能依靠远端自动对账。
 
 ## 6. 本地验证
 

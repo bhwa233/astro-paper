@@ -1,0 +1,48 @@
+# Reddit 分类精选发布方案
+
+状态：已实现
+最后更新：2026-08-26
+
+## 1. 目标
+
+`reddit-top20` 按栏目独立取源、生成和归档，避免把问答、个人叙事、人物 AMA 与市场讨论混在同一篇文章里。每个栏目都有稳定的分类 key、来源清单、提示词和文件名；栏目之间不共享当日候选，也不在归档阶段二次拆分。
+
+## 2. 栏目边界
+
+| 分类 key | 文章 | subreddit | 归档文件 | 下游 |
+| --- | --- | --- | --- | --- |
+| `life` | Reddit 问答精选 | `r/AskReddit`、`r/askscience` | `reddit-<date>-life.md` | 博客 + 微信草稿 |
+| `life-discussions` | Reddit 人生讨论 | `r/confessions`、`r/changemyview`、`r/tifu` | `reddit-<date>-life-discussions.md` | 仅博客 |
+| `ama` | Reddit 人物与问答 | `r/IAmA`、`r/AMA`、`r/casualiama` | `reddit-<date>-ama.md` | 仅博客 |
+| `markets` | Reddit 市场与价值投资 | `r/stocks`、`r/ValueInvesting`、`r/investing`、`r/wallstreetbets` | `reddit-<date>-markets.md` | 仅博客 |
+
+`r/askscience` 与 `r/AskReddit` 都是问题驱动的内容，使用同一篇问答文章和同一套逐条回答整理格式。科学回答仍只依据帖子及评论证据，不额外补充模型常识或外部事实。
+
+`r/confessions`、`r/changemyview` 和 `r/tifu` 组成独立的人生讨论文章。它们不再输出逐条回答列表，而是将每个帖子整理成连续叙事：交代处境与核心冲突，展开评论区最有张力的分歧与回应，再保留关键细节、转折和未解决之处。正文不得出现用户名、回答编号、人工拼出的共识、道德评判或编辑式升华；叙述需要保留 Reddit 原帖的情绪起伏、自嘲、犹疑与反转。
+
+三个社区的候选按来源服务给出的统一排名混排，不按 subreddit 分节。每个条目仍保留热度、来源、帖子链接，保证博客内容可追溯。
+
+## 3. 发布与微信边界
+
+问答与人生讨论由两个完全独立的 workflow 发布：
+
+- `publish-reddit-life.yml` 只生成 `life` 问答专篇，并在成功后调用微信归档。
+- `publish-reddit-life-discussions.yml` 只生成 `life-discussions` 人生讨论博客，不声明也不调用微信 job。
+
+两个 workflow 有各自的定时与手动入口。问答在每天 `10:00 UTC` 运行，人生讨论在 `10:15 UTC` 独立运行，与 AMA、Markets 一样错峰使用来源服务。微信归档任务只依赖 `life` 的生成提交，并且只接受 `life` 分类声明的 `r/AskReddit` 与 `r/askscience`。`life-discussions` 没有微信 job，也不能进入微信草稿箱。
+
+历史文章不回填。新规则只对代码上线后的归档日生效；同一日期强制重跑时，仍按对应分类的固定文件名覆盖该分类文章。
+
+## 4. 生成契约
+
+来源服务按当前分类的固定 subreddit 清单取数。客户端校验响应只包含本次请求的社区、统计数量与正文条目一致，并验证来源与策略哈希。
+
+问答专篇沿用问答提示词：每个有效回答独立编号，保留具体事例、数据、叙述视角和趣味，不把不同回答压成概括性结论。
+
+人生讨论专篇使用独立提示词：每帖输出若干自然段，不使用 Markdown 标题、项目符号或编号。模型只能重组输入证据，不得补造背景、因果或结论；`r/changemyview` 要保留对立论证，`r/confessions` 与 `r/tifu` 要保留事情发展的时间线、情绪变化和关键转折。
+
+## 5. 失败与重跑
+
+两个博客分类独立失败、独立重跑。某个分类没有合格条目时，该分类记为低质量跳过，不影响另一个 workflow。问答专篇成功后即可进入微信归档，不以人生讨论专篇成功为前提。
+
+两个 workflow 的手动入口都提供独立的 `date`、`force` 和 `ai_model`。`force` 只覆盖各自稳定路径下的当日文章，不改变历史日期选择规则。

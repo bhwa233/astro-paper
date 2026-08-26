@@ -6,28 +6,26 @@ import fs from "node:fs";
 import path from "node:path";
 import { ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
-import { renderQrPng } from "./qr_code.ts";
 import {
   parseWeiboTrendingArticle,
   parseWeiboTrendingArticleTitle,
   renderWeiboTrendingWechatMarkdown,
   weiboTrendingArticleUrl,
   weiboTrendingWechatDescription,
-  weiboTrendingWechatFooter,
+  weiboTrendingWechatCardFile,
   WEIBO_TRENDING_WECHAT_ITEM_LIMIT,
-  WEIBO_TRENDING_WECHAT_QR_FILE,
-  WEIBO_TRENDING_WECHAT_SHOW_QR,
-  type WeiboTrendingWechatItem,
 } from "./weibo_trending_wechat_compose.ts";
-import { renderWeiboTrendingWechatCover, WEIBO_TRENDING_WECHAT_COVER_FILE, WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT } from "./weibo_trending_wechat_cover.ts";
+import { renderWeiboTrendingWechatCards } from "./weibo_trending_wechat_cards.ts";
 
 const ROOT_REL = "data/weibo-trending-wechat";
-const MANIFEST_VERSION = 1;
+const MANIFEST_VERSION = 2;
+const LEGACY_MANIFEST_VERSION = 1;
+const LEGACY_ITEM_LIMIT = 30;
 
 type ArchivedFile = { path: string; sha256: string };
 
 export type WeiboTrendingWechatRunManifest = {
-  version: 1;
+  version: 1 | 2;
   archiveDate: string;
   timeZone: "Asia/Shanghai";
   status: "processed" | "upstream-empty";
@@ -36,7 +34,10 @@ export type WeiboTrendingWechatRunManifest = {
   draft?: ArchivedFile & {
     itemCount: number;
     truncatedItemCount: number;
+    /** v1 ordinary article cover. */
     cover?: ArchivedFile;
+    /** v2 image-message cards, in image_list order. */
+    cards?: ArchivedFile[];
   };
 };
 
@@ -83,7 +84,7 @@ function parseManifest(raw: unknown, file: string): WeiboTrendingWechatRunManife
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`invalid Weibo trending WeChat run manifest: ${file}`);
   const value = raw as Partial<WeiboTrendingWechatRunManifest>;
   if (
-    value.version !== MANIFEST_VERSION ||
+    (value.version !== LEGACY_MANIFEST_VERSION && value.version !== MANIFEST_VERSION) ||
     !/^\d{4}-\d{2}-\d{2}$/.test(value.archiveDate || "") ||
     value.timeZone !== "Asia/Shanghai" ||
     (value.status !== "processed" && value.status !== "upstream-empty") ||
@@ -105,9 +106,25 @@ function parseManifest(raw: unknown, file: string): WeiboTrendingWechatRunManife
     value.draft.itemCount < 1 ||
     !Number.isInteger(value.draft.truncatedItemCount) ||
     value.draft.truncatedItemCount < 0 ||
-    (value.draft.cover !== undefined && !parseArchivedFile(value.draft.cover))
+    (value.draft.cover !== undefined && !parseArchivedFile(value.draft.cover)) ||
+    (value.draft.cards !== undefined && (!Array.isArray(value.draft.cards) || !value.draft.cards.every(parseArchivedFile)))
   ) {
     throw new Error(`invalid Weibo trending WeChat processed manifest: ${file}`);
+  }
+  if (value.status === "processed") {
+    const draft = value.draft!;
+    if (value.version === LEGACY_MANIFEST_VERSION) {
+      if (draft.cards || draft.itemCount + draft.truncatedItemCount > LEGACY_ITEM_LIMIT) {
+        throw new Error(`invalid legacy Weibo trending WeChat draft: ${file}`);
+      }
+    } else if (
+      draft.cover ||
+      draft.itemCount > WEIBO_TRENDING_WECHAT_ITEM_LIMIT ||
+      draft.itemCount + draft.truncatedItemCount > LEGACY_ITEM_LIMIT ||
+      draft.cards?.length !== draft.itemCount + 1
+    ) {
+      throw new Error(`invalid image Weibo trending WeChat draft: ${file}`);
+    }
   }
   return value as WeiboTrendingWechatRunManifest;
 }
@@ -122,6 +139,17 @@ export function loadWeiboTrendingWechatRunManifest(file: string): WeiboTrendingW
   }
 }
 
+export function shouldRebuildWeiboTrendingWechatManifest(
+  existing: Pick<WeiboTrendingWechatRunManifest, "status" | "upstream">,
+  upstreamSha: string,
+  upstreamArticleAvailable: boolean,
+): boolean {
+  if (existing.status === "upstream-empty") return upstreamArticleAvailable;
+  // A processed archive is tied to the parent's committed handoff. Reusing it after the
+  // handoff changes leaves stale rendered Markdown in place, hiding changes such as syncId.
+  return existing.upstream.generatedSha !== upstreamSha;
+}
+
 function writeJson(file: string, value: unknown): void {
   ensureDir(path.dirname(file));
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, "utf8");
@@ -133,123 +161,11 @@ function writeTextArtifact(dir: string, name: string, content: string): void {
   fs.writeFileSync(path.join(dir, name), content, "utf8");
 }
 
-function writeBinaryArtifact(dir: string, name: string, content: Buffer): void {
-  if (!dir) return;
-  ensureDir(dir);
-  fs.writeFileSync(path.join(dir, name), content);
-}
-
 function verifyArchivedFile(repo: string, archived: ArchivedFile, label: string): void {
   assertCommittedPath(repo, archived.path);
   const file = path.join(repo, archived.path);
   if (!fs.existsSync(file)) throw new Error(`Weibo trending WeChat manifest ${label} is missing: ${archived.path}`);
   if (sha256(fs.readFileSync(file)) !== archived.sha256) throw new Error(`Weibo trending WeChat manifest ${label} hash does not match: ${archived.path}`);
-}
-
-// 页脚卡片无条件引用 qr.png，开着二维码时这张图必须存在，包括复用已有 manifest 的同日重跑。
-async function restoreQr(repo: string, draftPath: string, artifactsDir: string, articleUrl: string): Promise<void> {
-  if (!WEIBO_TRENDING_WECHAT_SHOW_QR) return;
-  const qr = await renderQrPng(articleUrl);
-  const qrFile = path.join(repo, path.dirname(draftPath), WEIBO_TRENDING_WECHAT_QR_FILE);
-  ensureDir(path.dirname(qrFile));
-  fs.writeFileSync(qrFile, qr);
-  writeBinaryArtifact(artifactsDir, WEIBO_TRENDING_WECHAT_QR_FILE, qr);
-  writeStderr(`[weibo-trending-wechat] restored ${path.relative(repo, qrFile)} (${qr.length} bytes)`);
-}
-
-async function markdownFits(markdown: string, repo: string, probeFile: string): Promise<boolean> {
-  const { openProject, prepareArticle } = await import("./wechat/src/index.ts");
-  const project = await openProject(repo, { root: repo });
-  fs.writeFileSync(probeFile, markdown, "utf8");
-  try {
-    await prepareArticle(probeFile, project);
-    return true;
-  } catch (error) {
-    const code = (error as { code?: string }).code;
-    if (code === "content-too-long" || code === "content-too-large") return false;
-    throw error;
-  }
-}
-
-async function fitWechatContentLimit({
-  items,
-  render,
-  repo,
-  probeDir,
-}: {
-  items: WeiboTrendingWechatItem[];
-  render: (included: WeiboTrendingWechatItem[]) => string;
-  repo: string;
-  probeDir: string;
-}): Promise<{ markdown: string; includedItems: WeiboTrendingWechatItem[] }> {
-  const probeFile = path.join(probeDir, `.content-limit-probe-${process.pid}.md`);
-  ensureDir(probeDir);
-  const fits = (included: WeiboTrendingWechatItem[]) => markdownFits(render(included), repo, probeFile);
-  try {
-    if (await fits(items)) return { markdown: render(items), includedItems: items };
-    let low = 1;
-    let high = items.length - 1;
-    let fittedCount = 0;
-    while (low <= high) {
-      const middle = Math.floor((low + high) / 2);
-      if (await fits(items.slice(0, middle))) {
-        fittedCount = middle;
-        low = middle + 1;
-      } else {
-        high = middle - 1;
-      }
-    }
-    if (!fittedCount) throw new Error("Weibo trending WeChat article still exceeds the content limit with a single item");
-    const includedItems = items.slice(0, fittedCount);
-    writeStderr(`WARN: [weibo-trending-wechat] dropped ${items.length - fittedCount} trailing item(s) to fit the WeChat content limit`);
-    return { markdown: render(includedItems), includedItems };
-  } finally {
-    fs.rmSync(probeFile, { force: true });
-  }
-}
-
-async function fitWithOptionalCover({
-  items,
-  archiveDate,
-  title,
-  articleUrl,
-  footer,
-  coverFile,
-  repo,
-  probeDir,
-}: {
-  items: WeiboTrendingWechatItem[];
-  archiveDate: string;
-  title: string;
-  articleUrl: string;
-  footer: string;
-  coverFile: string;
-  repo: string;
-  probeDir: string;
-}): Promise<{ markdown: string; includedItems: WeiboTrendingWechatItem[]; coverUsed: boolean }> {
-  const fit = (cover: string) =>
-    fitWechatContentLimit({
-      items,
-      repo,
-      probeDir,
-      render: included =>
-        renderWeiboTrendingWechatMarkdown({
-          items: included,
-          archiveDate,
-          title,
-          description: weiboTrendingWechatDescription(included),
-          articleUrl,
-          footer,
-          coverFile: cover,
-        }),
-    });
-  try {
-    return { ...(await fit(coverFile)), coverUsed: Boolean(coverFile) };
-  } catch (error) {
-    if (!coverFile) throw error;
-    writeStderr(`WARN: [weibo-trending-wechat] dropping the cover after ${error instanceof Error ? error.message : String(error)}`);
-    return { ...(await fit("")), coverUsed: false };
-  }
 }
 
 export async function generateWeiboTrendingWechat({
@@ -279,34 +195,35 @@ export async function generateWeiboTrendingWechat({
   const existing = loadWeiboTrendingWechatRunManifest(manifestFile);
   if (existing) {
     if (existing.archiveDate !== date) throw new Error(`Weibo trending WeChat manifest date does not match its directory: ${manifestRel}`);
-    // 空上游只是当次父任务的快照，不能挡住同一天的人工补跑：新 handoff 已经带来文章时，
-    // 用它替换旧的空 manifest；仍然缺文时才保持幂等复用。
-    if (existing.status === "upstream-empty" && fs.existsSync(upstreamFile)) {
-      writeStderr(`[weibo-trending-wechat] archive=${date}: upstream article is now available; replacing upstream-empty manifest\n`);
-    } else {
+    if (!shouldRebuildWeiboTrendingWechatManifest(existing, upstreamSha, fs.existsSync(upstreamFile))) {
       if (existing.status === "processed") {
-      const expectedDayDir = path.join(ROOT_REL, date);
-      if (
-        existing.rawSources!.upstreamMarkdown.path !== path.join(expectedDayDir, "upstream.md") ||
-        existing.draft!.path !== path.join(expectedDayDir, "01.md") ||
-        existing.draft!.itemCount + existing.draft!.truncatedItemCount > WEIBO_TRENDING_WECHAT_ITEM_LIMIT ||
-        (existing.draft!.cover && existing.draft!.cover!.path !== path.join(expectedDayDir, WEIBO_TRENDING_WECHAT_COVER_FILE))
-      ) {
-        throw new Error(`invalid Weibo trending WeChat archive paths or counts: ${manifestRel}`);
-      }
-      verifyArchivedFile(repo, existing.rawSources!.upstreamMarkdown, "upstream snapshot");
-      verifyArchivedFile(repo, existing.draft!, "draft");
-      if (existing.draft!.cover) verifyArchivedFile(repo, existing.draft!.cover!, "cover");
-      await restoreQr(repo, existing.draft!.path, artifactsDir, weiboTrendingArticleUrl(existing.upstream.articlePath));
+        const expectedDayDir = path.join(ROOT_REL, date);
+        if (
+          existing.rawSources!.upstreamMarkdown.path !== path.join(expectedDayDir, "upstream.md") ||
+          existing.draft!.path !== path.join(expectedDayDir, "01.md") ||
+          (existing.version === LEGACY_MANIFEST_VERSION && existing.draft!.cover && existing.draft!.cover!.path !== path.join(expectedDayDir, "cover.png")) ||
+          (existing.version === MANIFEST_VERSION && existing.draft!.cards!.some((card, index) => card.path !== path.join(expectedDayDir, weiboTrendingWechatCardFile(index))))
+        ) {
+          throw new Error(`invalid Weibo trending WeChat archive paths or counts: ${manifestRel}`);
+        }
+        verifyArchivedFile(repo, existing.rawSources!.upstreamMarkdown, "upstream snapshot");
+        verifyArchivedFile(repo, existing.draft!, "draft");
+        if (existing.draft!.cover) verifyArchivedFile(repo, existing.draft!.cover!, "cover");
+        for (const [index, card] of (existing.draft!.cards ?? []).entries()) verifyArchivedFile(repo, card, `card ${index}`);
       }
       writeStderr(`[weibo-trending-wechat] archive=${date}: reused manifest (${existing.status})`);
       return { manifestPath: manifestRel, generatedPaths: existing.draft ? [existing.draft.path] : [], status: existing.status };
+    }
+    if (existing.status === "upstream-empty") {
+      writeStderr(`[weibo-trending-wechat] archive=${date}: upstream article is now available; replacing upstream-empty manifest`);
+    } else {
+      writeStderr(`[weibo-trending-wechat] archive=${date}: upstream handoff changed; rebuilding processed manifest`);
     }
   }
 
   if (!fs.existsSync(upstreamFile)) {
     const manifest: WeiboTrendingWechatRunManifest = {
-      version: 1,
+      version: MANIFEST_VERSION,
       archiveDate: date,
       timeZone: "Asia/Shanghai",
       status: "upstream-empty",
@@ -325,41 +242,45 @@ export async function generateWeiboTrendingWechat({
   const draftRel = path.join(dayDir, "01.md");
   const draftFile = path.join(repo, draftRel);
   const upstreamRel = path.join(dayDir, "upstream.md");
-  const coverRel = path.join(dayDir, WEIBO_TRENDING_WECHAT_COVER_FILE);
   ensureDir(path.dirname(draftFile));
 
   const articleUrl = weiboTrendingArticleUrl(articlePath);
-  const cover = await renderWeiboTrendingWechatCover(selectedItems.slice(0, WEIBO_TRENDING_WECHAT_COVER_ITEM_LIMIT).map(item => item.title));
-  if (cover) {
-    fs.writeFileSync(path.join(repo, coverRel), cover);
-    writeStderr(`[weibo-trending-wechat] rendered ${coverRel} (${cover.length} bytes)`);
+  const cards = await renderWeiboTrendingWechatCards(date, selectedItems);
+  if (cards.length !== selectedItems.length + 1) {
+    throw new Error(`Weibo trending WeChat rendered ${cards.length} cards for ${selectedItems.length} items`);
   }
-  await restoreQr(repo, draftRel, artifactsDir, articleUrl);
-
-  const fitted = await fitWithOptionalCover({
-    items: selectedItems,
+  // A changed parent handoff rebuilds the day in place. Render first, then remove only files
+  // recorded by the old manifest so a failed render cannot damage the archived handoff.
+  if (existing?.status === "processed") {
+    if (existing.draft!.cover) fs.rmSync(path.join(repo, existing.draft!.cover.path), { force: true });
+    for (const card of existing.draft!.cards ?? []) fs.rmSync(path.join(repo, card.path), { force: true });
+  }
+  const archivedCards = cards.map((card, index) => {
+    const cardRel = path.join(dayDir, weiboTrendingWechatCardFile(index));
+    fs.writeFileSync(path.join(repo, cardRel), card);
+    writeStderr(`[weibo-trending-wechat] rendered ${cardRel} (${card.length} bytes)`);
+    return { path: cardRel, sha256: sha256(card) };
+  });
+  const markdown = renderWeiboTrendingWechatMarkdown({
+    itemCount: selectedItems.length,
     archiveDate: date,
     title: articleTitle,
+    description: weiboTrendingWechatDescription(selectedItems),
     articleUrl,
-    footer: weiboTrendingWechatFooter(articleUrl),
-    coverFile: cover ? WEIBO_TRENDING_WECHAT_COVER_FILE : "",
-    repo,
-    probeDir: path.dirname(draftFile),
   });
-  if (cover && !fitted.coverUsed) fs.rmSync(path.join(repo, coverRel), { force: true });
-  fs.writeFileSync(draftFile, fitted.markdown, "utf8");
+  fs.writeFileSync(draftFile, markdown, "utf8");
   fs.writeFileSync(path.join(repo, upstreamRel), upstreamMarkdown, "utf8");
   writeTextArtifact(artifactsDir, "upstream.md", upstreamMarkdown);
 
   const draft: NonNullable<WeiboTrendingWechatRunManifest["draft"]> = {
     path: draftRel,
-    sha256: sha256(fitted.markdown),
-    itemCount: fitted.includedItems.length,
-    truncatedItemCount: selectedItems.length - fitted.includedItems.length,
+    sha256: sha256(markdown),
+    itemCount: selectedItems.length,
+    truncatedItemCount: allItems.length - selectedItems.length,
+    cards: archivedCards,
   };
-  if (cover && fitted.coverUsed) draft.cover = { path: coverRel, sha256: sha256(cover) };
   const manifest: WeiboTrendingWechatRunManifest = {
-    version: 1,
+    version: MANIFEST_VERSION,
     archiveDate: date,
     timeZone: "Asia/Shanghai",
     status: "processed",

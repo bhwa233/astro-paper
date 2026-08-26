@@ -38,6 +38,7 @@ export function wechatFrontmatterSchema(z: ZodLike): unknown {
   return z
     .object({
       enabled: z.boolean().optional(),
+      showCoverInBody: z.boolean().optional(),
       title: z.string().optional(),
       cover: z.string().optional(),
       author: z.string().optional(),

@@ -29,3 +29,20 @@ it('places the WeChat draft cover before every body image', async () => {
     rendered.html.indexOf(rendered.bodyAssets[1]!.placeholder),
   )
 })
+
+it('can keep the WeChat draft cover out of the article body', async () => {
+  const path = writePost(project, {
+    frontmatter: { wechat: { enabled: true, showCoverInBody: false } },
+    body: '一句导语。\n\n![正文图片](/images/body.png)',
+  })
+  const rendered = await prepareArticle(path, await project.resolved({ siteUrl: 'https://example.com' }))
+
+  expect(rendered.articleType).toBe('news')
+  if (rendered.articleType !== 'news') throw new Error('expected an ordinary WeChat news draft')
+
+  expect(rendered.bodyAssets.map((asset) => asset.reference.original)).toEqual([
+    '/images/body.png',
+  ])
+  expect(rendered.html).toContain('一句导语。')
+  expect(rendered.html).not.toContain(rendered.coverAsset.placeholder)
+})

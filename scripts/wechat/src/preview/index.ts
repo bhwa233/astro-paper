@@ -40,7 +40,6 @@ export async function renderPreviewPage(rendered: RenderedArticle): Promise<stri
     rendered.articleType === 'newspic'
       ? newspicBody(rendered, substitutions)
       : substitutePlaceholders(rendered.html, substitutions)
-  const cover = substitutions.get(rendered.coverAsset.placeholder) ?? ''
   const { title, author, digest } = rendered.document
 
   return `<!doctype html>
@@ -56,7 +55,6 @@ export async function renderPreviewPage(rendered: RenderedArticle): Promise<stri
   .meta h1 { font-size: 22px; line-height: 1.4; margin: 0 0 12px; color: #1a1d1f; }
   .meta .byline { font-size: 13px; color: #8a9199; }
   .meta .digest { font-size: 13px; color: #6b7580; margin-top: 10px; }
-  .meta img { max-width: 100%; display: block; margin-top: 14px; border-radius: 4px; }
   .note { max-width: 414px; margin: 0 auto 24px; font-size: 12px; color: #6b7580; line-height: 1.6; }
 </style>
 </head>
@@ -66,7 +64,6 @@ export async function renderPreviewPage(rendered: RenderedArticle): Promise<stri
     <h1>${escapeHtml(title)}</h1>
     <div class="byline">${escapeHtml(author ?? '未设置作者')}</div>
     <div class="digest">${escapeHtml(digest)}</div>
-    ${cover ? `<img src="${cover}" alt="封面">` : ''}
   </div>
   ${body}
 </div>

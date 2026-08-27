@@ -72,7 +72,9 @@ export function substackPostQualityViolations(
       message: "正文不能包含 H1；页面标题已经占用唯一 H1",
     });
   }
-  if (/^(?:>\s*)?(?:\*{1,3}|(?:\\\*){1,3})\s*$/m.test(body)) {
+  // `***` and `* * *` are valid Markdown thematic breaks. Only one or two
+  // standalone stars can be incomplete emphasis markup.
+  if (/^(?:>\s*)?(?:\*{1,2}|(?:\\\*){1,2})\s*$/m.test(body)) {
     violations.push({
       code: "orphan-markup",
       file,

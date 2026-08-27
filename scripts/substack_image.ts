@@ -59,11 +59,17 @@ export async function processArticleImages(
   markdown: string,
   publication: NewsletterPublication,
   repo: string
-): Promise<{ markdown: string; files: string[]; firstImage?: string }> {
+): Promise<{
+  markdown: string;
+  files: string[];
+  createdFiles: string[];
+  firstImage?: string;
+}> {
   if (publication.imagePolicy === "none")
     return {
       markdown: markdown.replace(/!\[[^\]]*\]\([^)]*\)/g, ""),
       files: [],
+      createdFiles: [],
       firstImage: undefined,
     };
   const urls = [
@@ -71,6 +77,7 @@ export async function processArticleImages(
   ].map(match => match[1]);
   const replacements = new Map<string, string>();
   const files: string[] = [];
+  const createdFiles: string[] = [];
   for (const url of new Set(urls)) {
     const image = await validateRemoteImage(url, publication);
     if (publication.imagePolicy === "remote") {
@@ -90,7 +97,10 @@ export async function processArticleImages(
     );
     const absolute = path.join(repo, relative);
     ensureDir(path.dirname(absolute));
-    if (!fs.existsSync(absolute)) fs.writeFileSync(absolute, image.bytes);
+    if (!fs.existsSync(absolute)) {
+      fs.writeFileSync(absolute, image.bytes);
+      createdFiles.push(relative.split(path.sep).join("/"));
+    }
     replacements.set(
       url,
       `/${path.relative(path.join(repo, "public"), absolute).split(path.sep).join("/")}`
@@ -103,6 +113,7 @@ export async function processArticleImages(
   return {
     markdown: output,
     files,
+    createdFiles,
     firstImage: urls[0] ? replacements.get(urls[0]) : undefined,
   };
 }

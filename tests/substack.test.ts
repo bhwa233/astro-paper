@@ -5,6 +5,8 @@ import {
   processItem,
   selectItems,
 } from "../scripts/generate_substack_translations.ts";
+import { prepareArticle } from "../scripts/substack_content.ts";
+import { substackPostQualityViolations } from "../scripts/substack_quality.ts";
 import {
   readSubstackLedger,
   substackLedgerRelPath,
@@ -98,4 +100,42 @@ test("Substack source-length gate skips below 4000 characters before generation"
     remainingBudget: 400_000,
   });
   assert.equal(readSubstackLedger(ledgerFile).issues[0].status, "published");
+});
+
+// Regression: the RSS repeated its premium CTA above and below the article.
+// Selecting the first closing match deleted the entire article in production.
+test("Substack cuts retain content before the closing CTA and demote body H1", () => {
+  const article = prepareArticle(
+    [
+      "<p>If you liked this piece, you should subscribe to my premium newsletter. It’s $70 a year.</p>",
+      "<p>If you want to get in touch — hit me up.</p>",
+      "<hr>",
+      "<h1>Section heading</h1>",
+      "<p>The retained article body.</p>",
+      "<p>If you liked this piece, you should subscribe to my premium newsletter. It’s $70 a year.</p>",
+    ].join(""),
+    "https://www.wheresyoured.at/the-ai-haters-manifesto",
+    publicationByKey("wheres-your-ed-at")
+  );
+
+  assert.match(article.markdown, /^## Section heading$/m);
+  assert.match(article.markdown, /The retained article body\./);
+  assert.doesNotMatch(article.markdown, /^# Section heading$/m);
+});
+
+// Regression: The Marginalian preserves Markdown thematic breaks as `***`.
+test("Substack quality accepts thematic breaks but rejects incomplete emphasis", () => {
+  const prefix = "---\ndescription: \"有效摘要\"\ntitle: \"标题\"\n---\n";
+  assert.equal(
+    substackPostQualityViolations(`${prefix}\n***\n`, "post.md").some(
+      violation => violation.code === "orphan-markup"
+    ),
+    false
+  );
+  assert.equal(
+    substackPostQualityViolations(`${prefix}\n**\n`, "post.md").some(
+      violation => violation.code === "orphan-markup"
+    ),
+    true
+  );
 });

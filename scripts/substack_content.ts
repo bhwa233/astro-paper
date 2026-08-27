@@ -110,11 +110,13 @@ function applyCuts(
   const beforeIndex = children.findIndex(child =>
     before.some(pattern => pattern.test(compact(child.textContent || "")))
   );
-  const afterIndex = children.findIndex(child =>
+  const start = beforeIndex >= 0 ? beforeIndex + 1 : 0;
+  // A feed can repeat the same promotion before and after the article. The
+  // closing marker must be searched from the retained content onward.
+  const afterOffset = children.slice(start).findIndex(child =>
     after.some(pattern => pattern.test(compact(child.textContent || "")))
   );
-  const start = beforeIndex >= 0 ? beforeIndex + 1 : 0;
-  const end = afterIndex >= 0 ? afterIndex : children.length;
+  const end = afterOffset >= 0 ? start + afterOffset : children.length;
   children.forEach((child, index) => {
     if (index < start || index >= end) child.remove();
   });
@@ -219,6 +221,13 @@ function cleanHtml(
   restoreMentions(body);
   applyCuts(body, publication);
   dropGenericPromoBlocks(body);
+  // The archive page owns the only H1. Source newsletters often use H1 for
+  // section headings, so retain their hierarchy without producing a second H1.
+  body.querySelectorAll("h1").forEach(heading => {
+    const replacement = heading.ownerDocument.createElement("h2");
+    replacement.replaceChildren(...heading.childNodes);
+    heading.replaceWith(replacement);
+  });
   body.querySelectorAll("a[href],img[src]").forEach(node => {
     const attribute = node.tagName === "A" ? "href" : "src";
     const raw = node.getAttribute(attribute) || "";

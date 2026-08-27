@@ -26,7 +26,7 @@ const rawPublications = {
     imagePolicy: "mirror",
     wechat: {
       enabled: true,
-      cover: "first-image",
+      cover: "default",
     },
     removeSelectors: [
       ".subscription-widget-wrap",

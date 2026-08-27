@@ -412,19 +412,26 @@ export async function processItem(params: {
     publication,
     repo
   );
-  const archived = archiveSubstackTranslation({
-    repo,
-    publication,
-    sourceTitle: item.title,
-    sourceAuthor: item.author,
-    canonicalUrl: item.canonicalUrl,
-    sourcePublishedAt: item.publishedAt,
-    translatedTitle: translated.title,
-    description: translated.description,
-    markdown: images.markdown,
-    firstImage: images.firstImage,
-    model,
-  });
+  let archived: ReturnType<typeof archiveSubstackTranslation>;
+  try {
+    archived = archiveSubstackTranslation({
+      repo,
+      publication,
+      sourceTitle: item.title,
+      sourceAuthor: item.author,
+      canonicalUrl: item.canonicalUrl,
+      sourcePublishedAt: item.publishedAt,
+      translatedTitle: translated.title,
+      description: translated.description,
+      markdown: images.markdown,
+      firstImage: images.firstImage,
+      model,
+    });
+  } catch (error) {
+    for (const file of images.createdFiles)
+      fs.rmSync(path.join(repo, file), { force: true });
+    throw error;
+  }
   fs.copyFileSync(
     path.join(repo, archived.postPath),
     path.join(dir, "composed.md")

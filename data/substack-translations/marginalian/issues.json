@@ -5,31 +5,23 @@
       "guid": "https://www.themarginalian.org/?p=79991",
       "canonicalUrl": "https://www.themarginalian.org/2026/08/20/pema-chodron-loneliness",
       "sourcePublishedAt": "2026-08-20T04:03:05.000Z",
-      "sourceSha256": "e4a2b227cd9e3e25c1949d12844a85fff3c47c35873fbc1207e3caa1ea3fd83e",
-      "status": "published",
-      "postPath": "src/content/posts/zh-cn/marginalian-20260820-pema-chodron-loneliness.md",
-      "translatedAt": "2026-08-21T06:40:27.052Z",
-      "model": "gemini-3.7-flash",
-      "usage": {
-        "inputTokens": 2201,
-        "outputTokens": 3056,
-        "totalTokens": 5257
-      }
+      "sourceSha256": "224af26a55b0eacd0f659aa2c39b282b6de7f15a8b8a484f329f69590a5f43ad",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3164,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-08-27T02:00:00.000Z"
     },
     {
       "guid": "https://www.themarginalian.org/?p=84625",
       "canonicalUrl": "https://www.themarginalian.org/2026/08/20/any-common-desolation-ellen-bass",
       "sourcePublishedAt": "2026-08-21T02:34:39.000Z",
       "sourceSha256": "01ae4b6a75bfb17bb274a7e4a0e8340fa82a1af76f2b2d70812013c1c5cfdca6",
-      "status": "published",
-      "postPath": "src/content/posts/zh-cn/marginalian-20260821-any-common-desolation-ellen-bass.md",
-      "translatedAt": "2026-08-21T08:47:05.884Z",
-      "model": "gemini-3.7-flash",
-      "usage": {
-        "inputTokens": 1635,
-        "outputTokens": 1253,
-        "totalTokens": 2888
-      }
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2242,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-08-27T02:00:00.000Z"
     },
     {
       "guid": "https://www.themarginalian.org/?p=82021",
@@ -51,30 +43,22 @@
       "canonicalUrl": "https://www.themarginalian.org/2026/08/21/anais-nin-d-h-lawrence",
       "sourcePublishedAt": "2026-08-22T01:03:18.000Z",
       "sourceSha256": "796a17258a2406360c369ab2f43abd9d8bb655cf2a0d06054dc3521f74db4956",
-      "status": "published",
-      "postPath": "src/content/posts/zh-cn/marginalian-20260821-anais-nin-d-h-lawrence.md",
-      "translatedAt": "2026-08-25T01:55:45.666Z",
-      "model": "gemini-3.7-flash",
-      "usage": {
-        "inputTokens": 2031,
-        "outputTokens": 4602,
-        "totalTokens": 6633
-      }
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3722,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-08-27T02:00:00.000Z"
     },
     {
       "guid": "https://www.themarginalian.org/?p=87752",
       "canonicalUrl": "https://www.themarginalian.org/2026/08/21/odds-and-ends-maija-hurme",
       "sourcePublishedAt": "2026-08-22T01:46:05.000Z",
       "sourceSha256": "75c6a4ea759e4d9e744604616a34f060cc05b31e595c55dd7ba26e5a82e5ea8f",
-      "status": "published",
-      "postPath": "src/content/posts/zh-cn/marginalian-20260821-odds-and-ends-maija-hurme.md",
-      "translatedAt": "2026-08-26T02:03:24.763Z",
-      "model": "gemini-3.7-flash",
-      "usage": {
-        "inputTokens": 1707,
-        "outputTokens": 2311,
-        "totalTokens": 4018
-      }
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2017,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-08-27T02:00:00.000Z"
     }
   ]
 }

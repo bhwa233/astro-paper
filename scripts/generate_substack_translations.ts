@@ -58,6 +58,7 @@ type ItemResult = {
   model?: string;
   finishReason?: string;
   estimatedTokens?: number;
+  sourceTextChars?: number;
   usage?: TokenUsage;
   warning?: string;
 };
@@ -107,11 +108,11 @@ export function normalizeCanonicalUrl(
   return url.href;
 }
 
-function selectItems(
+export function selectItems(
   items: readonly SubstackFeedItem[],
   publication: NewsletterPublication,
   ledgerFile: string,
-  options: { force: boolean; backfill?: number; maxPosts?: number }
+  options: { force: boolean; backfill?: number }
 ): SubstackFeedItem[] {
   const ledger = readSubstackLedger(ledgerFile);
   const excludes = compilePatterns(publication.excludeTitlePatterns);
@@ -137,11 +138,7 @@ function selectItems(
   const unpublished = windowed.filter(
     item => options.force || !findSubstackIssue(ledger, item.canonicalUrl)
   );
-  // 定时任务按常量走一篇；手动运行可以用 --max-posts 放大，但不越过硬顶。
-  return unpublished.slice(
-    0,
-    options.maxPosts ?? SUBSTACK_LIMITS.maxPostsPerRun
-  );
+  return unpublished;
 }
 
 function cachePath(repo: string, publication: string, key: string): string {
@@ -195,7 +192,7 @@ function usedTokens(usage: TokenUsage | undefined, estimate: number): number {
   );
 }
 
-async function processItem(params: {
+export async function processItem(params: {
   repo: string;
   publication: NewsletterPublication;
   item: SubstackFeedItem;
@@ -204,7 +201,11 @@ async function processItem(params: {
   dryRun: boolean;
   force: boolean;
   remainingBudget: number;
-}): Promise<{ result: ItemResult; chargedTokens: number }> {
+}): Promise<{
+  result: ItemResult;
+  chargedTokens: number;
+  consumesSlot: boolean;
+}> {
   const { repo, publication, item } = params;
   const baseResult = {
     publication: publication.key,
@@ -216,7 +217,6 @@ async function processItem(params: {
     item.canonicalUrl,
     publication
   );
-  const estimatedTokens = estimateTranslationTokens(prepared.protectedMarkdown);
   const dir = artifactDir(
     repo,
     params.artifactsRoot,
@@ -246,6 +246,48 @@ async function processItem(params: {
     limits: SUBSTACK_LIMITS,
   });
 
+  const sourceTextChars = prepared.audit.sourceTextChars;
+  if (sourceTextChars < SUBSTACK_LIMITS.minSourceTextChars) {
+    const reason = `below-min-source-length: source has ${sourceTextChars} visible characters, minimum ${SUBSTACK_LIMITS.minSourceTextChars}`;
+    if (!params.dryRun) {
+      const ledgerFile = path.join(
+        repo,
+        substackLedgerRelPath(publication.key)
+      );
+      const existingIssue = findSubstackIssue(
+        readSubstackLedger(ledgerFile),
+        item.canonicalUrl
+      );
+      if (existingIssue?.status !== "published") {
+        upsertSubstackIssue(ledgerFile, {
+          guid: item.guid,
+          canonicalUrl: item.canonicalUrl,
+          sourcePublishedAt: item.publishedAt,
+          sourceSha256: prepared.sourceSha256,
+          status: "skipped",
+          reason: "below-min-source-length",
+          sourceTextChars,
+          minimumSourceTextChars: SUBSTACK_LIMITS.minSourceTextChars,
+          evaluatedAt: new Date().toISOString(),
+        });
+      }
+    }
+    return {
+      result: {
+        ...baseResult,
+        status: "skipped",
+        reason,
+        sourceSha256: prepared.sourceSha256,
+        sourceTextChars,
+        cache: "disabled",
+      },
+      chargedTokens: 0,
+      consumesSlot: false,
+    };
+  }
+
+  const estimatedTokens = estimateTranslationTokens(prepared.protectedMarkdown);
+
   if (estimatedTokens > SUBSTACK_LIMITS.maxEstimatedTokensPerArticle) {
     throw new Error(
       `article-token-limit: estimated ${estimatedTokens}, limit ${SUBSTACK_LIMITS.maxEstimatedTokensPerArticle}`
@@ -262,10 +304,12 @@ async function processItem(params: {
         ...baseResult,
         status: "dry-run",
         sourceSha256: prepared.sourceSha256,
+        sourceTextChars,
         estimatedTokens,
         cache: "disabled",
       },
       chargedTokens: 0,
+      consumesSlot: true,
     };
   }
 
@@ -406,10 +450,12 @@ async function processItem(params: {
       model,
       finishReason,
       estimatedTokens,
+      sourceTextChars,
       usage,
       warning: translated.warning,
     },
     chargedTokens: cached ? 0 : usedTokens(usage, estimatedTokens),
+    consumesSlot: true,
   };
 }
 
@@ -457,9 +503,13 @@ async function main(): Promise<void> {
         parsed.items,
         publication,
         path.join(repo, substackLedgerRelPath(publication.key)),
-        { force, backfill, maxPosts }
+        { force, backfill }
       );
+      const publicationPostLimit =
+        maxPosts ?? SUBSTACK_LIMITS.maxPostsPerRun;
+      let consumedSlots = 0;
       for (const item of items) {
+        if (consumedSlots >= publicationPostLimit) break;
         try {
           const processed = await processItem({
             repo,
@@ -472,12 +522,14 @@ async function main(): Promise<void> {
             remainingBudget: publicationTokenBudget - publicationChargedTokens,
           });
           results.push(processed.result);
+          if (processed.consumesSlot) consumedSlots += 1;
           publicationChargedTokens += processed.chargedTokens;
           chargedTokens += processed.chargedTokens;
           process.stderr.write(
-            `[substack] ${publication.key} ${processed.result.status} estimated=${processed.result.estimatedTokens} actual=${processed.chargedTokens} publicationCharged=${publicationChargedTokens}/${publicationTokenBudget}\n`
+            `[substack] ${publication.key} ${processed.result.status} sourceChars=${processed.result.sourceTextChars} estimated=${processed.result.estimatedTokens} actual=${processed.chargedTokens} publicationCharged=${publicationChargedTokens}/${publicationTokenBudget}\n`
           );
         } catch (error) {
+          consumedSlots += 1;
           results.push({
             publication: publication.key,
             canonicalUrl: item.canonicalUrl,

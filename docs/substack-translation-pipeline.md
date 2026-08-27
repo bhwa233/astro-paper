@@ -70,6 +70,7 @@ workflow input: publication=<key|all>
            -> canonical/GUID 与 ledger 去重
               -> content:encoded 栏目级 DOM 删除
                  -> Turndown 转 Markdown + 转换前后对账
+                    -> 清洗后原文可见字符不少于 4,000
                     -> 链接占位符替换
                        -> token 预检 + 整篇单次忠实翻译
                           -> 文章级缓存 + 完成原因校验
@@ -245,6 +246,7 @@ export const NEWSLETTER_PUBLICATIONS = {
 | 常量 | 值 | 作用 |
 | --- | ---: | --- |
 | `maxFeedBytes` | 16_000_000 | RSS 响应体上限，纯内存边界 |
+| `minSourceTextChars` | 4_000 | 清洗后原文的最低可见字符数，不含标记、URL 和空白 |
 | `maxImageBytes` | 12_000_000 | 单图响应体上限 |
 | `maxImagePixels` | 40_000_000 | 解码后像素上限，防解压炸弹 |
 | `maxPostsPerRun` | 1 | 每次运行每个栏目处理几篇 |
@@ -252,7 +254,7 @@ export const NEWSLETTER_PUBLICATIONS = {
 | `maxEstimatedTokensPerArticle` | 200_000 | 单篇预估上限，只作跑飞护栏 |
 | `publicationTokenBudget` | 400_000 | 每个栏目每次运行的 token 预算 |
 
-这些拦的不是开销，而是 OOM、解压炸弹、paywall 残稿和上下文超限，所以取值一律按最宽松那个：误杀一篇本来能翻的文章，比多跑一次更糟。
+除 `minSourceTextChars` 外，其余限制用于拦截 OOM、解压炸弹、paywall 残稿和上下文超限，所以取值按最宽松的安全边界。`minSourceTextChars` 是产品选稿门槛：只统计 DOM 清洗和 Markdown 转换后留下的可见正文字符，保留正文标点，排除 Markdown 标记、链接地址和空白；低于门槛的文章不进入模型、图片和归档阶段。
 
 `publicationTokenBudget` 必须 ≥ 2 × `maxEstimatedTokensPerArticle`——开 fallback 时按估算量的两倍预留，否则长文永远预留失败。
 
@@ -313,7 +315,7 @@ Feed 获取只允许通过带 Bearer 认证的 `yt-dlp-fastapi /v1/proxy`。不�
 7. `kind=substack` 时校验 `<generator>Substack</generator>`
 8. item link 与 canonical URL 解析后的 host 必须在 `articleHosts`
 9. 编译并应用 `excludeTitlePatterns`；命中的 item 跳过并记录具体规则
-10. 只读取公开 `content:encoded`；缺失时跳过，不抓文章页补全。不设正文长度下限——短文同样是完整原文，按字符数拒稿会误杀真短篇；paywall 由截断标记识别，清洗误删由提取对账兜底
+10. 只读取公开 `content:encoded`；缺失时跳过，不抓文章页补全。清洗和转换后的原文可见字符必须不少于 4,000；低于门槛时以 `below-min-source-length` 跳过，不调用模型，也不占本次发布篇数额度
 11. 命中付费、订阅者专享或截断标记时跳过，并输出明确原因
 
 首次启用栏目时默认只处理 `startAt` 之后的最新一篇，不能把 Feed 内 20 篇历史文章一次性全部翻译。`--backfill N` 只把候选窗口扩大到最近 N 篇，不覆盖发布上限；实际处理数是 `min(N, --max-posts ?? maxPostsPerRun, 剩余 token 预算可容纳篇数)`，其中 `--max-posts` 本身受 `maxPostsPerRunCeiling` 约束。未传 `--backfill` 时仍按栏目正常候选规则执行。
@@ -353,6 +355,7 @@ Feed 获取只允许通过带 Bearer 认证的 `yt-dlp-fastapi /v1/proxy`。不�
 - 同 URL、不同 source hash：默认记录 `source-changed` 警告但不覆盖已发布译文
 - 只有显式 `--force` 才允许重新翻译，并更新原文章而不是创建第二篇
 - ledger 与文章在同一个 Git commit 中更新；模型失败时不提前占位
+- 低于 4,000 字符的文章以 `status=skipped`、`reason=below-min-source-length` 入账，避免后续轮询反复占住队首；显式 `--force` 会重新检查原文，但仍不绕过长度门槛
 - ledger 解析或版本不合法时立即失败，不能把损坏文件当作空账本覆盖
 
 Feed 选择应按 `pubDate` 从旧到新处理，避免积压时先发布更新文章、后发布旧文章。达到 `maxPostsPerRun` 后停止，其余留给下一次轮询。
@@ -368,7 +371,8 @@ Feed 选择应按 `pubDate` 从旧到新处理，避免积压时先发布更新�
 3. 根据 `cutBeforePatterns` / `cutAfterPatterns` 去掉固定赞助、推荐和订阅尾巴，再用栏目级 `dropPatterns` 与通用高置信度模式删掉正文中间的推广块；删块后连排的分隔线折成一条，首尾的直接去掉
 4. 删除通用危险或非正文标签；Ghost bookmark card 折成标题文本链接，再把清洗后的 DOM 交给 `scripts/html_to_markdown.ts` 调用 Turndown，得到 Markdown
 5. **转换前后对账**（见 9.1），任一项超阈值直接判该篇失败
-6. 整篇 Markdown 里的 URL 全部替换为 `URL_0001_NNN` 占位符，拒绝 `javascript:`、`data:` 和未知协议
+6. 对转换后的可见正文按 Unicode 码点计数，排除 Markdown 标记、URL 和空白；少于 4,000 时记录跳过并停止该篇处理
+7. 整篇 Markdown 里的 URL 全部替换为 `URL_0001_NNN` 占位符，拒绝 `javascript:`、`data:` 和未知协议
 
 第 2、3 步必须跑在 Turndown 之前：订阅 CTA、赞助段和推荐尾巴会被当作普通正文保留；而一旦转成 Markdown，CSS 选择器就失效了，只能退回正则去猜。
 
@@ -597,7 +601,8 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 | 代理配置缺失或无效                 | 在任何网络请求前失败，不尝试直连或其他回退                   |
 | 代理 429/5xx/超时                  | 按现有 HTTP 策略重试；耗尽后该栏目失败                       |
 | Feed 结构变化                      | 该栏目失败，不回落网页抓取                                   |
-| 正文为空、过短或 paywall           | 跳过 item，记录原因                                          |
+| 正文为空或 paywall                 | 跳过 item，记录原因                                          |
+| 清洗后原文少于 4,000 可见字符      | 以终态写入账本并跳过；不调用模型、不占发布篇数额度           |
 | 清洗后只剩推广内容                 | 跳过 item                                                    |
 | 转换对账不通过                     | 该篇失败并输出逐项差值；不调用模型，不回落到未对账的转换结果 |
 | 单篇预估超过上下文、输出或单篇预算 | 不调用模型；该篇失败并报告估算值和限制                       |
@@ -618,7 +623,7 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 ├── source.html
 ├── cleaned.html            # 栏目级删除之后、Turndown 之前
 ├── extracted.md            # Turndown 输出
-├── extraction-audit.json   # 9.1 转换对账逐项差值
+├── extraction-audit.json   # 9.1 转换对账逐项差值及原文可见字符数
 ├── protected.md            # 占位符替换后、送进模型的整篇原文
 ├── effective-config.json
 ├── prompt.md
@@ -651,16 +656,17 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 7. `--backfill N` 只扩大候选窗口，最终篇数仍取发布上限和 token 预算的最小值
 8. 栏目级删除规则跑在 Turndown 之前，且确实删掉订阅/赞助/推荐尾巴，同时保留标题、段落、引用、列表和链接
 9. 转换对账在文本被吞、链接丢失、列表项减少或标题层级被改写时判失败
-10. 整篇请求包含全文；响应不是完整 JSON 或 finishReason 异常时失败
-11. token 预留、实际 usage 冲销、无 usage 时按预留计费，以及 200,000 单篇 / 400,000 每栏目硬顶均可复现；一个栏目耗尽预算不影响后续栏目
-12. 文章缓存命中不调用模型；source、promptVersion、model 或输入 hash 变化时缓存失效
-13. 图片下载对 host、重定向、响应大小、MIME、magic bytes、像素和真实扩展名执行校验
-14. 动态文件名在同日多篇和同标题场景下不冲突
-15. partial success 只给成功项写各自栏目 ledger
-16. `force` 更新原路径，不创建重复文章
-17. Astro content loader 保留 `source` / `translation`，frontmatter 为本站作者且正文署名包含原作者与原文链接
-18. 最终归档质量 gate 能拦截长摘要、重复 H1、推广 CTA、孤立 `**` 与「参见 的」残句
-19. 开启 Newsletter 微信策略时，归档 frontmatter 保留 opt-in 与封面；要求首图但无有效图片时拒绝归档
+10. 清洗后原文少于 4,000 可见字符时不调用模型、写入跳过账本并继续寻找合格文章
+11. 整篇请求包含全文；响应不是完整 JSON 或 finishReason 异常时失败
+12. token 预留、实际 usage 冲销、无 usage 时按预留计费，以及 200,000 单篇 / 400,000 每栏目硬顶均可复现；一个栏目耗尽预算不影响后续栏目
+13. 文章缓存命中不调用模型；source、promptVersion、model 或输入 hash 变化时缓存失效
+14. 图片下载对 host、重定向、响应大小、MIME、magic bytes、像素和真实扩展名执行校验
+15. 动态文件名在同日多篇和同标题场景下不冲突
+16. partial success 只给成功项写各自栏目 ledger
+17. `force` 更新原路径，不创建重复文章
+18. Astro content loader 保留 `source` / `translation`，frontmatter 为本站作者且正文署名包含原作者与原文链接
+19. 最终归档质量 gate 能拦截长摘要、重复 H1、推广 CTA、孤立 `**` 与「参见 的」残句
+20. 开启 Newsletter 微信策略时，归档 frontmatter 保留 opt-in 与封面；要求首图但无有效图片时拒绝归档
 
 Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三方长文提交为测试数据。网络可用性不放进单元测试；CI smoke test 只请求 Feed 元数据并限制响应体，不调用模型。
 
@@ -690,6 +696,7 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 - 单篇估算总量不超过 200,000 token，每个栏目每次运行不超过 400,000 token，实际用量写入日志、ledger 和 result.json
 - `mirror` 只落盘通过 host、大小、MIME、magic bytes 和像素校验的图片
 - 付费或截断正文不会进入模型和归档
+- 清洗后少于 4,000 可见字符的原文不会进入模型、归档或微信草稿，且不会阻塞同一栏目的后续长文
 - 原始 HTML、prompt 与 response 仅存在于短期 artifact
 - 文章标题只使用中文原标题，栏目由标签与来源块展示；正文不含 H1
 - 只有栏目配置显式 opt-in 的本轮新文章进入微信草稿同步，重跑依靠 canonical URL 与提交台账去重
@@ -702,3 +709,4 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 3. 首批栏目统一使用 `imagePolicy=mirror`，将通过完整安全校验的正文图片按内容哈希同步到本站；原作者、原文链接和图片许可责任不因镜像而改变
 4. `startAt` 初值为 2026-08-20；历史内容只允许手动 `--backfill N`，且不覆盖每栏目单次发布上限
 5. Newsletter 微信草稿同步按栏目显式 opt-in；The Curiosity Chronicle 首个启用，封面使用文章第一张通过校验并镜像到本站的正文图片。其他栏目仍只归档站内文章
+6. 所有栏目统一拒绝清洗后少于 4,000 可见字符的原文；短文记录为跳过终态，`--force` 只重新检查而不绕过门槛

@@ -25,6 +25,7 @@ export type PreparedArticle = {
   sourceSha256: string;
   audit: {
     textRatio: number;
+    sourceTextChars: number;
     headings: number;
     headingLevels: number[];
     links: number;
@@ -290,6 +291,9 @@ export function prepareArticle(
   const sourceMetrics = htmlMetrics(body);
   const markdown = htmlNodeToMarkdown(body).trim();
   const convertedMetrics = markdownMetrics(markdown);
+  const sourceTextChars = [
+    ...convertedMetrics.text.replace(/\s/gu, ""),
+  ].length;
   const textRatio =
     convertedMetrics.text.length / Math.max(sourceMetrics.text.length, 1);
   for (const field of ["links", "images", "listItems"] as const) {
@@ -326,6 +330,7 @@ export function prepareArticle(
     sourceSha256: createHash("sha256").update(markdown).digest("hex"),
     audit: {
       textRatio,
+      sourceTextChars,
       headings: convertedMetrics.headingLevels.length,
       headingLevels: convertedMetrics.headingLevels,
       links: convertedMetrics.links,

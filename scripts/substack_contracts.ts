@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-// 抓取与翻译的护栏，全部栏目共用一套。之前每个栏目各带一份，14 条配置里 84 行只有三种取值，
+// 抓取与翻译的全局限制，全部栏目共用一套。之前每个栏目各带一份，14 条配置里 84 行只有三种取值，
 // 差异纯粹是按各自实测微调出来的，没有语义分歧，所以收敛成常量。
-// 这些拦的都不是开销，而是 OOM、解压炸弹、paywall 残稿和上下文超限，因此取值一律按最宽松那个，
-// 宁可多跑一次也不要误杀一篇本来能翻的文章。
 export const SUBSTACK_LIMITS = {
   /** frontmatter description 是文章卡片上的完整主题短语。 */
   descriptionMaxChars: 20,
+  /** 清洗后的原文可见字符下限；不含 Markdown 标记、URL、空白。 */
+  minSourceTextChars: 4_000,
   /** RSS 响应体上限。SatPost 实测 3.4 MB，这里留足余量，只作内存边界。 */
   maxFeedBytes: 16_000_000,
   /** 单张图片的响应体上限。 */
@@ -121,17 +121,29 @@ export const tokenUsageSchema = z.object({
 
 export type TokenUsage = z.infer<typeof tokenUsageSchema>;
 
-export const substackLedgerIssueSchema = z.object({
+const substackLedgerIssueBaseSchema = z.object({
   guid: z.string(),
   canonicalUrl: z.string().url(),
   sourcePublishedAt: z.string().datetime(),
   sourceSha256: z.string().regex(/^[a-f0-9]{64}$/),
-  status: z.literal("published"),
-  postPath: z.string().min(1),
-  translatedAt: z.string().datetime(),
-  model: z.string().min(1),
-  usage: tokenUsageSchema.optional(),
 });
+
+export const substackLedgerIssueSchema = z.discriminatedUnion("status", [
+  substackLedgerIssueBaseSchema.extend({
+    status: z.literal("published"),
+    postPath: z.string().min(1),
+    translatedAt: z.string().datetime(),
+    model: z.string().min(1),
+    usage: tokenUsageSchema.optional(),
+  }),
+  substackLedgerIssueBaseSchema.extend({
+    status: z.literal("skipped"),
+    reason: z.literal("below-min-source-length"),
+    sourceTextChars: z.number().int().nonnegative(),
+    minimumSourceTextChars: z.number().int().positive(),
+    evaluatedAt: z.string().datetime(),
+  }),
+]);
 
 export const substackLedgerSchema = z.object({
   version: z.literal(1),

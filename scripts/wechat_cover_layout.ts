@@ -9,46 +9,55 @@ import { platformCard, type PlatformTheme, type SatoriNode } from "../src/utils/
 export const WECHAT_COVER_WIDTH = 1175;
 export const WECHAT_COVER_HEIGHT = 500;
 
-const BRAND_FONT_SIZE = 36;
+const BRAND_FONT_SIZE = 38;
 const BRAND_LINE_HEIGHT = 1.1;
 // 品牌行与条目区之间的呼吸，同时给笔圈下沿留出不压到第一条的余量。
 const BRAND_GAP = 26;
 
 const ENTRY_GAP = 10;
-const ENTRY_LINE_HEIGHT = 1.2;
+const ENTRY_LINE_HEIGHT = 1.14;
 // 编号栏宽 1.2em：等宽拉丁一位 0.6em，两位正好占满，栏内不留缝——
 // 缝全部交给 ENTRY_NUMBER_GAP，调间距时只有一个地方要动。
 const ENTRY_NUMBER_WIDTH_EM = 1.2;
 const ENTRY_NUMBER_GAP = 10;
 
-// 上游译名卡在 40 字，40 × 20px = 800px 仍是单行，所以 20 是「最长标题也不折行」的下界。
-// 再往下缩字就小到封面读不清，与其继续缩不如让它折行。
-const MIN_FONT_SIZE = 20;
-// 两张封面都只收录五条，五条时高度约束算出来 34 左右，这个上界够不着。
-// 它只在将来条数变少时生效，免得三四条的封面把字撑到荒唐的大小。
-const MAX_FONT_SIZE = 44;
+// 长标题允许折成两行，字号不再被最极端的一条压到难以阅读。
+const MIN_FONT_SIZE = 26;
+const MAX_FONT_SIZE = 30;
+const MAX_ENTRY_LINES = 2;
 
-// 内框可用尺寸，由版式百分比推出（画布 1175×500，卡片 94%×78%，内框 89%×80%）：
+// 内框可用尺寸，由版式百分比推出（画布 1175×500，卡片 94%×78%，内框 89%×84%）：
 //   宽 = 1175 × 94% × 89% ≈ 983
-//   高 = 500 × 78% × 80% ≈ 312，扣掉品牌行 36 × 1.1 与 BRAND_GAP，条目区剩 246
+//   高 = 500 × 78% × 84% ≈ 328，扣掉品牌行与 BRAND_GAP，条目区剩 260
 const INNER_WIDTH = 983;
-const LIST_HEIGHT = Math.round(WECHAT_COVER_HEIGHT * 0.78 * 0.8 - BRAND_FONT_SIZE * BRAND_LINE_HEIGHT - BRAND_GAP);
+const LIST_HEIGHT = Math.round(WECHAT_COVER_HEIGHT * 0.78 * 0.84 - BRAND_FONT_SIZE * BRAND_LINE_HEIGHT - BRAND_GAP);
+
+function estimatedTextWidthEm(text: string): number {
+  return [...text].reduce((width, char) => {
+    if (/\s/.test(char)) return width + 0.35;
+    if (/^[A-Za-z0-9]$/.test(char)) return width + 0.6;
+    return width + (char.codePointAt(0)! <= 0x7f ? 0.5 : 1);
+  }, 0);
+}
+
+function entryLineCount(title: string, fontSize: number): number {
+  const titleWidth = INNER_WIDTH - fontSize * ENTRY_NUMBER_WIDTH_EM - ENTRY_NUMBER_GAP;
+  return Math.ceil((estimatedTextWidthEm(title) * fontSize) / titleWidth);
+}
 
 /**
- * 条目字号：取宽度与高度两个约束的较小值。
- * 宽度保证最长的一条不折行，高度保证 n 条不被 overflow 裁掉。
- *
- * 宽度那一侧要连编号栏一起解——栏宽本身按字号走，所以是
- *   longest × f + 1.2f + gap ≤ INNER_WIDTH，即 f ≤ (INNER_WIDTH − gap) / (longest + 1.2)
- *
- * CJK 字形按 1.0em 估宽，标题里的 ASCII 更窄，因此这个估计只会偏保守。
+ * 从大到小选择字号。每条最多折两行，再用实际折行总数校验列表高度；
+ * CJK 按 1em、ASCII 按近似字宽估算，避免英文括注把整张封面压到最小字号。
  */
 export function coverEntryFontSize(titles: string[]): number {
   if (!titles.length) throw new Error("WeChat cover font sizing needs at least one title");
-  const longest = Math.max(...titles.map(title => [...title].length));
-  const widthFit = Math.floor((INNER_WIDTH - ENTRY_NUMBER_GAP) / (longest + ENTRY_NUMBER_WIDTH_EM));
-  const heightFit = Math.floor((LIST_HEIGHT - ENTRY_GAP * (titles.length - 1)) / (titles.length * ENTRY_LINE_HEIGHT));
-  return Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, widthFit, heightFit));
+  for (let fontSize = MAX_FONT_SIZE; fontSize >= MIN_FONT_SIZE; fontSize -= 1) {
+    const lineCounts = titles.map(title => entryLineCount(title, fontSize));
+    if (lineCounts.some(lines => lines > MAX_ENTRY_LINES)) continue;
+    const textHeight = lineCounts.reduce((sum, lines) => sum + lines, 0) * fontSize * ENTRY_LINE_HEIGHT;
+    if (textHeight + ENTRY_GAP * (titles.length - 1) <= LIST_HEIGHT) return fontSize;
+  }
+  return MIN_FONT_SIZE;
 }
 
 // 笔圈栏目名：两道椭圆描边错开角度，模仿手绘。
@@ -62,7 +71,7 @@ export function coverEntryFontSize(titles: string[]): number {
 //
 // 外层必须 alignSelf: flex-start，否则它在列里被拉伸到满宽，椭圆会跟着横跨整张卡片。
 // 全部按字号的比例给，图片消息的卡片用同一个圈但字号大得多；写死的 30/14/12 换到 72px
-// 品牌上会细成一根发丝。比例取自原先在 36px 下量定的值，因此封面那张图一像素不变。
+// 品牌上会细成一根发丝。比例取自原先在 36px 下量定的值，让不同字号保持相同的手绘线条比例。
 const BRAND_CIRCLE_INSET_X_EM = 30 / 36;
 const BRAND_CIRCLE_INSET_TOP_EM = 14 / 36;
 const BRAND_CIRCLE_INSET_BOTTOM_EM = 12 / 36;
@@ -115,7 +124,7 @@ function entryLine(title: string, index: number, fontSize: number, accent: strin
   return {
     type: "div",
     props: {
-      style: { display: "flex", alignItems: "baseline", width: "100%", fontSize, lineHeight: ENTRY_LINE_HEIGHT, overflow: "hidden" },
+      style: { display: "flex", alignItems: "flex-start", width: "100%", fontSize, lineHeight: ENTRY_LINE_HEIGHT, overflow: "hidden" },
       children: [
         {
           type: "span",
@@ -129,7 +138,7 @@ function entryLine(title: string, index: number, fontSize: number, accent: strin
             children: String(index + 1).padStart(2, "0"),
           },
         },
-        { type: "span", props: { style: { fontWeight: 700 }, children: title } },
+        { type: "span", props: { style: { display: "flex", flex: 1, minWidth: 0, fontWeight: 700 }, children: title } },
       ],
     },
   };
@@ -146,7 +155,7 @@ export function wechatCoverTree({ titles, brand, theme, fontFamily }: { titles: 
   return platformCard(theme, fontFamily, {
     type: "div",
     props: {
-      style: { display: "flex", flexDirection: "column", margin: "40px 60px", width: "89%", height: "80%" },
+      style: { display: "flex", flexDirection: "column", margin: "30px 60px", width: "89%", height: "84%" },
       children: [
         circledBrand(brand, theme.accent),
         {

@@ -85,7 +85,7 @@ data/reddit-life-wechat/
     └── 06-<reddit-post-id>.md   # 第 6-10 帖
 ```
 
-`cover-N.png` 是每篇的专属列表封面，由 `reddit_life_wechat_cover.ts` 用 satori 渲染后随稿子提交，逐条列出本篇五帖标题和品牌；它不进入文章正文。期号与卷次均不显示。文件名用序号，条目字号由 `wechat_cover_layout.ts` 按「最长标题不折行」与「n 行不超出条目区」两个约束算出，与微博封面共用同一套尺寸。缺失时 `astro-wechat` 回落到配置里的 `defaultCover`，因此渲染失败只降级不中断。
+`cover-N.png` 是每篇的专属列表封面，由 `reddit_life_wechat_cover.ts` 用 satori 渲染后随稿子提交，逐条列出本篇五帖标题和品牌；它不进入文章正文。期号与卷次均不显示。文件名用序号，条目字号由 `wechat_cover_layout.ts` 从大到小试算，允许长标题最多折成两行，再按总行数确保列表不超出条目区；英文括注不再把整张封面压到最小字号。缺失时 `astro-wechat` 回落到配置里的 `defaultCover`，因此渲染失败只降级不中断。
 
 `run.json` v4 记录 manifest version、归档日期与时区、父任务提交 SHA / workflow run / 文章路径、上游快照路径、运行状态（`processed` 或 `upstream-empty`），以及模型名、候选总数和完整的入选/过滤决定与理由。入选帖同时记录 `sourceRank`、`selectionRank`、内部卷序号、产物路径和内容 hash。同一篇的五帖各占一条 `posts` 记录但共享同一个 `path`，发布前按 `path` 去重，去重后最多是两条路径。读取器继续兼容历史 v1/v2/v3 manifest，其中 v3 的 `leads` 只作历史数据校验，不进入新稿。
 

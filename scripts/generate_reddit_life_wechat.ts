@@ -260,7 +260,7 @@ async function fitWithOptionalCover({
   probeDir,
 }: {
   candidates: RedditLifeCandidate[];
-  digest: { headline: string; description: string };
+  digest: { headline: string };
   date: string;
   volume: RedditLifeVolume;
   articleUrl: string;
@@ -271,7 +271,7 @@ async function fitWithOptionalCover({
   probeDir: string;
 }): Promise<string> {
   const render = (cover: string) => (replyLimit: number) =>
-    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, description: digest.description, archiveDate: date, volume, articleUrl, footer, coverFile: cover, replyLimit });
+    renderRedditLifeWechatMarkdown({ candidates, headline: digest.headline, archiveDate: date, volume, articleUrl, footer, coverFile: cover, replyLimit });
   try {
     return await fitWechatContentLimit(render(coverFile), repo, label, probeDir);
   } catch (error) {
@@ -362,8 +362,7 @@ export async function generateRedditLifeWechat({
     const target = path.join(repo, relPath);
     ensureDir(path.dirname(target));
     // 标题主打本卷选后第一帖；原文章摘要只描述原榜第一帖，重排后不能再复用。
-    const description = slice.map(item => item.title).join("；");
-    const digest = { headline: slice[0].title, description };
+    const digest = { headline: slice[0].title };
     writeStderr(`[reddit-life-wechat] ${label}: headline=${digest.headline}`);
     // 封面先落盘再写稿：ogImage 只有在图确实存在时才敢写，否则 astro-wechat 解析不到文件会直接报错，
     // 那比回落到 defaultCover 糟得多。渲染失败返回 null，稿子照常出，只是没有专属封面。

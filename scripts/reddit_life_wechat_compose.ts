@@ -1,6 +1,6 @@
 // 规则层：正文完全由上游 life 文章转换而来，本模块自身不调用模型。
 // 上游每帖的正文已经是「一条回答一个普通文本编号段」的故事集，这里只做选帖、截断、拼接和长度收口。
-// 标题与摘要由编排层传进来：标题是选后第一帖，摘要列出本篇收录的标题。
+// 标题由编排层传进来，取选后第一帖；开场目录由本模块根据本卷帖子生成。
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
@@ -196,8 +196,17 @@ export function redditLifeWechatBody(candidates: RedditLifeCandidate[], limit = 
 
 const QUESTION_LIST_INTRO = "本期 Reddit 问答包括：";
 
+// U+200B 零宽空格：写进 digest 后微信侧摘要等于空，由平台自己从正文抽。
+const WECHAT_EMPTY_DIGEST = "\u200B";
+
+// 开场整块套进引用块：doocs-default 给 blockquote 配了灰底左竖线，读者一眼能把目录和正文分开。
+// 块内用 `>` 空引用行分隔，不能用真空行——真空行会让 bodyBlocks 把开场切成两块，
+// 截断逻辑的 firstHeading 索引跟着错位。
+// 序号点转义成 `1\.`：不转义 Markdown 会解析成有序列表，渲染出 <ol> 的悬挂缩进和自动编号；
+// 正文的回答用的也是这个写法。渲染器 breaks:false，条目之间必须垫一行 `>` 才各自成段。
 function redditLifeWechatOpening(titles: string[]): string {
-  return [QUESTION_LIST_INTRO, "", ...titles.map((title, index) => `${index + 1}. ${compact(title)}`)].join("\n");
+  const items = titles.flatMap((title, index) => [">", `> ${index + 1}\\. ${compact(title)}`]);
+  return [`> ${QUESTION_LIST_INTRO}`, ...items].join("\n");
 }
 
 // 微信正文有 20000 字符的 HTML 上限，而回答长度不可控。超限时从末尾往回删故事。
@@ -274,7 +283,6 @@ export function redditLifeWechatTitle(title: string): string {
 export function renderRedditLifeWechatMarkdown({
   candidates,
   headline,
-  description,
   archiveDate,
   volume,
   articleUrl,
@@ -285,7 +293,6 @@ export function renderRedditLifeWechatMarkdown({
 }: {
   candidates: RedditLifeCandidate[];
   headline: string;
-  description: string;
   archiveDate: string;
   volume: RedditLifeVolume;
   articleUrl: string;
@@ -294,21 +301,29 @@ export function renderRedditLifeWechatMarkdown({
   replyLimit?: number;
   showSourceUrl?: boolean;
 }): string {
-  if (!description) throw new Error("Reddit life WeChat article needs a description");
   if (!candidates.length) throw new Error("Reddit life WeChat article needs at least one post");
   if (!articleUrl) throw new Error("Reddit life WeChat article needs the upstream article URL");
   const [primary] = candidates;
-  const wechatFields = [`  syncId: "${redditLifeWechatSyncId(archiveDate, volume)}"`, "  showCoverInBody: false"];
+  const wechatFields = [
+    `  syncId: "${redditLifeWechatSyncId(archiveDate, volume)}"`,
+    "  showCoverInBody: false",
+    // 摘要交给微信自己从正文抽。astro-wechat 按 wechat.digest → description → 正文前 400 字取值，
+    // 而取值前会 asString() 先 trim 再丢掉空串，所以删 description、留空、填空格都一样回落到正文，
+    // 再被砍到 120 字并报 digest-truncated。零宽空格不在 trim 的空白集里，是唯一能穿过那道链的空值。
+    `  digest: "${WECHAT_EMPTY_DIGEST}"`,
+  ];
   if (showSourceUrl) wechatFields.push(`  sourceURL: "${articleUrl}"`);
   const metadata = frontmatter({
     title: redditLifeWechatTitle(headline),
     date: archiveDate,
-    description,
+    description: "",
     tags: [REDDIT_LIFE_WECHAT_TAG],
     ogImage: coverFile,
     wechatEnabled: true,
   })
     .replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"))
+    // 稿子不进 src/content/posts，不受博客 collection schema 约束，description 整行可以不要。
+    .replace('description: ""\n', "")
     .replace("---\n\n", [`redditPostId: "${primary.postId}"`, `subreddit: "${primary.subreddit}"`, "---", ""].join("\n"));
   return `${metadata}${[redditLifeWechatOpening(candidates.map(candidate => candidate.title)), redditLifeWechatBody(candidates, replyLimit), footer].filter(Boolean).join("\n\n")}\n`;
 }

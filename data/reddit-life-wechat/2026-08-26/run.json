@@ -1,11 +1,11 @@
 {
-  "version": 3,
+  "version": 4,
   "archiveDate": "2026-08-26",
   "timeZone": "America/Los_Angeles",
   "status": "processed",
   "upstream": {
-    "generatedSha": "a9f27660447db53a856645e6833c68166fa4db52",
-    "workflowRun": "32958093934",
+    "generatedSha": "9a67f1bcc7c8f21bcd7d3b018d52f1b4df138abc",
+    "workflowRun": "33032240314",
     "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-26-life.md"
   },
   "rawSources": {
@@ -16,312 +16,308 @@
     "candidateCount": 30,
     "selected": [
       {
-        "rank": 1,
+        "rank": 8,
         "longTail": 5,
         "resonance": 5,
-        "reason": "来自急诊一线的真实案例与警示极具震撼力与生命保护价值，跨越地域与时间皆能引起强烈关注。"
-      },
-      {
-        "rank": 4,
-        "longTail": 5,
-        "resonance": 5,
-        "reason": "探讨宇宙起源、意识涌现与忒修斯之船等经典悖论，具有超越时效的深邃思辨价值与求知吸引力。"
-      },
-      {
-        "rank": 25,
-        "longTail": 5,
-        "resonance": 5,
-        "reason": "深入拆解全球生育率、经济增长模式与代际养老机制的矛盾，具有极其宏观的长尾洞察与现实共鸣。"
+        "reason": "深入剖析童年创伤对成年后心理机能、警觉性及亲密关系的隐秘投射，具有极强的共鸣感和心理疗愈反思价值。"
       },
       {
         "rank": 6,
         "longTail": 5,
         "resonance": 5,
-        "reason": "接纳负面情绪、走神发呆与释放性痛哭的心理疗愈观点颠覆直觉，极易引发当代人的广泛共情。"
+        "reason": "揭示常人极易忽视的致命日常盲区，兼具严肃科学解释与强烈求生警示价值，跨越地域且长期有效。"
+      },
+      {
+        "rank": 17,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击中年危机、父母衰老与青年迷茫等全人类共通的人生困境，样本真实丰满且跨年龄层共鸣强烈。"
+      },
+      {
+        "rank": 10,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "敏锐解构假精致与暴发户心理，揭示真正从容低调与刻意炫富的本质差异，社会洞察力极强。"
+      },
+      {
+        "rank": 7,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "真实揭秘奢侈品柜员的收入落差、折扣机制与职业心态，满足大众好奇心并引发对消费主义的普遍反思。"
+      },
+      {
+        "rank": 23,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "尖锐指明迈入成年后光环消退、职场冷酷与被迫妥协的心理落差，极为切中年轻群体的成长阵痛。"
       },
       {
         "rank": 16,
         "longTail": 5,
-        "resonance": 5,
-        "reason": "多年隐秘真相的揭露极具叙事张力，对人性幽暗与亲密信任的探讨能唤起深刻的情感震动。"
+        "resonance": 4,
+        "reason": "正面回应道德与世俗成功的现实落差，探讨守住良知所带来的内在安宁，极具哲学启发与情绪抚慰价值。"
       },
       {
-        "rank": 8,
-        "longTail": 5,
-        "resonance": 5,
-        "reason": "兼具前列腺素抑制的医学科学解释与深呼吸等实用经验，对普遍面临痛经困扰的群体有极高实用价值。"
-      },
-      {
-        "rank": 9,
+        "rank": 13,
         "longTail": 5,
         "resonance": 4,
-        "reason": "清晰厘清学术追求与学历盲从的界限，对青年群体的学业抉择与职业发展具有长期的指导意义。"
+        "reason": "生动拆解现代人脱离工业社会体系后的生存困境，脑洞趣味与跨历史维度的知识反思兼备。"
       },
       {
-        "rank": 11,
-        "longTail": 5,
-        "resonance": 4,
-        "reason": "以蜡烛转型与旅行者号坚守为切入点，探讨技术更迭中物件的功能演变与文化沉淀，视角独特且意蕴悠长。"
-      },
-      {
-        "rank": 2,
+        "rank": 24,
         "longTail": 4,
         "resonance": 4,
-        "reason": "揭示游艇、养马等高端消费背后高昂的维护成本与烦琐日常，反直觉的经验分享具有普适启发性。"
+        "reason": "精准剖析集换式卡牌等盲盒消费中被伪装成正经爱好的赌博成瘾机制，分析透彻且发人深省。"
       },
       {
-        "rank": 29,
-        "longTail": 5,
+        "rank": 25,
+        "longTail": 4,
         "resonance": 4,
-        "reason": "从体温调节与角蛋白基因微调的角度清晰解答毛发起源，提供严谨扎实的演化生物学长尾知识。"
+        "reason": "生动刻画独居后摆脱原生家庭窒息规矩的解放感，对个人边界与生活自主权的探讨代入感极佳。"
       }
     ],
     "rejected": [
       {
+        "rank": 1,
+        "category": "narrow_interest",
+        "reason": "内容局限于特定欧美播客节目及海外艺人的翻车现场，中文受众认知门槛较高。"
+      },
+      {
+        "rank": 2,
+        "category": "region_specific",
+        "reason": "议题核心完全依赖美国本土两党政争及白宫特定建筑纠纷，不具普适意义。"
+      },
+      {
         "rank": 3,
         "category": "narrow_interest",
-        "reason": "围绕特定欧美名人的学历背景与智商反差展开盘点，内容较为依赖特定娱乐文化背景。"
+        "reason": "高度依赖对欧美特定老牌演艺名人的背景了解，属于粉丝向的人物盘点。"
+      },
+      {
+        "rank": 4,
+        "category": "region_specific",
+        "reason": "讨论完全绑定美国具体政治人物及其对本土党派和盟友关系的政治猜想。"
       },
       {
         "rank": 5,
         "category": "low_resonance",
-        "reason": "主要记录个别校园里发生的离奇盗窃或着火个案，虽有猎奇趣味但缺乏可迁移的思考价值。"
+        "reason": "预知短时间的脑洞探讨多停留在赌场套利和恶作剧等浅层假设，回答缺乏深度洞察。"
       },
       {
-        "rank": 7,
-        "category": "narrow_interest",
-        "reason": "集中讨论国外具体播客节目的个别嘉宾表现，受众范围狭窄且依赖特定节目收听经验。"
-      },
-      {
-        "rank": 10,
+        "rank": 9,
         "category": "low_resonance",
-        "reason": "未献血理由多集中于恐针心理与个人既往经历，讨论深度有限且共鸣空间较为单一。"
+        "reason": "下定决心运动的契机回答较为流水账与零散，缺乏足以广泛讨论的独特视角。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "奇葩家规内容偏向零散的家庭内部琐事调侃，缺乏可迁移的生活经验与深度启发。"
       },
       {
         "rank": 12,
-        "category": "narrow_interest",
-        "reason": "主要推荐英语历史类播客节目，内容高度依赖特定语言环境与小众媒介习惯。"
-      },
-      {
-        "rank": 13,
-        "category": "low_resonance",
-        "reason": "成年人培养的爱好偏向碎片化的个人生活清单，缺少深层次的探讨与广泛讨论基础。"
+        "category": "region_specific",
+        "reason": "核心内容完全依赖美国联邦债务争议及两党媒体互相攻讦的本土政治话术。"
       },
       {
         "rank": 14,
-        "category": "low_resonance",
-        "reason": "储蓄与指数基金定投的建议较为老生常谈，缺乏深入的经验洞见与新颖视角。"
+        "category": "time_sensitive",
+        "reason": "属于特定科技巨头短期和解诉讼的即时行业新闻，短期热点过后即失去讨论价值。"
       },
       {
         "rank": 15,
-        "category": "narrow_interest",
-        "reason": "针对北美网红饮料与连锁曲奇品牌的口味吐槽，高度依赖当地特定消费市场认知。"
-      },
-      {
-        "rank": 17,
-        "category": "region_specific",
-        "reason": "依赖北美道路环境对特定二手车型与皮卡司机的刻板印象，地域依赖性极强。"
+        "category": "low_resonance",
+        "reason": "外貌没感觉交往的话题讨论体量偏小且回答流于表面，缺乏深入的情感启发。"
       },
       {
         "rank": 18,
         "category": "low_resonance",
-        "reason": "对律师、销售等职业群体的宣泄式吐槽偏向刻板化评价，缺少深度的职业观察。"
+        "reason": "年轻坐拥巨款的假设脱离绝大多数普通人现实，理财计算探讨代入感偏弱。"
       },
       {
         "rank": 19,
-        "category": "low_resonance",
-        "reason": "集中于阿尔卑斯山与国家公园等著名景点的罗列与赞美，内容偏浅层打卡感。"
+        "category": "narrow_interest",
+        "reason": "针对特定西方老牌演员作品的单纯怀旧盘点，高度依赖对特定作品的认知。"
       },
       {
         "rank": 20,
         "category": "low_resonance",
-        "reason": "关于表达退化与拜访习惯的零散感慨体量较小，缺少充分的论据支撑与展开。"
+        "reason": "围绕富豪深潜与极限探洞等小概率死法的猎奇吐槽，缺乏实际长尾价值。"
       },
       {
         "rank": 21,
-        "category": "narrow_interest",
-        "reason": "仅围绕单一个人歌手生平中的冷门琐事盘点，受众与知识受限于特定粉丝群体。"
+        "category": "low_resonance",
+        "reason": "属于常见的厌恶食物清单罗列与生理不适吐槽，讨论深度有限。"
       },
       {
         "rank": 22,
         "category": "region_specific",
-        "reason": "完全依赖美国各州的地理气候、就业环境与产业政策进行评价，具有硬性地区依赖。"
-      },
-      {
-        "rank": 23,
-        "category": "low_resonance",
-        "reason": "对手写字退化和童年秒睡的怀旧感慨较为浅层，缺乏深层次的思考与经验总结。"
-      },
-      {
-        "rank": 24,
-        "category": "low_resonance",
-        "reason": "临终前选歌多为网络梗曲与假设性玩笑，讨论偏娱乐化且缺乏实质共鸣深度。"
+        "reason": "主题限定于美国本土国家公园与各州地理风光的实地游览盘点。"
       },
       {
         "rank": 26,
         "category": "narrow_interest",
-        "reason": "高度依赖具体单机解谜游戏的剧情与通关机制，非玩家群体难以产生共鸣。"
+        "reason": "高度依赖英语及西班牙语特定语音语调的绕口令讨论，非母语群体缺乏共鸣。"
       },
       {
         "rank": 27,
-        "category": "narrow_interest",
-        "reason": "针对特定影视剧和漫画角色的反感吐槽，讨论严重依赖具体虚构作品的背景知识。"
+        "category": "region_specific",
+        "reason": "针对特定快餐连锁品质下滑的吐槽高度依赖美国本土门店现状与资本并购背景。"
       },
       {
         "rank": 28,
         "category": "low_resonance",
-        "reason": "仅探讨论坛长帖摘要放置位置的网络排版习惯，话题体量过窄且探讨空间有限。"
+        "reason": "葬礼糟糕行为多为猎奇荒唐的极端个案八卦，缺乏建设性与普适思考价值。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "完全局限于特定已停产海外零食品牌的怀旧清单，受众面过窄。"
       },
       {
         "rank": 30,
-        "category": "low_resonance",
-        "reason": "单纯盘点尸体与病理组织等极端恶臭气味，以感官猎奇为主且缺乏普适价值。"
+        "category": "narrow_interest",
+        "reason": "专属于特定英文猜词游戏开局策略的技术盘点，高度受限于游戏受众。"
       }
-    ],
-    "leads": [
-      "本卷聚焦于那些打破表面幻想的清醒洞察与隐秘代价。从急救人员目睹的危险嗜好盲区，到宏观经济中人口增减与养老体系的深刻撕裂；从亲密关系背后潜藏数十年的惊人伪装，到学术深造与学位追逐的现实门槛，再到高端奢侈享受背后令人心力交瘁的维护困境，各路亲历者用扎实的经历与冷峻的剖析，为我们剥开光鲜表象下的真实世界。",
-      "本卷汇集了关乎人类心智、生理感知与自然规律的深度思索。从让大脑彻底宕机的宇宙起源与意识涌现悖论，到接纳负面情绪与发呆放空的心理疗愈机制；从对抗严重生理痛经的科学防护与经验自救，到过时物件跨越时空的演变轨迹，再到生物毛发演化背后的角蛋白密码，这些跨越时间与学科维度的问答，带领我们重新审视身体本能与世界的运行法则。"
     ]
   },
   "posts": [
     {
-      "postId": "1vy58of",
-      "title": "医生与急救人员（EMT）绝不碰哪些爱好？",
+      "postId": "1vz5n12",
+      "title": "有哪些细节能让人一眼看出一个人有过创伤性的童年或过去？",
       "subreddit": "AskReddit",
-      "points": "8052 points · 5027 评论",
-      "numComments": 5027,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vy58of/doctors_emts_etc_of_reddit_based_on_your/",
-      "sourceRank": 1,
+      "points": "761 points · 513 评论",
+      "numComments": 513,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vz5n12/what_immediately_tells_you_that_a_person_has_had/",
+      "sourceRank": 8,
       "selectionRank": 1,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/01-1vy58of.md",
-      "contentSha256": "0c9695e0326994f53a25e4cf5257e8b533a44e0c527ca7064f36f4259680c196",
+      "path": "data/reddit-life-wechat/2026-08-26/01-1vz5n12.md",
+      "contentSha256": "7a3919624cc9d368af86deb3818593b51c3b3b443b8549cbbceca0f1bd9acfb3",
       "volume": "v1"
     },
     {
-      "postId": "1vxy6v4",
-      "title": "越想越让人大脑宕机的逻辑悖论",
+      "postId": "1vyxl46",
+      "title": "有哪些大多数人没意识到、却能在几秒内致人死亡的危险？",
       "subreddit": "AskReddit",
-      "points": "2723 points · 2509 评论",
-      "numComments": 2509,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vxy6v4/what_is_a_logical_paradox_that_completely_breaks/",
-      "sourceRank": 4,
+      "points": "1458 points · 915 评论",
+      "numComments": 915,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vyxl46/what_can_kill_you_in_seconds_that_most_people/",
+      "sourceRank": 6,
       "selectionRank": 2,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/02-1vxy6v4.md",
-      "contentSha256": "2ff7af656a22fa27aabae914d86eb095a5d1fb741655947be86e6e6589a8460b",
+      "path": "data/reddit-life-wechat/2026-08-26/02-1vyxl46.md",
+      "contentSha256": "7751440da3a1cdb735d19e451858051f471027a28395ba6eaf1a9165c13aaf84",
       "volume": "v2"
     },
     {
-      "postId": "1vydqld",
-      "title": "为何世界既被指人口过剩又担忧少子化？",
+      "postId": "1vz7yu9",
+      "title": "人生究竟哪一个年龄段最难熬？",
       "subreddit": "AskReddit",
-      "points": "153 points · 138 评论",
-      "numComments": 138,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vydqld/how_did_we_reach_a_point_where_the_world_is/",
-      "sourceRank": 25,
+      "points": "348 points · 353 评论",
+      "numComments": 353,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vz7yu9/what_age_do_you_think_is_the_hardest_stage_of_life/",
+      "sourceRank": 17,
       "selectionRank": 3,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/01-1vy58of.md",
-      "contentSha256": "0c9695e0326994f53a25e4cf5257e8b533a44e0c527ca7064f36f4259680c196",
+      "path": "data/reddit-life-wechat/2026-08-26/01-1vz5n12.md",
+      "contentSha256": "7a3919624cc9d368af86deb3818593b51c3b3b443b8549cbbceca0f1bd9acfb3",
       "volume": "v1"
     },
     {
-      "postId": "1vybtxg",
-      "title": "有哪些看似不健康实则很健康的事？",
+      "postId": "1vysjwx",
+      "title": "有哪些本意是地位象征（status symbol）的物品或行为，反而会让人显得特别穷？",
       "subreddit": "AskReddit",
-      "points": "1317 points · 471 评论",
-      "numComments": 471,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vybtxg/whats_something_that_feels_unhealthy_but_is/",
-      "sourceRank": 6,
+      "points": "633 points · 382 评论",
+      "numComments": 382,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vysjwx/whats_a_status_symbol_that_actually_makes_a/",
+      "sourceRank": 10,
       "selectionRank": 4,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/02-1vxy6v4.md",
-      "contentSha256": "2ff7af656a22fa27aabae914d86eb095a5d1fb741655947be86e6e6589a8460b",
+      "path": "data/reddit-life-wechat/2026-08-26/02-1vyxl46.md",
+      "contentSha256": "7751440da3a1cdb735d19e451858051f471027a28395ba6eaf1a9165c13aaf84",
       "volume": "v2"
     },
     {
-      "postId": "1vxw2u1",
-      "title": "相识多年后发现对方最令人不安的事？",
+      "postId": "1vyofd4",
+      "title": "卖爱马仕、劳力士的奢侈品店员，自己买得起柜台里的东西吗？",
       "subreddit": "AskReddit",
-      "points": "500 points · 362 评论",
-      "numComments": 362,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vxw2u1/whats_the_most_unsettling_thing_youve_learned/",
-      "sourceRank": 16,
+      "points": "1238 points · 345 评论",
+      "numComments": 345,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vyofd4/salespeople_of_super_expensive_and_niche_luxury/",
+      "sourceRank": 7,
       "selectionRank": 5,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/01-1vy58of.md",
-      "contentSha256": "0c9695e0326994f53a25e4cf5257e8b533a44e0c527ca7064f36f4259680c196",
+      "path": "data/reddit-life-wechat/2026-08-26/01-1vz5n12.md",
+      "contentSha256": "7a3919624cc9d368af86deb3818593b51c3b3b443b8549cbbceca0f1bd9acfb3",
       "volume": "v1"
     },
     {
-      "postId": "1vyez43",
-      "title": "缓解严重痛经有哪些奇特的妙招？",
+      "postId": "1vz4mzv",
+      "title": "迈入成年有哪些残酷现实，是从来没人让Z世代（Gen Z）做好心理准备的？",
       "subreddit": "AskReddit",
-      "points": "1098 points · 1848 评论",
-      "numComments": 1848,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vyez43/ladies_do_you_have_an_unusual_life_hack_when_it/",
-      "sourceRank": 8,
+      "points": "149 points · 220 评论",
+      "numComments": 220,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vz4mzv/what_is_a_harsh_reality_about_entering_adulthood/",
+      "sourceRank": 23,
       "selectionRank": 6,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/02-1vxy6v4.md",
-      "contentSha256": "2ff7af656a22fa27aabae914d86eb095a5d1fb741655947be86e6e6589a8460b",
+      "path": "data/reddit-life-wechat/2026-08-26/02-1vyxl46.md",
+      "contentSha256": "7751440da3a1cdb735d19e451858051f471027a28395ba6eaf1a9165c13aaf84",
       "volume": "v2"
     },
     {
-      "postId": "1vygr8h",
-      "title": "谁不该读博士（PhD）而止步于硕士？",
+      "postId": "1vz35a0",
+      "title": "目睹道德败坏者过着幸福充实的生活，该如何调整心态过好自己的一生？",
       "subreddit": "AskReddit",
-      "points": "954 points · 355 评论",
+      "points": "418 points · 355 评论",
       "numComments": 355,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vygr8h/phd_holders_of_reddit_who_shouldnt_be_getting_a/",
-      "sourceRank": 9,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vz35a0/how_do_you_go_through_life_seeing_the_most/",
+      "sourceRank": 16,
       "selectionRank": 7,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/01-1vy58of.md",
-      "contentSha256": "0c9695e0326994f53a25e4cf5257e8b533a44e0c527ca7064f36f4259680c196",
+      "path": "data/reddit-life-wechat/2026-08-26/01-1vz5n12.md",
+      "contentSha256": "7a3919624cc9d368af86deb3818593b51c3b3b443b8549cbbceca0f1bd9acfb3",
       "volume": "v1"
     },
     {
-      "postId": "1vxwl6z",
-      "title": "哪些彻底过时的老物件存活得最久？",
+      "postId": "1vypo2n",
+      "title": "如果突然被传送回一千年前，你能靠什么在古代谋生？",
       "subreddit": "AskReddit",
-      "points": "825 points · 576 评论",
-      "numComments": 576,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vxwl6z/what_object_has_survived_the_longest_despite/",
-      "sourceRank": 11,
+      "points": "571 points · 1255 评论",
+      "numComments": 1255,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vypo2n/if_you_were_suddenly_transported_1000_years_in/",
+      "sourceRank": 13,
       "selectionRank": 8,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/02-1vxy6v4.md",
-      "contentSha256": "2ff7af656a22fa27aabae914d86eb095a5d1fb741655947be86e6e6589a8460b",
+      "path": "data/reddit-life-wechat/2026-08-26/02-1vyxl46.md",
+      "contentSha256": "7751440da3a1cdb735d19e451858051f471027a28395ba6eaf1a9165c13aaf84",
       "volume": "v2"
     },
     {
-      "postId": "1vy0z05",
-      "title": "哪些常见的奢侈享受其实极其令人头疼？",
+      "postId": "1vz4ob4",
+      "title": "有哪些看似正经的爱好，本质上只是多绕了几道弯的赌博？",
       "subreddit": "AskReddit",
-      "points": "3909 points · 2743 评论",
-      "numComments": 2743,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vy0z05/what_is_a_common_luxury_that_is_actually_a/",
-      "sourceRank": 2,
+      "points": "138 points · 308 评论",
+      "numComments": 308,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vz4ob4/whats_a_hobby_thats_just_gambling_with_extra_steps/",
+      "sourceRank": 24,
       "selectionRank": 9,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/01-1vy58of.md",
-      "contentSha256": "0c9695e0326994f53a25e4cf5257e8b533a44e0c527ca7064f36f4259680c196",
+      "path": "data/reddit-life-wechat/2026-08-26/01-1vz5n12.md",
+      "contentSha256": "7a3919624cc9d368af86deb3818593b51c3b3b443b8549cbbceca0f1bd9acfb3",
       "volume": "v1"
     },
     {
-      "postId": "1vy4qxi",
-      "title": "生物最初是如何演化出毛发的？",
-      "subreddit": "askscience",
-      "points": "106 points · 34 评论",
-      "numComments": 34,
-      "permalink": "https://www.reddit.com/r/askscience/comments/1vy4qxi/how_hairs_appeared_on_living_beings_at_first_place/",
-      "sourceRank": 29,
+      "postId": "1vz9ap3",
+      "title": "搬出去独居后，你终于摆脱了家里哪些最烦人的生活习惯？",
+      "subreddit": "AskReddit",
+      "points": "126 points · 126 评论",
+      "numComments": 126,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vz9ap3/whats_the_most_annoying_family_habit_you_could/",
+      "sourceRank": 25,
       "selectionRank": 10,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-08-26/02-1vxy6v4.md",
-      "contentSha256": "2ff7af656a22fa27aabae914d86eb095a5d1fb741655947be86e6e6589a8460b",
+      "path": "data/reddit-life-wechat/2026-08-26/02-1vyxl46.md",
+      "contentSha256": "7751440da3a1cdb735d19e451858051f471027a28395ba6eaf1a9165c13aaf84",
       "volume": "v2"
     }
   ]

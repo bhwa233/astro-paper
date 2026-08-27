@@ -12,8 +12,22 @@ export type PostSourceContract = {
   requiredPatterns?: readonly { label: string; pattern: RegExp }[];
 };
 
+/**
+ * 文章标签的第一层。每篇文章恰好一个，用来在 /tags 上把二十多个栏目收成五组。
+ * 这是个封闭集合：新任务只能挑一个现成的，想加第六个分类要先想清楚它在导航里占什么位置。
+ * `财经` 不在这里——那批行情日报已停更，只存在于存量文章，没有对应任务。
+ */
+export const CATEGORIES = ["技术", "播客", "社区", "阅读", "推荐"] as const;
+export type Category = (typeof CATEGORIES)[number];
+
 export type BlogTaskInfo = {
   titlePrefix: string;
+  category: Category;
+  /**
+   * 第二层：栏目名。和 category 一起写进 frontmatter，见 taskTags()。
+   * 改名的代价不止是 /tags/<旧名>/ 死链，还有 verify_blog_generation.ts 会拿它去校验历史归档，
+   * 所以改名必须先迁移存量文章再改这里，顺序反了会让月更任务在旧文件上判失败。
+   */
   tag: string;
   description: string;
   fileName: string;
@@ -44,6 +58,7 @@ export const REDDIT_TRENDING_MIN_TOPICS = 3;
 export const BLOG_TASKS = {
   "hn-top10": {
     titlePrefix: "HackerNews Top 10",
+    category: "技术",
     tag: "HackerNews",
     description: "每日 Hacker News 热门文章 Top 10 中文整理，按当天归档并覆盖更新。",
     fileName: "hackernews-{date}.md",
@@ -51,6 +66,7 @@ export const BLOG_TASKS = {
   },
   "github-trending-daily": {
     titlePrefix: "GitHub 项目日报",
+    category: "技术",
     tag: "GitHub项目日报",
     description: "每日 GitHub Trending 项目中文整理，基于榜单元数据与 README 正文提炼开源项目趋势。",
     fileName: "GitHub项目日报-{date}.md",
@@ -62,7 +78,9 @@ export const BLOG_TASKS = {
   },
   "daily-podcasts": {
     titlePrefix: "每日播客笔记",
-    tag: "播客",
+    category: "播客",
+    // 原来叫 `播客`，和新的分类名撞了。改成 `海外播客榜` 后与 Apple播客榜/中文播客榜 同级。
+    tag: "海外播客榜",
     description: "每日海外 Podcasts 热门节目中文长文笔记。",
     fileName: "每日播客-{date}.md",
     episodeArticles: true,
@@ -75,6 +93,7 @@ export const BLOG_TASKS = {
   },
   "xyzrank-top-episodes": {
     titlePrefix: "XYZ Rank 热门播客",
+    category: "播客",
     tag: "中文播客榜",
     description: "每周 XYZ Rank 中文播客热门单集 Top 5 音频长文笔记。",
     fileName: "XYZRank热门播客-{date}.md",
@@ -87,6 +106,7 @@ export const BLOG_TASKS = {
   },
   "apple-top-podcasts": {
     titlePrefix: "Apple 热门播客笔记",
+    category: "播客",
     tag: "Apple播客榜",
     description: "每日 Apple Podcasts 美区 Top Shows 热门节目音频长文笔记。",
     fileName: "Apple热门播客-{date}.md",
@@ -94,6 +114,7 @@ export const BLOG_TASKS = {
   },
   "tech-daily": {
     titlePrefix: "技术日报",
+    category: "技术",
     tag: "技术日报",
     description: "每日技术综合整理，基于文章级 AI 摘要动态聚合过去 24 小时的 AI、工程、安全、平台与科技商业变化。",
     fileName: "技术日报-{date}.md",
@@ -102,12 +123,14 @@ export const BLOG_TASKS = {
   },
   "mdblist-weekly": {
     titlePrefix: "每周影视推荐",
+    category: "推荐",
     tag: "每周影视推荐",
     description: "每周影视推荐专栏，基于 mdblist 聚合的 Trakt 趋势电影与剧集榜单，汇总本周值得看的作品并补充口碑观察。",
     fileName: "每周影视推荐-{date}.md",
   },
   "nyt-books-weekly": {
     titlePrefix: "纽约时报书单精选",
+    category: "推荐",
     tag: "每周图书推荐",
     description: "每周图书推荐专栏，基于纽约时报畅销书榜（小说与非虚构）筛选本周新上榜的图书并补充中文导读。",
     fileName: "每周图书推荐-{date}.md",
@@ -118,36 +141,42 @@ export const BLOG_TASKS = {
   },
   "economist-weekly": {
     titlePrefix: "经济学人精选导读",
+    category: "阅读",
     tag: "经济学人",
     description: "每周《经济学人》中文综合导读，精选本期文章并梳理共同主题与阅读路线。",
     fileName: "经济学人-{date}.md",
   },
   "new-yorker-weekly": {
     titlePrefix: "纽约客精选导读",
-    tag: "杂志",
+    category: "阅读",
+    tag: "纽约客",
     description: "每周《纽约客》中文导读，逐篇精选本期文章并给出结构化中文摘要。",
     fileName: "纽约客-{date}.md",
   },
   "atlantic-monthly": {
     titlePrefix: "大西洋月刊精选导读",
-    tag: "杂志",
+    category: "阅读",
+    tag: "大西洋月刊",
     description: "每月《大西洋月刊》中文导读，逐篇精选本期文章并给出结构化中文摘要。",
     fileName: "大西洋月刊-{date}.md",
   },
   "wired-monthly": {
     titlePrefix: "连线精选导读",
-    tag: "杂志",
+    category: "阅读",
+    tag: "连线",
     description: "每月《连线》（Wired）中文导读，逐篇精选本期文章并给出结构化中文摘要。",
     fileName: "连线-{date}.md",
   },
   "reddit-top20": {
     titlePrefix: "Reddit 每日精选",
+    category: "社区",
     tag: "Reddit热门",
     description: "每日 Reddit 分类精选，按问答精选、人生讨论、人物与问答、市场与价值投资四个独立栏目归档通过来源服务筛选的帖子。",
     fileName: "reddit-{date}.md",
   },
   "reddit-trending": {
     titlePrefix: "Reddit 全站热搜",
+    category: "社区",
     tag: "Reddit热搜",
     description: "每日 Reddit 全站热榜精选，按讨论密度筛掉无人讨论的图帖，再挑出一个月后仍然成立的长尾话题，仅翻译原帖标题并保留热度与来源。",
     fileName: "Reddit热搜-{date}.md",
@@ -160,6 +189,7 @@ export const BLOG_TASKS = {
   },
   "weibo-trending": {
     titlePrefix: "微博热搜",
+    category: "社区",
     tag: "微博热搜",
     description: "每日微博热搜短条目，基于当日榜单与逐话题微博智搜结论整理。",
     fileName: "wb-{compactDate}.md",
@@ -214,8 +244,10 @@ export function taskInfo(task: string): BlogTaskInfo {
   return BLOG_TASKS[task];
 }
 
+/** 两层标签，顺序即层级：分类在前，栏目在后。站点侧靠首位是不是分类词来分组。 */
 export function taskTags(task: Task): string[] {
-  return [taskInfo(task).tag];
+  const info = taskInfo(task);
+  return [info.category, info.tag];
 }
 
 export function taskTitle(task: Task, date: string): string {

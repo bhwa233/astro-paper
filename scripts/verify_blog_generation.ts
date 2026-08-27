@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { isTask, taskInfo } from "./blog_tasks.ts";
+import { isTask, taskInfo, taskTags } from "./blog_tasks.ts";
 
 const GENERATED_POST_TECHNICAL_ERROR_PATTERNS = [
   /Traceback \(most recent call last\)/i,
@@ -38,9 +38,11 @@ function verifyFrontmatter(file: string, expectedTask: string): string {
   // 标题前缀不再核对。跳过的条目也会走到这里，所以前缀一改名，历史归档就会把当月任务判失败：
   // 2026-08-11 的杂志改名让月更的 Wired 与 Atlantic 连挂两轮，而文章本身没有任何问题。
   // 前缀由 taskTitle 统一生成，重复校验一遍拦不住新问题，只会拦住改名本身。
+  // 两层都要在：只校验栏目位的话，taskTags 少写一层分类也能过，而站点的分组正是按分类位分的。
   if (isTask(expectedTask)) {
-    const info = taskInfo(expectedTask);
-    if (!frontmatter.includes(info.tag)) throw new Error(`${file} frontmatter missing ${info.tag} tag`);
+    for (const tag of taskTags(expectedTask)) {
+      if (!frontmatter.includes(tag)) throw new Error(`${file} frontmatter missing ${tag} tag`);
+    }
   }
   return text;
 }

@@ -70,7 +70,10 @@ export default {
     tagDescWithName: 'All the articles with the tag "{{tagName}}".',
 
     tagsTitle: "Tags",
-    tagsDesc: "All the tags used in posts.",
+    tagsDesc:
+      "All the tags used in posts. Categories group the site; columns are the individual recurring series.",
+    tagsCategoryHeading: "Categories",
+    tagsColumnHeading: "Columns",
 
     postsTitle: "Posts",
     postsDesc: "All the articles I've posted.",

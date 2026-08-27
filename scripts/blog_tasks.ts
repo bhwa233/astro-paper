@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { TagCategory } from "../src/utils/tagCategories.ts";
 
 // 发布时对 source 证据的要求。verify_blog_generation.ts 按这里的字段校验，不再自己维护第二份任务清单：
 // 2026-08-14 那次事故（nyt-books 去掉 ## 分节，verify 仍硬要求 ^## ，写盘后才失败）的成因就是
@@ -12,17 +13,13 @@ export type PostSourceContract = {
   requiredPatterns?: readonly { label: string; pattern: RegExp }[];
 };
 
-/**
- * 文章标签的第一层。每篇文章恰好一个，用来在 /tags 上把二十多个栏目收成五组。
- * 这是个封闭集合：新任务只能挑一个现成的，想加第六个分类要先想清楚它在导航里占什么位置。
- * `财经` 不在这里——那批行情日报已停更，只存在于存量文章，没有对应任务。
- */
-export const CATEGORIES = ["技术", "播客", "社区", "阅读", "推荐"] as const;
-export type Category = (typeof CATEGORIES)[number];
-
 export type BlogTaskInfo = {
   titlePrefix: string;
-  category: Category;
+  /**
+   * 标签第一层。取值集合定义在 src/utils/tagCategories.ts——站点的分组和生成侧的写入
+   * 必须是同一份清单，分开维护迟早会漂移出一个只有一边认识的分类。
+   */
+  category: TagCategory;
   /**
    * 第二层：栏目名。和 category 一起写进 frontmatter，见 taskTags()。
    * 改名的代价不止是 /tags/<旧名>/ 死链，还有 verify_blog_generation.ts 会拿它去校验历史归档，

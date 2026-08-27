@@ -10,6 +10,7 @@ import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { filterCollectionByLocale } from "@/utils/contentLocale";
 import { getSharedLocaleAlternates } from "@/utils/localeAlternates";
 import { getUniqueTags } from "@/utils/getUniqueTags";
+import { partitionTagsByCategory } from "@/utils/tagCategories";
 import { getLocalizedSiteTitle } from "@/utils/siteMeta";
 import { useTranslations } from "@/i18n";
 
@@ -18,7 +19,9 @@ const posts = filterCollectionByLocale(
   await getCollection("posts", ({ data }) => !data.draft),
   locale
 );
-const tags = getUniqueTags(posts);
+// 一层平铺时最重的栏目和只有一篇的刊名同级，权重差 80 倍，读者无从下手。
+// 分成两组后先看到五六个分类，展开才是二十多个栏目。
+const { categories, columns } = partitionTagsByCategory(getUniqueTags(posts));
 const t = useTranslations(locale);
 const siteTitle = getLocalizedSiteTitle(locale);
 ---
@@ -32,9 +35,31 @@ const siteTitle = getLocalizedSiteTitle(locale);
   <Breadcrumb />
 
   <Main pageTitle={t.pages.tagsTitle} pageDesc={t.pages.tagsDesc}>
-    <ul class="flex flex-wrap gap-6">
-      {tags.map(({ tag, tagName }) => <Tag {tag} {tagName} />)}
-    </ul>
+    {
+      categories.length > 0 && (
+        <section>
+          <h2 class="text-2xl font-bold">{t.pages.tagsCategoryHeading}</h2>
+          <ul class="mt-4 flex flex-wrap gap-6">
+            {categories.map(({ tag, tagName }) => (
+              <Tag {tag} {tagName} />
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class:list={[{ "mt-10": categories.length > 0 }]}>
+      {
+        categories.length > 0 && (
+          <h2 class="text-2xl font-bold">{t.pages.tagsColumnHeading}</h2>
+        )
+      }
+      <ul
+        class:list={["flex flex-wrap gap-6", { "mt-4": categories.length > 0 }]}
+      >
+        {columns.map(({ tag, tagName }) => <Tag {tag} {tagName} />)}
+      </ul>
+    </section>
   </Main>
 
   <Footer />

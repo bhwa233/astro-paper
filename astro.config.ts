@@ -69,11 +69,24 @@ export default defineConfig({
       defaultAuthor: config.site.author,
       defaultCover: "/default-og.jpg",
       theme: "doocs-default",
-      eligibleTags: ["技术日报", "每周图书推荐", "随笔", "海外长文"],
+      // 标签改成两层后 `海外长文` 不再存在，Substack 译文的分类位是 `阅读`。
+      // 换成分类位不会把杂志导读一起放进来：真正决定能否同步的是文章自己的
+      // `wechat.enabled`（见 eligibility.ts，配置只能排除、不能选入），而杂志任务没开那个开关。
+      eligibleTags: ["技术日报", "每周图书推荐", "随笔", "阅读"],
       remoteImageHosts: ["static01.nyt.com"],
       failOnInvalid: true,
     }),
   ],
+  // 两个消失的标签留下的旧地址。`杂志` 拆成了三本刊，`海外长文` 被分类位 `阅读` 顶替，
+  // 两者都被搜索引擎收录过，直接 404 会把已有入口丢掉，所以指到接手它们的分类页。
+  // 只有 `海外长文` 有第二页（12 篇 / 每页 10 篇）；`杂志` 当时 10 篇，正好一页。
+  // 其余标签一律没改名，不需要在这里登记。
+  // 目标带尾斜杠，和 sitemap 里登记的规范地址一致，省掉托管层的一跳 301。
+  redirects: {
+    "/tags/杂志": "/tags/阅读/",
+    "/tags/海外长文": "/tags/阅读/",
+    "/tags/海外长文/2": "/tags/阅读/",
+  },
   i18n: {
     locales: [...LOCALES],
     defaultLocale: DEFAULT_LOCALE,

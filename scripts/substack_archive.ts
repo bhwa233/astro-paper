@@ -3,13 +3,13 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import slugify from "slugify";
 import { AUTHOR, ensureDir } from "./blog_common.ts";
-import type { Category } from "./blog_tasks.ts";
 import { SUBSTACK_PROMPT_VERSION } from "./substack_content.ts";
 import type { NewsletterPublication } from "./substack_contracts.ts";
 import { assertSubstackPostQuality } from "./substack_quality.ts";
+import type { TagCategory } from "../src/utils/tagCategories.ts";
 
-/** 标注成 Category 而不是 string：分类集合改了这里会编译失败，而不是安静写出一个孤儿标签。 */
-const READING_CATEGORY: Category = "阅读";
+/** 标注成 TagCategory 而不是 string：分类集合改了这里会编译失败，而不是安静写出一个孤儿标签。 */
+const READING_CATEGORY: TagCategory = "阅读";
 
 function yamlString(value: string): string {
   return JSON.stringify(value);

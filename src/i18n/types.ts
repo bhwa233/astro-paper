@@ -69,6 +69,8 @@ export interface UIStrings {
 
     tagsTitle: string;
     tagsDesc: string;
+    tagsCategoryHeading: string;
+    tagsColumnHeading: string;
 
     postsTitle: string;
     postsDesc: string;

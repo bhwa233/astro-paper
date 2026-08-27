@@ -70,7 +70,10 @@ export default {
     tagDescWithName: "包含“{{tagName}}”标签的所有文章。",
 
     tagsTitle: "标签",
-    tagsDesc: "博客中使用到的所有标签。",
+    tagsDesc:
+      "博客中使用到的所有标签。分类是文章的大类，栏目是具体的更新系列。",
+    tagsCategoryHeading: "分类",
+    tagsColumnHeading: "栏目",
 
     postsTitle: "文章",
     postsDesc: "我发布过的全部文章。",

@@ -23,6 +23,7 @@ afterEach(() => project.cleanup())
 
 interface FakeOptions {
   readonly existingDraftId?: string | null
+  readonly draftIds?: readonly string[]
   /** Throw from `createDraft`, to exercise the "uploads paid for, no draft" path. */
   readonly failDraft?: boolean
 }
@@ -49,7 +50,7 @@ function fakeClient(existingDraftId: string | null = null, options: FakeOptions 
         calls.push('createDraft')
         drafts.push(input)
         if (options.failDraft) throw new Error('draft rejected')
-        return 'draft-a'
+        return options.draftIds?.[drafts.length - 1] ?? 'draft-a'
       },
       async findDraftBySourceUrl() {
         calls.push('findDraftBySourceUrl')
@@ -107,6 +108,19 @@ describe('草稿同步', () => {
 
     expect(second).toMatchObject({ status: 'skipped', skipReason: 'already-synchronized' })
     expect(fake.calls).toHaveLength(callCount)
+  })
+
+  it('force create 绕过已同步台账并把最新草稿写回台账', async () => {
+    const fake = fakeClient(null, { draftIds: ['draft-a', 'draft-b'] })
+    const context = deps(fake.client)
+    const article = await render()
+
+    await expect(synchronizeArticle(article, context)).resolves.toMatchObject({ status: 'created', mediaId: 'draft-a' })
+    await expect(synchronizeArticle(article, context, { dryRun: true, forceCreate: true })).resolves.toMatchObject({ status: 'planned' })
+    await expect(synchronizeArticle(article, context, { forceCreate: true })).resolves.toMatchObject({ status: 'created', mediaId: 'draft-b' })
+
+    expect(fake.calls.filter(call => call === 'createDraft')).toHaveLength(2)
+    await expect(context.store.get(article.document.sourceId)).resolves.toMatchObject({ writeState: 'committed', mediaId: 'draft-b' })
   })
 
   it('结果不明后发现远程草稿时恢复台账而不重复创建', async () => {

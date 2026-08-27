@@ -18,6 +18,11 @@ on:
         description: "Workflow run that produced upstream_sha."
         required: true
         type: string
+      force_rebuild:
+        description: "Rebuild an existing archive and create a replacement WeChat draft."
+        required: false
+        default: false
+        type: boolean
   workflow_dispatch:
     inputs:
       date:
@@ -32,6 +37,11 @@ on:
         description: "Workflow run that produced the upstream article."
         required: true
         type: string
+      force_rebuild:
+        description: "Rebuild this date and create a replacement WeChat draft. The existing draft is retained."
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: scheduled-posts-${{ github.ref }}
@@ -85,13 +95,12 @@ jobs:
           ARCHIVE_DATE: ${{ steps.archive-date.outputs.date }}
           UPSTREAM_GENERATED_SHA: ${{ inputs.upstream_sha }}
           UPSTREAM_WORKFLOW_RUN: ${{ inputs.upstream_workflow_run }}
+          INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
         run: |
           set -euo pipefail
-          node --import tsx scripts/generate_weibo_trending_wechat.ts \
-            --date "$ARCHIVE_DATE" \
-            --upstream-sha "$UPSTREAM_GENERATED_SHA" \
-            --upstream-workflow-run "$UPSTREAM_WORKFLOW_RUN" \
-            --artifacts-dir weibo-trending-wechat-artifacts | tee weibo-trending-wechat-result.json
+          args=(--date "$ARCHIVE_DATE" --upstream-sha "$UPSTREAM_GENERATED_SHA" --upstream-workflow-run "$UPSTREAM_WORKFLOW_RUN" --artifacts-dir weibo-trending-wechat-artifacts)
+          if [ "$INPUT_FORCE_REBUILD" = "true" ]; then args+=(--force); fi
+          node --import tsx scripts/generate_weibo_trending_wechat.ts "${args[@]}" | tee weibo-trending-wechat-result.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const result = JSON.parse(fs.readFileSync("weibo-trending-wechat-result.json", "utf8"));
@@ -191,10 +200,13 @@ jobs:
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
         run: |
           set -euo pipefail
           mapfile -t paths < weibo-trending-wechat-paths.txt
-          pnpm run wechat publish "${paths[@]}" --dry-run --json | tee wechat-dry-run.json
+          args=()
+          if [ "$INPUT_FORCE_REBUILD" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --dry-run --json | tee wechat-dry-run.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
@@ -208,10 +220,13 @@ jobs:
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
         run: |
           set +e
           mapfile -t paths < weibo-trending-wechat-paths.txt
-          pnpm run wechat publish "${paths[@]}" --json | tee wechat-results.json
+          args=()
+          if [ "$INPUT_FORCE_REBUILD" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --json | tee wechat-results.json
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Commit WeChat ledger

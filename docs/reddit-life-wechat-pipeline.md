@@ -96,6 +96,8 @@ data/reddit-life-wechat/
 
 草稿放在 `data/reddit-life-wechat/` 下，不进内容集合，所以博客站点不会出现重复内容。自动 workflow 会先运行 astro-wechat dry-run，只接受 `planned` 或已同步跳过，然后串行创建两篇微信草稿；部分成功时先提交 `.astro-wechat/ledger.json`，再让 job 以失败结束，避免重跑重复创建已经成功的草稿。
 
+父 workflow 手动运行时的 `force=true` 会同时重建站点文章、当日微信归档，并把 `--force-create` 传给 dry-run 和正式同步。它会绕过 `already-synchronized` 新建替代草稿，不会更新或删除公众号草稿箱里的旧稿；同步台账在成功后改为记录最新草稿。未开启 `force` 的普通重跑继续复用 manifest 和同步台账。
+
 `sync-wechat-draft.yml` 仍保留为人工补同步入口，路径校验同时接受 `src/content/posts/*.md` 与 `data/reddit-life-wechat/*.md`。稿子及其封面都已提交，本地直接调用 astro-wechat 前不再需要恢复任何资源；要重新生成整天的两篇稿子可以跑：
 
 ```bash

@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { booleanArg, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 import {
   parseWeiboTrendingArticle,
@@ -144,7 +144,9 @@ export function shouldRebuildWeiboTrendingWechatManifest(
   existing: Pick<WeiboTrendingWechatRunManifest, "status" | "upstream">,
   upstreamSha: string,
   upstreamArticleAvailable: boolean,
+  force = false,
 ): boolean {
+  if (force) return true;
   if (existing.status === "upstream-empty") return upstreamArticleAvailable;
   // A processed archive is tied to the parent's committed handoff. Reusing it after the
   // handoff changes leaves stale rendered Markdown in place, hiding changes such as syncId.
@@ -175,12 +177,14 @@ export async function generateWeiboTrendingWechat({
   upstreamSha,
   workflowRun,
   artifactsDir = "",
+  force = false,
 }: {
   repo?: string;
   date: string;
   upstreamSha: string;
   workflowRun: string;
   artifactsDir?: string;
+  force?: boolean;
 }): Promise<{ manifestPath: string; generatedPaths: string[]; status: WeiboTrendingWechatRunManifest["status"] }> {
   date = archiveDate(date);
   if (!upstreamSha) throw new Error("--upstream-sha is required; Weibo trending WeChat must read the committed parent handoff");
@@ -196,7 +200,7 @@ export async function generateWeiboTrendingWechat({
   const existing = loadWeiboTrendingWechatRunManifest(manifestFile);
   if (existing) {
     if (existing.archiveDate !== date) throw new Error(`Weibo trending WeChat manifest date does not match its directory: ${manifestRel}`);
-    if (!shouldRebuildWeiboTrendingWechatManifest(existing, upstreamSha, fs.existsSync(upstreamFile))) {
+    if (!shouldRebuildWeiboTrendingWechatManifest(existing, upstreamSha, fs.existsSync(upstreamFile), force)) {
       if (existing.status === "processed") {
         const expectedDayDir = path.join(ROOT_REL, date);
         if (
@@ -215,7 +219,9 @@ export async function generateWeiboTrendingWechat({
       writeStderr(`[weibo-trending-wechat] archive=${date}: reused manifest (${existing.status})`);
       return { manifestPath: manifestRel, generatedPaths: existing.draft ? [existing.draft.path] : [], status: existing.status };
     }
-    if (existing.status === "upstream-empty") {
+    if (force) {
+      writeStderr(`[weibo-trending-wechat] archive=${date}: forced rebuild of existing manifest`);
+    } else if (existing.status === "upstream-empty") {
       writeStderr(`[weibo-trending-wechat] archive=${date}: upstream article is now available; replacing upstream-empty manifest`);
     } else {
       writeStderr(`[weibo-trending-wechat] archive=${date}: upstream handoff changed; rebuilding processed manifest`);
@@ -307,6 +313,7 @@ async function main(): Promise<void> {
     upstreamSha: stringArg(args, "upstream-sha", process.env.UPSTREAM_GENERATED_SHA || ""),
     workflowRun: stringArg(args, "upstream-workflow-run", process.env.UPSTREAM_WORKFLOW_RUN || ""),
     artifactsDir: path.resolve(stringArg(args, "artifacts-dir", "weibo-trending-wechat-artifacts")),
+    force: booleanArg(args, "force"),
   });
   writeStdout(`${JSON.stringify({ date, ...result })}\n`);
 }

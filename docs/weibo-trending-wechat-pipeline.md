@@ -51,7 +51,7 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
 
 所有微信同步 job 使用 `wechat-sync-${{ github.repository }}` 并发组串行执行。正式发布即使部分失败，也会先提交 `.astro-wechat/ledger.json`，再让 job 失败，避免重跑重复创建已成功的草稿。
 
-专用 workflow 同时提供 `workflow_dispatch` 补跑入口。对已有归档补跑时应传原始归档日期、包含上游文章的提交 SHA 和对应 workflow run；它会复用 manifest。`sync-wechat-draft.yml` 的路径白名单也接受该目录；稿件及卡片都已提交，本地直接调用 astro-wechat 前不需要恢复任何资源。
+专用 workflow 同时提供 `workflow_dispatch` 补跑入口。对已有归档补跑时应传原始归档日期、包含上游文章的提交 SHA 和对应 workflow run；普通补跑会复用 manifest。父 workflow 的 `force=true` 或专用 workflow 的 `force_rebuild=true` 会重新渲染当日卡片，并给微信 dry-run 和正式同步传 `--force-create`，绕过 `already-synchronized` 新建替代草稿。旧草稿不会更新或删除，同步台账在成功后改为记录最新草稿。`sync-wechat-draft.yml` 的路径白名单也接受该目录；稿件及卡片都已提交，本地直接调用 astro-wechat 前不需要恢复任何资源。
 
 图片消息的所有卡片会作为永久图片素材上传。微信当前的草稿读取接口看不到 `newspic`，因此创建请求结果未知时系统会保留 pending 台账并停止自动重试；操作人员需要先到公众号草稿箱确认，不能依靠远端自动对账。
 

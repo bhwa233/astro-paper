@@ -27,7 +27,7 @@ on:
         required: false
         type: string
       force:
-        description: "Overwrite an existing post for the same date"
+        description: "Regenerate existing content and, when WeChat sync is enabled, create a replacement draft."
         required: false
         type: boolean
         default: false
@@ -70,7 +70,7 @@ on:
         required: false
         type: string
       force:
-        description: "Overwrite an existing post for the same date"
+        description: "Regenerate existing content and, when WeChat sync is enabled, create a replacement draft."
         required: false
         type: boolean
         default: false
@@ -414,9 +414,12 @@ jobs:
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE: ${{ inputs.force || false }}
         run: |
           set -euo pipefail
-          pnpm run wechat publish "$ARTICLE_PATH" --dry-run --json | tee wechat-dry-run.json
+          args=()
+          if [ "$INPUT_FORCE" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "$ARTICLE_PATH" "${args[@]}" --dry-run --json | tee wechat-dry-run.json
 
       - name: "Approve planned draft creation"
         id: decision
@@ -448,7 +451,12 @@ jobs:
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
-        run: pnpm run wechat publish "$ARTICLE_PATH" --json | tee wechat-results.json
+          INPUT_FORCE: ${{ inputs.force || false }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [ "$INPUT_FORCE" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "$ARTICLE_PATH" "${args[@]}" --json | tee wechat-results.json
 
       - name: "Commit WeChat ledger"
         if: always() && steps.decision.outputs.publish == 'true'

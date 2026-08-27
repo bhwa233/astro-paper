@@ -30,7 +30,7 @@ on:
           - satpost
           - marginalian
       force:
-        description: "Regenerate an item even when it is in the ledger."
+        description: "Regenerate ledgered items and create replacement WeChat drafts for opted-in articles."
         required: false
         default: false
         type: boolean
@@ -213,4 +213,5 @@ jobs:
     with:
       upstream_sha: ${{ needs.translate.outputs.generated_sha }}
       upstream_workflow_run: ${{ github.run_id }}
+      force_create: ${{ inputs.force || false }}
     secrets: inherit

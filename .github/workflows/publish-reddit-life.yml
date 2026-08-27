@@ -13,7 +13,7 @@ on:
         required: false
         type: string
       force:
-        description: "Overwrite an existing post for the same date"
+        description: "Regenerate the post and create replacement WeChat drafts; existing drafts are retained."
         required: false
         type: boolean
         default: false
@@ -48,4 +48,5 @@ jobs:
       upstream_sha: ${{ needs.publish.outputs.generated_sha }}
       upstream_workflow_run: ${{ github.run_id }}
       ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+      force_rebuild: ${{ inputs.force || false }}
     secrets: inherit

@@ -14,6 +14,11 @@ on:
         description: "Workflow run that produced the newsletter result artifact."
         required: true
         type: string
+      force_create:
+        description: "Create replacement drafts even when the articles are already synchronized."
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   sync-wechat:
@@ -87,10 +92,13 @@ jobs:
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE_CREATE: ${{ inputs.force_create || false }}
         run: |
           set -euo pipefail
           mapfile -t paths < newsletter-wechat-paths.txt
-          pnpm run wechat publish "${paths[@]}" --dry-run --json | tee wechat-dry-run.json
+          args=()
+          if [ "$INPUT_FORCE_CREATE" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --dry-run --json | tee wechat-dry-run.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
@@ -105,10 +113,13 @@ jobs:
           WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
           WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
           WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE_CREATE: ${{ inputs.force_create || false }}
         run: |
           set +e
           mapfile -t paths < newsletter-wechat-paths.txt
-          pnpm run wechat publish "${paths[@]}" --json | tee wechat-results.json
+          args=()
+          if [ "$INPUT_FORCE_CREATE" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --json | tee wechat-results.json
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
           exit 0
 

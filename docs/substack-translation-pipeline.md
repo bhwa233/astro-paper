@@ -643,6 +643,8 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 
 翻译 workflow 只把本轮 result 中 `status=published`、存在 `postPath` 且 `wechat.enabled=true` 的文章交给通用 Newsletter 微信 workflow。下游必须 checkout 已推送的生成提交，先执行 astro-wechat dry-run，只接受 `planned` 或 `already-synchronized`，再串行创建草稿。发布器台账负责幂等；部分草稿成功时先提交 `.astro-wechat/ledger.json`，然后再让 job 报告其余失败。该流程只创建草稿，不执行群发。
 
+手动运行翻译 workflow 时，`force=true` 除了重新生成已入账文章，还会向 Newsletter 微信 workflow 传递 `force_create=true`。对于本轮重新生成且已开启微信同步的文章，下游使用 `--force-create` 新建替代草稿；公众号后台的旧草稿保留，同步台账更新为最新草稿。普通重跑仍按 canonical URL 和同步台账跳过。
+
 ## 15. 测试策略
 
 需要测试的稳定合同：

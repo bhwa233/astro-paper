@@ -39,6 +39,9 @@ test("Reddit life WeChat opens with its fixed question list and keeps it during 
   });
 
   assert.match(markdown, /showCoverInBody: false/);
+  // 2026-08-27: omitting sourceURL made the WeChat CLI derive a nonexistent
+  // /posts/<archive-file>/ link instead of pointing 阅读原文 at the daily blog.
+  assert.match(markdown, /sourceURL: "https:\/\/example\.com\/posts\/reddit-life\/"/);
   assert.match(markdown, /本期 Reddit 问答包括：\n\n1\. 一个值得讨论的问题\n2\. 另一道也值得讨论的问题/);
   assert.ok(markdown.indexOf("本期 Reddit 问答包括：") < markdown.indexOf(`## ${candidate.title}`));
 

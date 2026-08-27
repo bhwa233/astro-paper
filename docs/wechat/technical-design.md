@@ -349,7 +349,9 @@ token 规则：绝不写入日志、构件、清单或预览输出；持久化�
 | `cover` | 微信专用封面 | `ogImage` 或项目默认值 |
 | `author` | 微信专用作者 | 文章作者/项目默认值 |
 | `digest` | 微信专用摘要 | 文章 description |
-| `sourceURL` | 显式规范源 URL | 派生 canonical URL |
+| `sourceURL` | 显式规范源 URL | 内容目录内派生 canonical URL；目录外不推导 |
+
+只有配置的 `contentDir` 内、确实会由站点生成路由的 Markdown 才能根据 `siteUrl` 与文件名自动推导 canonical URL。CI 允许同步的 `data/` 归档稿不等于站点文章；它们必须显式写 `wechat.sourceURL` 才会显示「阅读原文」，否则 canonical URL 留空并按无远端恢复标识处理。
 
 未来可加入评论设置、主题选择和 locale。除非明确选择基于仓库的状态，草稿 media 标识符和同步哈希不应放进普通文章 frontmatter。
 

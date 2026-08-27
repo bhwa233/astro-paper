@@ -11,7 +11,7 @@
 
 模型只做微信选题，不改写故事正文、标题、摘要或开篇。每篇标题取选后第一帖，摘要列出本篇收录的标题。曾经有一次模型调用把多帖话题串成一个标题，读者一眼看不出在讲什么，因此成稿仍坚持主打第一帖。
 
-稿子里没有任何站外引流：不写 `wechat.sourceURL`（也就没有「阅读原文」），正文末尾也没有二维码卡片和「今天还有这些热帖」清单。撤掉它们是因为带导流入口会影响微信的推荐算法，入选内容直接进入草稿正文。
+稿子的「阅读原文」固定指向当天问答博客文章的原始地址，不添加查询参数或锚点。正文末尾没有二维码卡片和「今天还有这些热帖」清单，入选内容直接进入草稿正文。
 
 ## 2. 目标与非目标
 
@@ -61,7 +61,7 @@ workflow `reddit-life-wechat.yml` 由 `publish-reddit-life.yml` 在 publish 成�
 - **封面**：每卷仍生成专属封面并作为微信列表缩略图，但 `wechat.showCoverInBody: false` 阻止渲染器把它重复插到正文开头；正文从固定问答清单开始。
 - **标题与摘要**：标题取每篇选后第一帖标题，形如 `<本篇第一帖标题>｜Reddit 问答精选`；期号与卷次均不显示。原文章摘要对应原榜第一帖，重排后不再可靠，因此两篇摘要都列出各自收录的标题。
 - **内部身份**：两篇稿子在 manifest 中记录内部卷序号 `v1` 至 `v2`；微信同步 ID 使用归档日期与卷序号，因此不依赖标题，也不会因标题重复跳过后续稿子。
-- **frontmatter**：`tags: [Reddit人生讨论]`（在 `astro-wechat.config.mjs` 的 `eligibleTags` 内）、`wechat.enabled: true`，另附 `redditPostId` 与 `subreddit` 记本篇第一帖，便于追溯。**不写 `wechat.sourceURL`**：它既是「阅读原文」的落点，也是 astro-wechat 的同步身份，而两篇共用同一篇上游文章的地址会撞车，后一篇会被判 `already-synchronized` 静默跳过。没有它时身份退回稿子的仓库相对路径，两篇天然唯一。代价是上一次同步中断留下 `pending` 记录时无法自动对账，astro-wechat 会抛 `reconcile-impossible` 要求人工确认。
+- **frontmatter**：`tags: [Reddit人生讨论]`（在 `astro-wechat.config.mjs` 的 `eligibleTags` 内）、`wechat.enabled: true`，另附 `redditPostId` 与 `subreddit` 记本篇第一帖，便于追溯。`wechat.sourceURL` 显式写入当天 `reddit-<date>-life` 博客地址，确保「阅读原文」落到真实页面；两篇使用相同原始地址，不添加查询参数或锚点。同步身份由独立的 `wechat.syncId` 区分，因此正常同步不会把后一篇判为 `already-synchronized`。若某次同步停在 `pending`，微信侧仅凭相同的阅读原文地址无法区分两篇，仍需人工确认后使用 `--force-create`。
 
 ## 5. 长度收口
 
@@ -98,7 +98,7 @@ data/reddit-life-wechat/
 
 父 workflow 手动运行时的 `force=true` 会同时重建站点文章、当日微信归档，并把 `--force-create` 传给 dry-run 和正式同步。它会绕过 `already-synchronized` 新建替代草稿，不会更新或删除公众号草稿箱里的旧稿；同步台账在成功后改为记录最新草稿。未开启 `force` 的普通重跑继续复用 manifest 和同步台账。
 
-`sync-wechat-draft.yml` 仍保留为人工补同步入口，路径校验同时接受 `src/content/posts/*.md` 与 `data/reddit-life-wechat/*.md`。稿子及其封面都已提交，本地直接调用 astro-wechat 前不再需要恢复任何资源；要重新生成整天的两篇稿子可以跑：
+`sync-wechat-draft.yml` 仍保留为人工补同步入口，路径校验同时接受 `src/content/posts/*.md` 与 `data/reddit-life-wechat/*.md`。微信 CLI 只为配置的博客内容目录自动推导 canonical URL；`data/` 下的归档稿必须显式写 `wechat.sourceURL`，避免按归档文件名生成不存在的 `/posts/<slug>/`。稿子及其封面都已提交，本地直接调用 astro-wechat 前不再需要恢复任何资源；要重新生成整天的两篇稿子可以跑：
 
 ```bash
 node --import tsx scripts/generate_reddit_life_wechat.ts \

@@ -35,7 +35,8 @@ export const REDDIT_LIFE_WECHAT_TOTAL_POSTS = REDDIT_LIFE_WECHAT_VOLUMES.length 
 //
 // 改动这两个值时，请在下面记一行日期与意图，别让实验区间只能靠 git log 反推。
 //   2026-08-25 两项同时关闭，作为无引流入口的基线。
-export const REDDIT_LIFE_WECHAT_SHOW_SOURCE_URL = false;
+//   2026-08-27 恢复阅读原文，固定使用当天问答博客原始地址，不加查询参数或锚点。
+export const REDDIT_LIFE_WECHAT_SHOW_SOURCE_URL = true;
 export const REDDIT_LIFE_WECHAT_SHOW_QR = false;
 
 export const REDDIT_LIFE_WECHAT_QR_FILE = "qr.png";

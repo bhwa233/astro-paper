@@ -1,6 +1,7 @@
-import { basename, extname } from 'node:path'
+import { basename, extname, isAbsolute, relative, sep } from 'node:path'
 import { SourceValidationError, type WarningCollector } from '../errors.js'
 import { checkEligibility } from '../eligibility.js'
+import { contentRoot } from '../project/config.js'
 import type { ArticleDocument, ArticleType, ProjectConfig, ResolvedProject, SourceArticle, WechatFrontmatter } from '../types.js'
 import { stripMarkdown } from '../util/text.js'
 import { assertNewspicTitleWithinLimit, assertWithinLimit, fitDigest } from './validate.js'
@@ -84,7 +85,7 @@ export function toArticleDocument(
     warnings.add({
       code: 'no-canonical-url',
       message:
-        '这篇文章没有 canonical URL，草稿身份将无法从微信侧恢复。配置 siteUrl，或显式设置 canonicalURL / wechat.sourceURL。',
+        '这篇文章没有 canonical URL，草稿身份将无法从微信侧恢复。内容目录内可配置 siteUrl 自动推导；目录外请显式设置 canonicalURL / wechat.sourceURL。',
       sourcePath,
     })
   }
@@ -197,6 +198,16 @@ function resolveCanonicalUrl(
 
   const { siteUrl, permalinkPattern } = project.config
   if (!siteUrl) return undefined
+
+  const contentRelativePath = relative(contentRoot(project), source.absolutePath)
+  if (
+    !contentRelativePath ||
+    contentRelativePath === '..' ||
+    contentRelativePath.startsWith(`..${sep}`) ||
+    isAbsolute(contentRelativePath)
+  ) {
+    return undefined
+  }
 
   const slug = firstDefined(asString(frontmatter.slug), basename(source.absolutePath, extname(source.absolutePath)))
   if (!slug) return undefined

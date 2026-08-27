@@ -488,29 +488,29 @@
     },
     "reddit-life-2026-08-26-v1": {
       "sourceId": "reddit-life-2026-08-26-v1",
-      "canonicalUrl": "https://blog.bhwa233.com/posts/01-1vy58of/",
-      "contentHash": "5a23022f24d29649f2d4071891b8c26b2473dae5a537ee2582e1c66fb70ec369",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/01-1vz5n12/",
+      "contentHash": "1c80bbfbcfa99dbd28c3024c04ffcad6adda21b64be05e5376abdf3e50479b01",
       "hashSchemaVersion": 1,
       "orphanedCoverMaterialIds": [],
       "imageMaterialIds": [],
       "writeState": "committed",
-      "updatedAt": "2026-08-26T10:34:36.152Z",
-      "mediaId": "lAMaLd-mzPj_bm0zorBkNJPQsrI3Ia1wxfzICxZkG3os3CyysKzE4fakYKagYUGd",
-      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNBXxh7JPQGc5k4vkXU_TEhy4h5BsY_M1ez2CkoKqYKLT",
-      "coverContentHash": "577ce2b26f67cc0c"
+      "updatedAt": "2026-08-27T02:14:06.326Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNDMq-SReUSOVe9R6puXFaWpSCJWmX6UYjVPnVXGD1EY3",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNKqHG96eBJUjn0znQUfD0WH-PkvrWwwQqw14nR2o3OWo",
+      "coverContentHash": "c337c4281ef1f366"
     },
     "reddit-life-2026-08-26-v2": {
       "sourceId": "reddit-life-2026-08-26-v2",
-      "canonicalUrl": "https://blog.bhwa233.com/posts/02-1vxy6v4/",
-      "contentHash": "d7123b9eea2208bb9030fee57b8d047545fef2c6281e5b1da2bafb6e9aedfda1",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/02-1vyxl46/",
+      "contentHash": "55414a0439318c420b73c698b45c3dc9634ec7fb4bd57b99ad40e6b176c1a0a9",
       "hashSchemaVersion": 1,
       "orphanedCoverMaterialIds": [],
       "imageMaterialIds": [],
       "writeState": "committed",
-      "updatedAt": "2026-08-26T10:34:31.762Z",
-      "mediaId": "lAMaLd-mzPj_bm0zorBkNB40YQC9OinPO4wqVxazZEKYg8qKsrd2dH-PrWeHqIAn",
-      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNAflUm2pzlBDL5FBmB5EccvOc3DYF6Z6gdQdZHe5LHbu",
-      "coverContentHash": "2d01fcfd2c394897"
+      "updatedAt": "2026-08-27T02:14:01.750Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNDKoA91VxOMP35wjV4Ury6o94bl07qYB2XgZJpehIb2U",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNBgOQ8vrfWXg0lKhpuTt_QpA23A31D24Prd_CUvUwIIR",
+      "coverContentHash": "15241e143c3b890c"
     },
     "weibo-trending-2026-08-25": {
       "sourceId": "weibo-trending-2026-08-25",

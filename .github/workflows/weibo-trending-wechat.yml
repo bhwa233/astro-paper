@@ -64,14 +64,8 @@ jobs:
         env:
           UPSTREAM_SHA: ${{ inputs.upstream_sha }}
         run: git checkout -B "${GITHUB_REF_NAME}" "$UPSTREAM_SHA"
-      - uses: pnpm/action-setup@v6
-        with:
-          version: "11.3.0"
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
       - name: Resolve archive date
         id: archive-date
         env:
@@ -134,19 +128,10 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
           NODE
       - name: Commit archive
-        run: |
-          set -euo pipefail
-          if [ -z "$(git status --porcelain -- data/weibo-trending-wechat)" ]; then exit 0; fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/weibo-trending-wechat
-          git commit -m "feat(weibo): archive trending WeChat draft"
-          for attempt in 1 2 3; do
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
-            sleep $((attempt * 5))
-          done
-          exit 1
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: data/weibo-trending-wechat
+          message: "feat(weibo): archive trending WeChat draft"
       - id: head
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
@@ -172,14 +157,8 @@ jobs:
         with:
           name: weibo-trending-wechat-generation
           path: .
-      - uses: pnpm/action-setup@v6
-        with:
-          version: "11.3.0"
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
       - name: Collect draft path
         id: paths
         env:
@@ -231,19 +210,10 @@ jobs:
           exit 0
       - name: Commit WeChat ledger
         if: always() && steps.paths.outputs.count != '0'
-        run: |
-          set -euo pipefail
-          if [ -z "$(git status --porcelain -- .astro-wechat/ledger.json)" ]; then exit 0; fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .astro-wechat/ledger.json
-          git commit -m "chore: update WeChat sync ledger [skip ci]"
-          for attempt in 1 2 3; do
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
-            sleep $((attempt * 5))
-          done
-          exit 1
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: .astro-wechat/ledger.json
+          message: "chore: update WeChat sync ledger [skip ci]"
       - name: Upload WeChat results
         if: always()
         uses: actions/upload-artifact@v7

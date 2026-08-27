@@ -71,14 +71,8 @@ jobs:
         env:
           UPSTREAM_SHA: ${{ inputs.upstream_sha }}
         run: git checkout -B "${GITHUB_REF_NAME}" "$UPSTREAM_SHA"
-      - uses: pnpm/action-setup@v6
-        with:
-          version: "11.3.0"
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
       - name: Generate Reddit life WeChat archives
         id: generate
         env:
@@ -132,19 +126,10 @@ jobs:
           fs.appendFileSync(summary, `${lines.join("\n")}\n`);
           NODE
       - name: Commit archives and recommendation ledger
-        run: |
-          set -euo pipefail
-          if [ -z "$(git status --porcelain -- data/reddit-life-wechat)" ]; then exit 0; fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/reddit-life-wechat
-          git commit -m "feat(reddit): archive life WeChat drafts"
-          for attempt in 1 2 3; do
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
-            sleep $((attempt * 5))
-          done
-          exit 1
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: data/reddit-life-wechat
+          message: "feat(reddit): archive life WeChat drafts"
       - id: head
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
@@ -165,14 +150,8 @@ jobs:
         env:
           GENERATED_SHA: ${{ needs.generate-and-archive.outputs.generated_sha }}
         run: git checkout -B "${GITHUB_REF_NAME}" "$GENERATED_SHA"
-      - uses: pnpm/action-setup@v6
-        with:
-          version: "11.3.0"
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
       - name: Collect generated draft paths
         id: paths
         env:
@@ -228,19 +207,10 @@ jobs:
           exit 0
       - name: Commit WeChat ledger
         if: always() && steps.paths.outputs.count != '0'
-        run: |
-          set -euo pipefail
-          if [ -z "$(git status --porcelain -- .astro-wechat/ledger.json)" ]; then exit 0; fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .astro-wechat/ledger.json
-          git commit -m "chore: update WeChat sync ledger [skip ci]"
-          for attempt in 1 2 3; do
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
-            sleep $((attempt * 5))
-          done
-          exit 1
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: .astro-wechat/ledger.json
+          message: "chore: update WeChat sync ledger [skip ci]"
       - name: Upload WeChat results
         if: always()
         uses: actions/upload-artifact@v7

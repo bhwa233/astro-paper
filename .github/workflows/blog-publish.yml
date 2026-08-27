@@ -121,19 +121,8 @@ jobs:
           git fetch origin "${GITHUB_REF_NAME}"
           git checkout -B "${GITHUB_REF_NAME}" "origin/${GITHUB_REF_NAME}"
 
-      - name: "Install pnpm"
-        uses: pnpm/action-setup@v6
-        with:
-          version: "11.3.0"
-
-      - name: Use Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: "Install dependencies"
-        run: pnpm install --frozen-lockfile
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
 
       # 日粒度的 key：这个仓库每天发布十几次，每次存一份 100MB+ 会很快吃满
       # 仓库 10GB 的缓存额度。命中当天已存在的 key 就不再保存，当天后续构建
@@ -370,19 +359,8 @@ jobs:
           name: scheduled-posts-generation-artifacts
           path: scheduled-posts-generation-artifacts
 
-      - name: "Install pnpm"
-        uses: pnpm/action-setup@v6
-        with:
-          version: "11.3.0"
-
-      - name: Use Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: "Install dependencies"
-        run: pnpm install --frozen-lockfile
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
 
       - name: "Select generated WeChat article"
         id: source
@@ -460,26 +438,10 @@ jobs:
 
       - name: "Commit WeChat ledger"
         if: always() && steps.decision.outputs.publish == 'true'
-        run: |
-          set -euo pipefail
-          if [ -z "$(git status --porcelain -- .astro-wechat/ledger.json)" ]; then
-            echo "WeChat ledger is unchanged."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .astro-wechat/ledger.json
-          git commit -m "chore: update WeChat sync ledger [skip ci]"
-          for attempt in 1 2 3; do
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
-              exit 0
-            fi
-            echo "push attempt ${attempt}/3 failed; retrying after remote refresh"
-            sleep $((attempt * 5))
-          done
-          echo "failed to push WeChat ledger after 3 attempts" >&2
-          exit 1
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: .astro-wechat/ledger.json
+          message: "chore: update WeChat sync ledger [skip ci]"
 
       - name: "Upload WeChat synchronization results"
         if: always()

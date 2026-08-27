@@ -11,12 +11,11 @@ on:
       - synchronize
       - reopened
     paths:
-      - ".github/workflows/blog-generation-ci.yml"
-      - ".github/workflows/publish-substack-translations.yml"
-      - ".github/workflows/scheduled-posts.yml"
-      - "docs/blog-cron-*.md"
-      - "docs/hn-cron-pipeline.md"
-      - "docs/substack-translation-pipeline.md"
+      # 按目录整体匹配。逐个点名 workflow 文件时，二十多个 publish-*.yml 里只列到了
+      # 两个，改其余任何一个都绕过了这道门。
+      - ".github/actions/**"
+      - ".github/workflows/**"
+      - "docs/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "src/content.config.ts"
@@ -36,22 +35,16 @@ jobs:
       - name: "Checkout repository"
         uses: actions/checkout@v7
 
-      - name: "Install pnpm"
-        uses: pnpm/action-setup@v6
-        with:
-          version: "11.3.0"
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
 
-      - name: Use Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: "Install dependencies"
-        run: pnpm install --frozen-lockfile
-
-      - name: "Verify generated content quality"
-        run: pnpm run check:conventions
-
+      # check:conventions 不在这里跑：Site Quality Gate 的 `pnpm run lint` 已经包含它，
+      # 而那个工作流没有 paths 过滤，每个 PR 都会跑到。
       - name: "Type-check generation scripts"
         run: pnpm run typecheck
+
+      - name: "Run blog pipeline tests"
+        run: pnpm run test:blog
+
+      - name: "Run WeChat sync tests"
+        run: pnpm run test:wechat

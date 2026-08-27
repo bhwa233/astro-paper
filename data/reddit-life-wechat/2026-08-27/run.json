@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-08-27",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "431c1c9f838e3ab597f0306b28d133c4392ebfbb",
+    "workflowRun": "33111417972",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-27-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-27/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "一线医护视角揭示的健康盲区与生活习惯代价，兼具专业警示与极高健康长尾价值"
+      },
+      {
+        "rank": 24,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "通过心理咨询场景展现认知偏差与深层创伤觉察，故事深刻且具广泛心理疗愈共鸣"
+      },
+      {
+        "rank": 18,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "精准剖析成年人间友谊随时间淡化的无声残酷，极易引发不同年龄读者的深层共情"
+      },
+      {
+        "rank": 10,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "围绕独居后摆脱原生家庭束缚的微小细节，情感真实且能唤起强烈的独立成长共鸣"
+      },
+      {
+        "rank": 20,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "犀利解析职场与人际交往中打着真诚旗号的语言操纵，具有普遍辨识与防范价值"
+      },
+      {
+        "rank": 14,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "解构病态炫耀透支睡眠与控制欲的行为危害，为现代生活提供清醒警示"
+      },
+      {
+        "rank": 8,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "生动荒诞的奇葩解雇遭遇，戏剧张力十足且极易引发职场打工人的共鸣与吐槽"
+      },
+      {
+        "rank": 2,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "从看似荒诞的家规切入家庭独特温馨的生活记忆，充满人情味与生活趣味"
+      },
+      {
+        "rank": 30,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "从对待基层人员等细微举动观察人品底线，具备普适的社交鉴人参考价值"
+      },
+      {
+        "rank": 9,
+        "longTail": 5,
+        "resonance": 3,
+        "reason": "解构名著名实难副的阅读困境与伪崇拜，提供幽默而长尾的文学反思视角"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 1,
+        "category": "region_specific",
+        "reason": "主题高度围绕特定美国政治人物的死亡影响展开政治预测与评论"
+      },
+      {
+        "rank": 3,
+        "category": "region_specific",
+        "reason": "核心讨论美国本土超市的食品品质、原料缩水及本土供应链监管问题"
+      },
+      {
+        "rank": 4,
+        "category": "narrow_interest",
+        "reason": "属于欧美老牌演艺名人的艺名琐事盘点，受众面较窄且缺乏深层共鸣"
+      },
+      {
+        "rank": 5,
+        "category": "region_specific",
+        "reason": "完全立足于美国本土的志愿服务风貌、社会文化与本地无障碍法律制度"
+      },
+      {
+        "rank": 7,
+        "category": "low_resonance",
+        "reason": "属于常规宏观思想实验，回答多为碎片化推测，缺乏深度故事与情感共鸣"
+      },
+      {
+        "rank": 11,
+        "category": "narrow_interest",
+        "reason": "高度依赖特定英文填字游戏 Wordle 的玩法与英文单词技巧，受众门槛高"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "流浪者视角的微观遭遇虽然深刻，但相对小众且生活迁移与普适讨论度有限"
+      },
+      {
+        "rank": 13,
+        "category": "low_resonance",
+        "reason": "回答偏向泛泛的人生格言感悟，缺少具体细节支撑和生动的故事叙事"
+      },
+      {
+        "rank": 15,
+        "category": "low_resonance",
+        "reason": "回答偏向碎片化的日常消费建议，探讨较为肤浅且缺少实质共鸣深度"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "聚焦生理极端剧痛的感官描述，内容偏向病痛列举，可迁移思考价值较低"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "盘点小众特定单机主机游戏的致郁结局，高度依赖特定作品通关体验"
+      },
+      {
+        "rank": 19,
+        "category": "narrow_interest",
+        "reason": "老恐怖电影童年阴影怀旧盘点，依赖特定西方年代影视作品记忆"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "无食欲时的简单进食清单分享，内容日常碎片化，缺少讨论深度"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "奇葩人名搞笑段子列举，流于表面猎奇且缺乏长尾探讨价值"
+      },
+      {
+        "rank": 23,
+        "category": "narrow_interest",
+        "reason": "特定 YouTube 视频创作者频道推荐，依赖特定海外视频平台使用习惯"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "常规高分经典电影重温盘点，视角较为老套，缺少独特增量见解"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "健康又好吃的日常食材列举，属于常见饮食经验，讨论较为平淡"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "讨论几乎完全聚焦于呼叫中心单一工种的苦楚，行业覆盖面较窄且故事丰富度不足"
+      },
+      {
+        "rank": 28,
+        "category": "narrow_interest",
+        "reason": "个人心中翻盘的冷门烂片清单，高度依赖特定电影的观影偏好"
+      },
+      {
+        "rank": 29,
+        "category": "time_sensitive",
+        "reason": "属于社区当下时间节点的即时熬夜打卡水帖，离开当时情境后毫无长尾价值"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1vzsnj8",
+      "title": "医护人员目睹患者遭遇后，果断放弃了哪些看似“正常”的生活习惯？",
+      "subreddit": "AskReddit",
+      "points": "1917 points · 1338 评论",
+      "numComments": 1338,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vzsnj8/doctors_and_nurses_of_reddit_whats_one_normal/",
+      "sourceRank": 6,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/01-1vzsnj8.md",
+      "contentSha256": "2f747ad946e8c068844e22ff1aa1a1b216096202c78e7771bf7589982a397e8f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1vzvh6g",
+      "title": "自以为纯属日常、医生与心理治疗师听到却深感震惊的那些事",
+      "subreddit": "AskReddit",
+      "points": "110 points · 200 评论",
+      "numComments": 200,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vzvh6g/whats_something_you_had_to_explain_to_a/",
+      "sourceRank": 24,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/02-1vzvh6g.md",
+      "contentSha256": "893d1007f52b4aa6659b987cf059d9373d47aa76974e983b1166a06fd871624c",
+      "volume": "v2"
+    },
+    {
+      "postId": "1vzntj8",
+      "title": "成年后维持友谊有哪些没人提前提醒过的残酷现实？",
+      "subreddit": "AskReddit",
+      "points": "192 points · 186 评论",
+      "numComments": 186,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vzntj8/what_is_a_harsh_reality_about_keeping_friendships/",
+      "sourceRank": 18,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/01-1vzsnj8.md",
+      "contentSha256": "2f747ad946e8c068844e22ff1aa1a1b216096202c78e7771bf7589982a397e8f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1vz9ap3",
+      "title": "搬出来独居后，你终于摆脱了原生家庭的哪些窒息习惯？",
+      "subreddit": "AskReddit",
+      "points": "766 points · 442 评论",
+      "numComments": 442,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vz9ap3/whats_the_most_annoying_family_habit_you_could/",
+      "sourceRank": 10,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/02-1vzvh6g.md",
+      "contentSha256": "893d1007f52b4aa6659b987cf059d9373d47aa76974e983b1166a06fd871624c",
+      "volume": "v2"
+    },
+    {
+      "postId": "1vzrv47",
+      "title": "一听到哪句话，你就能立刻断定对方接下来会让人极度反感？",
+      "subreddit": "AskReddit",
+      "points": "132 points · 793 评论",
+      "numComments": 793,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vzrv47/whats_a_phrase_that_instantly_tells_you_someone/",
+      "sourceRank": 20,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/01-1vzsnj8.md",
+      "contentSha256": "2f747ad946e8c068844e22ff1aa1a1b216096202c78e7771bf7589982a397e8f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1vzghk3",
+      "title": "常被人当作资本炫耀、实则是巨大危险信号（red flag）的行为有哪些？",
+      "subreddit": "AskReddit",
+      "points": "442 points · 541 评论",
+      "numComments": 541,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vzghk3/whats_something_people_brag_about_that_is/",
+      "sourceRank": 14,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/02-1vzvh6g.md",
+      "contentSha256": "893d1007f52b4aa6659b987cf059d9373d47aa76974e983b1166a06fd871624c",
+      "volume": "v2"
+    },
+    {
+      "postId": "1vzoudj",
+      "title": "你见过最离谱的被辞退理由是什么？",
+      "subreddit": "AskReddit",
+      "points": "1047 points · 738 评论",
+      "numComments": 738,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vzoudj/whats_the_most_absurd_reason_youve_ever_seen/",
+      "sourceRank": 8,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/01-1vzsnj8.md",
+      "contentSha256": "2f747ad946e8c068844e22ff1aa1a1b216096202c78e7771bf7589982a397e8f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1vzcvcw",
+      "title": "你在自己家里立过哪些让客人觉得匪夷所思、但自己觉得完全合理的奇葩家规？",
+      "subreddit": "AskReddit",
+      "points": "7220 points · 4385 评论",
+      "numComments": 4385,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vzcvcw/what_is_an_oddly_specific_rule_you_enforce_in/",
+      "sourceRank": 2,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/02-1vzvh6g.md",
+      "contentSha256": "893d1007f52b4aa6659b987cf059d9373d47aa76974e983b1166a06fd871624c",
+      "volume": "v2"
+    },
+    {
+      "postId": "1vzsrrl",
+      "title": "哪些细微的举动，一眼就能暴露一个人心术不正？",
+      "subreddit": "AskReddit",
+      "points": "90 points · 246 评论",
+      "numComments": 246,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vzsrrl/what_is_a_small_subtle_sign_that_someone_is_a/",
+      "sourceRank": 30,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/01-1vzsnj8.md",
+      "contentSha256": "2f747ad946e8c068844e22ff1aa1a1b216096202c78e7771bf7589982a397e8f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1vzy8z7",
+      "title": "有哪些被公认为“传世神作”但你觉得根本读不下去的书？",
+      "subreddit": "AskReddit",
+      "points": "955 points · 2847 评论",
+      "numComments": 2847,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1vzy8z7/what_book_is_widely_considered_a_masterpiece_that/",
+      "sourceRank": 9,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-27/02-1vzvh6g.md",
+      "contentSha256": "893d1007f52b4aa6659b987cf059d9373d47aa76974e983b1166a06fd871624c",
+      "volume": "v2"
+    }
+  ]
+}

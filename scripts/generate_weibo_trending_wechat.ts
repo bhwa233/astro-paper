@@ -121,7 +121,6 @@ function parseManifest(raw: unknown, file: string): WeiboTrendingWechatRunManife
     } else if (
       draft.cover ||
       draft.itemCount > WEIBO_TRENDING_WECHAT_ITEM_LIMIT ||
-      draft.itemCount + draft.truncatedItemCount > LEGACY_ITEM_LIMIT ||
       draft.cards?.length !== draft.itemCount + 1
     ) {
       throw new Error(`invalid image Weibo trending WeChat draft: ${file}`);

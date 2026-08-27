@@ -11,7 +11,7 @@ import { appendMdblistRecommendations, loadMdblistRecommendationKeys } from "../
 import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
 import { tempDir, tempFile } from "./helpers/mocks.ts";
 import { generateRedditLifeWechat, loadRedditLifeRunManifest } from "../scripts/generate_reddit_life_wechat.ts";
-import { shouldRebuildWeiboTrendingWechatManifest } from "../scripts/generate_weibo_trending_wechat.ts";
+import { loadWeiboTrendingWechatRunManifest, shouldRebuildWeiboTrendingWechatManifest } from "../scripts/generate_weibo_trending_wechat.ts";
 
 function commitFixtureRepo(repo: string): string {
   execFileSync("git", ["-C", repo, "init", "--quiet"]);
@@ -102,6 +102,38 @@ test("Weibo WeChat generator rebuilds for a new handoff or an explicit force", (
   assert.equal(shouldRebuildWeiboTrendingWechatManifest(existing, "aaaaaaaa", true), false);
   assert.equal(shouldRebuildWeiboTrendingWechatManifest(existing, "bbbbbbbb", true), true);
   assert.equal(shouldRebuildWeiboTrendingWechatManifest(existing, "aaaaaaaa", true, true), true);
+});
+
+// 2026-08-27: a force rebuild could not load a v2 manifest when the source article
+// contained more than 30 topics, even though the image draft correctly selected 10.
+test("Weibo image manifest accepts truncated source topics beyond the legacy article limit", () => {
+  const manifestFile = tempFile("weibo-image-manifest", "run.json");
+  const archivedFile = (filePath: string) => ({ path: filePath, sha256: "a".repeat(64) });
+  fs.writeFileSync(
+    manifestFile,
+    JSON.stringify({
+      version: 2,
+      archiveDate: "2026-08-26",
+      timeZone: "Asia/Shanghai",
+      status: "processed",
+      upstream: {
+        generatedSha: "a".repeat(40),
+        workflowRun: "33036171884",
+        articlePath: "src/content/posts/zh-cn/wb-20260826.md",
+      },
+      rawSources: { upstreamMarkdown: archivedFile("data/weibo-trending-wechat/2026-08-26/upstream.md") },
+      draft: {
+        ...archivedFile("data/weibo-trending-wechat/2026-08-26/01.md"),
+        itemCount: 10,
+        truncatedItemCount: 32,
+        cards: Array.from({ length: 11 }, (_, index) => archivedFile(`data/weibo-trending-wechat/2026-08-26/card-${String(index).padStart(2, "0")}.png`)),
+      },
+    }),
+  );
+
+  const manifest = loadWeiboTrendingWechatRunManifest(manifestFile);
+  assert.equal(manifest?.draft?.itemCount, 10);
+  assert.equal(manifest?.draft?.truncatedItemCount, 32);
 });
 
 // 2026-08-18: qr.png is intentionally gitignored, so reusing a committed manifest used to

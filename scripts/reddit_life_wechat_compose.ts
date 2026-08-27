@@ -193,6 +193,12 @@ export function redditLifeWechatBody(candidates: RedditLifeCandidate[], limit = 
   return candidates.map(candidate => `${postHeading(candidate.title)}\n\n${limitedStoryText(candidate.body, limit)}`).join("\n\n");
 }
 
+const QUESTION_LIST_INTRO = "本期 Reddit 问答包括：";
+
+function redditLifeWechatOpening(titles: string[]): string {
+  return [QUESTION_LIST_INTRO, "", ...titles.map((title, index) => `${index + 1}. ${compact(title)}`)].join("\n");
+}
+
 // 微信正文有 20000 字符的 HTML 上限，而回答长度不可控。超限时从末尾往回删故事。
 // 删到某帖一条不剩时，它的标题也要跟着走——留一个后面没有内容的标题比少一帖更难看。
 export function dropTrailingStories(markdown: string, drop: number): string {
@@ -213,6 +219,9 @@ export function dropTrailingStories(markdown: string, drop: number): string {
     if (!kept.length && HEADING_BLOCK.test(block)) continue;
     kept.unshift(block);
   }
+  const keptFirstHeading = kept.findIndex(block => HEADING_BLOCK.test(block));
+  const keptTitles = kept.slice(keptFirstHeading).filter(block => HEADING_BLOCK.test(block)).map(block => block.replace(/^##\s+/, ""));
+  kept.splice(0, keptFirstHeading, redditLifeWechatOpening(keptTitles));
   return `${front}\n${[kept.join("\n\n"), footer].filter(Boolean).join("\n\n")}\n`;
 }
 
@@ -265,7 +274,6 @@ export function renderRedditLifeWechatMarkdown({
   candidates,
   headline,
   description,
-  lead,
   archiveDate,
   volume,
   articleUrl,
@@ -277,7 +285,6 @@ export function renderRedditLifeWechatMarkdown({
   candidates: RedditLifeCandidate[];
   headline: string;
   description: string;
-  lead: string;
   archiveDate: string;
   volume: RedditLifeVolume;
   articleUrl: string;
@@ -287,7 +294,6 @@ export function renderRedditLifeWechatMarkdown({
   showSourceUrl?: boolean;
 }): string {
   if (!description) throw new Error("Reddit life WeChat article needs a description");
-  if (!lead.trim()) throw new Error("Reddit life WeChat article needs an AI-written lead");
   if (!candidates.length) throw new Error("Reddit life WeChat article needs at least one post");
   if (!articleUrl) throw new Error("Reddit life WeChat article needs the upstream article URL");
   const [primary] = candidates;
@@ -303,7 +309,7 @@ export function renderRedditLifeWechatMarkdown({
   })
     .replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"))
     .replace("---\n\n", [`redditPostId: "${primary.postId}"`, `subreddit: "${primary.subreddit}"`, "---", ""].join("\n"));
-  return `${metadata}${[lead.trim(), redditLifeWechatBody(candidates, replyLimit), footer].filter(Boolean).join("\n\n")}\n`;
+  return `${metadata}${[redditLifeWechatOpening(candidates.map(candidate => candidate.title)), redditLifeWechatBody(candidates, replyLimit), footer].filter(Boolean).join("\n\n")}\n`;
 }
 
 export function markdownSha256(markdown: string): string {

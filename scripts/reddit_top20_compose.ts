@@ -67,10 +67,9 @@ const CATEGORY_BY_SUBREDDIT = new Map<string, RedditCategoryKey>(
 
 // description 只喂 frontmatter，不进正文；正文首段因此不必再兼任摘要句。
 const DESCRIPTION_MAX_CHARS = 100;
-// 提示词已经要求译名压到 30 字，这里留 10 字缓冲：只拦模型完全不守约的长句
-// （2026-08-09 出过一条 109 字的），不为多写一两个字就废掉一整帖。
-// 下游微信稿直接拿第一帖标题当图文标题，64 字上限减去期号后缀还剩 47，40 因此永远塞得下。
-const TITLE_MAX_CHARS = 40;
+// 提示词以吸引力与信息完整为目标，不要求模型刻意压缩标题。这里仅拦截异常长句：
+// 下游微信稿直接拿第一帖标题当图文标题，50 字仍能和品牌后缀一起落在 64 字平台上限内。
+const TITLE_MAX_CHARS = 50;
 
 export type RedditModelItem = {
   rank: number;

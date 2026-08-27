@@ -27,7 +27,6 @@ test("Reddit life WeChat selection can promote posts beyond the original top 20"
     JSON.stringify({
       selected: selectedRanks.map(rank => ({ rank, longTail: 5, resonance: 4, reason: "具备跨地区的长期讨论价值" })),
       rejected: source.filter(item => !selectedRanks.includes(item.rank)).map(item => ({ rank: item.rank, category: "low_resonance", reason: "讨论角度较窄且缺少代表故事" })),
-      leads: ["这些问题从不同侧面呈现了日常生活里的选择与经验。"],
     }),
     source.length,
   );
@@ -48,7 +47,6 @@ test("Reddit life WeChat selection rejects duplicate and omitted candidates", ()
             { rank: 2, category: "low_resonance", reason: "重复候选" },
             { rank: 3, category: "narrow_interest", reason: "受众范围较窄" },
           ],
-          leads: ["本期收录了值得继续讨论的生活问题。"],
         }),
         3,
       ),

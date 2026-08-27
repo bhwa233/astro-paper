@@ -18,13 +18,20 @@ const candidate: RedditLifeCandidate = {
   body: "1\\. 第一条回答\n\n2\\. 第二条回答",
 };
 
-test("Reddit life WeChat opens with the AI lead and keeps its cover out of the body", () => {
-  const lead = "这是一段由 AI 根据本卷问题写出的导语。";
+const trailingCandidate: RedditLifeCandidate = {
+  ...candidate,
+  rank: 2,
+  postId: "def456",
+  title: "另一道也值得讨论的问题",
+  permalink: "https://www.reddit.com/r/AskReddit/comments/def456/topic/",
+  body: "1\\. 唯一一条回答",
+};
+
+test("Reddit life WeChat opens with its fixed question list and keeps it during truncation", () => {
   const markdown = renderRedditLifeWechatMarkdown({
-    candidates: [candidate],
+    candidates: [candidate, trailingCandidate],
     headline: candidate.title,
     description: candidate.title,
-    lead,
     archiveDate: "2099-01-01",
     volume: "v1",
     articleUrl: "https://example.com/posts/reddit-life/",
@@ -32,10 +39,12 @@ test("Reddit life WeChat opens with the AI lead and keeps its cover out of the b
   });
 
   assert.match(markdown, /showCoverInBody: false/);
-  assert.ok(markdown.indexOf(lead) < markdown.indexOf(`## ${candidate.title}`));
+  assert.match(markdown, /本期 Reddit 问答包括：\n\n1\. 一个值得讨论的问题\n2\. 另一道也值得讨论的问题/);
+  assert.ok(markdown.indexOf("本期 Reddit 问答包括：") < markdown.indexOf(`## ${candidate.title}`));
 
-  const shortened = dropTrailingStories(markdown, 1);
-  assert.match(shortened, new RegExp(lead));
+  const shortened = dropTrailingStories(markdown, 2);
+  assert.match(shortened, /本期 Reddit 问答包括：\n\n1\. 一个值得讨论的问题/);
+  assert.doesNotMatch(shortened, /另一道也值得讨论的问题/);
   assert.match(shortened, /第一条回答/);
   assert.doesNotMatch(shortened, /第二条回答/);
 });

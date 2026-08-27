@@ -2,7 +2,11 @@ import { compact } from "./blog_common.ts";
 import { decodeMarkdownBlock, hasChinese, parseModelJsonObject } from "./compose_common.ts";
 
 export const WEIBO_TRENDING_TITLE_SUFFIX_MAX_LENGTH = 40;
-export const WEIBO_TRENDING_WECHAT_TITLE_MAX_LENGTH = 20;
+// 和博客标题一样，前缀由代码持有，模型只写后面的核心事件：前缀写不错，也不必把
+// 这四个字复制进 prompt。改栏目名改这一处。
+export const WEIBO_TRENDING_WECHAT_TITLE_PREFIX = "今日热点：";
+export const WEIBO_TRENDING_WECHAT_TITLE_CORE_MAX_LENGTH = 19;
+export const WEIBO_TRENDING_WECHAT_TITLE_MAX_LENGTH = 24;
 export const WEIBO_TRENDING_WECHAT_DESCRIPTION_MIN_LENGTH = 60;
 export const WEIBO_TRENDING_WECHAT_DESCRIPTION_MAX_LENGTH = 120;
 
@@ -25,29 +29,39 @@ export function validateWeiboTrendingTitleSuffix(value: unknown, label = "Weibo 
   return suffix;
 }
 
-function wechatTitleSuffix(topicCount: number): string {
-  if (!Number.isInteger(topicCount) || topicCount < 1 || topicCount > 10) {
-    throw new Error(`invalid Weibo trending WeChat topic count: ${topicCount}`);
-  }
-  return `等${topicCount === 10 ? "十" : topicCount}条热搜`;
-}
-
-export function validateWeiboTrendingWechatTitle(
+/** 校验模型写的核心事件短语，也就是固定前缀后面的那半句。 */
+export function validateWeiboTrendingWechatTitleCore(
   value: unknown,
-  topicCount: number,
-  label = "Weibo trending WeChat title",
+  label = "Weibo trending WeChat title core",
 ): string {
   const raw = typeof value === "string" ? value : "";
-  const title = compact(raw);
-  if (!title || !hasChinese(title)) throw new Error(`${label} must contain Chinese text`);
+  const core = compact(raw);
+  if (!core || !hasChinese(core)) throw new Error(`${label} must contain Chinese text`);
   if (/\r|\n/.test(raw)) throw new Error(`${label} must stay on one line`);
+  if ([...core].length > WEIBO_TRENDING_WECHAT_TITLE_CORE_MAX_LENGTH) {
+    throw new Error(`${label} exceeds ${WEIBO_TRENDING_WECHAT_TITLE_CORE_MAX_LENGTH} characters`);
+  }
+  if (/热搜|\d{4}-\d{2}-\d{2}|[｜|]/.test(core)) throw new Error(`${label} must not repeat the fixed title prefix`);
+  if (/^[#>*-]\s|```|\[[^\]]+\]\([^)]+\)/.test(core)) throw new Error(`${label} must be plain text`);
+  return core;
+}
+
+export function weiboTrendingWechatTitle(core: string): string {
+  return `${WEIBO_TRENDING_WECHAT_TITLE_PREFIX}${core}`;
+}
+
+/** 校验拼好的成品标题，也就是最终写进微信草稿的那一串。 */
+export function validateWeiboTrendingWechatTitle(value: unknown, label = "Weibo trending WeChat title"): string {
+  const raw = typeof value === "string" ? value : "";
+  const title = compact(raw);
+  if (/\r|\n/.test(raw)) throw new Error(`${label} must stay on one line`);
+  if (!title.startsWith(WEIBO_TRENDING_WECHAT_TITLE_PREFIX)) {
+    throw new Error(`${label} must start with ${WEIBO_TRENDING_WECHAT_TITLE_PREFIX}`);
+  }
   if ([...title].length > WEIBO_TRENDING_WECHAT_TITLE_MAX_LENGTH) {
     throw new Error(`${label} exceeds ${WEIBO_TRENDING_WECHAT_TITLE_MAX_LENGTH} characters`);
   }
-  const suffix = wechatTitleSuffix(topicCount);
-  if (!title.endsWith(suffix) || title === suffix) throw new Error(`${label} must use a core event followed by ${suffix}`);
-  if (/\d{4}-\d{2}-\d{2}|[｜|]/.test(title)) throw new Error(`${label} must not include a date or separator`);
-  if (/^[#>*-]\s|```|\[[^\]]+\]\([^)]+\)/.test(title)) throw new Error(`${label} must be plain text`);
+  validateWeiboTrendingWechatTitleCore(title.slice(WEIBO_TRENDING_WECHAT_TITLE_PREFIX.length), label);
   return title;
 }
 
@@ -73,11 +87,13 @@ export function validateWeiboTrendingWechatDescription(
   return description;
 }
 
-export function parseWeiboTrendingTitleResponse(raw: string, wechatTopicCount: number): WeiboTrendingTitles {
+export function parseWeiboTrendingTitleResponse(raw: string): WeiboTrendingTitles {
   const payload = parseModelJsonObject(raw, "Weibo trending title");
+  // 模型只写核心事件；前缀在这里拼上，之后每一层看到的都是成品标题。
+  const core = validateWeiboTrendingWechatTitleCore(payload.wechat_title, "Weibo trending WeChat title model output");
   return {
     titleSuffix: validateWeiboTrendingTitleSuffix(payload.title_suffix, "Weibo trending title model output"),
-    wechatTitle: validateWeiboTrendingWechatTitle(payload.wechat_title, wechatTopicCount, "Weibo trending WeChat title model output"),
+    wechatTitle: weiboTrendingWechatTitle(core),
     wechatDescription: validateWeiboTrendingWechatDescription(payload.wechat_description, "Weibo trending WeChat description model output"),
   };
 }
@@ -87,9 +103,9 @@ export function extractWeiboTrendingTitleSuffix(source: string): string {
   return validateWeiboTrendingTitleSuffix(decodeMarkdownBlock(encoded), "Weibo trending source AI title");
 }
 
-export function extractWeiboTrendingWechatTitle(source: string, wechatTopicCount: number): string {
+export function extractWeiboTrendingWechatTitle(source: string): string {
   const encoded = source.match(/^- \*\*AI 微信标题\*\*：(.+)$/m)?.[1] || "";
-  return validateWeiboTrendingWechatTitle(decodeMarkdownBlock(encoded), wechatTopicCount, "Weibo trending source AI WeChat title");
+  return validateWeiboTrendingWechatTitle(decodeMarkdownBlock(encoded), "Weibo trending source AI WeChat title");
 }
 
 export function extractWeiboTrendingWechatDescription(source: string): string {

@@ -226,12 +226,10 @@ function titlePrompt(
   const topics = items.map(({ item }, index) => `${index + 1}. ${item.title}`).join("\n");
   const wechatItems = items.slice(0, 10);
   const count = wechatItems.length;
-  const countZh = count === 10 ? "十" : String(count);
   return template
     .replaceAll("{date}", date)
     .replaceAll("{topics}", topics)
     .replaceAll("{wechat_topic_count}", String(count))
-    .replaceAll("{wechat_topic_count_zh}", countZh)
     .replaceAll("{wechat_topics}", wechatItems.map(({ item }, index) => `${index + 1}. ${item.title}`).join("\n"))
     .replaceAll(
       "{wechat_topic_summaries}",
@@ -383,7 +381,7 @@ export async function buildCombinedWeiboTrendingSource({
     prompt: headlinePrompt,
     model,
     artifactsDir,
-    parse: content => parseWeiboTrendingTitleResponse(content, Math.min(completed.length, 10)),
+    parse: content => parseWeiboTrendingTitleResponse(content),
   });
 
   const combined = [

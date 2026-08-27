@@ -64,8 +64,7 @@ export function parseWeiboTrendingArticleWechatTitle(markdown: string): string {
       : encoded.startsWith("'") && encoded.endsWith("'")
         ? encoded.slice(1, -1).replaceAll("''", "'")
         : encoded;
-    const topicCount = Math.min(numberedBlocks(markdown).length, WEIBO_TRENDING_WECHAT_ITEM_LIMIT);
-    return validateWeiboTrendingWechatTitle(title, topicCount, "Weibo trending article wechat.title");
+    return validateWeiboTrendingWechatTitle(title, "Weibo trending article wechat.title");
   } catch {
     throw new Error("Weibo trending article has an invalid wechat.title");
   }
@@ -130,7 +129,7 @@ export function renderWeiboTrendingWechatMarkdown({
   if (!Number.isInteger(itemCount) || itemCount < 1 || itemCount > WEIBO_TRENDING_WECHAT_ITEM_LIMIT) {
     throw new Error(`Weibo trending WeChat article needs 1-${WEIBO_TRENDING_WECHAT_ITEM_LIMIT} items`);
   }
-  title = validateWeiboTrendingWechatTitle(title, itemCount, "Weibo trending WeChat article title");
+  title = validateWeiboTrendingWechatTitle(title, "Weibo trending WeChat article title");
   description = validateWeiboTrendingWechatDescription(description, "Weibo trending WeChat article description");
   if (!articleUrl) throw new Error("Weibo trending WeChat article needs the upstream article URL");
   const wechatFields = [`  syncId: "${weiboTrendingWechatSyncId(archiveDate)}"`, '  articleType: "newspic"'];

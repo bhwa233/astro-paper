@@ -20,7 +20,7 @@ test("Weibo trending WeChat drafts use a date-specific sync identity", () => {
   const markdown = renderWeiboTrendingWechatMarkdown({
     itemCount: 1,
     archiveDate: firstDate,
-    title: "测试事件等1条热搜",
+    title: "今日热点：测试事件",
     description,
     articleUrl,
     showSourceUrl: false,
@@ -28,7 +28,7 @@ test("Weibo trending WeChat drafts use a date-specific sync identity", () => {
 
   assert.match(markdown, /syncId: "weibo-trending-2099-01-01"/);
   assert.match(markdown, /articleType: "newspic"/);
-  assert.match(markdown, /title: "测试事件等1条热搜"/);
+  assert.match(markdown, /title: "今日热点：测试事件"/);
   assert.match(markdown, new RegExp(`description: "${description}"[\\s\\S]*---\\n\\n${description}\\n\\n!\\[\\]\\(card-00\\.png\\)[\\s\\S]*!\\[\\]\\(card-01\\.png\\)`));
   assert.doesNotMatch(markdown, /sourceURL:/);
 });
@@ -37,12 +37,12 @@ test("Weibo trending WeChat validates the dedicated title and summary from the u
   const markdown = `---
 title: "完整的站点文章标题 ｜ 2099-01-01 微博热搜"
 wechat:
-  title: "核心事件等1条热搜"
+  title: "今日热点：核心事件"
 description: "${description}"
 ---
 
 ## 1. 核心事件
 `;
-  assert.equal(parseWeiboTrendingArticleWechatTitle(markdown), "核心事件等1条热搜");
+  assert.equal(parseWeiboTrendingArticleWechatTitle(markdown), "今日热点：核心事件");
   assert.equal(parseWeiboTrendingArticleDescription(markdown), description);
 });

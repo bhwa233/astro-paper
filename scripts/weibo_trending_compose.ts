@@ -31,7 +31,7 @@ export function weiboTrendingArticleFromSummaries(source: string): {
   return {
     markdown,
     titleSuffix: extractWeiboTrendingTitleSuffix(source),
-    wechatTitle: extractWeiboTrendingWechatTitle(source, Math.min(blocks.length, 10)),
+    wechatTitle: extractWeiboTrendingWechatTitle(source),
     wechatDescription: extractWeiboTrendingWechatDescription(source),
   };
 }

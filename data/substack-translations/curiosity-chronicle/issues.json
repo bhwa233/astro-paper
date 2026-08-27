@@ -30,6 +30,21 @@
         "outputTokens": 2426,
         "totalTokens": 5678
       }
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/the-hidden-debt-of-convenience",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/the-hidden-debt-of-convenience",
+      "sourcePublishedAt": "2026-08-26T14:16:43.000Z",
+      "sourceSha256": "7b0ff82f9571255230d019ea373e5cf99f5c34f651d6e8a398e52217f7d5c4ed",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260826-the-hidden-debt-of-convenience.md",
+      "translatedAt": "2026-08-27T10:17:45.061Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2498,
+        "outputTokens": 2879,
+        "totalTokens": 5377
+      }
     }
   ]
 }

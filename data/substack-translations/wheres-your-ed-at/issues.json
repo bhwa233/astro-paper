@@ -15,6 +15,21 @@
         "outputTokens": 18609,
         "totalTokens": 35035
       }
+    },
+    {
+      "guid": "6a8da9e884ac0f00016989ca",
+      "canonicalUrl": "https://www.wheresyoured.at/the-ai-haters-manifesto",
+      "sourcePublishedAt": "2026-08-25T16:57:38.000Z",
+      "sourceSha256": "ca2757927d118ec6e55fb1fe281b67001cbe85a113df79e6eab5e2ee25b158dd",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/wheres-your-ed-at-20260825-the-ai-haters-manifesto.md",
+      "translatedAt": "2026-08-27T10:19:21.817Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 18693,
+        "outputTokens": 19453,
+        "totalTokens": 38146
+      }
     }
   ]
 }

@@ -59,6 +59,21 @@
       "sourceTextChars": 2017,
       "minimumSourceTextChars": 4000,
       "evaluatedAt": "2026-08-27T02:00:00.000Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=76499",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/22/the-more-loving-one-auden-universe-in-verse",
+      "sourcePublishedAt": "2026-08-22T20:40:18.000Z",
+      "sourceSha256": "0217a5635e5c002fbc8ef5e065d03b52fa11296459b9f14d882d28a456c491ba",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260822-the-more-loving-one-auden-universe-in-verse.md",
+      "translatedAt": "2026-08-27T10:20:50.969Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3297,
+        "outputTokens": 40568,
+        "totalTokens": 43865
+      }
     }
   ]
 }

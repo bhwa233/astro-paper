@@ -1,0 +1,31 @@
+name: "Set up Node and pnpm"
+description: "Installs pnpm, Node.js and the locked dependency tree."
+
+# 这三步在仓库里出现过十一次。版本收在这里，升级 Node 或 pnpm 只改这一个文件。
+inputs:
+  pnpm-version:
+    description: "pnpm release to install."
+    required: false
+    default: "11.3.0"
+  node-version:
+    description: "Node.js major version to install."
+    required: false
+    default: "24"
+
+runs:
+  using: composite
+  steps:
+    - name: "Install pnpm"
+      uses: pnpm/action-setup@v6
+      with:
+        version: ${{ inputs.pnpm-version }}
+
+    - name: "Use Node.js"
+      uses: actions/setup-node@v7
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: pnpm
+
+    - name: "Install dependencies"
+      shell: bash
+      run: pnpm install --frozen-lockfile

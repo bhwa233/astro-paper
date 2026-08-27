@@ -48,16 +48,8 @@ jobs:
           name: substack-translation-generation
           path: newsletter-generation
 
-      - uses: pnpm/action-setup@v6
-        with:
-          version: "11.3.0"
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
 
       - name: Collect opted-in newsletter paths
         id: paths
@@ -125,19 +117,10 @@ jobs:
 
       - name: Commit WeChat ledger
         if: always() && steps.paths.outputs.count != '0'
-        run: |
-          set -euo pipefail
-          if [ -z "$(git status --porcelain -- .astro-wechat/ledger.json)" ]; then exit 0; fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .astro-wechat/ledger.json
-          git commit -m "chore: update WeChat sync ledger [skip ci]"
-          for attempt in 1 2 3; do
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
-            sleep $((attempt * 5))
-          done
-          exit 1
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: .astro-wechat/ledger.json
+          message: "chore: update WeChat sync ledger [skip ci]"
 
       - name: Summarize newsletter WeChat sync
         if: always()

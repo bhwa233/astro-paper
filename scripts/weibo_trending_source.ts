@@ -218,7 +218,11 @@ function itemPrompt(template: string, date: string, rank: number, title: string,
     .replaceAll("{aisearch_answer}", answer);
 }
 
-function titlePrompt(template: string, date: string, items: Array<{ item: WeiboTrendingItem }>): string {
+function titlePrompt(
+  template: string,
+  date: string,
+  items: Array<{ item: WeiboTrendingItem; summary: WeiboTrendingSummary }>,
+): string {
   const topics = items.map(({ item }, index) => `${index + 1}. ${item.title}`).join("\n");
   const wechatItems = items.slice(0, 10);
   const count = wechatItems.length;
@@ -228,7 +232,11 @@ function titlePrompt(template: string, date: string, items: Array<{ item: WeiboT
     .replaceAll("{topics}", topics)
     .replaceAll("{wechat_topic_count}", String(count))
     .replaceAll("{wechat_topic_count_zh}", countZh)
-    .replaceAll("{wechat_topics}", wechatItems.map(({ item }, index) => `${index + 1}. ${item.title}`).join("\n"));
+    .replaceAll("{wechat_topics}", wechatItems.map(({ item }, index) => `${index + 1}. ${item.title}`).join("\n"))
+    .replaceAll(
+      "{wechat_topic_summaries}",
+      wechatItems.map(({ item, summary }, index) => `${index + 1}. ${item.title}\n摘要：${summary.summary}`).join("\n\n"),
+    );
 }
 
 function dedupePrompt(template: string, date: string, items: WeiboTrendingItem[]): string {
@@ -383,6 +391,7 @@ export async function buildCombinedWeiboTrendingSource({
     "",
     `- **AI 标题**：${JSON.stringify(titles.titleSuffix)}`,
     `- **AI 微信标题**：${JSON.stringify(titles.wechatTitle)}`,
+    `- **AI 微信话题总结**：${JSON.stringify(titles.wechatDescription)}`,
     "",
     "每条摘要仅基于对应话题的完整微博智搜结论；话题链接与标题由榜单事实提供。",
     "",

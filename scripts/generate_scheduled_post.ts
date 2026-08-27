@@ -1174,6 +1174,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     body = article.markdown;
     titleSuffix = article.titleSuffix;
     wechatTitle = article.wechatTitle;
+    description = article.wechatDescription;
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
     const itemConfig = envAiConfig({ model });
     generation = {

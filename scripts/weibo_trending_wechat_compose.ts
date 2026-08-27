@@ -2,12 +2,14 @@
 import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
 import { bulletValue, extractBullets, numberedBlocks } from "./compose_common.ts";
+import {
+  validateWeiboTrendingWechatDescription,
+  validateWeiboTrendingWechatTitle,
+} from "./weibo_trending_title.ts";
 
 export const WEIBO_TRENDING_WECHAT_IMAGE_LIMIT = 20;
 export const WEIBO_TRENDING_WECHAT_ITEM_LIMIT = 10;
 export const WEIBO_TRENDING_WECHAT_TAG = "微博热搜";
-export const WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT = 120;
-
 const BLOG_URL = "https://blog.bhwa233.com/";
 
 // ------------------------------------------------------------------ A/B 开关
@@ -62,10 +64,25 @@ export function parseWeiboTrendingArticleWechatTitle(markdown: string): string {
       : encoded.startsWith("'") && encoded.endsWith("'")
         ? encoded.slice(1, -1).replaceAll("''", "'")
         : encoded;
-    if (typeof title !== "string" || !compact(title)) throw new Error("empty title");
-    return compact(title);
+    const topicCount = Math.min(numberedBlocks(markdown).length, WEIBO_TRENDING_WECHAT_ITEM_LIMIT);
+    return validateWeiboTrendingWechatTitle(title, topicCount, "Weibo trending article wechat.title");
   } catch {
     throw new Error("Weibo trending article has an invalid wechat.title");
+  }
+}
+
+export function parseWeiboTrendingArticleDescription(markdown: string): string {
+  const encoded = markdown.match(/^description:\s*(.+)$/m)?.[1]?.trim() || "";
+  if (!encoded) throw new Error("Weibo trending article is missing its frontmatter description");
+  try {
+    const description = encoded.startsWith('"')
+      ? JSON.parse(encoded)
+      : encoded.startsWith("'") && encoded.endsWith("'")
+        ? encoded.slice(1, -1).replaceAll("''", "'")
+        : encoded;
+    return validateWeiboTrendingWechatDescription(description, "Weibo trending article description");
+  } catch {
+    throw new Error("Weibo trending article has an invalid frontmatter description");
   }
 }
 
@@ -88,23 +105,6 @@ export function weiboTrendingWechatCardFile(index: number): string {
     throw new Error(`invalid Weibo trending WeChat card index: ${index}`);
   }
   return `card-${String(index).padStart(2, "0")}.png`;
-}
-
-function descriptionWithTitles(items: WeiboTrendingWechatItem[], titleCount: number): string {
-  return `${items
-    .slice(0, titleCount)
-    .map(item => compact(item.title))
-    .join("、")}……等 ${items.length} 个话题。`;
-}
-
-export function weiboTrendingWechatDescription(items: WeiboTrendingWechatItem[]): string {
-  if (!items.length) throw new Error("Weibo trending WeChat description needs at least one item");
-  for (let titleCount = Math.min(3, items.length); titleCount >= 1; titleCount -= 1) {
-    const description = descriptionWithTitles(items, titleCount);
-    if ([...description].length <= WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT) return description;
-  }
-  const description = descriptionWithTitles(items, 1);
-  return `${[...description].slice(0, WEIBO_TRENDING_WECHAT_DESCRIPTION_LIMIT - 1).join("")}…`;
 }
 
 // sourceURL 由 A/B 开关决定：它变成草稿的 content_source_url，也就是「阅读原文」。
@@ -130,7 +130,8 @@ export function renderWeiboTrendingWechatMarkdown({
   if (!Number.isInteger(itemCount) || itemCount < 1 || itemCount > WEIBO_TRENDING_WECHAT_ITEM_LIMIT) {
     throw new Error(`Weibo trending WeChat article needs 1-${WEIBO_TRENDING_WECHAT_ITEM_LIMIT} items`);
   }
-  if (!title) throw new Error("Weibo trending WeChat article needs a title");
+  title = validateWeiboTrendingWechatTitle(title, itemCount, "Weibo trending WeChat article title");
+  description = validateWeiboTrendingWechatDescription(description, "Weibo trending WeChat article description");
   if (!articleUrl) throw new Error("Weibo trending WeChat article needs the upstream article URL");
   const wechatFields = [`  syncId: "${weiboTrendingWechatSyncId(archiveDate)}"`, '  articleType: "newspic"'];
   if (showSourceUrl) wechatFields.push(`  sourceURL: "${articleUrl}"`);
@@ -143,5 +144,5 @@ export function renderWeiboTrendingWechatMarkdown({
     wechatEnabled: true,
   }).replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"));
   const images = Array.from({ length: itemCount + 1 }, (_, index) => `![](${weiboTrendingWechatCardFile(index)})`);
-  return `${metadata}${images.join("\n\n")}\n`;
+  return `${metadata}${description}\n\n${images.join("\n\n")}\n`;
 }

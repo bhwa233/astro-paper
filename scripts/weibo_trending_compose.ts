@@ -1,8 +1,8 @@
 import { bulletValue, decodeMarkdownBlock, extractBullets, normalizeMarkdownBlock, numberedBlocks } from "./compose_common.ts";
-import { extractWeiboTrendingTitleSuffix } from "./weibo_trending_title.ts";
+import { extractWeiboTrendingTitleSuffix, extractWeiboTrendingWechatTitle } from "./weibo_trending_title.ts";
 
 /** 将已固化的榜单事实和逐条 AI 摘要渲染成短条目，避免整篇二次生成。 */
-export function weiboTrendingArticleFromSummaries(source: string): { markdown: string; titleSuffix: string } {
+export function weiboTrendingArticleFromSummaries(source: string): { markdown: string; titleSuffix: string; wechatTitle: string } {
   const blocks = numberedBlocks(source);
   if (!blocks.length) throw new Error("Weibo trending combined source has no item blocks");
   const titles = new Set<string>();
@@ -19,5 +19,9 @@ export function weiboTrendingArticleFromSummaries(source: string): { markdown: s
     if (!/^https:\/\//.test(url) || !summary) throw new Error(`Weibo trending source item ${index + 1} is missing its topic URL or summary`);
     return `## ${index + 1}. ${title}\n\n- **话题**：[在微博查看](${url})\n- **摘要**：${summary}`;
   }).join("\n\n")}\n`;
-  return { markdown, titleSuffix: extractWeiboTrendingTitleSuffix(source) };
+  return {
+    markdown,
+    titleSuffix: extractWeiboTrendingTitleSuffix(source),
+    wechatTitle: extractWeiboTrendingWechatTitle(source, Math.min(blocks.length, 10)),
+  };
 }

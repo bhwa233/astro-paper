@@ -79,7 +79,11 @@ const CARD_RADIUS = "34px";
 export function platformCard(
   theme: PlatformTheme,
   fontFamily: string,
-  inner: unknown
+  inner: unknown,
+  cardSize: { width: string; height: string } = {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+  }
 ): SatoriNode {
   return {
     type: "div",
@@ -99,8 +103,8 @@ export function platformCard(
           props: {
             style: {
               display: "flex",
-              width: CARD_WIDTH,
-              height: CARD_HEIGHT,
+              width: cardSize.width,
+              height: cardSize.height,
               borderRadius: CARD_RADIUS,
               background: theme.card,
             },

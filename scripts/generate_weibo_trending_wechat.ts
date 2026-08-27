@@ -9,6 +9,7 @@ import { taskPostRelPath } from "./blog_tasks.ts";
 import {
   parseWeiboTrendingArticle,
   parseWeiboTrendingArticleTitle,
+  parseWeiboTrendingArticleWechatTitle,
   renderWeiboTrendingWechatMarkdown,
   weiboTrendingArticleUrl,
   weiboTrendingWechatDescription,
@@ -236,7 +237,8 @@ export async function generateWeiboTrendingWechat({
 
   const upstreamMarkdown = fs.readFileSync(upstreamFile, "utf8");
   const allItems = parseWeiboTrendingArticle(upstreamMarkdown);
-  const articleTitle = parseWeiboTrendingArticleTitle(upstreamMarkdown);
+  parseWeiboTrendingArticleTitle(upstreamMarkdown);
+  const wechatTitle = parseWeiboTrendingArticleWechatTitle(upstreamMarkdown);
   const selectedItems = allItems.slice(0, WEIBO_TRENDING_WECHAT_ITEM_LIMIT);
   const dayDir = path.join(ROOT_REL, date);
   const draftRel = path.join(dayDir, "01.md");
@@ -264,7 +266,7 @@ export async function generateWeiboTrendingWechat({
   const markdown = renderWeiboTrendingWechatMarkdown({
     itemCount: selectedItems.length,
     archiveDate: date,
-    title: articleTitle,
+    title: wechatTitle,
     description: weiboTrendingWechatDescription(selectedItems),
     articleUrl,
   });

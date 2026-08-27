@@ -2,9 +2,16 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  parseWeiboTrendingDedupeResponse,
   parseWeiboTrendingItemSummary,
+  removeWeiboTrendingDuplicates,
   WEIBO_TRENDING_SUMMARY_LIMIT,
+  type WeiboTrendingItem,
 } from "../scripts/weibo_trending_source.ts";
+import {
+  parseWeiboTrendingTitleResponse,
+  WEIBO_TRENDING_WECHAT_TITLE_MAX_LENGTH,
+} from "../scripts/weibo_trending_title.ts";
 
 test("Weibo trending AI summaries reject output beyond the card limit", () => {
   const summary = "热".repeat(WEIBO_TRENDING_SUMMARY_LIMIT);
@@ -19,5 +26,60 @@ test("Weibo trending AI summaries reject output beyond the card limit", () => {
         1,
       ),
     /exceeds 250 Unicode characters/,
+  );
+});
+
+test("Weibo trending dedupe keeps the highest-ranked item in each semantic duplicate group", () => {
+  const candidates = [1, 2, 3, 4, 5].map(rank => ({
+    rank,
+    title: `话题${rank}`,
+    category: "热搜",
+    url: `https://example.com/${rank}`,
+    description: "",
+    hot: 100 - rank,
+  })) satisfies WeiboTrendingItem[];
+  const groups = parseWeiboTrendingDedupeResponse(
+    JSON.stringify({
+      duplicate_groups: [
+        { ranks: [4, 2], reason: "同一新闻事件的不同进展" },
+        { ranks: [5, 3], reason: "同一传闻的不同说法" },
+      ],
+    }),
+    candidates.map(item => item.rank),
+  );
+
+  assert.deepEqual(groups.map(group => group.ranks), [[2, 4], [3, 5]]);
+  assert.deepEqual(removeWeiboTrendingDuplicates(candidates, groups).kept.map(item => item.rank), [1, 2, 3]);
+  assert.throws(
+    () =>
+      parseWeiboTrendingDedupeResponse(
+        JSON.stringify({
+          duplicate_groups: [
+            { ranks: [1, 2], reason: "同一事件" },
+            { ranks: [2, 3], reason: "另一事件" },
+          ],
+        }),
+        candidates.map(item => item.rank),
+      ),
+    /appears in more than one group/,
+  );
+});
+
+test("Weibo trending AI returns a separate WeChat title within twenty characters", () => {
+  const title = "赴韩女生遇害等十条热搜";
+  assert.deepEqual(
+    parseWeiboTrendingTitleResponse(JSON.stringify({ title_suffix: "三件事看懂今天", wechat_title: title }), 10),
+    { titleSuffix: "三件事看懂今天", wechatTitle: title },
+  );
+  assert.throws(
+    () =>
+      parseWeiboTrendingTitleResponse(
+        JSON.stringify({
+          title_suffix: "三件事看懂今天",
+          wechat_title: `${"热".repeat(WEIBO_TRENDING_WECHAT_TITLE_MAX_LENGTH - 1)}热搜`,
+        }),
+        10,
+      ),
+    /exceeds 20 characters/,
   );
 });

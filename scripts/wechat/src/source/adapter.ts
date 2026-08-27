@@ -3,7 +3,7 @@ import { SourceValidationError, type WarningCollector } from '../errors.js'
 import { checkEligibility } from '../eligibility.js'
 import type { ArticleDocument, ArticleType, ProjectConfig, ResolvedProject, SourceArticle, WechatFrontmatter } from '../types.js'
 import { stripMarkdown } from '../util/text.js'
-import { assertWithinLimit, fitDigest } from './validate.js'
+import { assertNewspicTitleWithinLimit, assertWithinLimit, fitDigest } from './validate.js'
 
 export interface AdapterOverrides {
   readonly title?: string
@@ -47,6 +47,7 @@ export function toArticleDocument(
   const frontmatter = source.frontmatter
   const sourcePath = source.absolutePath
   const wechat = readWechat(frontmatter.wechat, sourcePath)
+  const articleType = wechat.articleType ?? 'news'
 
   const firstHeading = findFirstH1(source.body)
   const title = firstDefined(
@@ -62,7 +63,10 @@ export function toArticleDocument(
       { code: 'title-missing', sourcePath },
     )
   }
-  if (!options.allowMissingPublishFields) assertWithinLimit('title', title, sourcePath)
+  if (!options.allowMissingPublishFields) {
+    assertWithinLimit('title', title, sourcePath)
+    if (articleType === 'newspic') assertNewspicTitleWithinLimit(title, sourcePath)
+  }
 
   const body = stripLeadingTitleHeading(source.body, firstHeading, title)
   const author = firstDefined(wechat.author, asString(frontmatter.author), project.config.defaultAuthor)
@@ -97,7 +101,7 @@ export function toArticleDocument(
       return {
         sourceId: wechat.syncId ?? canonicalUrl ?? source.projectRelativePath,
         canonicalUrl,
-        articleType: wechat.articleType ?? 'news',
+        articleType,
         title,
         body,
         author,
@@ -118,7 +122,7 @@ export function toArticleDocument(
   return {
     sourceId: wechat.syncId ?? canonicalUrl ?? source.projectRelativePath,
     canonicalUrl,
-    articleType: wechat.articleType ?? 'news',
+    articleType,
     title,
     body,
     author,

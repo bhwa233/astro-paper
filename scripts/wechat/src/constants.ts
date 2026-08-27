@@ -56,6 +56,8 @@ export const CONTENT_LIMITS = {
  * already been uploaded as permanent material and charged to the quota.
  */
 export const NEWSPIC_LIMITS = {
+  /** Characters in the draft title, counted as Unicode code points. */
+  maxTitleCharacters: 20,
   /** Images per draft. The first one is the cover; there is no separate thumb. */
   maxImages: 20,
   /** Characters of plain text, counted as Unicode code points. */

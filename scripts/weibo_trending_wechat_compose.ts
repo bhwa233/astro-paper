@@ -52,6 +52,23 @@ export function parseWeiboTrendingArticleTitle(markdown: string): string {
   }
 }
 
+export function parseWeiboTrendingArticleWechatTitle(markdown: string): string {
+  const block = markdown.match(/^wechat:\s*\n((?: {2}.+(?:\n|$))*)/m)?.[1] || "";
+  const encoded = block.match(/^ {2}title:\s*(.+)$/m)?.[1]?.trim() || "";
+  if (!encoded) throw new Error("Weibo trending article is missing wechat.title");
+  try {
+    const title = encoded.startsWith('"')
+      ? JSON.parse(encoded)
+      : encoded.startsWith("'") && encoded.endsWith("'")
+        ? encoded.slice(1, -1).replaceAll("''", "'")
+        : encoded;
+    if (typeof title !== "string" || !compact(title)) throw new Error("empty title");
+    return compact(title);
+  } catch {
+    throw new Error("Weibo trending article has an invalid wechat.title");
+  }
+}
+
 export function parseWeiboTrendingArticle(markdown: string): WeiboTrendingWechatItem[] {
   const blocks = numberedBlocks(markdown);
   if (!blocks.length) throw new Error("Weibo trending article has no numbered topic blocks");

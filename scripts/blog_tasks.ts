@@ -167,7 +167,7 @@ export const BLOG_TASKS = {
     titleSuffixSeparator: " ｜ ",
     bodyHeadingPattern: /^## \d+\.\s+/m,
     sourceContract: {
-      requiredTerms: ["微博智搜", "智搜摘要", "AI 标题"],
+      requiredTerms: ["微博智搜", "智搜摘要", "AI 标题", "AI 微信标题"],
       // source 层始终写裸 URL，markdown 链接是 compose 之后的形态，由 formatWeiboTrending 单独校验。
       requiredPatterns: [{ label: "topic links", pattern: /- \*\*话题\*\*：https:\/\// }],
     },

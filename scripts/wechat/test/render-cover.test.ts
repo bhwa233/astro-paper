@@ -46,3 +46,18 @@ it('can keep the WeChat draft cover out of the article body', async () => {
   expect(rendered.html).toContain('一句导语。')
   expect(rendered.html).not.toContain(rendered.coverAsset.placeholder)
 })
+
+// 2026-08-26 的微博图片草稿曾带着完整博客标题进入微信，超过后台 20 字限制。
+it('rejects an oversized newspic title before rendering or uploading images', async () => {
+  const path = writePost(project, {
+    frontmatter: {
+      title: '图'.repeat(21),
+      wechat: { enabled: true, articleType: 'newspic' },
+    },
+    body: '![正文图片](/images/body.png)',
+  })
+
+  await expect(
+    prepareArticle(path, await project.resolved({ siteUrl: 'https://example.com' })),
+  ).rejects.toMatchObject({ code: 'newspic-title-too-long' })
+})

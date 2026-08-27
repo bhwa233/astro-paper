@@ -425,6 +425,7 @@ export function archivePost({
   fileNameSuffix = "",
   titleSuffix = "",
   ogImage = "",
+  wechatTitle = "",
   description: providedDescription,
 }: {
   task: string;
@@ -435,6 +436,7 @@ export function archivePost({
   fileNameSuffix?: string;
   titleSuffix?: string;
   ogImage?: string;
+  wechatTitle?: string;
   description?: string;
 }): ArchiveResult {
   if (!isTask(task)) throw new Error(`unsupported task: ${task}`);
@@ -458,6 +460,7 @@ export function archivePost({
       tags: taskTags(task),
       ogImage: formatted.ogImage || ogImage,
       wechatEnabled: Boolean(info.wechatEnabled),
+      wechatTitle,
     })}${formatted.markdown.trim()}\n`,
     "utf8",
   );

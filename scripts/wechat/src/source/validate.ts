@@ -1,4 +1,4 @@
-import { FIELD_LIMITS, type LimitedField } from '../constants.js'
+import { FIELD_LIMITS, NEWSPIC_LIMITS, type LimitedField } from '../constants.js'
 import { SourceValidationError, type WarningCollector } from '../errors.js'
 import { codePointLength, truncateOnBoundary } from '../util/text.js'
 
@@ -21,6 +21,20 @@ export function assertWithinLimit(
   throw new SourceValidationError(
     `${field} 超出微信限制：${length} 字符，上限 ${limit.max}。请缩短后重试。`,
     { code: `${field}-too-long`, sourcePath },
+  )
+}
+
+/** 图片消息在公众号后台使用更窄的标题栏，超过二十字会被拒绝。 */
+export function assertNewspicTitleWithinLimit(
+  value: string,
+  sourcePath: string,
+): void {
+  const length = codePointLength(value)
+  if (length <= NEWSPIC_LIMITS.maxTitleCharacters) return
+
+  throw new SourceValidationError(
+    `图片消息标题超出微信限制：${length} 字符，上限 ${NEWSPIC_LIMITS.maxTitleCharacters}。请缩短后重试。`,
+    { code: 'newspic-title-too-long', sourcePath },
   )
 }
 

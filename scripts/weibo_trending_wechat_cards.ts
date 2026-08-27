@@ -12,22 +12,22 @@ import type { WeiboTrendingWechatItem } from "./weibo_trending_wechat_compose.ts
 
 const BRAND = "微博热搜";
 const THEME = PLATFORM_THEMES.weibo;
-const INNER_WIDTH = 894;
-const INNER_MARGIN = "74px 62px";
-const TOPIC_INNER_HEIGHT = 741;
-const TOPIC_INNER_MARGIN = "50px 62px";
+const SQUARE_CARD_SIZE = { width: "90%", height: "90%" };
+const INNER_WIDTH = 864;
+const INNER_HEIGHT = 864;
+const INNER_MARGIN = "54px";
 
-function innerColumn(children: SatoriNode[], topic = false): SatoriNode {
+function innerColumn(children: SatoriNode[]): SatoriNode {
   return {
     type: "div",
     props: {
       style: {
         display: "flex",
         flexDirection: "column",
-        width: "88%",
-        height: topic ? "88%" : "82%",
-        margin: topic ? TOPIC_INNER_MARGIN : INNER_MARGIN,
-        overflow: topic ? "visible" : "hidden",
+        width: "88.89%",
+        height: "88.89%",
+        margin: INNER_MARGIN,
+        overflow: "hidden",
         color: "#191919",
       },
       children,
@@ -42,10 +42,10 @@ function coverTree(date: string, titles: string[]): SatoriNode {
   const titleFontSize = cardFontSize({
     characters: Math.max(...entries.map(title => [...title].length)),
     width: INNER_WIDTH - 68,
-    height: 44,
+    height: 58,
     lineHeight: 1.2,
-    min: 28,
-    max: 34,
+    min: 32,
+    max: 40,
   });
 
   return platformCard(
@@ -57,26 +57,26 @@ function coverTree(date: string, titles: string[]): SatoriNode {
         props: {
           style: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" },
           children: [
-            circledBrand(BRAND, THEME.accent, 42),
-            { type: "div", props: { style: { display: "flex", fontSize: 25, color: "#777777" }, children: displayDate } },
+            circledBrand(BRAND, THEME.accent, 48),
+            { type: "div", props: { style: { display: "flex", fontSize: 28, color: "#777777" }, children: displayDate } },
           ],
         },
       },
       {
         type: "div",
         props: {
-          style: { display: "flex", marginTop: "38px", marginBottom: "24px", width: "54px", height: "5px", background: THEME.accent },
+          style: { display: "flex", marginTop: "34px", marginBottom: "22px", width: "60px", height: "5px", background: THEME.accent },
         },
       },
       ...entries.map((title, index) => ({
         type: "div",
         props: {
-          style: { display: "flex", alignItems: "baseline", width: "100%", marginTop: index === 0 ? "0" : "11px" },
+          style: { display: "flex", alignItems: "center", width: "100%", marginTop: index === 0 ? "0" : "9px" },
           children: [
             {
               type: "div",
               props: {
-                style: { display: "flex", width: "68px", fontSize: 24, fontWeight: 700, color: THEME.accent },
+                style: { display: "flex", width: "72px", fontSize: 28, fontWeight: 700, color: THEME.accent },
                 children: String(index + 1).padStart(2, "0"),
               },
             },
@@ -91,6 +91,7 @@ function coverTree(date: string, titles: string[]): SatoriNode {
         },
       })),
     ]),
+    SQUARE_CARD_SIZE,
   );
 }
 
@@ -110,7 +111,7 @@ function topicTree(item: WeiboTrendingWechatItem, index: number, total: number):
   const summaryFontSize = cardFontSize({
     characters: [...summary].length,
     width: INNER_WIDTH,
-    height: TOPIC_INNER_HEIGHT - 217,
+    height: INNER_HEIGHT - 217,
     lineHeight: 1.5,
     min: 29,
     max: 38,
@@ -157,7 +158,8 @@ function topicTree(item: WeiboTrendingWechatItem, index: number, total: number):
           children: `${String(index).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
         },
       },
-    ], true),
+    ]),
+    SQUARE_CARD_SIZE,
   );
 }
 

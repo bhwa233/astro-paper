@@ -1130,6 +1130,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   let body = source;
   let description: string | undefined;
   let titleSuffix = "";
+  let wechatTitle = "";
   let generation: ResultItem["generation"];
   if (task === "reddit-top20" && useAi) {
     if (!redditCategory) throw new Error("reddit-top20 requires a Reddit category");
@@ -1172,6 +1173,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     const article = weiboTrendingArticleFromSummaries(source);
     body = article.markdown;
     titleSuffix = article.titleSuffix;
+    wechatTitle = article.wechatTitle;
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
     const itemConfig = envAiConfig({ model });
     generation = {
@@ -1201,7 +1203,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     description = rendered.description;
     generation = rendered.metadata;
   }
-  const result: ResultItem = archivePost({ task, date: contentDate, repo, body, force, titleSuffix, description });
+  const result: ResultItem = archivePost({ task, date: contentDate, repo, body, force, titleSuffix, wechatTitle, description });
   const appendToLedger = LEDGER_APPENDERS[task];
   if (appendToLedger && !result.skipped) appendToLedger(source, { archivedAt: date, postPath: result.path }, { task, repo });
   if (generation) result.generation = generation;

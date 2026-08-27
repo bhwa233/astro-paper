@@ -13,6 +13,7 @@ export const WEIBO_TRENDING_SUMMARY_LIMIT = 250;
 
 const DEFAULT_SUMMARY_URL = "https://raw.githubusercontent.com/bhwa233/weibo-trending-hot-history/master/api/{date}/summary.json";
 const SUMMARY_PROMPT_TASK = "weibo-trending";
+const DEDUPE_PROMPT_TASK = "weibo-trending-dedupe";
 const TITLE_PROMPT_TASK = "weibo-trending-title";
 
 // 智搜代理整段宕机时，逐条话题只退避几秒是白挨打：2026-08-25 那次 502 持续了四十多分钟，
@@ -43,6 +44,7 @@ type WeiboAiSearchResult = {
 };
 
 type WeiboTrendingSummary = { rank: number; summary: string };
+export type WeiboTrendingDuplicateGroup = { ranks: number[]; reason: string };
 
 function asRecord(value: unknown, label: string): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${label} must be an object`);
@@ -218,7 +220,58 @@ function itemPrompt(template: string, date: string, rank: number, title: string,
 
 function titlePrompt(template: string, date: string, items: Array<{ item: WeiboTrendingItem }>): string {
   const topics = items.map(({ item }, index) => `${index + 1}. ${item.title}`).join("\n");
-  return template.replaceAll("{date}", date).replaceAll("{topics}", topics);
+  const wechatItems = items.slice(0, 10);
+  const count = wechatItems.length;
+  const countZh = count === 10 ? "十" : String(count);
+  return template
+    .replaceAll("{date}", date)
+    .replaceAll("{topics}", topics)
+    .replaceAll("{wechat_topic_count}", String(count))
+    .replaceAll("{wechat_topic_count_zh}", countZh)
+    .replaceAll("{wechat_topics}", wechatItems.map(({ item }, index) => `${index + 1}. ${item.title}`).join("\n"));
+}
+
+function dedupePrompt(template: string, date: string, items: WeiboTrendingItem[]): string {
+  return template
+    .replaceAll("{date}", date)
+    .replaceAll("{topics}", items.map(item => `${item.rank}. ${item.title}`).join("\n"));
+}
+
+export function parseWeiboTrendingDedupeResponse(raw: string, candidateRanks: readonly number[]): WeiboTrendingDuplicateGroup[] {
+  const payload = parseModelJsonObject(raw, "Weibo trending dedupe");
+  if (!Array.isArray(payload.duplicate_groups)) throw new Error("Weibo trending dedupe needs a duplicate_groups array");
+  const allowed = new Set(candidateRanks);
+  const assigned = new Set<number>();
+  const groups = payload.duplicate_groups.map((value, index) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw new Error(`Weibo trending duplicate group ${index + 1} must be an object`);
+    }
+    const record = value as Record<string, unknown>;
+    const ranks = Array.isArray(record.ranks) ? record.ranks.map(Number) : [];
+    const reason = compact(String(record.reason || ""));
+    if (ranks.length < 2 || ranks.some(rank => !Number.isInteger(rank) || !allowed.has(rank))) {
+      throw new Error(`Weibo trending duplicate group ${index + 1} needs at least two valid candidate ranks`);
+    }
+    if (new Set(ranks).size !== ranks.length) throw new Error(`Weibo trending duplicate group ${index + 1} repeats a rank`);
+    for (const rank of ranks) {
+      if (assigned.has(rank)) throw new Error(`Weibo trending duplicate rank ${rank} appears in more than one group`);
+      assigned.add(rank);
+    }
+    if (!reason || !hasChinese(reason)) throw new Error(`Weibo trending duplicate group ${index + 1} needs a Chinese reason`);
+    return { ranks: [...ranks].sort((a, b) => a - b), reason };
+  });
+  return groups.sort((a, b) => a.ranks[0] - b.ranks[0]);
+}
+
+export function removeWeiboTrendingDuplicates(
+  candidates: readonly WeiboTrendingItem[],
+  groups: readonly WeiboTrendingDuplicateGroup[],
+): { kept: WeiboTrendingItem[]; droppedRanks: number[] } {
+  const dropped = new Set(groups.flatMap(group => group.ranks.slice(1)));
+  return {
+    kept: candidates.filter(item => !dropped.has(item.rank)),
+    droppedRanks: [...dropped].sort((a, b) => a - b),
+  };
 }
 
 /** 模型逐条摘要，并在最终收录范围确定后生成一次文章标题；事实与榜单顺序仍由代码保留。 */
@@ -244,6 +297,26 @@ export async function buildCombinedWeiboTrendingSource({
 
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   writeStdout(`[weibo-trending] topics=${candidates.length}/${WEIBO_TRENDING_LIMIT}\n`);
+  const dedupeTemplate = fs.readFileSync(resolvePromptFile(resolvedPromptDir, DEDUPE_PROMPT_TASK), "utf8");
+  const duplicatePrompt = dedupePrompt(dedupeTemplate, date, candidates);
+  writeAiArtifact(artifactsDir, "weibo-trending", "dedupe-prompt.md", duplicatePrompt);
+  const duplicateGroups = await generateJsonStageWithRetries({
+    task: "weibo-trending",
+    stage: "Weibo trending dedupe",
+    artifactPrefix: "dedupe",
+    prompt: duplicatePrompt,
+    model,
+    artifactsDir,
+    parse: content => parseWeiboTrendingDedupeResponse(content, candidates.map(item => item.rank)),
+  });
+  const deduped = removeWeiboTrendingDuplicates(candidates, duplicateGroups);
+  writeAiArtifact(
+    artifactsDir,
+    "weibo-trending",
+    "dedupe-result.json",
+    JSON.stringify({ duplicateGroups, droppedRanks: deduped.droppedRanks, keptRanks: deduped.kept.map(item => item.rank) }, null, 2),
+  );
+  writeStdout(`[weibo-trending] dedupe kept=${deduped.kept.length}/${candidates.length} dropped=${deduped.droppedRanks.length}\n`);
   const summaryTemplate = fs.readFileSync(resolvePromptFile(resolvedPromptDir, SUMMARY_PROMPT_TASK), "utf8");
   const completed: Array<{ item: WeiboTrendingItem; result: WeiboAiSearchResult; summary: WeiboTrendingSummary }> = [];
   const dropped: Array<{ rank: number; stage: "aisearch" | "summary"; error: string }> = [];
@@ -251,7 +324,7 @@ export async function buildCombinedWeiboTrendingSource({
     if (dropped.length) writeAiArtifact(artifactsDir, "weibo-trending", "dropped-items.json", JSON.stringify({ dropped }, null, 2));
   };
   let consecutiveAiSearchFailures = 0;
-  for (const [index, item] of candidates.entries()) {
+  for (const [index, item] of deduped.kept.entries()) {
     let result: WeiboAiSearchResult;
     try {
       result = await fetchWeiboAiSearch(item.title);
@@ -267,7 +340,7 @@ export async function buildCombinedWeiboTrendingSource({
         // 诊断信息先落盘再抛，否则这一趟唯一能看的证据也没了。
         flushDropped();
         throw new WeiboAiSearchUnavailableError(
-          `weibo-trending ${date} 智搜连续 ${consecutiveAiSearchFailures} 条失败，判定上游不可用并中止（剩余 ${candidates.length - index - 1} 条未尝试）；最后一次错误：${message}`,
+          `weibo-trending ${date} 智搜连续 ${consecutiveAiSearchFailures} 条失败，判定上游不可用并中止（剩余 ${deduped.kept.length - index - 1} 条未尝试）；最后一次错误：${message}`,
         );
       }
       continue;
@@ -295,20 +368,21 @@ export async function buildCombinedWeiboTrendingSource({
   const titleTemplate = fs.readFileSync(resolvePromptFile(resolvedPromptDir, TITLE_PROMPT_TASK), "utf8");
   const headlinePrompt = titlePrompt(titleTemplate, date, completed);
   writeAiArtifact(artifactsDir, "weibo-trending", "title-prompt.md", headlinePrompt);
-  const titleSuffix = await generateJsonStageWithRetries({
+  const titles = await generateJsonStageWithRetries({
     task: "weibo-trending",
     stage: "Weibo trending title",
     artifactPrefix: "title",
     prompt: headlinePrompt,
     model,
     artifactsDir,
-    parse: parseWeiboTrendingTitleResponse,
+    parse: content => parseWeiboTrendingTitleResponse(content, Math.min(completed.length, 10)),
   });
 
   const combined = [
     header,
     "",
-    `- **AI 标题**：${JSON.stringify(titleSuffix)}`,
+    `- **AI 标题**：${JSON.stringify(titles.titleSuffix)}`,
+    `- **AI 微信标题**：${JSON.stringify(titles.wechatTitle)}`,
     "",
     "每条摘要仅基于对应话题的完整微博智搜结论；话题链接与标题由榜单事实提供。",
     "",

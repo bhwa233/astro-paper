@@ -126,6 +126,7 @@ export function frontmatter({
   tags,
   ogImage = "",
   wechatEnabled = false,
+  wechatTitle = "",
 }: {
   title: string;
   date: string;
@@ -133,6 +134,7 @@ export function frontmatter({
   tags: string[];
   ogImage?: string;
   wechatEnabled?: boolean;
+  wechatTitle?: string;
 }): string {
   const lines = [
     "---",
@@ -146,7 +148,11 @@ export function frontmatter({
     ...tags.map(tag => `  - ${tag}`),
   ];
   if (ogImage) lines.push(`ogImage: "${ogImage}"`);
-  if (wechatEnabled) lines.push("wechat:", "  enabled: true");
+  if (wechatEnabled || wechatTitle) {
+    lines.push("wechat:");
+    if (wechatEnabled) lines.push("  enabled: true");
+    if (wechatTitle) lines.push(`  title: "${wechatTitle.replaceAll('"', '\\"')}"`);
+  }
   lines.push(`description: "${description.replaceAll('"', '\\"')}"`, "timezone: Asia/Shanghai", "---", "");
   return `${lines.join("\n")}\n`;
 }

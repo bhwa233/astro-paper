@@ -6,6 +6,7 @@ title: "The Shawn Ryan Show：环保先驱Erin Brockovich警告：AI数据中心
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-17-09-the-shawn-ryan-show.webp"
 description: "艾琳·布罗克维奇揭露AI数据中心对水资源的隐秘消耗与环境风险"

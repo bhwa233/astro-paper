@@ -6,6 +6,7 @@ title: "HackerNews Top 10"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "AI逆向硬件生态引发安全反思，微软删数据风波与大模型商业化困"

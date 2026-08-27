@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这篇帖子是一位用户押注 SpaceX 股价到 2028 年 1 月涨到 300 美元，投入 5 万美元买入 290/30"
 timezone: Asia/Shanghai

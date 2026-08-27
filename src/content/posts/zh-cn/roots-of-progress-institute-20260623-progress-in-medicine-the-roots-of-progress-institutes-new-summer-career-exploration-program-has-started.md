@@ -6,7 +6,7 @@ title: "医学的进步：一项高中生职业探索项目"
 featured: false
 draft: true
 tags:
-  - 海外长文
+  - 阅读
   - "Roots of Progress Institute"
 description: "高中生医学职业探索项目"
 timezone: Asia/Shanghai

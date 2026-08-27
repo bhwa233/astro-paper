@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-08｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子以美国非农就业岗位减少2.3万个这一消息为切入点，讨论焦点集中在数据是否可信、就业恶化与通胀并存的前景，以及为什么就"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生讨论"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "楼主多年来总在T恤右下摆发现莫名小洞，直到眼镜铰链再次卡住布料才破案，而评论区则为擦镜习惯与镜片磨损争执不休。"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-07｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "楼主说，朋友恰好在一年前把自己带入裸体主义（naturism），最初觉得奇怪，但很快适应，并认为这种不受衣物束缚的感觉非"
 timezone: Asia/Shanghai

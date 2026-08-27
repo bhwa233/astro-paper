@@ -6,6 +6,7 @@ title: "HackerNews Top 10"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "LLM 推理窃取、AI 伦理离职与伦敦面部识别引发热议"

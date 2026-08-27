@@ -6,7 +6,7 @@ title: "我们的休闲时间是如何被变现的"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "The Honest Broker"
 description: "作者讨论休闲时间商业化及其代价"
 timezone: Asia/Shanghai

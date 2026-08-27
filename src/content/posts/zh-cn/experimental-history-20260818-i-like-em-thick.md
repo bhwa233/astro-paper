@@ -6,7 +6,7 @@ title: "我就喜欢“厚重”之作"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "Experimental History"
 description: "何谓有厚度的创作"
 timezone: Asia/Shanghai

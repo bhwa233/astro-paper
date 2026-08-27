@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "网友回顾过去高昂交易佣金、报纸查行情与日内交易限制等老派炒股环境，调侃如今交易门槛降低与极速亏钱的便利。"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-29"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "AI 进入安全、教育与学术知识库，平台控制权和软硬件可持续性"

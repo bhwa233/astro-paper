@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "讨论男性是否喜欢在睡眠中被伴侣主动发起性行为叫醒，以及各自喜欢的具体方式、顾虑与现实前提。"
 timezone: Asia/Shanghai

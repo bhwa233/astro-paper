@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "每日 Reddit 分类精选，按人生与社会、人物与问答、市场与价值投资三个独立栏目归档通过来源服务筛选的帖子。"
 timezone: Asia/Shanghai

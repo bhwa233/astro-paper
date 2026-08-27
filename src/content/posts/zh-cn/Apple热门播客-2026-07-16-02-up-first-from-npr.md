@@ -6,6 +6,7 @@ title: "Up First from NPR：Todd Blanche 司法部提名听证会争议与霍尔
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-16-02-up-first-from-npr.webp"
 description: "司法部提名听证争议、霍尔木兹海峡地缘博弈与移民局拦截新规。"

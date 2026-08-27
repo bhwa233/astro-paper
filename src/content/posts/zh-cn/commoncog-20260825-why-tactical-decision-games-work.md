@@ -6,7 +6,7 @@ title: "战术决策演习为何有效"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "Commoncog"
 description: "作者探讨战术决策演习加速专业能力的机制"
 timezone: Asia/Shanghai

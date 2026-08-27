@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-04｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这篇帖子询问：哪些爱好或工作会让人感觉特别容易导致分手或离婚。高赞回答并没有给出统一的统计结论，讨论主要集中在两类风险："
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-06｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子询问人们听过临终者说过的、最令人不安或最难忘的话。高赞回答并不全是恐怖内容，也包括临终前的幽默、恐惧、幻觉、遗憾、告"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-03｜知识与解释"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子转述了一则关于 Heart Attack Grill 的轶闻：据称，2012年2月11日，一名顾客在吃名为 Trip"
 timezone: Asia/Shanghai

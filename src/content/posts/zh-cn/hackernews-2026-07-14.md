@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-14"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "Apple 语音 API 超越 Whisper、Git hi"

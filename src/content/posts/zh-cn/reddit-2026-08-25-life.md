@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "医生与急救人员结合工作中见过的惨烈伤情，分享自己出于职业心理阴影而绝不会尝试的危险爱好与行为。"
 timezone: Asia/Shanghai

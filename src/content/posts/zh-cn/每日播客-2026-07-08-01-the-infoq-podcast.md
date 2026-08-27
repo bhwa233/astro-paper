@@ -7,6 +7,7 @@ featured: false
 draft: false
 tags:
   - 播客
+  - 海外播客榜
 ogImage: "../../../../public/images/podcast/2026-07-08-01-the-infoq-podcast.webp"
 description: "AI原生时代下的云原生安全重构、系统工程反思与开发者实践指南"
 timezone: Asia/Shanghai

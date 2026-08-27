@@ -6,6 +6,7 @@ title: "Up First：特朗普要员听证会交锋、伊朗战争迷局与中期�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-17-03-up-first-from-npr.webp"
 description: "特朗普内阁提名人听证会博弈与伊朗局势下的美国中期选举政治"

@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这个帖子向35岁以上的人提问：在20多岁时投入大量时间或金钱的什么事情，最终被证明完全是浪费？高赞回答集中在几个相互交叠"
 timezone: Asia/Shanghai

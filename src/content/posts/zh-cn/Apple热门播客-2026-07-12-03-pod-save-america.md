@@ -6,6 +6,7 @@ title: "Pod Save America：2026世界杯前夕的政治博弈与北约峰会局�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-12-03-pod-save-america.webp"
 description: "2026年美加墨世界杯前的政治博弈与北约峰会地缘政治局势剖析"

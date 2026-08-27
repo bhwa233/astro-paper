@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-06-22"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "https://docs.deno.com/runtime/desktop/index.png"
 description: "Hacker News Top 10：Deno Desktop、Codex 日志写盘、开放模型、内联汇编安全与数学长文等热门讨论"

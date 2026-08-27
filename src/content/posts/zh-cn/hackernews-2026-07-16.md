@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-16"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "开源 AI 模型与工具齐发，旧硬件本地推理和软件默认值之争升"

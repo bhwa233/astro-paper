@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "原帖是一条 AMA：一位 31 岁女性讲述自己从很有吸引力到增重 120 磅、再减重后重新体验到外貌带来的差别对待。讨论"
 timezone: Asia/Shanghai

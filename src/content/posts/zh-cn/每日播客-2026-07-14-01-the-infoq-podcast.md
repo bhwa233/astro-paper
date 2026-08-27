@@ -7,6 +7,7 @@ featured: false
 draft: false
 tags:
   - 播客
+  - 海外播客榜
 ogImage: "../../../../public/images/podcast/2026-07-14-01-the-infoq-podcast.webp"
 description: "软件架构与AI治理的融合实践"
 timezone: Asia/Shanghai

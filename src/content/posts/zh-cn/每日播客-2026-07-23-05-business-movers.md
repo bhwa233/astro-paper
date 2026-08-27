@@ -7,6 +7,7 @@ featured: false
 draft: false
 tags:
   - 播客
+  - 海外播客榜
 ogImage: "../../../../public/images/podcast/2026-07-23-05-business-movers.webp"
 description: "探索人与 AI 的情感联结、意识边界及技术如何重塑人类对“存"
 timezone: Asia/Shanghai

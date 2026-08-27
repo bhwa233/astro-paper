@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "Anthropic 据称向投资者宣称 AI 潜在收入达 30 万亿美元，引发社区对其估值炒作、宏观常识及上市预热的激烈讨论。"
 timezone: Asia/Shanghai

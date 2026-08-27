@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子作者在 r/wallstreetbets 发帖，自称被裁员后开始投资，并配了一张亏损图问“从这里开始就会涨上去了吧？"
 timezone: Asia/Shanghai

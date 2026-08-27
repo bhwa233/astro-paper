@@ -6,6 +6,7 @@ title: "HackerNews Top 10"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "医疗支付、平台抽成与 AI 进入软硬件基础设施，构成今日讨论"

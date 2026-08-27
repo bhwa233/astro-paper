@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-07｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子向各行业从业者提问：有哪些顾客通常不知道、却会改变消费决策的内幕？讨论并非集中于单一爆料，而是反复落在价格与质量不成"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-25"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "今日焦点集中于AI模型竞争、云基础设施安全与软件工程可靠性。"

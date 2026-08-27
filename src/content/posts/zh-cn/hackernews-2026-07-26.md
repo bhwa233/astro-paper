@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-26"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "今日焦点集中在 AI 治理、代理基础设施与 Android "

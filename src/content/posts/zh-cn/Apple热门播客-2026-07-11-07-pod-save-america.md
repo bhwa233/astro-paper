@@ -6,6 +6,7 @@ title: "Pod Save America：缅因州参议院席位之争：民主党紧急重�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-11-07-pod-save-america.webp"
 description: "缅因州民主党人正紧急物色候选人，以接替因性侵丑闻退选的格雷厄"

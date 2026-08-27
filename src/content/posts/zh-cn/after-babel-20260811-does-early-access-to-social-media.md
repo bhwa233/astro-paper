@@ -6,7 +6,7 @@ title: "过早接触社交媒体会损害后期的学业表现吗？"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "After Babel"
 description: "社交媒体接触年龄与学业表现"
 timezone: Asia/Shanghai

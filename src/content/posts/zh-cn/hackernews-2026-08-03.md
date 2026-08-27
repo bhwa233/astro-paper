@@ -6,6 +6,7 @@ title: "HackerNews Top 20｜2026-08-03"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "今日讨论集中在 AI 能力与可信协作，也延伸到软件质量和开源"

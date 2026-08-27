@@ -6,6 +6,7 @@ title: "交易风波与多米诺骨牌：卡哇伊·莱昂纳德交易因调查�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-12-06-the-bill-simmons-podcast.webp"
 description: "比尔·西蒙斯播客：解析小卡交易风波、杰伦·布朗数据争议及恩比"

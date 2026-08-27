@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "失业网友们分享了当下极其严峻的求职现状、漫长的待业经历与被迫降级就业的真实困境。"
 timezone: Asia/Shanghai

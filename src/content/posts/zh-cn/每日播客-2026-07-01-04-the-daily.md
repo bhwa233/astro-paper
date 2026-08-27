@@ -7,6 +7,7 @@ featured: false
 draft: false
 tags:
   - 播客
+  - 海外播客榜
 description: "每日海外 Podcasts 热门节目中文长文笔记。"
 timezone: Asia/Shanghai
 ---

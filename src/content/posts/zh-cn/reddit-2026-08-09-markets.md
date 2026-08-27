@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-09｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子讨论的核心是：Berkshire Hathaway 在第二季度业绩改善之际，CEO Greg Abel 是否开始把 "
 timezone: Asia/Shanghai

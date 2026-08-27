@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-06｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这篇AMA由一名1999年26岁的Blackjack Pizza副经理发起。他当时在科罗拉多州Littleton、距Co"
 timezone: Asia/Shanghai

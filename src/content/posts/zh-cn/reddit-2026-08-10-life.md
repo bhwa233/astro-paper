@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-10｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子询问哪些东西曾在大约十年前被用来炫耀身份和地位，如今却变得廉价、尴尬或不值得花钱。讨论并没有形成单一答案，主要落在投"
 timezone: Asia/Shanghai

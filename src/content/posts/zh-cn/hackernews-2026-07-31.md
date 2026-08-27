@@ -6,6 +6,7 @@ title: "HackerNews Top 20｜2026-07-31"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "今日讨论集中在 AI 代理的成本、安全与治理，也延伸到软件协"

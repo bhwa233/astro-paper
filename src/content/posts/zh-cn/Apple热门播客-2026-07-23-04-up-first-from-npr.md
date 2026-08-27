@@ -6,6 +6,7 @@ title: "Up First from NPR：伊朗冲突与美军伤亡的政治余波：川普�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-23-04-up-first-from-npr.webp"
 description: "川普悼念遇袭美军，防长出席国会听证会，亚利桑那州初选出炉。"

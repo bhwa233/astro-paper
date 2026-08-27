@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这是一位在乌克兰前线操作FPV自杀式无人机的加拿大女性志愿者发布的AMA。她目前因非战斗原因休病假，趁空闲回答网友提问。"
 timezone: Asia/Shanghai

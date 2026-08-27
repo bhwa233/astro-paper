@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-15"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "AI代理的边界、开放Web与本地计算成今日主线"

@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "楼主邀请大家询问父亲13岁生子、母亲失联和成长经历。"
 timezone: Asia/Shanghai

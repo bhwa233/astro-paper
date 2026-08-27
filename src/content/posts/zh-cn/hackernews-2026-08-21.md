@@ -6,6 +6,7 @@ title: "HackerNews Top 10"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "公民入境删手机数据被控重罪、Kagi过滤付费墙与AI文档阅读"

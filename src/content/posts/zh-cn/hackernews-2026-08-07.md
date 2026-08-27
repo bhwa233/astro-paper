@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-08-07"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "AI 推理硬件与代理安全升温，平台可靠性和工程判断受考验"

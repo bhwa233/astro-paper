@@ -6,6 +6,7 @@ title: "Pod Save America：特朗普重弹选举阴谋论老调，民主党人�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-18-02-pod-save-america.webp"
 description: "特朗普发表充满选举阴谋论的黄金时段全国讲话，引发民主党人的强"

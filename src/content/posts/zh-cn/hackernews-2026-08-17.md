@@ -6,6 +6,7 @@ title: "HackerNews Top 10"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "AI生成内容的信任、验证成本与平台控制权，贯穿今日讨论。"

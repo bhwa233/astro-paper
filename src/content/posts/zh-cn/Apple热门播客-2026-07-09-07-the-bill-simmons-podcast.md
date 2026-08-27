@@ -6,6 +6,7 @@ title: "The Bill Simmons Podcast：比利时 4-1 击碎美式幻想：全方位�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-09-07-the-bill-simmons-podcast.webp"
 description: "2026年美加墨世界杯，比利时 4-1 大胜美国队，从战术到"

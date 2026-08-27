@@ -6,6 +6,7 @@ title: "SmartLess：专访 Olivia Wilde：从选角助理到独立导演，镜�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-14-05-smartless.webp"
 description: "对话导演、演员Olivia Wilde，探讨其名字由来、片场"

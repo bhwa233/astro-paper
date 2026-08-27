@@ -6,6 +6,7 @@ title: "The Mel Robbins Podcast：活在当下与停止内耗的八个生活箴�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-09-09-the-mel-robbins-podcast.webp"
 description: "Mel Robbins分享的八个能带来内心平静与力量的实用生"

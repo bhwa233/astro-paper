@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "网友讨论男性是否真的喜欢被伴侣用性爱叫醒，以及各自能接受的具体方式和前提条件。"
 timezone: Asia/Shanghai

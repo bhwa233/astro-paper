@@ -6,7 +6,7 @@ title: "斯坦福教人“统治世界”的秘密课程"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "The Honest Broker"
 description: "作者批评精英教育与有效利他主义"
 timezone: Asia/Shanghai

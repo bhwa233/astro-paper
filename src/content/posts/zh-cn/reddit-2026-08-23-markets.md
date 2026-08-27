@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "散户们回忆早年每笔十几美元高昂佣金、看报纸打经纪人电话下单、分数报价以及受PDT规则限制的交易经历。"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-23"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "今日讨论集中于AI可信度、开放网络与高性能工程实践。"

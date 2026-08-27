@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-08｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这是一篇围绕 rentahitman.com 的 AMA：Bob Innes 讲述一个原本与网站流量有关、最终没有启动的"
 timezone: Asia/Shanghai

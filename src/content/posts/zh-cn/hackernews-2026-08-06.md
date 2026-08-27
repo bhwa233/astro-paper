@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-08-06"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "Google AI 重组与科研自动化领跑，代理安全和 LLM"

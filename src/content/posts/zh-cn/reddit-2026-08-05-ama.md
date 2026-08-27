@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-05｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这篇 AMA 介绍一对四十多岁的夫妻在女儿上大学后离开加州，搬到墨西哥 Sayulita，并在当地取得居留身份、改造场地"
 timezone: Asia/Shanghai

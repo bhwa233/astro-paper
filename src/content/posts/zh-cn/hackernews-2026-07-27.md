@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-27"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "隐私权与平台滥用交锋，开源模型和开发工具热度上升"

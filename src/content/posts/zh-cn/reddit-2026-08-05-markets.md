@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-05｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子标题以股市下跌日为背景，配合一张与 day trading 有关的 Steam 页面照片，把亏损情绪和荒诞玩笑集中到"
 timezone: Asia/Shanghai

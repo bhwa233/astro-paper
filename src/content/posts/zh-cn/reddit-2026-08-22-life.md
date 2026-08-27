@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "Reddit 网友分享那些直白、带点带色或让人浮想联翩，却成为个人自信长久来源的深刻夸奖与经历。"
 timezone: Asia/Shanghai

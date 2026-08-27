@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-09｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子询问：居住在 Texas 的 Elon Musk 向参与 Alaska 废除 ranked choice votin"
 timezone: Asia/Shanghai

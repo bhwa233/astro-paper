@@ -6,6 +6,7 @@ title: "Pod Save America：迈向深水区的美国政治博弈：美伊冲突�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-23-10-pod-save-america.webp"
 description: "2026年美伊局势、ICE暴力争议、以及民主党党内初选的政治"

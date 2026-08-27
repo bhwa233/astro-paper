@@ -6,6 +6,7 @@ title: "Up First from NPR：特朗普再炒作大选舞弊指控、推法案背�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-18-03-up-first-from-npr.webp"
 description: "特朗普再炒大选舞弊指控；得州洪灾救援与警报系统成效。"

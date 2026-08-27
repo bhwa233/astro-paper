@@ -6,6 +6,7 @@ title: "The Mel Robbins Podcast：1. 从“抗拒现状”到“重塑自我”�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-10-08-the-mel-robbins-podcast.webp"
 description: "克服环境转变与人际困境的四大心态转换法，重塑掌控感以寻回快乐"

@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-17"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "开源大模型逼近前沿，AI创作与人机协作代价引争议"

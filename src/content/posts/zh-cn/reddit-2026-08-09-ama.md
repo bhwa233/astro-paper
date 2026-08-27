@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-09｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "楼主发帖邀请大家询问一场发生在十多年前的摩托车事故：当时他14岁，表兄弟负责驾驶，为了耍帅闯入封闭的施工区域并加速行驶，"
 timezone: Asia/Shanghai

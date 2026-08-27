@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜问答精选"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "网友们讨论了在自己喜爱的播客（podcast）节目中，遇到过的最令人尴尬、破坏氛围或极其傲慢的糟糕嘉宾。"
 timezone: Asia/Shanghai

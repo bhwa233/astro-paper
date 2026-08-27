@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-07｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子认为Hertz（HTZ）短期内可能出现大幅上涨，核心依据是股价从六周前约5美元跌至约1.70美元后已经严重超卖，同时"
 timezone: Asia/Shanghai

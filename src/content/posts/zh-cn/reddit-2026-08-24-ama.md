@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "世界中央厨房驻乌克兰应急总监回答网友提问，聚焦战时前线餐食救济、人员安全保障与人道救援面临的实际困境。"
 timezone: Asia/Shanghai

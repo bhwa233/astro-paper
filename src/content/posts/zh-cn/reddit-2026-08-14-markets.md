@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子以“我们成功了，兄弟们”表达对市场赢家叙事的庆祝，讨论者则借快餐品牌、国防、网站股票等意象，追问这种狂热究竟意味着持"
 timezone: Asia/Shanghai

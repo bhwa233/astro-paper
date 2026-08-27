@@ -6,6 +6,7 @@ title: "《The Rest Is History》：亚历山大·汉密尔顿与阿伦·伯尔�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-10-07-the-rest-is-history.webp"
 description: "详细分析汉密尔顿与伯尔的历史恩怨，以及1804年那场改变美国"

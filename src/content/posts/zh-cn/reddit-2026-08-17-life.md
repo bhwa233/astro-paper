@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这条帖子在问，人们如何看待特朗普靠出售迷因币获利、买家却巨亏的情况。"
 timezone: Asia/Shanghai

@@ -7,6 +7,7 @@ featured: false
 draft: false
 tags:
   - 播客
+  - 海外播客榜
 ogImage: "../../../../public/images/podcast/2026-07-23-04-waveform-the-mkbhd-podcast.webp"
 description: "经典数码与科技八卦大乱斗：播客 Waveform 2026 "
 timezone: Asia/Shanghai

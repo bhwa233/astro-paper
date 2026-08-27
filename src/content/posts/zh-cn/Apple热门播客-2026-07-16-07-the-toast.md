@@ -6,6 +6,7 @@ title: "The Toast：瑞尔活性 (Reale Actives) 的商业奇迹与流行文化�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-16-07-the-toast.webp"
 description: "本期播客探讨了美妆品牌Reale Actives的成功、时尚"

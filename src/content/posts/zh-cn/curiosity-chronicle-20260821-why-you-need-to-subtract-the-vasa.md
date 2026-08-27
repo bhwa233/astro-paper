@@ -6,7 +6,7 @@ title: "为何你需要学会做减法：瓦萨效应"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "Curiosity Chronicle"
 wechat:
   enabled: true

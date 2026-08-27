@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这则提问邀请人们讲述职场里那些原本不必存在、却因个别人滥用便利、制造事故或提出无理投诉而出台的规定。讨论中的案例横跨考勤"
 timezone: Asia/Shanghai

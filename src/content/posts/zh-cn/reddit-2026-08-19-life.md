@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "探讨民主党参议员奥索夫公开谴责特朗普是“逃兵役者与骗子总统”引发的热议与各方评价。"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这条帖子在问：有没有一种不到一小时就能学会、却会让人觉得你是个绝对天才的技能。多数回答集中在一些具体、可操作的小技能上，"
 timezone: Asia/Shanghai

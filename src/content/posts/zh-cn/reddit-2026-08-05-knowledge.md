@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-05｜知识与解释"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子提出的核心问题是：Coca-Cola 为了取得犹太洁食认证，是否真的让 Tobias Geffen 这名公司外部人士"
 timezone: Asia/Shanghai

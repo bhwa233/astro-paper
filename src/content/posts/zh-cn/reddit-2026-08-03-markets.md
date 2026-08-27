@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-03｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子用“看跌就是看涨”概括一轮由恐慌、停火消息和情绪反转推动的市场上涨，讨论焦点是：这波行情还能持续多久，以及空头和持有"
 timezone: Asia/Shanghai

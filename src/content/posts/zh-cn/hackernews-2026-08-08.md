@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-08-08"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "AI 编程协作、数据主权与低成本基础设施成为焦点"

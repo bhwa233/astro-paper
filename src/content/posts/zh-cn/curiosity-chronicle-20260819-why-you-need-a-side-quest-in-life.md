@@ -6,7 +6,7 @@ title: "为什么你在生活中需要一个“支线任务”"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "Curiosity Chronicle"
 wechat:
   enabled: true

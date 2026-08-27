@@ -7,6 +7,7 @@ featured: false
 draft: false
 tags:
   - 播客
+  - 海外播客榜
 description: "每日海外科技访谈与 Apple Podcasts 热门节目中文长文笔记，按节目逐集生成。"
 timezone: Asia/Shanghai
 ---

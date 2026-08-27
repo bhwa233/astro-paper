@@ -6,6 +6,7 @@ title: "HackerNews Top 20｜2026-08-01"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "AI安全与代理基础设施升温，开发工具和系统工程继续受到关注"

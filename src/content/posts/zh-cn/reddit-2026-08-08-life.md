@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-08｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "这个问题是在问：男生穿什么衣服，会让女生立刻下头，甚至完全破坏原本的好感。高赞回答整体并不只是在讨论剪裁或颜色，而是集中"
 timezone: Asia/Shanghai

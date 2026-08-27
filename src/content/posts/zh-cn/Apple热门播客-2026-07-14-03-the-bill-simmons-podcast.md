@@ -6,6 +6,7 @@ title: "The Bill Simmons Podcast：美剧和体育的跨界探讨：美国足球
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-14-03-the-bill-simmons-podcast.webp"
 description: "足球在美国的兴起困局、体育经理人机制与大片时代的电影票价变迁"

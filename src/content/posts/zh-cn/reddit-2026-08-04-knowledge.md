@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-04｜知识与解释"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子在问：孩子在婴幼儿到青春期这段需要大量营养和生长原料的时期，为什么常常排斥蔬菜水果、偏爱种类有限的食物；这种挑食是否"
 timezone: Asia/Shanghai

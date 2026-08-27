@@ -6,6 +6,7 @@ title: "HackerNews Top 20｜2026-08-04"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "AI工程可信度、专家能力与开放工具成为焦点，产业与社会议题并"

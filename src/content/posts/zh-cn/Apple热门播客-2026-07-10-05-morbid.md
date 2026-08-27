@@ -6,6 +6,7 @@ title: "綠河殺手里奇韋：隱秘的殺戮與遲到的正義"
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-10-05-morbid.webp"
 description: "播客Morbid解密綠河殺手里奇韋第二部分，深入解析其犯罪軌"

@@ -6,6 +6,8 @@ title: "Apple 热门播客笔记｜2026-06-29｜#06 Love Trapped"
 featured: false
 draft: false
 tags:
+  - 播客
+  - Apple播客榜
 description: "每日 Apple Podcasts 美国 Top Shows 前列播客中文长文笔记，按榜单顺序整理热门节目近期内容。"
 timezone: Asia/Shanghai
 ---

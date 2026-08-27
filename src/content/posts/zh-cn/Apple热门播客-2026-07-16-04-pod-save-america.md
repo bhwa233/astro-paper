@@ -6,6 +6,7 @@ title: "Pod Save America：本期播客中文标题：足球能拯救世界吗�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-16-04-pod-save-america.webp"
 description: "2026年美加墨世界杯的狂欢、地缘政治与美国足球的发展"

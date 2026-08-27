@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "Anthropic传出将向投资者宣称其潜在营收超30万亿美元，社区引发针对该夸张预期、行业泡沫与TAM界定的激烈讨论。"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "The Bill Simmons Podcast：1. Messi带阿根廷闯入世界杯决赛，�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-17-07-the-bill-simmons-podcast.webp"
 description: "《The Bill Simmons Podcast》特辑：阿"

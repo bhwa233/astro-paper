@@ -7,6 +7,7 @@ featured: false
 draft: false
 tags:
   - 播客
+  - 海外播客榜
 ogImage: "../../../../public/images/podcast/2026-07-08-02-pardon-my-take.webp"
 description: "Pardon My Take播客深度解析：美国男足世界杯折戟"
 timezone: Asia/Shanghai

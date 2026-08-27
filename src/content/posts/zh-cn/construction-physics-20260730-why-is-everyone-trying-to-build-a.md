@@ -6,7 +6,7 @@ title: "为什么大家都在争相研发固态电池？"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "Construction Physics"
 description: "固态电池的物理原理"
 timezone: Asia/Shanghai

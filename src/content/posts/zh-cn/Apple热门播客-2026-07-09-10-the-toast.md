@@ -6,6 +6,7 @@ title: "1. 本期播客中文标题：The Decade of No：流行文化动态、�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-09-10-the-toast.webp"
 description: "探讨流行真人秀动态、历史趣味卫生习惯与现代社交“拒绝”哲学的"

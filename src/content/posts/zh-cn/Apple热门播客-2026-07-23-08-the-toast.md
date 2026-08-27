@@ -6,6 +6,7 @@ title: "探討極端節儉、團購策略與流行文化背後的社會機制"
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-23-08-the-toast.webp"
 description: "深入探討極端節儉主義、高難度團體訂餐策略，以及流行文化與娛樂"

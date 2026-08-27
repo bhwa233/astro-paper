@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "人们点名那些最希望看到其名声、事业或影响力崩塌的名人及公众人物。"
 timezone: Asia/Shanghai

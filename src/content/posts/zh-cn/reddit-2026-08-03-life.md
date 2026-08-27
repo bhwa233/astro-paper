@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-03｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子询问：有哪些行业已经腐败、失灵到让人难以理解，却仍然保持着现实影响力。回答最集中在 Ticketmaster、医疗保"
 timezone: Asia/Shanghai

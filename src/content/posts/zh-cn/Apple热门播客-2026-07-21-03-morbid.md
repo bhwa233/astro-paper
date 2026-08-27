@@ -6,6 +6,7 @@ title: "倫敦與哈利法克斯的「幽靈」怪談：集體恐慌如何具象
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-21-03-morbid.webp"
 description: "本期播客探討了英國歷史上由集體恐慌引發的兩起「幽靈襲擊」事件"

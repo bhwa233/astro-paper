@@ -6,7 +6,7 @@ title: "另一种重要他人：在传统友谊与强制配偶制之外生活与
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "The Marginalian"
 description: "作者探讨超越传统恋爱与友谊的深度关系"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-18"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "AWS 账单异常、医疗场景里的AI管理、开放模型竞争格局升温"

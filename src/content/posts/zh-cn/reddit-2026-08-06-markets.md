@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-06｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子没有提出具体交易问题，而是用“下跌日会出现什么鬼事”作为框架，围绕一则把失败日内交易者、转生异世界和技术分析结合起来"
 timezone: Asia/Shanghai

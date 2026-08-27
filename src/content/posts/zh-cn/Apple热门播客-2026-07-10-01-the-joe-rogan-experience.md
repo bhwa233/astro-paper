@@ -6,6 +6,7 @@ title: "The Joe Rogan Experience：JRE MMA Show #182 - 现代格斗演进与流�
 featured: false
 draft: false
 tags:
+  - 播客
   - Apple播客榜
 ogImage: "../../../../public/images/podcast/2026-07-10-01-the-joe-rogan-experience.webp"
 description: "JRE格斗专题：深度剖析MMA规则漏洞、传统武术现代应用及流"

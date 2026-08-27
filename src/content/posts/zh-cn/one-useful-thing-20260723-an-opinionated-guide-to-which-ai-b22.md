@@ -6,7 +6,7 @@ title: "用哪款AI办事：一份主见指南"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "One Useful Thing"
 description: "AI智能体工具选择指南"
 timezone: Asia/Shanghai

@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子用 Buffett 投资 AAPL 的收益率演算，追问 GOOG 能否复制这一路径。"
 timezone: Asia/Shanghai

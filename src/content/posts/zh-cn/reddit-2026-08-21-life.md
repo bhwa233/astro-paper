@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人生与社会"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "网友们讨论并分享了历史上最令人恐惧、震撼与心碎的真实照片及背后的故事。"
 timezone: Asia/Shanghai

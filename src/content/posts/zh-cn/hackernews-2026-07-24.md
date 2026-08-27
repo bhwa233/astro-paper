@@ -6,6 +6,7 @@ title: "HackerNews Top 10｜2026-07-24"
 featured: false
 draft: false
 tags:
+  - 技术
   - HackerNews
 ogImage: "../../../../public/images/hn-cover.svg"
 description: "开放权重模型、AI代理安全与软件工程实践成为讨论焦点，传统网"

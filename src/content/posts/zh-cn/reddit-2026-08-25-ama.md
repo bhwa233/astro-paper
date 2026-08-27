@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜人物与问答"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "亲历者成年后调取全部卷宗，揭露自己因父母争夺抚养权被绑架送入野外治疗营的内幕与该产业的运作真相。"
 timezone: Asia/Shanghai

@@ -6,7 +6,7 @@ title: "如果 OpenAI 倒下会发生什么？"
 featured: false
 draft: false
 tags:
-  - 海外长文
+  - 阅读
   - "Where's Your Ed At"
 description: "作者评估OpenAI的财务风险"
 timezone: Asia/Shanghai

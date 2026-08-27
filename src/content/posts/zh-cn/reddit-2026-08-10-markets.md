@@ -6,6 +6,7 @@ title: "Reddit 每日精选｜2026-08-10｜市场与价值投资"
 featured: false
 draft: false
 tags:
+  - 社区
   - Reddit热门
 description: "帖子用“袋鼠行情”来形容当前股市，暗示价格像袋鼠一样反复跳涨跳跌、方向不稳定；讨论重点则从这个比喻延伸到市场是否被操纵、"
 timezone: Asia/Shanghai

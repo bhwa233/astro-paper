@@ -5,7 +5,7 @@ import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.t
 import { parseModelJsonObject } from "./compose_common.ts";
 import {
   CARD_BODY_MAX_CHARS,
-  REDDIT_LIFE_DAILY_ISSUE_COUNT,
+  REDDIT_LIFE_DAILY_SELECTION_COUNT,
   REDDIT_LIFE_VIDEO_ANSWER_COUNT,
   REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS,
   stripLatinGloss,
@@ -86,8 +86,8 @@ function validateIssue(raw: unknown, position: number, questions: RedditLifeVide
 export function validateRedditLifeVideoSelection(raw: unknown, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life video selection must be a JSON object");
   const value = raw as Record<string, unknown>;
-  if (!Array.isArray(value.issues) || value.issues.length !== REDDIT_LIFE_DAILY_ISSUE_COUNT) {
-    throw new Error(`Reddit life video selection needs exactly ${REDDIT_LIFE_DAILY_ISSUE_COUNT} issues`);
+  if (!Array.isArray(value.issues) || value.issues.length !== REDDIT_LIFE_DAILY_SELECTION_COUNT) {
+    throw new Error(`Reddit life selection needs exactly ${REDDIT_LIFE_DAILY_SELECTION_COUNT} issues`);
   }
   const issues = value.issues.map((issue, position) => validateIssue(issue, position, questions));
   if (new Set(issues.map(issue => issue.questionIndex)).size !== issues.length) {
@@ -115,13 +115,13 @@ export async function selectRedditLifeVideoCards({
   artifactsDir: string;
   evidence: string;
 }): Promise<RedditLifeVideoSelection> {
-  if (questions.length < REDDIT_LIFE_DAILY_ISSUE_COUNT) {
-    throw new Error(`Reddit life video selection needs at least ${REDDIT_LIFE_DAILY_ISSUE_COUNT} eligible questions`);
+  if (questions.length < REDDIT_LIFE_DAILY_SELECTION_COUNT) {
+    throw new Error(`Reddit life selection needs at least ${REDDIT_LIFE_DAILY_SELECTION_COUNT} eligible questions`);
   }
   const prompt = readPromptTemplate(promptDir, PROMPT_TASK)
     .replaceAll("{date}", date)
     .replaceAll("{question_count}", String(questions.length))
-    .replaceAll("{issue_count}", String(REDDIT_LIFE_DAILY_ISSUE_COUNT))
+    .replaceAll("{issue_count}", String(REDDIT_LIFE_DAILY_SELECTION_COUNT))
     .replaceAll("{card_count}", String(REDDIT_LIFE_VIDEO_ANSWER_COUNT))
     .replaceAll("{body_max}", String(CARD_BODY_MAX_CHARS))
     .replaceAll("{title_max}", String(REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS))

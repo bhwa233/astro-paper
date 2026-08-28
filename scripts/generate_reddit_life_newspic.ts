@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-// Reddit 图片消息编排：只消费已提交的视频选题，每天渲染并归档两篇 1 题至多 10 答的图片消息。
+// Reddit 图片消息编排：只消费已提交的视频选题，按图文数量配置渲染并归档每篇 1 题至多 10 答的图片消息。
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -12,17 +12,19 @@ import {
   type RedditLifeNewspicSelection,
 } from "./reddit_life_newspic_compose.ts";
 import { renderRedditLifeNewspicCards } from "./reddit_life_newspic_cards.ts";
+import { REDDIT_LIFE_DAILY_NEWSPIC_COUNT } from "../src/utils/redditLifePublishing.ts";
 
 const ROOT_REL = "data/reddit-life-newspic";
 const VIDEO_ROOT_REL = "data/reddit-life-video";
-const MANIFEST_VERSION = 2;
+const MANIFEST_VERSION = 3;
 
 type ArchivedFile = { path: string; sha256: string };
 
 export type RedditLifeNewspicRunManifest = {
-  version: 2;
+  version: 3;
   archiveDate: string;
   timeZone: "America/Los_Angeles";
+  issueCount: number;
   status: "processed" | "upstream-empty";
   upstream: { generatedSha: string; selection: ArchivedFile };
   rawSources?: { videoSelection: ArchivedFile };
@@ -71,6 +73,7 @@ function parseManifest(raw: unknown, file: string): RedditLifeNewspicRunManifest
     value.version !== MANIFEST_VERSION ||
     !/^\d{4}-\d{2}-\d{2}$/.test(value.archiveDate || "") ||
     value.timeZone !== "America/Los_Angeles" ||
+    value.issueCount !== REDDIT_LIFE_DAILY_NEWSPIC_COUNT ||
     (value.status !== "processed" && value.status !== "upstream-empty") ||
     !value.upstream ||
     !/^[0-9a-f]{7,64}$/i.test(value.upstream.generatedSha || "") ||
@@ -84,7 +87,7 @@ function parseManifest(raw: unknown, file: string): RedditLifeNewspicRunManifest
     !value.rawSources ||
     !isArchivedFile(value.rawSources.videoSelection) ||
     !Array.isArray(value.drafts) ||
-    value.drafts.length !== 2 ||
+    value.drafts.length !== REDDIT_LIFE_DAILY_NEWSPIC_COUNT ||
     !value.drafts.every(
       (draft, index) =>
         isArchivedFile(draft) &&
@@ -106,7 +109,8 @@ export function loadRedditLifeNewspicRunManifest(file: string): RedditLifeNewspi
   if (!fs.existsSync(file)) return null;
   try {
     const raw = JSON.parse(fs.readFileSync(file, "utf8"));
-    if ((raw as { version?: unknown }).version !== MANIFEST_VERSION) return null;
+    const header = raw as { version?: unknown; issueCount?: unknown };
+    if (header.version !== MANIFEST_VERSION || header.issueCount !== REDDIT_LIFE_DAILY_NEWSPIC_COUNT) return null;
     return parseManifest(raw, file);
   } catch (error) {
     if (error instanceof Error && error.message.startsWith("invalid Reddit life newspic")) throw error;
@@ -185,6 +189,7 @@ export async function generateRedditLifeNewspic({
       version: MANIFEST_VERSION,
       archiveDate: date,
       timeZone: "America/Los_Angeles",
+      issueCount: REDDIT_LIFE_DAILY_NEWSPIC_COUNT,
       status: "upstream-empty",
       upstream: { generatedSha: upstreamSha, selection: { path: selectionRel, sha256: "0".repeat(64) } },
     };
@@ -245,6 +250,7 @@ export async function generateRedditLifeNewspic({
     version: MANIFEST_VERSION,
     archiveDate: date,
     timeZone: "America/Los_Angeles",
+    issueCount: REDDIT_LIFE_DAILY_NEWSPIC_COUNT,
     status: "processed",
     upstream: { generatedSha: upstreamSha, selection: { path: selectionRel, sha256: sha256(upstreamSelection) } },
     rawSources: { videoSelection: { path: snapshotRel, sha256: sha256(upstreamSelection) } },

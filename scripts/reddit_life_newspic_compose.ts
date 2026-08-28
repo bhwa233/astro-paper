@@ -1,6 +1,7 @@
 // Reddit 图片消息的规则层：输入是已归档的视频选题，不重新抓取 Reddit 或调用模型。
 import { compact, frontmatter } from "./blog_common.ts";
 import { validateRedditLifeVideoTitle } from "./reddit_life_video_compose.ts";
+import { REDDIT_LIFE_DAILY_NEWSPIC_COUNT, REDDIT_LIFE_DAILY_SELECTION_COUNT } from "../src/utils/redditLifePublishing.ts";
 
 export const REDDIT_LIFE_NEWSPIC_TAG = "Reddit人生讨论";
 export const REDDIT_LIFE_NEWSPIC_ANSWER_LIMIT = 10;
@@ -53,18 +54,19 @@ function parseIssue(raw: unknown, expectedDate: string, issueNumber: number): Re
   return { archiveDate: expectedDate, issueNumber, title, question, cards };
 }
 
-/** 同一份视频选题归档同时携带当天两组内容，图文侧不再抓取或调用模型。 */
+/** 同一份选题归档覆盖视频与图文，图文侧不再抓取或调用模型。 */
 export function parseRedditLifeNewspicSelections(raw: unknown, expectedDate: string): RedditLifeNewspicSelection[] {
   validDate(expectedDate, "Reddit life newspic archive date");
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life newspic selection must be a JSON object");
   const value = raw as Record<string, unknown>;
-  if (value.version !== 4) throw new Error(`Reddit life newspic needs video selection version 4, got ${String(value.version)}`);
+  if (value.version !== 5) throw new Error(`Reddit life newspic needs video selection version 5, got ${String(value.version)}`);
   if (value.archiveDate !== expectedDate) throw new Error(`Reddit life newspic selection date ${String(value.archiveDate)} does not match ${expectedDate}`);
-  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length !== 1) {
-    throw new Error("Reddit life newspic selection needs exactly one additional issue");
+  const expectedAdditionalIssues = REDDIT_LIFE_DAILY_SELECTION_COUNT - 1;
+  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length !== expectedAdditionalIssues) {
+    throw new Error(`Reddit life newspic selection needs exactly ${expectedAdditionalIssues} additional issues`);
   }
 
-  const selections = [parseIssue(value, expectedDate, 1), parseIssue(value.additionalIssues[0], expectedDate, 2)];
+  const selections = [value, ...value.additionalIssues].slice(0, REDDIT_LIFE_DAILY_NEWSPIC_COUNT).map((issue, index) => parseIssue(issue, expectedDate, index + 1));
   if (new Set(selections.map(selection => selection.question)).size !== selections.length) {
     throw new Error("Reddit life newspic daily issues must use different questions");
   }
@@ -73,7 +75,9 @@ export function parseRedditLifeNewspicSelections(raw: unknown, expectedDate: str
 
 export function redditLifeNewspicSyncId(archiveDate: string, issueNumber: number): string {
   validDate(archiveDate, "Reddit life newspic archive date");
-  if (!Number.isInteger(issueNumber) || issueNumber < 1 || issueNumber > 2) throw new Error(`invalid Reddit life newspic issue number: ${issueNumber}`);
+  if (!Number.isInteger(issueNumber) || issueNumber < 1 || issueNumber > REDDIT_LIFE_DAILY_NEWSPIC_COUNT) {
+    throw new Error(`invalid Reddit life newspic issue number: ${issueNumber}`);
+  }
   return `reddit-life-newspic-${archiveDate}-${String(issueNumber).padStart(2, "0")}`;
 }
 

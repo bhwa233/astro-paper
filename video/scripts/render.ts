@@ -1,4 +1,4 @@
-// 渲染入口：读 data/reddit-life-video/<date>/video.json，按选题顺序出 out/<date>/1.mp4、2.mp4。
+// 渲染入口：读 data/reddit-life-video/<date>/video.json，按视频数量配置依次出 out/<date>/1.mp4 ...。
 //
 // 走 @remotion/renderer 的 API 而不是 `remotion render` CLI，是为了在这里解析并校验
 // video.json：CLI 只能把 JSON 原样塞进 --props，形状错了要等到浏览器里才炸，

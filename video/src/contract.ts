@@ -1,6 +1,7 @@
 // video.json 的契约。选卡脚本（scripts/generate_reddit_life_video.ts）写它，
 // Remotion 侧只读它——两边不共享代码，因此形状必须在这里明确校验，
 // 而不是靠 TypeScript 断言假装它一定对。
+import { REDDIT_LIFE_DAILY_SELECTION_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT } from "../../src/utils/redditLifePublishing.ts";
 
 /** 一张内容卡，就是所选问题下的一条回答。`sourceIndex` 指回归档里的回答序号。 */
 export type VideoCard = {
@@ -12,7 +13,7 @@ export type VideoCard = {
 };
 
 export type VideoManifest = {
-  version: 4;
+  version: 5;
   archiveDate: string;
   /** 同一次选题 AI 根据最终问题和回答生成的发行标题。 */
   title: string;
@@ -35,7 +36,7 @@ export function parseVideoManifest(raw: unknown): VideoManifest {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("video manifest must be a JSON object");
   const value = raw as Record<string, unknown>;
   // v1 没有 question，v2 没有 AI 内容标题，v3 每天只有一组图片消息。
-  if (value.version !== 4) throw new Error(`unsupported video manifest version: ${String(value.version)}; regenerate with --force`);
+  if (value.version !== 5) throw new Error(`unsupported video manifest version: ${String(value.version)}; regenerate with --force`);
 
   const archiveDate = requireString(value.archiveDate, "video manifest archiveDate");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(archiveDate)) throw new Error(`invalid video manifest archiveDate: ${archiveDate}`);
@@ -57,18 +58,19 @@ export function parseVideoManifest(raw: unknown): VideoManifest {
     };
   });
 
-  return { version: 4, archiveDate, title, question, cards };
+  return { version: 5, archiveDate, title, question, cards };
 }
 
-/** 归档根对象携带当天两组内容；每组都复用同一个 Remotion composition。 */
+/** 归档根对象携带满足两个发布端的选题；视频端只消费配置数量的前几组。 */
 export function parseVideoManifests(raw: unknown): VideoManifest[] {
   const primary = parseVideoManifest(raw);
   const value = raw as Record<string, unknown>;
-  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length !== 1) {
-    throw new Error("video manifest needs exactly one additional issue");
+  const expectedAdditionalIssues = REDDIT_LIFE_DAILY_SELECTION_COUNT - 1;
+  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length !== expectedAdditionalIssues) {
+    throw new Error(`video manifest needs exactly ${expectedAdditionalIssues} additional issues`);
   }
 
-  const manifests = [
+  const selections = [
     primary,
     ...value.additionalIssues.map(issue =>
       parseVideoManifest({
@@ -78,8 +80,8 @@ export function parseVideoManifests(raw: unknown): VideoManifest[] {
       }),
     ),
   ];
-  if (new Set(manifests.map(manifest => manifest.question)).size !== manifests.length) {
+  if (new Set(selections.map(manifest => manifest.question)).size !== selections.length) {
     throw new Error("video manifest issues must use different questions");
   }
-  return manifests;
+  return selections.slice(0, REDDIT_LIFE_DAILY_VIDEO_COUNT);
 }

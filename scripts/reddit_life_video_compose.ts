@@ -7,13 +7,14 @@
 // 观众没有「这是在答什么」的锚点；改成一题十答之后，封面就是问题，后面全是它的回答。
 import fs from "node:fs";
 import path from "node:path";
+import { REDDIT_LIFE_DAILY_SELECTION_COUNT } from "../src/utils/redditLifePublishing.ts";
 import { compact } from "./blog_common.ts";
 
 /** 一支视频固定十条回答。 */
 export const REDDIT_LIFE_VIDEO_ANSWER_COUNT = 10;
 
-/** 每天两支视频和两篇图片消息共同使用同一次 AI 选出的两组内容。 */
-export const REDDIT_LIFE_DAILY_ISSUE_COUNT = 2;
+/** 一次 AI 选题需要覆盖视频与图文两端，数量取各自发布量的较大值。 */
+export { REDDIT_LIFE_DAILY_SELECTION_COUNT };
 
 /**
  * 屏上字必须一眼读完——没有旁白，观众只有卡片时长那几秒。

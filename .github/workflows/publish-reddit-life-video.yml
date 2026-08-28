@@ -21,7 +21,7 @@ on:
         default: false
         type: boolean
       ai_model:
-        description: "Two-issue question, answer and title selection model. Empty = Gemini 3.7 Flash."
+        description: "Question, answer and title selection model. Empty = Gemini 3.7 Flash."
         required: false
         type: string
 
@@ -101,6 +101,7 @@ jobs:
         id: render
         env:
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}
+          EXPECTED_VIDEO_COUNT: ${{ steps.select.outputs.video_count }}
         run: |
           set -euo pipefail
           # --result-json 而不是 tee stdout：Remotion 会把浏览器下载进度打在 stdout 上，
@@ -109,7 +110,9 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const result = JSON.parse(fs.readFileSync("reddit-life-video-render.json", "utf8"));
-          if (!Array.isArray(result.videos) || result.videos.length !== 2) throw new Error(`Expected two rendered videos, got ${result.videos?.length ?? 0}`);
+          const expected = Number(process.env.EXPECTED_VIDEO_COUNT);
+          if (!Number.isInteger(expected) || expected < 1) throw new Error(`Invalid expected video count: ${process.env.EXPECTED_VIDEO_COUNT}`);
+          if (!Array.isArray(result.videos) || result.videos.length !== expected) throw new Error(`Expected ${expected} rendered videos, got ${result.videos?.length ?? 0}`);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `video_count=${result.videos.length}\n`);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `frames=${result.videos.reduce((sum, video) => sum + video.durationInFrames, 0)}\n`);
           NODE
@@ -117,7 +120,7 @@ jobs:
       # 成片走 Release 而不是提交进仓库：每天 10MB 进 git，一年后 .git 多出 3GB，
       # 而删掉提交并不会让历史里的 blob 消失。Release 资产删掉就是真的没了。
       #
-      # 两支成片按选题顺序写成 1.mp4 / 2.mp4。metadata.json 以相同顺序保存完整标题和
+      # 成片按选题顺序写成 1.mp4 / 2.mp4 ...。metadata.json 以相同顺序保存完整标题和
       # 问题，让下载端通过稳定 ASCII 文件名恢复内容语义。
       #
       # Release 一直保留，没有清理逻辑。同一天重跑走 upload --clobber 覆盖资产，
@@ -150,9 +153,17 @@ jobs:
             })),
           };
           fs.writeFileSync("metadata.json", `${JSON.stringify(metadata, null, 2)}\n`, "utf8");
+          fs.writeFileSync("release-assets.txt", `${result.videos.map((_, position) => `${position + 1}.mp4`).join("\n")}\n`, "utf8");
           NODE
+          mapfile -t assets < release-assets.txt
           if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" 1.mp4 2.mp4 metadata.json --clobber
+            gh release upload "$tag" "${assets[@]}" metadata.json --clobber
+            mapfile -t existing_assets < <(gh release view "$tag" --json assets --jq '.assets[].name')
+            for asset in "${existing_assets[@]}"; do
+              if [[ "$asset" =~ ^[0-9]+\.mp4$ ]] && [[ " ${assets[*]} " != *" $asset "* ]]; then
+                gh release delete-asset "$tag" "$asset" --yes
+              fi
+            done
             # 历史版本用过 movie.mp4，中文名还曾被 GitHub 规范化成 default.mp4。
             # 新资产全部上传成功后再清理旧名，迁移失败也不会丢片。
             for legacy_asset in movie.mp4 default.mp4; do
@@ -160,7 +171,7 @@ jobs:
             done
             gh release edit "$tag" --title "Reddit 精选问答 $ARCHIVE_DATE" --notes "$notes"
           else
-            gh release create "$tag" 1.mp4 2.mp4 metadata.json --title "Reddit 精选问答 $ARCHIVE_DATE" --notes "$notes"
+            gh release create "$tag" "${assets[@]}" metadata.json --title "Reddit 精选问答 $ARCHIVE_DATE" --notes "$notes"
           fi
 
       - name: Upload diagnostics

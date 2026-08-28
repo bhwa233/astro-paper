@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-// 竖屏视频的选卡编排：读当天已提交的 reddit-life-wechat 归档，调一次模型选两组一题十答，写 video.json。
+// 竖屏视频的选卡编排：读当天已提交的 reddit-life-wechat 归档，调一次模型选足视频与图文所需的问题，写 video.json。
 //
 // 只做选卡，不渲染。渲染在 video/ 那个独立的 Remotion 包里（`pnpm --filter reddit-life-video render`），
 // 因为它要拖进 react 和一套 @remotion/*，而这边的脚本要能在不装那些依赖的环境里跑。
@@ -13,15 +13,15 @@ import {
   eligibleRedditLifeVideoQuestions,
   parseRedditLifeVideoQuestions,
   questionEvidence,
-  REDDIT_LIFE_DAILY_ISSUE_COUNT,
   REDDIT_LIFE_VIDEO_ANSWER_COUNT,
 } from "./reddit_life_video_compose.ts";
+import { REDDIT_LIFE_DAILY_SELECTION_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT } from "../src/utils/redditLifePublishing.ts";
 
 // 微信归档按美西日切分目录，视频沿用同一个口径，两边的 <date> 才指同一天。
 const SOURCE_TIME_ZONE = "America/Los_Angeles";
 const SOURCE_ROOT_REL = "data/reddit-life-wechat";
 const ROOT_REL = "data/reddit-life-video";
-const MANIFEST_VERSION = 4;
+const MANIFEST_VERSION = 5;
 
 type RunStatus = "processed" | "upstream-empty" | "insufficient-candidates";
 
@@ -32,6 +32,7 @@ type RunManifest = {
   status: RunStatus;
   upstream: { archiveDir: string; drafts: string[]; sha256: string };
   model: string;
+  selectionCount: number;
   questionCount: number;
   eligibleQuestionCount: number;
   selectedQuestionIndexes: number[];
@@ -61,16 +62,18 @@ async function main(): Promise<void> {
   // 复用已有结果而不是重新调模型：同一天重跑（补渲染、改版式）不该换掉内容。
   if (!force && fs.existsSync(videoPath) && fs.existsSync(manifestPath)) {
     const existing = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as RunManifest;
-    if (existing.version === MANIFEST_VERSION) {
+    if (existing.version === MANIFEST_VERSION && existing.selectionCount === REDDIT_LIFE_DAILY_SELECTION_COUNT) {
       writeStderr(`[reddit-life-video] reusing existing manifest for ${date}; pass --force to reselect\n`);
       writeStdout(
-        `${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), videoCount: REDDIT_LIFE_DAILY_ISSUE_COUNT, cardCount: REDDIT_LIFE_DAILY_ISSUE_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`,
+        `${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), videoCount: REDDIT_LIFE_DAILY_VIDEO_COUNT, cardCount: REDDIT_LIFE_DAILY_VIDEO_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`,
       );
       return;
     }
-    // 旧版 manifest 没有 question，渲染端会直接拒收。与其让下游报一个语焉不详的
-    // 契约错误，不如在这里就重选一次。
-    writeStderr(`WARN: [reddit-life-video] manifest for ${date} is version ${existing.version}; reselecting for version ${MANIFEST_VERSION}\n`);
+    // 旧版缺少当前契约，或发布数量已经变化；两种情况都必须重选，不能让下游拿到
+    // 一份看似有效但数量不足的 video.json。
+    writeStderr(
+      `WARN: [reddit-life-video] manifest for ${date} is version ${existing.version}, selectionCount ${String(existing.selectionCount)}; reselecting for version ${MANIFEST_VERSION}, selectionCount ${REDDIT_LIFE_DAILY_SELECTION_COUNT}\n`,
+    );
   }
 
   const archiveDir = path.join(repo, SOURCE_ROOT_REL, date);
@@ -89,6 +92,7 @@ async function main(): Promise<void> {
     status: "upstream-empty",
     upstream: { archiveDir: path.relative(repo, archiveDir), drafts: files, sha256: sha256(markdowns.join("\n")) },
     model,
+    selectionCount: REDDIT_LIFE_DAILY_SELECTION_COUNT,
     questionCount: 0,
     eligibleQuestionCount: 0,
     selectedQuestionIndexes: [],
@@ -101,7 +105,7 @@ async function main(): Promise<void> {
     ensureDir(outDir);
     fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
     writeStdout(
-      `${JSON.stringify({ date, status: manifest.status, videoPath: manifest.status === "processed" ? path.relative(repo, videoPath) : "", videoCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_ISSUE_COUNT : 0, cardCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_ISSUE_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT : 0, reused: false })}\n`,
+      `${JSON.stringify({ date, status: manifest.status, videoPath: manifest.status === "processed" ? path.relative(repo, videoPath) : "", videoCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_VIDEO_COUNT : 0, cardCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_VIDEO_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT : 0, reused: false })}\n`,
     );
   };
 
@@ -118,10 +122,10 @@ async function main(): Promise<void> {
   manifest.eligibleQuestionCount = eligible.length;
 
   // 实测每天有八到十七个问题满足十条回答，这条兜底正常不会触发。
-  if (eligible.length < REDDIT_LIFE_DAILY_ISSUE_COUNT) {
+  if (eligible.length < REDDIT_LIFE_DAILY_SELECTION_COUNT) {
     manifest.status = "insufficient-candidates";
     writeStderr(
-      `[reddit-life-video] only ${eligible.length} of ${questions.length} questions for ${date} have ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} answers; need ${REDDIT_LIFE_DAILY_ISSUE_COUNT}\n`,
+      `[reddit-life-video] only ${eligible.length} of ${questions.length} questions for ${date} have ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} answers; need ${REDDIT_LIFE_DAILY_SELECTION_COUNT}\n`,
     );
     finish();
     return;
@@ -150,7 +154,7 @@ async function main(): Promise<void> {
     videoPath,
     `${JSON.stringify(
       {
-        version: 4,
+        version: MANIFEST_VERSION,
         archiveDate: date,
         title: primary.title,
         question: primary.question,

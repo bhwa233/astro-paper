@@ -3,7 +3,14 @@
 import { readPromptTemplate } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
 import { parseModelJsonObject } from "./compose_common.ts";
-import { CARD_BODY_MAX_CHARS, REDDIT_LIFE_VIDEO_ANSWER_COUNT, stripLatinGloss, type RedditLifeVideoQuestion } from "./reddit_life_video_compose.ts";
+import {
+  CARD_BODY_MAX_CHARS,
+  REDDIT_LIFE_VIDEO_ANSWER_COUNT,
+  REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS,
+  stripLatinGloss,
+  validateRedditLifeVideoTitle,
+  type RedditLifeVideoQuestion,
+} from "./reddit_life_video_compose.ts";
 
 const PROMPT_TASK = "reddit-life-video-cards";
 
@@ -17,6 +24,7 @@ export type RedditLifeVideoCard = {
 
 export type RedditLifeVideoSelection = {
   questionIndex: number;
+  title: string;
   question: string;
   cards: RedditLifeVideoCard[];
 };
@@ -28,6 +36,7 @@ export function validateRedditLifeVideoSelection(raw: unknown, questions: Reddit
   const questionIndex = Number(value.questionIndex);
   const question = questions.find(entry => entry.index === questionIndex);
   if (!question) throw new Error(`Reddit life video selection picked question ${String(value.questionIndex)}, which is not in the candidate list`);
+  const title = validateRedditLifeVideoTitle(value.title, question.question);
 
   if (!Array.isArray(value.cards)) throw new Error("Reddit life video selection must contain a cards array");
   if (value.cards.length !== REDDIT_LIFE_VIDEO_ANSWER_COUNT) {
@@ -67,7 +76,7 @@ export function validateRedditLifeVideoSelection(raw: unknown, questions: Reddit
     return { index: position + 1, body, sourceIndex, verbatim: body === source };
   });
 
-  return { questionIndex, question: question.question, cards };
+  return { questionIndex, title, question: question.question, cards };
 }
 
 export function parseRedditLifeVideoSelection(raw: string, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
@@ -95,6 +104,7 @@ export async function selectRedditLifeVideoCards({
     .replaceAll("{question_count}", String(questions.length))
     .replaceAll("{card_count}", String(REDDIT_LIFE_VIDEO_ANSWER_COUNT))
     .replaceAll("{body_max}", String(CARD_BODY_MAX_CHARS))
+    .replaceAll("{title_max}", String(REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS))
     .replaceAll("{source_text}", evidence);
   writeAiArtifact(artifactsDir, PROMPT_TASK, "prompt.md", prompt);
   return generateJsonStageWithRetries({

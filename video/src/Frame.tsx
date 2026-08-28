@@ -12,14 +12,21 @@ import { BRAND, BRAND_FONT_SIZE, CARD_HEIGHT, CARD_PADDING, CARD_RADIUS, CARD_WI
 
 const THEME = PLATFORM_THEMES.reddit;
 
-export const Frame: React.FC<{ durationInFrames: number; children: React.ReactNode }> = ({ durationInFrames, children }) => {
+/**
+ * `entrance: "cut"` 让第 0 帧就是完整画面。
+ *
+ * 封面用它：视频的第一帧要么是问题，要么是一片橙底——而观众划到这支视频时看到的
+ * 恰恰就是这一帧，拿它做淡入等于把开场让给一张空卡片。后面的回答卡没有这个问题，
+ * 照旧淡入淡出。
+ */
+export const Frame: React.FC<{ durationInFrames: number; entrance?: "fade" | "cut"; children: React.ReactNode }> = ({ durationInFrames, entrance = "fade", children }) => {
   const frame = useCurrentFrame();
   // 两端各淡一次。用 clamp 而不是 extrapolate 默认值，否则中间段会继续外推。
-  const opacity = interpolate(frame, [0, FADE_FRAMES, durationInFrames - FADE_FRAMES, durationInFrames], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const lift = interpolate(frame, [0, FADE_FRAMES], [24, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const opacity =
+    entrance === "cut"
+      ? interpolate(frame, [durationInFrames - FADE_FRAMES, durationInFrames], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+      : interpolate(frame, [0, FADE_FRAMES, durationInFrames - FADE_FRAMES, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const lift = entrance === "cut" ? 0 : interpolate(frame, [0, FADE_FRAMES], [24, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <AbsoluteFill style={{ background: THEME.bg, fontFamily: "Noto Sans SC" }}>

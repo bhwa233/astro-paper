@@ -1,4 +1,4 @@
-// 渲染入口：读 data/reddit-life-video/<date>/video.json，出 out/reddit-life-<date>.mp4。
+// 渲染入口：读 data/reddit-life-video/<date>/video.json，出 out/<问题>.mp4。
 //
 // 走 @remotion/renderer 的 API 而不是 `remotion render` CLI，是为了在这里解析并校验
 // video.json：CLI 只能把 JSON 原样塞进 --props，形状错了要等到浏览器里才炸，
@@ -36,11 +36,24 @@ const onBrowserDownload: OnBrowserDownload = () => ({
   },
 });
 
+// 文件名里不能出现的字符。全角的逗号、问号和引号在 Linux、macOS 与 Windows 上都合法，
+// 保留它们，下下来的成片就是问题本身；只删掉 ASCII 里那批真正会出事的。
+// 空格与连字符不删：它们本身合法，删了只会让含英文词的问题粘成一坨。
+const UNSAFE_FILENAME_CHARS = /[/\\:*?"<>|]/g;
+// UTF-8 下一个汉字三字节，文件名上限 255 字节。问题实测最长 34 字，80 是宽裕的护栏。
+const FILENAME_MAX_CHARS = 80;
+
+/** 用问题给成片命名。清洗后为空（理论上不会）时退回日期，免得产出一个只叫 ".mp4" 的文件。 */
+function videoFileName(question: string, fallbackDate: string): string {
+  const cleaned = [...question.replace(UNSAFE_FILENAME_CHARS, "").replace(/\s+/g, " ").trim()].slice(0, FILENAME_MAX_CHARS).join("").trim();
+  return `${cleaned || `reddit-life-${fallbackDate}`}.mp4`;
+}
+
 const manifestPath = path.join(repoRoot, "data", "reddit-life-video", date, "video.json");
 if (!fs.existsSync(manifestPath)) throw new Error(`missing video manifest: ${manifestPath}`);
 const manifest = parseVideoManifest(JSON.parse(fs.readFileSync(manifestPath, "utf8")));
 
-const outputLocation = argValue("out") || path.join(packageRoot, "out", `reddit-life-${date}.mp4`);
+const outputLocation = argValue("out") || path.join(packageRoot, "out", videoFileName(manifest.question, date));
 fs.mkdirSync(path.dirname(outputLocation), { recursive: true });
 
 process.stderr.write(`[reddit-life-video] bundling ${manifest.cards.length} cards for ${date}\n`);

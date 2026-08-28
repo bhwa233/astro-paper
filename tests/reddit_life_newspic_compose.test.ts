@@ -6,11 +6,12 @@ import {
   renderRedditLifeNewspicMarkdown,
 } from "../scripts/reddit_life_newspic_compose.ts";
 
-test("Reddit image message preserves one selected question and writes image-only WeChat metadata", () => {
+test("Reddit image message preserves the AI title and selected question", () => {
   const selection = parseRedditLifeNewspicSelection(
     {
-      version: 2,
+      version: 3,
       archiveDate: "2099-01-02",
+      title: "普通习惯背后的健康代价",
       question: "哪些习惯看似普通，实际上最值得警惕？",
       cards: [
         { index: 1, sourceIndex: 10, body: "第一条高赞回答。" },
@@ -21,6 +22,7 @@ test("Reddit image message preserves one selected question and writes image-only
   );
 
   const markdown = renderRedditLifeNewspicMarkdown(selection);
+  assert.match(markdown, /title: "普通习惯背后的健康代价"/);
   assert.match(markdown, /syncId: "reddit-life-newspic-2099-01-02"/);
   assert.match(markdown, /articleType: "newspic"/);
   assert.doesNotMatch(markdown, /sourceURL:/);
@@ -32,8 +34,9 @@ test("Reddit image message refuses a selection that mixes duplicate source answe
     () =>
       parseRedditLifeNewspicSelection(
         {
-          version: 2,
+          version: 3,
           archiveDate: "2099-01-02",
+          title: "普通习惯背后的健康代价",
           question: "哪些习惯看似普通，实际上最值得警惕？",
           cards: [
             { index: 1, sourceIndex: 10, body: "第一条高赞回答。" },

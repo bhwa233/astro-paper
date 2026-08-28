@@ -12,8 +12,10 @@ export type VideoCard = {
 };
 
 export type VideoManifest = {
-  version: 2;
+  version: 3;
   archiveDate: string;
+  /** 同一次选题 AI 根据最终问题和回答生成的发行标题。 */
+  title: string;
   /** 封面上的问题。一支视频只讲一个问题，后面全是它的回答。 */
   question: string;
   cards: VideoCard[];
@@ -32,13 +34,14 @@ function requireInteger(value: unknown, label: string): number {
 export function parseVideoManifest(raw: unknown): VideoManifest {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("video manifest must be a JSON object");
   const value = raw as Record<string, unknown>;
-  // version 1 是跨问题挑金句的旧结构，没有 question。兼容它只会渲染出一支
-  // 封面空白的片子，所以直接拒收，让上游用 --force 重选。
-  if (value.version !== 2) throw new Error(`unsupported video manifest version: ${String(value.version)}; regenerate with --force`);
+  // v1 没有 question，v2 没有 AI 内容标题；都不能满足当前下游契约。
+  if (value.version !== 3) throw new Error(`unsupported video manifest version: ${String(value.version)}; regenerate with --force`);
 
   const archiveDate = requireString(value.archiveDate, "video manifest archiveDate");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(archiveDate)) throw new Error(`invalid video manifest archiveDate: ${archiveDate}`);
   const question = requireString(value.question, "video manifest question");
+  const title = requireString(value.title, "video manifest title");
+  if (!/[一-鿿]/.test(title) || [...title].length > 20) throw new Error(`video manifest title must be Chinese and at most 20 characters: ${title}`);
   if (!Array.isArray(value.cards) || !value.cards.length) throw new Error("video manifest needs at least one card");
 
   const cards = value.cards.map((rawCard, position): VideoCard => {
@@ -54,5 +57,5 @@ export function parseVideoManifest(raw: unknown): VideoManifest {
     };
   });
 
-  return { version: 2, archiveDate, question, cards };
+  return { version: 3, archiveDate, title, question, cards };
 }

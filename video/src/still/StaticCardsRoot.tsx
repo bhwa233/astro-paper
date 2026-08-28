@@ -7,8 +7,9 @@ export const REDDIT_LIFE_NEWSPIC_COMPOSITION_ID = "RedditLifeNewspic";
 
 const PLACEHOLDER: RedditLifeNewspicProps = {
   manifest: {
-    version: 2,
+    version: 3,
     archiveDate: "2026-08-27",
+    title: "医护人员戒掉的正常习惯",
     question: "医护人员目睹患者遭遇后，果断放弃了哪些看似正常的生活习惯？",
     cards: [{ index: 1, sourceIndex: 1, verbatim: true, body: "这是用于静态图片排版预览的一条回答。" }],
   },

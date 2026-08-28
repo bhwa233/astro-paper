@@ -8,9 +8,12 @@ import { BRAND } from "./layout.ts";
 import { FPS, TICK_LEAD_SECONDS, timeline, totalFrames } from "./timing.ts";
 import { TopicCard } from "./TopicCard.tsx";
 
-// BGM 素材已经统一到 -3.5dB 峰值（见 public/CREDITS.md 的处理记录），
+// BGM 与提示音都已统一到 -3.5dB 峰值（见 public/CREDITS.md 的处理记录），
 // 因此这两个数字是可比的：提示音要盖过垫乐但不能盖过阅读。
 // 第一版成片实测整体偏响，两个值同比降到八成。
+//
+// BGM 比任何一天的成片都长，loop 实际不会触发；留着它是为了将来卡片数或时长上限
+// 变大时不至于突然静音。
 const BGM_VOLUME = 0.144;
 const TICK_VOLUME = 0.28;
 const BGM_FADE_OUT_FRAMES = FPS;

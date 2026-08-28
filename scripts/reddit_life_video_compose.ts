@@ -21,6 +21,9 @@ export const REDDIT_LIFE_VIDEO_ANSWER_COUNT = 10;
  */
 export const CARD_BODY_MAX_CHARS = 100;
 
+/** 微信草稿标题上限；标题由同一次选题 AI 根据最终问题和回答生成。 */
+export const REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS = 20;
+
 /** 长回答喂给模型时的上界。实测最长 313 字，这个数只防异常输入，正常不会触发。 */
 const EVIDENCE_ANSWER_MAX_CHARS = 600;
 
@@ -56,6 +59,17 @@ export type RedditLifeVideoQuestion = {
   question: string;
   answers: RedditLifeVideoAnswer[];
 };
+
+export function validateRedditLifeVideoTitle(value: unknown, question: string): string {
+  const title = compact(String(value || ""));
+  if (!title || !/[一-鿿]/.test(title)) throw new Error("Reddit life video title must be Chinese");
+  if ([...title].length > REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS) {
+    throw new Error(`Reddit life video title is ${[...title].length} characters, at most ${REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS} are allowed: ${title}`);
+  }
+  if (/^(?:Reddit\s*)?(?:精选|高赞)?问答$/i.test(title)) throw new Error(`Reddit life video title must describe this issue instead of using the column name: ${title}`);
+  if (title === compact(question)) throw new Error("Reddit life video title must condense the question instead of copying it verbatim");
+  return title;
+}
 
 /** 归档稿的正文从 frontmatter 之后开始；开篇的引用块清单不是候选。 */
 function articleBody(markdown: string): string {

@@ -13,8 +13,9 @@ export const COMPOSITION_ID = "RedditLifeVideo";
 // Studio 里没有 --props 时用的占位内容，只为让版式可预览。
 // 字数刻意贴近正文上限，好在预览里看到最坏情况的排版。
 const PLACEHOLDER: VideoManifest = {
-  version: 2,
+  version: 3,
   archiveDate: "2026-08-27",
+  title: "医护人员戒掉的正常习惯",
   question: "医护人员目睹患者遭遇后，果断放弃了哪些看似「正常」的生活习惯？",
   cards: Array.from({ length: 10 }, (_, index) => ({
     index: index + 1,

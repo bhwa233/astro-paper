@@ -25,7 +25,7 @@ export const CoverCard: React.FC<{ durationInFrames: number; question: string; a
   });
 
   return (
-    <Frame durationInFrames={durationInFrames}>
+    <Frame durationInFrames={durationInFrames} entrance="cut">
       <div style={{ width: 96, height: 8, background: THEME.accent, flexShrink: 0 }} />
       <div
         style={{

@@ -43,9 +43,9 @@
 reddit-life-wechat.yml（已有，10:00 UTC 链路）
   └─ data/reddit-life-wechat/<date>/0X-<postId>.md    ← 唯一内容输入
        └─ scripts/generate_reddit_life_video.ts
-            ├─ 解析出全部候选回答（约 5 问 × 每问 20-30 条）
-            ├─ [Gemini] 选 10 条 + 各压到 ≤60 字 + 各起一个 ≤14 字短标题
-            └─ data/reddit-life-video/<date>/video.json    ← 提交
+            ├─ 解析出全部候选问题和回答
+            ├─ [Gemini] 选 1 问 10 答，并根据最终内容生成 ≤20 字标题
+            └─ data/reddit-life-video/<date>/video.json v3 ← 提交
                  └─ video/（Remotion）
                       └─ out/reddit-life-<date>.mp4       ← 不提交
                            └─ GitHub Release `video-<date>`
@@ -58,14 +58,11 @@ reddit-life-wechat.yml（已有，10:00 UTC 链路）
 
 ## 4. 内容选取
 
-- **候选**：`parseRedditLifeVideoCandidates` 读当天全部 `0X-*.md`，按 `## ` 二级标题切出每个问题，
-  再按 `N\.` 切出每条回答。候选携带所属问题标题与回答原文。
-- **模型职责**：从全部候选里挑 10 条，并把每条压缩成一句 ≤60 字的中文，另起一个 ≤14 字短标题。
-  压缩而不是节选：原回答动辄 200 字，直接截断会把结论砍掉。
-- **硬约束**（校验不过就 JSON 重试）：恰好 10 条；`sourceIndex` 互不重复且都在候选范围内；
-  `title` ≤14 字、`body` ≤60 字且都含中文；`body` 不得只是 `title` 的复述。
-- **候选不足**：少于 10 条时按实际条数出片并记 `WARN`；少于 4 条则写 `status: insufficient-candidates`
-  且不出片。上游正常运行时候选量在 100 条以上，这两条只是兜底。
+- **候选**：`parseRedditLifeVideoQuestions` 读当天全部 `0X-*.md`，按 `## ` 二级标题切出问题，再按 `N\.` 切出每条回答；回答少于 10 条的问题不进入候选。
+- **模型职责**：一次请求选出 1 个问题和它下面的 10 条回答，并在选定最终内容后生成本期标题。原回答不超过 100 字时原样使用，超长时只压缩、不扩写。
+- **标题**：`title` 必须是基于最终问题与回答生成的具体中文标题，最多 20 个 Unicode 字符；不得使用固定栏目名、日期或 `Reddit` 前缀，也不得照抄完整问题。图片消息直接复用它，不再调用模型。
+- **硬约束**（校验不过就 JSON 重试）：恰好 10 条；所有 `sourceIndex` 都属于所选问题且互不重复；`body` 含中文、≤100 字且不长于原回答；`title` 满足上述边界。
+- **候选不足**：没有任何问题达到 10 条回答时写 `status: insufficient-candidates` 且不出片。
 - **提示词**：`prompts/blog/daily/reddit-life-video-cards.md`，与其他栏目同目录同命名习惯。
 
 ## 5. 版式
@@ -167,7 +164,7 @@ data/reddit-life-video/
 blob 永远留在历史里——那等于没删。成片改为上传到 GitHub Release `video-<date>`，
 CI 末尾删掉 7 天前的 Release，资产随之真正消失。
 
-`video.json` 保留全部历史：它只有几 KB，是重跑成片的唯一输入，也是判断某天是否已处理的依据。
+`video.json` 保留全部历史：v3 同时记录 AI 内容标题、所选问题和十条回答。它只有几 KB，是重跑成片和生成同日图片消息的唯一输入，也是判断某天是否已处理的依据。
 同一天重跑时若 `video.json` 已存在则直接复用，不重新调用模型；`--force` 才重新选卡。
 
 ## 9. 运行方式

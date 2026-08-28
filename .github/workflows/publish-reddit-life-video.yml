@@ -21,7 +21,7 @@ on:
         default: false
         type: boolean
       ai_model:
-        description: "Card selection model. Empty = Gemini 3.7 Flash."
+        description: "Question, answer and title selection model. Empty = Gemini 3.7 Flash."
         required: false
         type: string
 

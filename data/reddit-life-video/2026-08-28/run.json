@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-08-28",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-08-28",
+    "drafts": [
+      "01-1w0v245.md",
+      "02-1w0m0qr.md"
+    ],
+    "sha256": "495c84ac5e740fb8d041d3191a1a4af02daf445b34cefe67166fdd0f02eb649c"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 9,
+  "selectedQuestionIndexes": [
+    8,
+    10
+  ],
+  "titles": [
+    "动物园饲养员最讨厌照顾的动物",
+    "完全免费却能省大钱的宝藏工具"
+  ],
+  "questions": [
+    "动物园饲养员：有哪些你负责照顾却打心底讨厌的动物？",
+    "有哪些完全免费、却真正好用且能省下大钱的宝藏资源？"
+  ],
+  "verbatimCounts": [
+    1,
+    7
+  ]
+}

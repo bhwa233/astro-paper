@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { bundle } from "@remotion/bundler";
-import { renderMedia, selectComposition } from "@remotion/renderer";
+import { renderMedia, selectComposition, type OnBrowserDownload } from "@remotion/renderer";
 import { parseVideoManifest } from "../src/contract.ts";
 import { COMPOSITION_ID } from "../src/Root.tsx";
 
@@ -23,7 +23,18 @@ function argValue(name: string): string {
 }
 
 const date = argValue("date");
-if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("usage: render.ts --date YYYY-MM-DD [--out <file>]");
+if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("usage: render.ts --date YYYY-MM-DD [--out <file>] [--result-json <file>]");
+
+// Remotion 首次运行要下 92MB 的 Chrome Headless Shell，默认那个回调把进度打在 stdout 上，
+// 于是 `render.ts | tee result.json` 拿到的是进度行加 JSON，JSON.parse 直接炸。
+// 这条管线的 stdout 只属于结果 JSON，进度一律改走 stderr。
+const onBrowserDownload: OnBrowserDownload = () => ({
+  version: null,
+  onProgress: ({ alreadyAvailable, percent }) => {
+    if (alreadyAvailable) return;
+    process.stderr.write(`\r[reddit-life-video] downloading Chrome Headless Shell ${Math.round(percent * 100)}%`);
+  },
+});
 
 const manifestPath = path.join(repoRoot, "data", "reddit-life-video", date, "video.json");
 if (!fs.existsSync(manifestPath)) throw new Error(`missing video manifest: ${manifestPath}`);
@@ -36,7 +47,7 @@ process.stderr.write(`[reddit-life-video] bundling ${manifest.cards.length} card
 const serveUrl = await bundle({ entryPoint: path.join(packageRoot, "src", "index.ts") });
 
 const inputProps = { manifest };
-const composition = await selectComposition({ serveUrl, id: COMPOSITION_ID, inputProps });
+const composition = await selectComposition({ serveUrl, id: COMPOSITION_ID, inputProps, onBrowserDownload });
 
 process.stderr.write(`[reddit-life-video] rendering ${composition.durationInFrames} frames -> ${outputLocation}\n`);
 await renderMedia({
@@ -45,10 +56,16 @@ await renderMedia({
   codec: "h264",
   outputLocation,
   inputProps,
+  onBrowserDownload,
   onProgress: ({ progress }) => {
     if (process.stderr.isTTY) process.stderr.write(`\r[reddit-life-video] ${Math.round(progress * 100)}%`);
   },
 });
 if (process.stderr.isTTY) process.stderr.write("\n");
 
-process.stdout.write(`${JSON.stringify({ date, outputLocation, durationInFrames: composition.durationInFrames, cards: manifest.cards.length })}\n`);
+const result = { date, outputLocation, durationInFrames: composition.durationInFrames, cards: manifest.cards.length };
+// 结果既打 stdout（本地看得见）也可以落盘。CI 读文件而不是管道：这条链路的 stdout
+// 上有一个第三方渲染器，它今天不再往那里写，不代表下个版本也不写。
+const resultJson = argValue("result-json");
+if (resultJson) fs.writeFileSync(resultJson, `${JSON.stringify(result)}\n`, "utf8");
+process.stdout.write(`${JSON.stringify(result)}\n`);

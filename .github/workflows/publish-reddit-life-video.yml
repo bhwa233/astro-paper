@@ -94,7 +94,7 @@ jobs:
       # 而它由 Remotion 版本唯一决定，锁文件不变就不会失效。
       - name: Restore Remotion browser cache
         if: steps.select.outputs.status == 'processed'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/remotion
           key: remotion-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -106,7 +106,9 @@ jobs:
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}
         run: |
           set -euo pipefail
-          pnpm --filter reddit-life-video run render -- --date "$ARCHIVE_DATE" | tee reddit-life-video-render.json
+          # --result-json 而不是 tee stdout：Remotion 会把浏览器下载进度打在 stdout 上，
+          # 管道里混进那几行 JSON.parse 就直接失败，而视频其实已经渲染成功了。
+          pnpm --filter reddit-life-video run render -- --date "$ARCHIVE_DATE" --result-json "$GITHUB_WORKSPACE/reddit-life-video-render.json"
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const result = JSON.parse(fs.readFileSync("reddit-life-video-render.json", "utf8"));

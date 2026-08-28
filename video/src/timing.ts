@@ -34,6 +34,9 @@ export function cardFrames(card: VideoCard): number {
 
 export const COVER_FRAMES = COVER_SECONDS * FPS;
 
+/** 新纸完成覆盖前，旧纸继续挂在它下面；这段时间包含在新卡原有的落位余量里。 */
+export const PAPER_OVERLAY_FRAMES = 13;
+
 /** 每张卡的起始帧与长度，封面在前。 */
 export function timeline(cards: VideoCard[]): { from: number; durationInFrames: number }[] {
   const segments: { from: number; durationInFrames: number }[] = [{ from: 0, durationInFrames: COVER_FRAMES }];

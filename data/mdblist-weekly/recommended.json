@@ -664,6 +664,62 @@
       "title": "Spooky in Love",
       "archivedAt": "2026-08-21",
       "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-21.md"
+    },
+    {
+      "key": "movie:87513",
+      "mediaType": "movie",
+      "tmdbId": 87513,
+      "title": "Motor City",
+      "archivedAt": "2026-08-28",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-28.md"
+    },
+    {
+      "key": "movie:950028",
+      "mediaType": "movie",
+      "tmdbId": 950028,
+      "title": "The Invite",
+      "archivedAt": "2026-08-28",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-28.md"
+    },
+    {
+      "key": "movie:1612018",
+      "mediaType": "movie",
+      "tmdbId": 1612018,
+      "title": "Jackass: Best and Last",
+      "archivedAt": "2026-08-28",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-28.md"
+    },
+    {
+      "key": "movie:1339676",
+      "mediaType": "movie",
+      "tmdbId": 1339676,
+      "title": "I, Nobody",
+      "archivedAt": "2026-08-28",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-28.md"
+    },
+    {
+      "key": "movie:1439808",
+      "mediaType": "movie",
+      "tmdbId": 1439808,
+      "title": "Hadestown: The Musical",
+      "archivedAt": "2026-08-28",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-28.md"
+    },
+    {
+      "key": "movie:1361774",
+      "mediaType": "movie",
+      "tmdbId": 1361774,
+      "title": "The Dink",
+      "archivedAt": "2026-08-28",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-28.md"
+    },
+    {
+      "key": "movie:1240889",
+      "mediaType": "movie",
+      "tmdbId": 1240889,
+      "title": "Teenage Sex and Death at Camp Miasma",
+      "archivedAt": "2026-08-28",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-08-28.md"
     }
   ]
 }

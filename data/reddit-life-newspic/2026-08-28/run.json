@@ -1,10 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "archiveDate": "2026-08-28",
   "timeZone": "America/Los_Angeles",
   "status": "upstream-empty",
   "upstream": {
-    "generatedSha": "cfe59f277fba78819d2f112b99252a0cde638c5a",
+    "generatedSha": "0df3222897dbb01df9659c51c252fd32f82247f2",
     "selection": {
       "path": "data/reddit-life-video/2026-08-28/video.json",
       "sha256": "0000000000000000000000000000000000000000000000000000000000000000"

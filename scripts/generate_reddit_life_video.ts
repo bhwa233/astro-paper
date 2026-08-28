@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-// 竖屏视频的选卡编排：读当天已提交的 reddit-life-wechat 归档，调一次模型选十张卡，写 video.json。
+// 竖屏视频的选卡编排：读当天已提交的 reddit-life-wechat 归档，调一次模型选一题十答，写 video.json。
 //
 // 只做选卡，不渲染。渲染在 video/ 那个独立的 Remotion 包里（`pnpm --filter reddit-life-video render`），
 // 因为它要拖进 react 和一套 @remotion/*，而这边的脚本要能在不装那些依赖的环境里跑。
@@ -8,20 +8,19 @@ import fs from "node:fs";
 import path from "node:path";
 import { booleanArg, dateStringInTimeZone, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
-import { type RedditLifeVideoCard, selectRedditLifeVideoCards } from "./reddit_life_video_cards.ts";
+import { selectRedditLifeVideoCards } from "./reddit_life_video_cards.ts";
 import {
-  candidateEvidence,
-  parseRedditLifeVideoCandidates,
-  readRedditLifeWechatDrafts,
-  REDDIT_LIFE_VIDEO_CARD_COUNT,
-  REDDIT_LIFE_VIDEO_MIN_CARDS,
+  eligibleRedditLifeVideoQuestions,
+  parseRedditLifeVideoQuestions,
+  questionEvidence,
+  REDDIT_LIFE_VIDEO_ANSWER_COUNT,
 } from "./reddit_life_video_compose.ts";
 
 // 微信归档按美西日切分目录，视频沿用同一个口径，两边的 <date> 才指同一天。
 const SOURCE_TIME_ZONE = "America/Los_Angeles";
 const SOURCE_ROOT_REL = "data/reddit-life-wechat";
 const ROOT_REL = "data/reddit-life-video";
-const MANIFEST_VERSION = 1;
+const MANIFEST_VERSION = 2;
 
 type RunStatus = "processed" | "upstream-empty" | "insufficient-candidates";
 
@@ -32,8 +31,12 @@ type RunManifest = {
   status: RunStatus;
   upstream: { archiveDir: string; drafts: string[]; sha256: string };
   model: string;
-  candidateCount: number;
-  cardCount: number;
+  questionCount: number;
+  eligibleQuestionCount: number;
+  selectedQuestionIndex: number;
+  question: string;
+  /** 十条里有几条是原文照抄。改写量降到多少，看这个数就知道，不必逐条比对。 */
+  verbatimCount: number;
 };
 
 function sha256(content: string): string {
@@ -56,13 +59,25 @@ async function main(): Promise<void> {
   // 复用已有结果而不是重新调模型：同一天重跑（补渲染、改版式）不该换掉内容。
   if (!force && fs.existsSync(videoPath) && fs.existsSync(manifestPath)) {
     const existing = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as RunManifest;
-    writeStderr(`[reddit-life-video] reusing existing manifest for ${date}; pass --force to reselect\n`);
-    writeStdout(`${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), cardCount: existing.cardCount, reused: true })}\n`);
-    return;
+    if (existing.version === MANIFEST_VERSION) {
+      writeStderr(`[reddit-life-video] reusing existing manifest for ${date}; pass --force to reselect\n`);
+      writeStdout(`${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), cardCount: REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`);
+      return;
+    }
+    // 旧版 manifest 没有 question，渲染端会直接拒收。与其让下游报一个语焉不详的
+    // 契约错误，不如在这里就重选一次。
+    writeStderr(`WARN: [reddit-life-video] manifest for ${date} is version ${existing.version}; reselecting for version ${MANIFEST_VERSION}\n`);
   }
 
   const archiveDir = path.join(repo, SOURCE_ROOT_REL, date);
-  const { files, markdowns } = readRedditLifeWechatDrafts(archiveDir);
+  const files = fs.existsSync(archiveDir)
+    ? fs
+        .readdirSync(archiveDir)
+        .filter(name => /^\d+-.+\.md$/.test(name))
+        .sort()
+    : [];
+  const markdowns = files.map(name => fs.readFileSync(path.join(archiveDir, name), "utf8"));
+
   const manifest: RunManifest = {
     version: MANIFEST_VERSION,
     archiveDate: date,
@@ -70,53 +85,57 @@ async function main(): Promise<void> {
     status: "upstream-empty",
     upstream: { archiveDir: path.relative(repo, archiveDir), drafts: files, sha256: sha256(markdowns.join("\n")) },
     model,
-    candidateCount: 0,
-    cardCount: 0,
+    questionCount: 0,
+    eligibleQuestionCount: 0,
+    selectedQuestionIndex: 0,
+    question: "",
+    verbatimCount: 0,
+  };
+
+  const finish = (): void => {
+    ensureDir(outDir);
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+    writeStdout(`${JSON.stringify({ date, status: manifest.status, videoPath: manifest.status === "processed" ? path.relative(repo, videoPath) : "", cardCount: manifest.status === "processed" ? REDDIT_LIFE_VIDEO_ANSWER_COUNT : 0, reused: false })}\n`);
   };
 
   // 上游还没跑完不是错误：独立 cron 早于归档提交时会撞上这个，让 job 成功退出即可。
   if (!markdowns.length) {
-    ensureDir(outDir);
-    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
     writeStderr(`[reddit-life-video] no WeChat drafts under ${manifest.upstream.archiveDir}; nothing to render\n`);
-    writeStdout(`${JSON.stringify({ date, status: manifest.status, videoPath: "", cardCount: 0, reused: false })}\n`);
+    finish();
     return;
   }
 
-  const candidates = parseRedditLifeVideoCandidates(markdowns);
-  manifest.candidateCount = candidates.length;
+  const questions = parseRedditLifeVideoQuestions(markdowns);
+  const eligible = eligibleRedditLifeVideoQuestions(questions);
+  manifest.questionCount = questions.length;
+  manifest.eligibleQuestionCount = eligible.length;
 
-  if (candidates.length < REDDIT_LIFE_VIDEO_MIN_CARDS) {
+  // 实测每天有八到十七个问题满足十条回答，这条兜底正常不会触发。
+  if (!eligible.length) {
     manifest.status = "insufficient-candidates";
-    ensureDir(outDir);
-    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-    writeStderr(`[reddit-life-video] only ${candidates.length} candidates for ${date}; at least ${REDDIT_LIFE_VIDEO_MIN_CARDS} are needed\n`);
-    writeStdout(`${JSON.stringify({ date, status: manifest.status, videoPath: "", cardCount: 0, reused: false })}\n`);
+    writeStderr(`[reddit-life-video] none of the ${questions.length} questions for ${date} has ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} answers\n`);
+    finish();
     return;
   }
 
-  const wanted = Math.min(REDDIT_LIFE_VIDEO_CARD_COUNT, candidates.length);
-  if (wanted < REDDIT_LIFE_VIDEO_CARD_COUNT) {
-    writeStderr(`WARN: [reddit-life-video] only ${candidates.length} candidates for ${date}; rendering ${wanted} cards instead of ${REDDIT_LIFE_VIDEO_CARD_COUNT}\n`);
-  }
-
-  const cards: RedditLifeVideoCard[] = await selectRedditLifeVideoCards({
-    candidates,
-    wanted,
+  const selection = await selectRedditLifeVideoCards({
+    questions: eligible,
     date,
     model,
     promptDir: stringArg(args, "prompt-dir") || path.join(repo, "prompts/blog"),
     artifactsDir,
-    evidence: candidateEvidence(candidates),
+    evidence: questionEvidence(eligible),
   });
 
   manifest.status = "processed";
-  manifest.cardCount = cards.length;
+  manifest.selectedQuestionIndex = selection.questionIndex;
+  manifest.question = selection.question;
+  manifest.verbatimCount = selection.cards.filter(card => card.verbatim).length;
+  writeStderr(`[reddit-life-video] ${date}: question ${selection.questionIndex} of ${eligible.length} eligible, ${manifest.verbatimCount}/${selection.cards.length} answers used verbatim\n`);
 
   ensureDir(outDir);
-  fs.writeFileSync(videoPath, `${JSON.stringify({ version: 1, archiveDate: date, cards }, null, 2)}\n`, "utf8");
-  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-  writeStdout(`${JSON.stringify({ date, status: manifest.status, videoPath: path.relative(repo, videoPath), cardCount: cards.length, reused: false })}\n`);
+  fs.writeFileSync(videoPath, `${JSON.stringify({ version: 2, archiveDate: date, question: selection.question, cards: selection.cards }, null, 2)}\n`, "utf8");
+  finish();
 }
 
 await main();

@@ -42,9 +42,9 @@ jobs:
           normalized="$(realpath --relative-to="$GITHUB_WORKSPACE" "$ARTICLE_PATH")"
           case "$normalized" in
             src/content/posts/*.md) is_reddit=false ;;
-            data/reddit-life-wechat/*.md) is_reddit=true ;;
+            data/reddit-life-wechat/*.md|data/reddit-life-newspic/*.md) is_reddit=true ;;
             data/weibo-trending-wechat/*.md) is_reddit=false ;;
-            *) echo "article_path must be a Markdown post under src/content/posts, data/reddit-life-wechat, or data/weibo-trending-wechat" >&2; exit 1 ;;
+            *) echo "article_path must be a Markdown post under src/content/posts, data/reddit-life-wechat, data/reddit-life-newspic, or data/weibo-trending-wechat" >&2; exit 1 ;;
           esac
           printf 'path=%s\n' "$normalized" >> "$GITHUB_OUTPUT"
           printf 'is_reddit=%s\n' "$is_reddit" >> "$GITHUB_OUTPUT"

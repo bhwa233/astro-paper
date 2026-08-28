@@ -1,14 +1,18 @@
-// 每张卡共用的外壳：平台色铺满 → 顶部品牌行 → 圆角浅色卡 → 底部句柄。
+// 每张卡共用的外壳：平台色铺满 → 顶部品牌行 → 圆角浅色卡。
 // 卡片内容由调用方填。淡入与上移也放在这里，两种卡片的出场因此完全一致。
+//
+// 品牌行右侧曾经有日期、卡片下方曾经有站点句柄，都已去掉：这支视频每天一支、
+// 封面就是当期内容，日期是冗余；而底部那行链接在竖屏里离安全区太近，谁都不会去读。
+// 省下的高度全部还给卡片。
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { PLATFORM_THEMES } from "../../src/utils/platformTheme.ts";
 import { CircledBrand } from "./CircledBrand.tsx";
-import { BRAND, BRAND_FONT_SIZE, CARD_HEIGHT, CARD_PADDING, CARD_RADIUS, CARD_WIDTH, CARD_X, CARD_Y, FADE_FRAMES, HANDLE } from "./layout.ts";
+import { BRAND, BRAND_FONT_SIZE, CARD_HEIGHT, CARD_PADDING, CARD_RADIUS, CARD_WIDTH, CARD_X, CARD_Y, FADE_FRAMES } from "./layout.ts";
 
 const THEME = PLATFORM_THEMES.reddit;
 
-export const Frame: React.FC<{ date: string; durationInFrames: number; children: React.ReactNode }> = ({ date, durationInFrames, children }) => {
+export const Frame: React.FC<{ durationInFrames: number; children: React.ReactNode }> = ({ durationInFrames, children }) => {
   const frame = useCurrentFrame();
   // 两端各淡一次。用 clamp 而不是 extrapolate 默认值，否则中间段会继续外推。
   const opacity = interpolate(frame, [0, FADE_FRAMES, durationInFrames - FADE_FRAMES, durationInFrames], [0, 1, 1, 0], {
@@ -20,20 +24,8 @@ export const Frame: React.FC<{ date: string; durationInFrames: number; children:
   return (
     <AbsoluteFill style={{ background: THEME.bg, fontFamily: "Noto Sans SC" }}>
       <AbsoluteFill style={{ opacity, transform: `translateY(${lift}px)` }}>
-        <div
-          style={{
-            position: "absolute",
-            left: CARD_X,
-            top: 96,
-            width: CARD_WIDTH,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            color: "#FFFFFF",
-          }}
-        >
+        <div style={{ position: "absolute", left: CARD_X, top: 96, width: CARD_WIDTH, display: "flex", color: "#FFFFFF" }}>
           <CircledBrand brand={BRAND} color="#FFFFFF" fontSize={BRAND_FONT_SIZE} />
-          <div style={{ fontSize: 34, opacity: 0.82 }}>{date.replaceAll("-", " / ")}</div>
         </div>
 
         <div
@@ -53,22 +45,6 @@ export const Frame: React.FC<{ date: string; durationInFrames: number; children:
           }}
         >
           {children}
-        </div>
-
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            top: CARD_Y + CARD_HEIGHT + 56,
-            width: "100%",
-            textAlign: "center",
-            fontSize: 30,
-            color: "#FFFFFF",
-            opacity: 0.62,
-            letterSpacing: 1,
-          }}
-        >
-          {HANDLE}
         </div>
       </AbsoluteFill>
     </AbsoluteFill>

@@ -6,6 +6,7 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "render": "node --import tsx scripts/render.ts",
+    "render:stills": "node --import tsx scripts/render_stills.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

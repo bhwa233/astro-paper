@@ -1,97 +1,109 @@
-// 竖屏视频的 AI 编辑层：从当天全部候选回答里挑出上镜的几条，并把每条压成一句能一眼读完的话。
+// 竖屏视频的 AI 编辑层：选一个上镜的问题，再从它的回答里挑十条，超长的压到上限内。
 // JSON 重试、模型调用与提示词寻址复用博客生成基础设施；本模块只持有这条管线的判断契约。
 import { readPromptTemplate } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
-import { compact } from "./blog_common.ts";
 import { parseModelJsonObject } from "./compose_common.ts";
-import { CARD_BODY_MAX_CHARS, CARD_TITLE_MAX_CHARS, type RedditLifeVideoCandidate } from "./reddit_life_video_compose.ts";
+import { CARD_BODY_MAX_CHARS, REDDIT_LIFE_VIDEO_ANSWER_COUNT, stripLatinGloss, type RedditLifeVideoQuestion } from "./reddit_life_video_compose.ts";
 
 const PROMPT_TASK = "reddit-life-video-cards";
-const MIN_BODY_LEAD_CHARS = 6;
 
 export type RedditLifeVideoCard = {
   index: number;
-  title: string;
   body: string;
   sourceIndex: number;
-  sourceQuestion: string;
+  /** 正文是否与归档原文逐字相同。由代码比对得出，不采信模型的自述。 */
+  verbatim: boolean;
 };
 
-function chineseText(value: unknown, max: number, label: string): string {
-  const text = compact(String(value || ""));
-  if (!text) throw new Error(`${label} is empty`);
-  if (!/[一-鿿]/.test(text)) throw new Error(`${label} must be Chinese: ${text}`);
-  if ([...text].length > max) throw new Error(`${label} is ${[...text].length} characters, at most ${max} are allowed: ${text}`);
-  return text;
-}
+export type RedditLifeVideoSelection = {
+  questionIndex: number;
+  question: string;
+  cards: RedditLifeVideoCard[];
+};
 
-export function validateRedditLifeVideoCards(raw: unknown, candidates: RedditLifeVideoCandidate[], wanted: number): RedditLifeVideoCard[] {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life video cards must be a JSON object");
+export function validateRedditLifeVideoSelection(raw: unknown, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life video selection must be a JSON object");
   const value = raw as Record<string, unknown>;
-  if (!Array.isArray(value.cards)) throw new Error("Reddit life video cards must contain a cards array");
-  if (value.cards.length !== wanted) throw new Error(`Reddit life video needs exactly ${wanted} cards, got ${value.cards.length}`);
 
-  const byIndex = new Map(candidates.map(candidate => [candidate.index, candidate]));
+  const questionIndex = Number(value.questionIndex);
+  const question = questions.find(entry => entry.index === questionIndex);
+  if (!question) throw new Error(`Reddit life video selection picked question ${String(value.questionIndex)}, which is not in the candidate list`);
+
+  if (!Array.isArray(value.cards)) throw new Error("Reddit life video selection must contain a cards array");
+  if (value.cards.length !== REDDIT_LIFE_VIDEO_ANSWER_COUNT) {
+    throw new Error(`Reddit life video needs exactly ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} cards, got ${value.cards.length}`);
+  }
+
+  // 只认这道题下的回答。跨题混选会让封面上的问题和后面的内容对不上，
+  // 而那正是这一版要消灭的东西。
+  const answersByIndex = new Map(question.answers.map(entry => [entry.index, entry.answer]));
   const used = new Set<number>();
 
-  return value.cards.map((rawCard, position): RedditLifeVideoCard => {
+  const cards = value.cards.map((rawCard, position): RedditLifeVideoCard => {
     if (!rawCard || typeof rawCard !== "object" || Array.isArray(rawCard)) throw new Error(`Reddit life video card ${position + 1} is invalid`);
     const card = rawCard as Record<string, unknown>;
+
     const sourceIndex = Number(card.sourceIndex);
-    const candidate = byIndex.get(sourceIndex);
-    if (!candidate) throw new Error(`Reddit life video card ${position + 1} refers to candidate ${String(card.sourceIndex)}, which does not exist`);
-    if (used.has(sourceIndex)) throw new Error(`Reddit life video card ${position + 1} reuses candidate ${sourceIndex}`);
+    const source = answersByIndex.get(sourceIndex);
+    if (source === undefined) {
+      throw new Error(`Reddit life video card ${position + 1} refers to answer ${String(card.sourceIndex)}, which does not belong to question ${questionIndex}`);
+    }
+    if (used.has(sourceIndex)) throw new Error(`Reddit life video card ${position + 1} reuses answer ${sourceIndex}`);
     used.add(sourceIndex);
 
-    const title = chineseText(card.title, CARD_TITLE_MAX_CHARS, `Reddit life video card ${position + 1} title`);
-    const body = chineseText(card.body, CARD_BODY_MAX_CHARS, `Reddit life video card ${position + 1} body`);
-    // 正文只是标题的复述，等于观众盯着这张卡五秒却没拿到新信息。
-    // 用长度差判定：标题是话题，正文得给出具体内容，短于标题 +6 字的多半只是换了个说法。
-    if ([...body].length < [...title].length + MIN_BODY_LEAD_CHARS) {
-      throw new Error(`Reddit life video card ${position + 1} body is too close to its title (${title} / ${body})`);
+    // 证据里已经没有英文括注了，模型正常不会写出来；这里再剥一次是为了让
+    // 「模型自作主张补一个」的情况被静默修掉，而不是让整次生成因为多两个字失败。
+    const body = stripLatinGloss(String(card.body || ""));
+    if (!body) throw new Error(`Reddit life video card ${position + 1} has an empty body`);
+    if (!/[一-鿿]/.test(body)) throw new Error(`Reddit life video card ${position + 1} body must be Chinese: ${body}`);
+    if ([...body].length > CARD_BODY_MAX_CHARS) {
+      throw new Error(`Reddit life video card ${position + 1} body is ${[...body].length} characters, at most ${CARD_BODY_MAX_CHARS} are allowed: ${body}`);
+    }
+    // 比原文还长说明模型在扩写，那不是这一步该做的事——它只负责挑和缩。
+    if ([...body].length > [...source].length) {
+      throw new Error(`Reddit life video card ${position + 1} body is longer than the archived answer; this stage only shortens`);
     }
 
-    return { index: position + 1, title, body, sourceIndex, sourceQuestion: candidate.question };
+    return { index: position + 1, body, sourceIndex, verbatim: body === source };
   });
+
+  return { questionIndex, question: question.question, cards };
 }
 
-export function parseRedditLifeVideoCards(raw: string, candidates: RedditLifeVideoCandidate[], wanted: number): RedditLifeVideoCard[] {
-  return validateRedditLifeVideoCards(parseModelJsonObject(raw, "Reddit life video cards"), candidates, wanted);
+export function parseRedditLifeVideoSelection(raw: string, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
+  return validateRedditLifeVideoSelection(parseModelJsonObject(raw, "Reddit life video selection"), questions);
 }
 
 export async function selectRedditLifeVideoCards({
-  candidates,
-  wanted,
+  questions,
   date,
   model,
   promptDir,
   artifactsDir,
   evidence,
 }: {
-  candidates: RedditLifeVideoCandidate[];
-  wanted: number;
+  questions: RedditLifeVideoQuestion[];
   date: string;
   model: string;
   promptDir: string;
   artifactsDir: string;
   evidence: string;
-}): Promise<RedditLifeVideoCard[]> {
-  if (!candidates.length) throw new Error("Reddit life video card selection needs at least one candidate");
+}): Promise<RedditLifeVideoSelection> {
+  if (!questions.length) throw new Error("Reddit life video selection needs at least one eligible question");
   const prompt = readPromptTemplate(promptDir, PROMPT_TASK)
     .replaceAll("{date}", date)
-    .replaceAll("{candidate_count}", String(candidates.length))
-    .replaceAll("{card_count}", String(wanted))
-    .replaceAll("{title_max}", String(CARD_TITLE_MAX_CHARS))
+    .replaceAll("{question_count}", String(questions.length))
+    .replaceAll("{card_count}", String(REDDIT_LIFE_VIDEO_ANSWER_COUNT))
     .replaceAll("{body_max}", String(CARD_BODY_MAX_CHARS))
     .replaceAll("{source_text}", evidence);
   writeAiArtifact(artifactsDir, PROMPT_TASK, "prompt.md", prompt);
   return generateJsonStageWithRetries({
     task: PROMPT_TASK,
-    stage: "Reddit life video cards",
+    stage: "Reddit life video selection",
     artifactPrefix: "cards",
     prompt,
     model,
     artifactsDir,
-    parse: content => parseRedditLifeVideoCards(content, candidates, wanted),
+    parse: content => parseRedditLifeVideoSelection(content, questions),
   });
 }

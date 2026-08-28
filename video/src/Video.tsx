@@ -1,23 +1,24 @@
-// 整支视频的编排：封面 + 十张内容卡，一条循环 BGM，每张内容卡收尾前三声提示音。
+// 整支视频的编排：封面问题 + 十张回答卡，一条循环 BGM，每张回答卡收尾前三声提示音。
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
 import type { VideoManifest } from "./contract.ts";
 import { CoverCard } from "./CoverCard.tsx";
 import { FONT_FAMILY, useSubsetFont } from "./font.ts";
-import { BRAND, HANDLE } from "./layout.ts";
+import { BRAND } from "./layout.ts";
 import { FPS, TICK_LEAD_SECONDS, timeline, totalFrames } from "./timing.ts";
 import { TopicCard } from "./TopicCard.tsx";
 
 // BGM 素材已经统一到 -3.5dB 峰值（见 public/CREDITS.md 的处理记录），
 // 因此这两个数字是可比的：提示音要盖过垫乐但不能盖过阅读。
-const BGM_VOLUME = 0.18;
-const TICK_VOLUME = 0.35;
+// 第一版成片实测整体偏响，两个值同比降到八成。
+const BGM_VOLUME = 0.144;
+const TICK_VOLUME = 0.28;
 const BGM_FADE_OUT_FRAMES = FPS;
 
 export const RedditLifeVideo: React.FC<{ manifest: VideoManifest }> = ({ manifest }) => {
-  const { archiveDate, cards } = manifest;
+  const { question, cards } = manifest;
   // 字体子集要一次覆盖全片：逐卡加载会让后面的卡片在自己出场那一帧还没拿到字。
-  useSubsetFont(`${BRAND}${HANDLE}${archiveDate}0123456789/ ${cards.map(card => card.title + card.body).join("")}`);
+  useSubsetFont(`${BRAND}${question}0123456789/个回答 ${cards.map(card => card.body).join("")}`);
 
   const segments = timeline(cards);
   const total = totalFrames(cards);
@@ -32,14 +33,14 @@ export const RedditLifeVideo: React.FC<{ manifest: VideoManifest }> = ({ manifes
       />
 
       <Sequence from={cover!.from} durationInFrames={cover!.durationInFrames}>
-        <CoverCard date={archiveDate} durationInFrames={cover!.durationInFrames} cards={cards} />
+        <CoverCard durationInFrames={cover!.durationInFrames} question={question} answerCount={cards.length} />
       </Sequence>
 
       {cards.map((card, index) => {
         const segment = topics[index]!;
         return (
           <Sequence key={card.index} from={segment.from} durationInFrames={segment.durationInFrames}>
-            <TopicCard date={archiveDate} durationInFrames={segment.durationInFrames} card={card} total={cards.length} />
+            <TopicCard durationInFrames={segment.durationInFrames} card={card} total={cards.length} />
           </Sequence>
         );
       })}

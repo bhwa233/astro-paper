@@ -11,6 +11,7 @@ import { appendMdblistRecommendations, loadMdblistRecommendationKeys } from "../
 import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
 import { tempDir, tempFile } from "./helpers/mocks.ts";
 import { generateRedditLifeWechat, loadRedditLifeRunManifest } from "../scripts/generate_reddit_life_wechat.ts";
+import { shouldRebuildRedditLifeNewspicManifest } from "../scripts/generate_reddit_life_newspic.ts";
 import { loadWeiboTrendingWechatRunManifest, shouldRebuildWeiboTrendingWechatManifest } from "../scripts/generate_weibo_trending_wechat.ts";
 
 function commitFixtureRepo(repo: string): string {
@@ -102,6 +103,17 @@ test("Weibo WeChat generator rebuilds for a new handoff or an explicit force", (
   assert.equal(shouldRebuildWeiboTrendingWechatManifest(existing, "aaaaaaaa", true), false);
   assert.equal(shouldRebuildWeiboTrendingWechatManifest(existing, "bbbbbbbb", true), true);
   assert.equal(shouldRebuildWeiboTrendingWechatManifest(existing, "aaaaaaaa", true, true), true);
+});
+
+test("Reddit image-message generator retries only when its video selection handoff changes", () => {
+  const existing = {
+    status: "processed" as const,
+    upstream: { generatedSha: "aaaaaaaa", selection: { path: "data/reddit-life-video/2099-01-02/video.json", sha256: "b".repeat(64) } },
+  };
+
+  assert.equal(shouldRebuildRedditLifeNewspicManifest(existing, "aaaaaaaa", true), false);
+  assert.equal(shouldRebuildRedditLifeNewspicManifest(existing, "bbbbbbbb", true), true);
+  assert.equal(shouldRebuildRedditLifeNewspicManifest(existing, "aaaaaaaa", true, true), true);
 });
 
 // 2026-08-27: a force rebuild could not load a v2 manifest when the source article

@@ -1,43 +1,46 @@
-// 封面卡：accent 短横 + 十条编号标题。信息层级照搬 wechatCoverTree，
-// 只是竖屏有更多高度，条目之间可以给足呼吸。
+// 封面卡：accent 短横 + 问题全文 + 一行「N 个回答」。
+//
+// 早期版本这里列的是十条卡片的标题，等于把全片剧透一遍，观众看完封面就没有往下划的理由。
+// 现在封面只抛出问题，答案留给后面的卡片。
 import React from "react";
 import { PLATFORM_THEMES } from "../../src/utils/platformTheme.ts";
-import type { VideoCard } from "./contract.ts";
 import { Frame } from "./Frame.tsx";
-import { CARD_INNER_WIDTH, fitFontSize, TITLE_COLOR } from "./layout.ts";
+import { CARD_INNER_WIDTH, fitFontSize, MUTED_COLOR, TITLE_COLOR } from "./layout.ts";
 
 const THEME = PLATFORM_THEMES.reddit;
-const ENTRY_LINE_HEIGHT = 1.25;
-const ENTRY_GAP = 42;
-const NUMBER_WIDTH = 112;
-const ENTRY_MIN_FONT_SIZE = 40;
-const ENTRY_MAX_FONT_SIZE = 58;
+const QUESTION_LINE_HEIGHT = 1.35;
+// 问题实测最长 34 字。上限 84 让短问题占满画面，下限 48 保证最长的那个仍然读得清。
+const QUESTION_MIN_FONT_SIZE = 48;
+const QUESTION_MAX_FONT_SIZE = 84;
+const QUESTION_AREA_HEIGHT = 980;
 
-export const CoverCard: React.FC<{ date: string; durationInFrames: number; cards: VideoCard[] }> = ({ date, durationInFrames, cards }) => {
-  // 按最长的一条定字号，十条统一——逐条自适应会让列表看起来像没对齐的表格。
-  // 高度按「最长的一条允许折两行」给：竖屏的宽度装不下十来个字的长标题，
-  // 但只要不是每条都折行，列表整体仍然读得出是一列。
-  const longest = cards.reduce((longest, card) => (card.title.length > longest.length ? card.title : longest), "");
+export const CoverCard: React.FC<{ durationInFrames: number; question: string; answerCount: number }> = ({ durationInFrames, question, answerCount }) => {
   const fontSize = fitFontSize({
-    text: longest,
-    width: CARD_INNER_WIDTH - NUMBER_WIDTH,
-    height: 2 * ENTRY_MAX_FONT_SIZE * ENTRY_LINE_HEIGHT,
-    lineHeight: ENTRY_LINE_HEIGHT,
-    min: ENTRY_MIN_FONT_SIZE,
-    max: ENTRY_MAX_FONT_SIZE,
+    text: question,
+    width: CARD_INNER_WIDTH,
+    height: QUESTION_AREA_HEIGHT,
+    lineHeight: QUESTION_LINE_HEIGHT,
+    min: QUESTION_MIN_FONT_SIZE,
+    max: QUESTION_MAX_FONT_SIZE,
   });
 
   return (
-    <Frame date={date} durationInFrames={durationInFrames}>
-      <div style={{ width: 96, height: 8, background: THEME.accent, marginBottom: 56, flexShrink: 0 }} />
-      <div style={{ display: "flex", flexDirection: "column", gap: ENTRY_GAP }}>
-        {cards.map(card => (
-          <div key={card.index} style={{ display: "flex", alignItems: "flex-start", fontSize, lineHeight: ENTRY_LINE_HEIGHT }}>
-            <div style={{ width: NUMBER_WIDTH, flexShrink: 0, color: THEME.accent, fontWeight: 700 }}>{String(card.index).padStart(2, "0")}</div>
-            <div style={{ flex: 1, fontWeight: 700, color: TITLE_COLOR }}>{card.title}</div>
-          </div>
-        ))}
+    <Frame durationInFrames={durationInFrames}>
+      <div style={{ width: 96, height: 8, background: THEME.accent, flexShrink: 0 }} />
+      <div
+        style={{
+          flexGrow: 1,
+          display: "flex",
+          alignItems: "center",
+          fontSize,
+          lineHeight: QUESTION_LINE_HEIGHT,
+          fontWeight: 700,
+          color: TITLE_COLOR,
+        }}
+      >
+        {question}
       </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", flexShrink: 0, fontSize: 34, color: MUTED_COLOR }}>{answerCount} 个回答</div>
     </Frame>
   );
 };

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "archiveDate": "2026-08-27",
   "timeZone": "America/Los_Angeles",
   "status": "processed",
@@ -12,6 +12,9 @@
     "sha256": "4f11aaf241ca9e2773507f491c2cf9f03cf4be2f047b74baf2f2a40186ec9aa9"
   },
   "model": "gemini-3.7-flash",
-  "candidateCount": 229,
-  "cardCount": 10
+  "questionCount": 10,
+  "eligibleQuestionCount": 10,
+  "selectedQuestionIndex": 1,
+  "question": "医护人员目睹患者遭遇后，果断放弃了哪些看似“正常”的生活习惯？",
+  "verbatimCount": 4
 }

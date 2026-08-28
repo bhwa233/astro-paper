@@ -1,0 +1,200 @@
+name: Publish Reddit Life Image Message
+
+# 视频选题在 13:00 UTC 归档；本任务晚一小时读取同一份 video.json，避免再次调用模型。
+# 图片由 video/ 工作区的 Remotion 静帧渲染器生成，因此安装与浏览器缓存同视频任务。
+permissions:
+  contents: write
+
+on:
+  workflow_run:
+    workflows: ["Publish Reddit Life Vertical Video"]
+    types: [completed]
+  schedule:
+    - cron: "0 14 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      force:
+        description: "Rerender cards and create a replacement WeChat draft."
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: reddit-life-newspic-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  generate-and-archive:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      generated_sha: ${{ steps.head.outputs.sha }}
+      manifest_path: ${{ steps.generate.outputs.manifest_path }}
+      generated_count: ${{ steps.generate.outputs.generated_count }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
+        with:
+          filter: "./**"
+      - name: Restore Remotion browser cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/remotion
+          key: remotion-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Resolve archive date
+        id: archive-date
+        env:
+          INPUT_DATE: ${{ inputs.date || '' }}
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_DATE" ]; then
+            date="$INPUT_DATE"
+          else
+            date="$(TZ=America/Los_Angeles date +%F)"
+          fi
+          [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]
+          echo "date=$date" >> "$GITHUB_OUTPUT"
+      - name: Generate Reddit image-message archive
+        id: generate
+        env:
+          ARCHIVE_DATE: ${{ steps.archive-date.outputs.date }}
+          INPUT_FORCE: ${{ inputs.force || false }}
+        run: |
+          set -euo pipefail
+          args=(--date "$ARCHIVE_DATE" --upstream-sha "$(git rev-parse HEAD)" --artifacts-dir reddit-life-newspic-artifacts)
+          if [ "$INPUT_FORCE" = "true" ]; then args+=(--force); fi
+          node --import tsx scripts/generate_reddit_life_newspic.ts "${args[@]}" | tee reddit-life-newspic-result.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const result = JSON.parse(fs.readFileSync("reddit-life-newspic-result.json", "utf8"));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `manifest_path=${result.manifestPath}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `generated_count=${(result.generatedPaths || []).length}\n`);
+          NODE
+      - name: Upload generation artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reddit-life-newspic-generation
+          path: |
+            reddit-life-newspic-result.json
+            reddit-life-newspic-artifacts/
+          if-no-files-found: ignore
+      - name: Summarize generation
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const lines = ["### Reddit life image-message generation", ""];
+          if (fs.existsSync("reddit-life-newspic-result.json")) {
+            const result = JSON.parse(fs.readFileSync("reddit-life-newspic-result.json", "utf8"));
+            lines.push(`- Archive date: ${result.date}`);
+            lines.push(`- Status: ${result.status}`);
+            lines.push(`- Manifest: \`${result.manifestPath}\``);
+            lines.push(`- Generated files: ${(result.generatedPaths || []).length}`);
+          } else {
+            lines.push("- Generation did not produce a result JSON. Relevant diagnostics are in the uploaded artifact.");
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
+          NODE
+      - name: Commit archive
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: data/reddit-life-newspic
+          message: "feat(reddit): archive life image message"
+      - id: head
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  sync-wechat:
+    needs: generate-and-archive
+    if: needs.generate-and-archive.outputs.generated_count != '0'
+    runs-on: ubuntu-latest
+    environment: wechat-production
+    concurrency:
+      group: wechat-sync-${{ github.repository }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.generate-and-archive.outputs.generated_sha }}
+          fetch-depth: 0
+      - name: Prepare writable ledger branch
+        env:
+          GENERATED_SHA: ${{ needs.generate-and-archive.outputs.generated_sha }}
+        run: git checkout -B "${GITHUB_REF_NAME}" "$GENERATED_SHA"
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
+      - name: Collect generated draft path
+        id: paths
+        env:
+          MANIFEST_PATH: ${{ needs.generate-and-archive.outputs.manifest_path }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
+          const paths = manifest.status === "processed" && manifest.draft?.path ? [manifest.draft.path] : [];
+          fs.writeFileSync("reddit-life-newspic-paths.txt", paths.join("\n"));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
+          NODE
+      - name: Validate planned draft
+        if: steps.paths.outputs.count != '0'
+        env:
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
+          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE: ${{ inputs.force || false }}
+        run: |
+          set -euo pipefail
+          mapfile -t paths < reddit-life-newspic-paths.txt
+          args=()
+          if [ "$INPUT_FORCE" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --dry-run --json | tee wechat-dry-run.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
+          if (!Array.isArray(results) || results.some(item => item.status !== "planned" && !(item.status === "skipped" && item.skipReason === "already-synchronized"))) throw new Error(`Unexpected WeChat dry-run result: ${JSON.stringify(results)}`);
+          NODE
+      - name: Create draft and retain partial ledger
+        if: steps.paths.outputs.count != '0'
+        id: publish
+        env:
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
+          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE: ${{ inputs.force || false }}
+        run: |
+          set +e
+          mapfile -t paths < reddit-life-newspic-paths.txt
+          args=()
+          if [ "$INPUT_FORCE" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --json | tee wechat-results.json
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Commit WeChat ledger
+        if: always() && steps.paths.outputs.count != '0'
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: .astro-wechat/ledger.json
+          message: "chore: update WeChat sync ledger [skip ci]"
+      - name: Upload WeChat results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reddit-life-newspic-sync
+          path: |
+            wechat-dry-run.json
+            wechat-results.json
+          if-no-files-found: ignore
+      - name: Fail after retaining partial ledger
+        if: steps.publish.outputs.exit_code != '' && steps.publish.outputs.exit_code != '0'
+        run: exit 1

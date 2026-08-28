@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-08-28",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "e28dff162c7300eb2e1a65640390e3d5e3bd164c",
+    "workflowRun": "33210762774",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-28-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-28/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深刻探讨时间流逝、中年心态与健康复利，具有极高的普适长尾价值与人生共鸣。"
+      },
+      {
+        "rank": 20,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "提炼出观察行为模式与尽早展露真实自我等可迁移的亲密关系智慧，跨文化且极具指导意义。"
+      },
+      {
+        "rank": 28,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "反思盲目忙碌、病态占有欲与过度智能化等生活痛点，直击现代人心理，讨论深度充足。"
+      },
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "多维度真实善意叙事充满人文关怀与情绪张力，跨越时空仍能引发强烈的情感共鸣。"
+      },
+      {
+        "rank": 27,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "生动拆解年龄焦虑的虚妄与三十岁后确立自我边界的心理转变，易引起广泛同龄人代入。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "以饲养员第一视角揭秘动物反差恶习，故事生动幽默且包含实用的动物行为观察知识。"
+      },
+      {
+        "rank": 4,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "通过电话线、黄页等实体物件具象化展现技术迭代对家庭生活形态的深刻重塑，怀旧共鸣强烈。"
+      },
+      {
+        "rank": 25,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "清晰阐释冰川气泡与冰箱、调酒制冰相通的物理成核机制，属于高质量的长尾科普内容。"
+      },
+      {
+        "rank": 17,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "分享物种识别与特技风筝等低门槛冷门爱好，兼具实操指引与开拓生活视角的长尾价值。"
+      },
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "盘点公有领域数字资源与公共图书馆实体服务的实用经验，实用性与长尾价值突出。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 3,
+        "category": "low_resonance",
+        "reason": "围绕单挑名人夺取财富的假想脑洞，偏向纯娱乐调侃，缺乏实际生活启发与长尾讨论价值。"
+      },
+      {
+        "rank": 5,
+        "category": "low_resonance",
+        "reason": "餐厅偶听八卦属于碎片化的猎奇闲聊，缺少深度思考与普适的情感连接。"
+      },
+      {
+        "rank": 7,
+        "category": "low_resonance",
+        "reason": "摄入卡路里赚钱的假设讨论流于快餐和吃铀等极端恶搞，缺乏现实共鸣与沉淀价值。"
+      },
+      {
+        "rank": 9,
+        "category": "low_resonance",
+        "reason": "关于不沾烟酒硬抗生活的回答整体偏简短分散，未能形成系统深入的经验总结。"
+      },
+      {
+        "rank": 10,
+        "category": "low_resonance",
+        "reason": "披萨配料与口感的抱怨较为琐碎，且回答夹杂特定政治人物吐槽，讨论价值偏低。"
+      },
+      {
+        "rank": 11,
+        "category": "narrow_interest",
+        "reason": "局限于《速度与激情》《侏罗纪世界》等特定商业影视系列的续集吐槽，受众圈层较窄。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "针对特定旧软件提示音的记忆盘点较为零碎，主要依赖特定时代的软件使用经历。"
+      },
+      {
+        "rank": 13,
+        "category": "narrow_interest",
+        "reason": "聚焦于英语单词拼写易错点的细节吐槽，对中文公众号读者群体的共鸣度与普适性有限。"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "成年男性暗恋话题的代表回答较为发散琐碎，未能呈现有深度的共鸣故事。"
+      },
+      {
+        "rank": 15,
+        "category": "time_sensitive",
+        "reason": "围绕特定科技公司诉讼和解金分配的短期新闻事件讨论，时效性过强。"
+      },
+      {
+        "rank": 16,
+        "category": "time_sensitive",
+        "reason": "针对特定零售巨头关税退税政策争议的财经时事吐槽，容易随政策变动而快速失效。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "停产零食与老物件的罗列流于表面清单，缺少深层次的经历反思与讨论深度。"
+      },
+      {
+        "rank": 19,
+        "category": "region_specific",
+        "reason": "高度依赖特定国家和地区的大麻合法化法规及社会生活语境，不具备跨地区普遍适用性。"
+      },
+      {
+        "rank": 21,
+        "category": "time_sensitive",
+        "reason": "属于即时院线观影打卡清单，高度依赖当前上映档期，短期内即会失效。"
+      },
+      {
+        "rank": 22,
+        "category": "region_specific",
+        "reason": "专门讨论加拿大特定地缘政治与核战略政策，属于高度地区依赖的本地政治议题。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "吃不胖食物的假设讨论局限在冰淇淋披萨等日常口腹之欲，缺乏深度与长尾价值。"
+      },
+      {
+        "rank": 24,
+        "category": "narrow_interest",
+        "reason": "深度依赖《大富翁》等特定桌游规则与单一老游戏的玩法细节讨论，受众偏小众。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "个人对牛油果、啤酒等食物口味挑剔的清单式罗列，缺少普遍的探讨价值与认知增量。"
+      },
+      {
+        "rank": 29,
+        "category": "region_specific",
+        "reason": "依赖美国六七十年代反文化运动、伍德斯托克及里根时代特定政治选举的社会历史背景。"
+      },
+      {
+        "rank": 30,
+        "category": "narrow_interest",
+        "reason": "属于重度摇滚乐迷圈层对特定老歌吉他独奏的技术性盘点，受众门槛过高。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w0v245",
+      "title": "年过四十才恍然大悟：有哪些现实是年轻人根本没有准备好的？",
+      "subreddit": "AskReddit",
+      "points": "983 points · 1230 评论",
+      "numComments": 1230,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0v245/people_over_40_whats_coming_that_young_people/",
+      "sourceRank": 6,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/01-1w0v245.md",
+      "contentSha256": "1b0d1e527231f0551d7e5f3e25ea5ad34c8a6ea0aeb886d6fd54a0f9819642e6",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w0m0qr",
+      "title": "从过去的感情经历中，你学到了什么彻底改变择偶观的教训？",
+      "subreddit": "AskReddit",
+      "points": "211 points · 140 评论",
+      "numComments": 140,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0m0qr/whats_a_lesson_you_learned_from_a_past/",
+      "sourceRank": 20,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/02-1w0m0qr.md",
+      "contentSha256": "cf78bb512bf197bb72cac55872754e40e8aa6ddb1d1fa849ae1ad135044a4206",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w0ojiw",
+      "title": "有哪些事物常常被浪漫化，但现实中其实糟糕透顶？",
+      "subreddit": "AskReddit",
+      "points": "91 points · 236 评论",
+      "numComments": 236,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0ojiw/whats_something_people_romanticize_that_is/",
+      "sourceRank": 28,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/01-1w0v245.md",
+      "contentSha256": "1b0d1e527231f0551d7e5f3e25ea5ad34c8a6ea0aeb886d6fd54a0f9819642e6",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w0gkl2",
+      "title": "女性视角：男性曾为你做过最温暖善良的事是什么？",
+      "subreddit": "AskReddit",
+      "points": "827 points · 441 评论",
+      "numComments": 441,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0gkl2/women_whats_the_kindest_thing_a_man_has_ever_done/",
+      "sourceRank": 8,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/02-1w0m0qr.md",
+      "contentSha256": "cf78bb512bf197bb72cac55872754e40e8aa6ddb1d1fa849ae1ad135044a4206",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w0yq0l",
+      "title": "当你真正迈入 30 岁时，内心是怎样的感受？",
+      "subreddit": "AskReddit",
+      "points": "121 points · 249 评论",
+      "numComments": 249,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0yq0l/how_did_you_feel_about_turning_30/",
+      "sourceRank": 27,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/01-1w0v245.md",
+      "contentSha256": "1b0d1e527231f0551d7e5f3e25ea5ad34c8a6ea0aeb886d6fd54a0f9819642e6",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w0ctaf",
+      "title": "动物园饲养员：有哪些你负责照顾却打心底讨厌的动物？",
+      "subreddit": "AskReddit",
+      "points": "6656 points · 2370 评论",
+      "numComments": 2370,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0ctaf/zookeepers_of_reddit_is_there_an_animal_you_care/",
+      "sourceRank": 1,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/02-1w0m0qr.md",
+      "contentSha256": "cf78bb512bf197bb72cac55872754e40e8aa6ddb1d1fa849ae1ad135044a4206",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w0czc8",
+      "title": "九十年代家家户户都有、如今却彻底消失的家当有哪些？",
+      "subreddit": "AskReddit",
+      "points": "1947 points · 3485 评论",
+      "numComments": 3485,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0czc8/what_did_every_90s_house_have_thats_gone_now/",
+      "sourceRank": 4,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/01-1w0v245.md",
+      "contentSha256": "1b0d1e527231f0551d7e5f3e25ea5ad34c8a6ea0aeb886d6fd54a0f9819642e6",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w0j1ef",
+      "title": "瑞士冰川里宛如瞬间炸开的“爆裂气泡”，到底是怎么被冻在冰里的？",
+      "subreddit": "askscience",
+      "points": "126 points · 11 评论",
+      "numComments": 11,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1w0j1ef/burst_airbubble_trapped_in_glacier_ice_how_does/",
+      "sourceRank": 25,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/02-1w0m0qr.md",
+      "contentSha256": "cf78bb512bf197bb72cac55872754e40e8aa6ddb1d1fa849ae1ad135044a4206",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w0g59w",
+      "title": "有哪些你亲自玩过且极力推荐别人尝试的冷门小众爱好？",
+      "subreddit": "AskReddit",
+      "points": "303 points · 353 评论",
+      "numComments": 353,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0g59w/what_is_an_obscure_hobby_you_have_that_you_would/",
+      "sourceRank": 17,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/01-1w0v245.md",
+      "contentSha256": "1b0d1e527231f0551d7e5f3e25ea5ad34c8a6ea0aeb886d6fd54a0f9819642e6",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w0ne2o",
+      "title": "有哪些完全免费、却真正好用且能省下大钱的宝藏资源？",
+      "subreddit": "AskReddit",
+      "points": "2761 points · 823 评论",
+      "numComments": 823,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0ne2o/what_is_a_free_thing_everyone_should_knowuse/",
+      "sourceRank": 2,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-28/02-1w0m0qr.md",
+      "contentSha256": "cf78bb512bf197bb72cac55872754e40e8aa6ddb1d1fa849ae1ad135044a4206",
+      "volume": "v2"
+    }
+  ]
+}

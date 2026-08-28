@@ -74,6 +74,39 @@
         "outputTokens": 40568,
         "totalTokens": 43865
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87188",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/23/old-blue-black-robin",
+      "sourcePublishedAt": "2026-08-23T04:16:06.000Z",
+      "sourceSha256": "d8367876f4a83322bdc1135c9572b859453f93fcda7943c337742a85c5eee7d4",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 1792,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-08-28T11:30:14.543Z"
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=73501",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/23/sylvia-plath-letter-mother",
+      "sourcePublishedAt": "2026-08-23T22:56:37.000Z",
+      "sourceSha256": "af26ba5d1bcc50f2564a7a3ff9aca5f2ff4c108aafdfa8b0a27f40fe6cda4ca4",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3147,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-08-28T11:30:14.571Z"
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=63357",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/23/oliver-sacks-identity-self-narrative",
+      "sourcePublishedAt": "2026-08-24T03:05:02.000Z",
+      "sourceSha256": "7e9a810b7c94ec45f4594093c333a0a0260d14880fd5bc4dfc5fbf89fd77328c",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3681,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-08-28T11:30:14.598Z"
     }
   ]
 }

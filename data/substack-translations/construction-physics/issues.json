@@ -15,6 +15,21 @@
         "outputTokens": 10071,
         "totalTokens": 14028
       }
+    },
+    {
+      "guid": "https://www.construction-physics.com/p/how-the-strategic-petroleum-reserve",
+      "canonicalUrl": "https://www.construction-physics.com/p/how-the-strategic-petroleum-reserve",
+      "sourcePublishedAt": "2026-08-27T12:03:58.000Z",
+      "sourceSha256": "2d9f0c8236c469706fbe932e74f2c0ad36ce42ae269560e849acd37beae8a89f",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/construction-physics-20260827-how-the-strategic-petroleum-reserve.md",
+      "translatedAt": "2026-08-28T11:30:11.071Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 6705,
+        "outputTokens": 6341,
+        "totalTokens": 13046
+      }
     }
   ]
 }

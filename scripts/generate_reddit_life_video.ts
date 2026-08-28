@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-// 竖屏视频的选卡编排：读当天已提交的 reddit-life-wechat 归档，调一次模型选一题十答，写 video.json。
+// 竖屏视频的选卡编排：读当天已提交的 reddit-life-wechat 归档，调一次模型选两组一题十答，写 video.json。
 //
 // 只做选卡，不渲染。渲染在 video/ 那个独立的 Remotion 包里（`pnpm --filter reddit-life-video render`），
 // 因为它要拖进 react 和一套 @remotion/*，而这边的脚本要能在不装那些依赖的环境里跑。
@@ -13,6 +13,7 @@ import {
   eligibleRedditLifeVideoQuestions,
   parseRedditLifeVideoQuestions,
   questionEvidence,
+  REDDIT_LIFE_DAILY_ISSUE_COUNT,
   REDDIT_LIFE_VIDEO_ANSWER_COUNT,
 } from "./reddit_life_video_compose.ts";
 
@@ -20,7 +21,7 @@ import {
 const SOURCE_TIME_ZONE = "America/Los_Angeles";
 const SOURCE_ROOT_REL = "data/reddit-life-wechat";
 const ROOT_REL = "data/reddit-life-video";
-const MANIFEST_VERSION = 3;
+const MANIFEST_VERSION = 4;
 
 type RunStatus = "processed" | "upstream-empty" | "insufficient-candidates";
 
@@ -33,11 +34,11 @@ type RunManifest = {
   model: string;
   questionCount: number;
   eligibleQuestionCount: number;
-  selectedQuestionIndex: number;
-  title: string;
-  question: string;
+  selectedQuestionIndexes: number[];
+  titles: string[];
+  questions: string[];
   /** 十条里有几条是原文照抄。改写量降到多少，看这个数就知道，不必逐条比对。 */
-  verbatimCount: number;
+  verbatimCounts: number[];
 };
 
 function sha256(content: string): string {
@@ -88,10 +89,10 @@ async function main(): Promise<void> {
     model,
     questionCount: 0,
     eligibleQuestionCount: 0,
-    selectedQuestionIndex: 0,
-    title: "",
-    question: "",
-    verbatimCount: 0,
+    selectedQuestionIndexes: [],
+    titles: [],
+    questions: [],
+    verbatimCounts: [],
   };
 
   const finish = (): void => {
@@ -113,9 +114,11 @@ async function main(): Promise<void> {
   manifest.eligibleQuestionCount = eligible.length;
 
   // 实测每天有八到十七个问题满足十条回答，这条兜底正常不会触发。
-  if (!eligible.length) {
+  if (eligible.length < REDDIT_LIFE_DAILY_ISSUE_COUNT) {
     manifest.status = "insufficient-candidates";
-    writeStderr(`[reddit-life-video] none of the ${questions.length} questions for ${date} has ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} answers\n`);
+    writeStderr(
+      `[reddit-life-video] only ${eligible.length} of ${questions.length} questions for ${date} have ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} answers; need ${REDDIT_LIFE_DAILY_ISSUE_COUNT}\n`,
+    );
     finish();
     return;
   }
@@ -129,15 +132,32 @@ async function main(): Promise<void> {
     evidence: questionEvidence(eligible),
   });
 
+  const [primary, ...additionalIssues] = selection.issues;
+  if (!primary) throw new Error("Reddit life video selection did not return a primary issue");
   manifest.status = "processed";
-  manifest.selectedQuestionIndex = selection.questionIndex;
-  manifest.title = selection.title;
-  manifest.question = selection.question;
-  manifest.verbatimCount = selection.cards.filter(card => card.verbatim).length;
-  writeStderr(`[reddit-life-video] ${date}: question ${selection.questionIndex} of ${eligible.length} eligible, ${manifest.verbatimCount}/${selection.cards.length} answers used verbatim\n`);
+  manifest.selectedQuestionIndexes = selection.issues.map(issue => issue.questionIndex);
+  manifest.titles = selection.issues.map(issue => issue.title);
+  manifest.questions = selection.issues.map(issue => issue.question);
+  manifest.verbatimCounts = selection.issues.map(issue => issue.cards.filter(card => card.verbatim).length);
+  writeStderr(`[reddit-life-video] ${date}: questions ${manifest.selectedQuestionIndexes.join(", ")} of ${eligible.length} eligible; verbatim answers ${manifest.verbatimCounts.join(", ")}\n`);
 
   ensureDir(outDir);
-  fs.writeFileSync(videoPath, `${JSON.stringify({ version: 3, archiveDate: date, title: selection.title, question: selection.question, cards: selection.cards }, null, 2)}\n`, "utf8");
+  fs.writeFileSync(
+    videoPath,
+    `${JSON.stringify(
+      {
+        version: 4,
+        archiveDate: date,
+        title: primary.title,
+        question: primary.question,
+        cards: primary.cards,
+        additionalIssues: additionalIssues.map(issue => ({ title: issue.title, question: issue.question, cards: issue.cards })),
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
   finish();
 }
 

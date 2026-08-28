@@ -105,7 +105,7 @@ test("Weibo WeChat generator rebuilds for a new handoff or an explicit force", (
   assert.equal(shouldRebuildWeiboTrendingWechatManifest(existing, "aaaaaaaa", true, true), true);
 });
 
-test("Reddit image-message generator retries only when its video selection handoff changes", () => {
+test("Reddit image-message generator retries only when its video selection content changes", () => {
   const existing = {
     status: "processed" as const,
     upstream: { generatedSha: "aaaaaaaa", selection: { path: "data/reddit-life-video/2099-01-02/video.json", sha256: "b".repeat(64) } },
@@ -113,6 +113,9 @@ test("Reddit image-message generator retries only when its video selection hando
 
   assert.equal(shouldRebuildRedditLifeNewspicManifest(existing, "aaaaaaaa", true), false);
   assert.equal(shouldRebuildRedditLifeNewspicManifest(existing, "bbbbbbbb", true), true);
+  assert.equal(shouldRebuildRedditLifeNewspicManifest(existing, "bbbbbbbb", true, false, "b".repeat(64)), false);
+  assert.equal(shouldRebuildRedditLifeNewspicManifest(existing, "aaaaaaaa", true, false, "c".repeat(64)), true);
+  assert.equal(shouldRebuildRedditLifeNewspicManifest(existing, "aaaaaaaa", false, false, ""), true);
   assert.equal(shouldRebuildRedditLifeNewspicManifest(existing, "aaaaaaaa", true, true), true);
 });
 

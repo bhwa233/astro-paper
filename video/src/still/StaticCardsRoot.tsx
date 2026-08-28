@@ -7,7 +7,7 @@ export const REDDIT_LIFE_NEWSPIC_COMPOSITION_ID = "RedditLifeNewspic";
 
 const PLACEHOLDER: RedditLifeNewspicProps = {
   manifest: {
-    version: 3,
+    version: 4,
     archiveDate: "2026-08-27",
     title: "医护人员戒掉的正常习惯",
     question: "医护人员目睹患者遭遇后，果断放弃了哪些看似正常的生活习惯？",

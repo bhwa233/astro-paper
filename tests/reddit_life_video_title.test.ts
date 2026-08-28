@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { validateRedditLifeVideoSelection } from "../scripts/reddit_life_video_cards.ts";
 import { validateRedditLifeVideoTitle } from "../scripts/reddit_life_video_compose.ts";
 
 test("Reddit life AI title enforces the issue-specific 20-character boundary", () => {
@@ -11,4 +12,9 @@ test("Reddit life AI title enforces the issue-specific 20-character boundary", (
   assert.throws(() => validateRedditLifeVideoTitle("医".repeat(21), question), /at most 20/);
   assert.throws(() => validateRedditLifeVideoTitle("Reddit 精选问答", question), /column name/);
   assert.throws(() => validateRedditLifeVideoTitle(question, question), /copying it verbatim/);
+});
+
+test("Reddit life daily selection requires exactly two issues", () => {
+  assert.throws(() => validateRedditLifeVideoSelection({ issues: [] }, []), /exactly 2 issues/);
+  assert.throws(() => validateRedditLifeVideoSelection({ issues: [{}] }, []), /exactly 2 issues/);
 });

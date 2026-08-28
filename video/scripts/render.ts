@@ -76,7 +76,8 @@ await renderMedia({
 });
 if (process.stderr.isTTY) process.stderr.write("\n");
 
-const result = { date, outputLocation, durationInFrames: composition.durationInFrames, cards: manifest.cards.length };
+// question 也带上：CI 拿它当 Release 标题，否则得在 workflow 里再解析一次 video.json。
+const result = { date, question: manifest.question, outputLocation, durationInFrames: composition.durationInFrames, cards: manifest.cards.length };
 // 结果既打 stdout（本地看得见）也可以落盘。CI 读文件而不是管道：这条链路的 stdout
 // 上有一个第三方渲染器，它今天不再往那里写，不代表下个版本也不写。
 const resultJson = argValue("result-json");

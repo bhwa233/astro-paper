@@ -12,7 +12,7 @@ export type VideoCard = {
 };
 
 export type VideoManifest = {
-  version: 3;
+  version: 4;
   archiveDate: string;
   /** 同一次选题 AI 根据最终问题和回答生成的发行标题。 */
   title: string;
@@ -34,8 +34,8 @@ function requireInteger(value: unknown, label: string): number {
 export function parseVideoManifest(raw: unknown): VideoManifest {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("video manifest must be a JSON object");
   const value = raw as Record<string, unknown>;
-  // v1 没有 question，v2 没有 AI 内容标题；都不能满足当前下游契约。
-  if (value.version !== 3) throw new Error(`unsupported video manifest version: ${String(value.version)}; regenerate with --force`);
+  // v1 没有 question，v2 没有 AI 内容标题，v3 每天只有一组图片消息。
+  if (value.version !== 4) throw new Error(`unsupported video manifest version: ${String(value.version)}; regenerate with --force`);
 
   const archiveDate = requireString(value.archiveDate, "video manifest archiveDate");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(archiveDate)) throw new Error(`invalid video manifest archiveDate: ${archiveDate}`);
@@ -57,5 +57,5 @@ export function parseVideoManifest(raw: unknown): VideoManifest {
     };
   });
 
-  return { version: 3, archiveDate, title, question, cards };
+  return { version: 4, archiveDate, title, question, cards };
 }

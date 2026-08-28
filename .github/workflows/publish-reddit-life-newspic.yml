@@ -1,6 +1,6 @@
 name: Publish Reddit Life Image Message
 
-# 视频选题在 13:00 UTC 归档；本任务晚一小时读取同一份 video.json，避免再次调用模型。
+# 视频选题在 13:00 UTC 归档；本任务晚一小时读取同一份 video.json，生成两条图片消息且不再次调用模型。
 # 图片由 video/ 工作区的 Remotion 静帧渲染器生成，因此安装与浏览器缓存同视频任务。
 permissions:
   contents: write
@@ -131,7 +131,7 @@ jobs:
         run: git checkout -B "${GITHUB_REF_NAME}" "$GENERATED_SHA"
       - name: "Set up Node and pnpm"
         uses: ./.github/actions/setup
-      - name: Collect generated draft path
+      - name: Collect generated draft paths
         id: paths
         env:
           MANIFEST_PATH: ${{ needs.generate-and-archive.outputs.manifest_path }}
@@ -140,7 +140,8 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
-          const paths = manifest.status === "processed" && manifest.draft?.path ? [manifest.draft.path] : [];
+          const paths = manifest.status === "processed" && Array.isArray(manifest.drafts) ? manifest.drafts.map(draft => draft.path) : [];
+          if (manifest.status === "processed" && paths.length !== 2) throw new Error(`Expected two Reddit image-message drafts, got ${paths.length}`);
           fs.writeFileSync("reddit-life-newspic-paths.txt", paths.join("\n"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
           NODE

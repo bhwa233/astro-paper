@@ -1,10 +1,11 @@
-// 竖屏视频的 AI 编辑层：选一个上镜的问题，再从它的回答里挑十条，超长的压到上限内。
+// Reddit 视频与图片消息共用的 AI 编辑层：一次选两个问题，各挑十条回答，超长的压到上限内。
 // JSON 重试、模型调用与提示词寻址复用博客生成基础设施；本模块只持有这条管线的判断契约。
 import { readPromptTemplate } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
 import { parseModelJsonObject } from "./compose_common.ts";
 import {
   CARD_BODY_MAX_CHARS,
+  REDDIT_LIFE_DAILY_ISSUE_COUNT,
   REDDIT_LIFE_VIDEO_ANSWER_COUNT,
   REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS,
   stripLatinGloss,
@@ -22,20 +23,23 @@ export type RedditLifeVideoCard = {
   verbatim: boolean;
 };
 
-export type RedditLifeVideoSelection = {
+export type RedditLifeVideoIssueSelection = {
   questionIndex: number;
   title: string;
   question: string;
   cards: RedditLifeVideoCard[];
 };
 
-export function validateRedditLifeVideoSelection(raw: unknown, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life video selection must be a JSON object");
-  const value = raw as Record<string, unknown>;
+export type RedditLifeVideoSelection = {
+  issues: RedditLifeVideoIssueSelection[];
+};
 
+function validateIssue(raw: unknown, position: number, questions: RedditLifeVideoQuestion[]): RedditLifeVideoIssueSelection {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`Reddit life issue ${position + 1} must be a JSON object`);
+  const value = raw as Record<string, unknown>;
   const questionIndex = Number(value.questionIndex);
   const question = questions.find(entry => entry.index === questionIndex);
-  if (!question) throw new Error(`Reddit life video selection picked question ${String(value.questionIndex)}, which is not in the candidate list`);
+  if (!question) throw new Error(`Reddit life issue ${position + 1} picked question ${String(value.questionIndex)}, which is not in the candidate list`);
   const title = validateRedditLifeVideoTitle(value.title, question.question);
 
   if (!Array.isArray(value.cards)) throw new Error("Reddit life video selection must contain a cards array");
@@ -79,6 +83,19 @@ export function validateRedditLifeVideoSelection(raw: unknown, questions: Reddit
   return { questionIndex, title, question: question.question, cards };
 }
 
+export function validateRedditLifeVideoSelection(raw: unknown, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life video selection must be a JSON object");
+  const value = raw as Record<string, unknown>;
+  if (!Array.isArray(value.issues) || value.issues.length !== REDDIT_LIFE_DAILY_ISSUE_COUNT) {
+    throw new Error(`Reddit life video selection needs exactly ${REDDIT_LIFE_DAILY_ISSUE_COUNT} issues`);
+  }
+  const issues = value.issues.map((issue, position) => validateIssue(issue, position, questions));
+  if (new Set(issues.map(issue => issue.questionIndex)).size !== issues.length) {
+    throw new Error("Reddit life video selection must use different questions for its daily issues");
+  }
+  return { issues };
+}
+
 export function parseRedditLifeVideoSelection(raw: string, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
   return validateRedditLifeVideoSelection(parseModelJsonObject(raw, "Reddit life video selection"), questions);
 }
@@ -98,10 +115,13 @@ export async function selectRedditLifeVideoCards({
   artifactsDir: string;
   evidence: string;
 }): Promise<RedditLifeVideoSelection> {
-  if (!questions.length) throw new Error("Reddit life video selection needs at least one eligible question");
+  if (questions.length < REDDIT_LIFE_DAILY_ISSUE_COUNT) {
+    throw new Error(`Reddit life video selection needs at least ${REDDIT_LIFE_DAILY_ISSUE_COUNT} eligible questions`);
+  }
   const prompt = readPromptTemplate(promptDir, PROMPT_TASK)
     .replaceAll("{date}", date)
     .replaceAll("{question_count}", String(questions.length))
+    .replaceAll("{issue_count}", String(REDDIT_LIFE_DAILY_ISSUE_COUNT))
     .replaceAll("{card_count}", String(REDDIT_LIFE_VIDEO_ANSWER_COUNT))
     .replaceAll("{body_max}", String(CARD_BODY_MAX_CHARS))
     .replaceAll("{title_max}", String(REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS))

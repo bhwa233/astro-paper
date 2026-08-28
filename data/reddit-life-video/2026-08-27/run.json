@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "archiveDate": "2026-08-27",
   "timeZone": "America/Los_Angeles",
   "status": "processed",
@@ -14,8 +14,20 @@
   "model": "gemini-3.7-flash",
   "questionCount": 10,
   "eligibleQuestionCount": 10,
-  "selectedQuestionIndex": 1,
-  "title": "医护人员亲眼见证后戒掉的日常习惯",
-  "question": "医护人员目睹患者遭遇后，果断放弃了哪些看似“正常”的生活习惯？",
-  "verbatimCount": 6
+  "selectedQuestionIndexes": [
+    1,
+    9
+  ],
+  "titles": [
+    "医护人员见惯生死后戒掉的习惯",
+    "外人难以理解但合理的奇葩家规"
+  ],
+  "questions": [
+    "医护人员目睹患者遭遇后，果断放弃了哪些看似“正常”的生活习惯？",
+    "你在自己家里立过哪些让客人觉得匪夷所思、但自己觉得完全合理的奇葩家规？"
+  ],
+  "verbatimCounts": [
+    7,
+    10
+  ]
 }

@@ -1,6 +1,6 @@
 # Reddit 人生精选竖屏视频技术方案
 
-状态：已实现（独立 cron + Remotion 竖屏渲染 + Release 保留 7 天）
+状态：已实现（独立 cron + Remotion 竖屏渲染 + Release 长期保留）
 最后更新：2026-08-28
 
 ## 1. 背景
@@ -27,7 +27,7 @@
 - 卡片版式与 `weibo_trending_wechat_cards.ts` 同构，配色取 `PLATFORM_THEMES.reddit`
 - 每张内容卡有可见倒计时；最后 3 秒逐秒响一声柔和提示音
 - 全片一条循环 BGM，音量固定
-- 成片不进 git 历史；只保留 7 天
+- 成片不进 git 历史，改发 GitHub Release 并长期保留
 - 选卡决定可审计、可复现：`video.json` 提交，成片可按它重跑
 
 非目标：
@@ -44,12 +44,12 @@ reddit-life-wechat.yml（已有，10:00 UTC 链路）
   └─ data/reddit-life-wechat/<date>/0X-<postId>.md    ← 唯一内容输入
        └─ scripts/generate_reddit_life_video.ts
             ├─ 解析出全部候选问题和回答
-            ├─ [Gemini] 选 1 问 10 答，并根据最终内容生成 ≤20 字标题
-            └─ data/reddit-life-video/<date>/video.json v3 ← 提交
+            ├─ [Gemini] 一次选 2 组不同的 1 问 10 答，各生成 ≤20 字标题
+            └─ data/reddit-life-video/<date>/video.json v4 ← 提交
                  └─ video/（Remotion）
-                      └─ out/reddit-life-<date>.mp4       ← 不提交
-                           └─ GitHub Release `video-<date>`
-                                └─ 删除 7 天前的 Release
+                      └─ out/<问题>.mp4                    ← 不提交
+                           └─ GitHub Release `video-<date>`（一直保留）
+                                └─ 资产名 movie.mp4，标题是问题
 ```
 
 `publish-reddit-life-video.yml` 是独立 cron（13:00 UTC），不是 `publish-reddit-life.yml` 的
@@ -59,10 +59,10 @@ reddit-life-wechat.yml（已有，10:00 UTC 链路）
 ## 4. 内容选取
 
 - **候选**：`parseRedditLifeVideoQuestions` 读当天全部 `0X-*.md`，按 `## ` 二级标题切出问题，再按 `N\.` 切出每条回答；回答少于 10 条的问题不进入候选。
-- **模型职责**：一次请求选出 1 个问题和它下面的 10 条回答，并在选定最终内容后生成本期标题。原回答不超过 100 字时原样使用，超长时只压缩、不扩写。
-- **标题**：`title` 必须是基于最终问题与回答生成的具体中文标题，最多 20 个 Unicode 字符；不得使用固定栏目名、日期或 `Reddit` 前缀，也不得照抄完整问题。图片消息直接复用它，不再调用模型。
-- **硬约束**（校验不过就 JSON 重试）：恰好 10 条；所有 `sourceIndex` 都属于所选问题且互不重复；`body` 含中文、≤100 字且不长于原回答；`title` 满足上述边界。
-- **候选不足**：没有任何问题达到 10 条回答时写 `status: insufficient-candidates` 且不出片。
+- **模型职责**：一次请求选出两个不同问题，每个问题各选 10 条回答，并分别生成内容标题。第一组继续用于视频，两个组都用于每日两篇图片消息。原回答不超过 100 字时原样使用，超长时只压缩、不扩写。
+- **标题**：每组 `title` 必须是基于该组最终问题与回答生成的具体中文标题，最多 20 个 Unicode 字符；不得使用固定栏目名、日期或 `Reddit` 前缀，也不得照抄完整问题。图片消息直接复用，不再调用模型。
+- **硬约束**（校验不过就 JSON 重试）：恰好两组且问题不同；每组恰好 10 条；所有 `sourceIndex` 都属于本组问题且互不重复；`body` 含中文、≤100 字且不长于原回答；`title` 满足上述边界。
+- **候选不足**：少于两个问题达到 10 条回答时写 `status: insufficient-candidates` 且不出片。
 - **提示词**：`prompts/blog/daily/reddit-life-video-cards.md`，与其他栏目同目录同命名习惯。
 
 ## 5. 版式
@@ -160,11 +160,23 @@ data/reddit-life-video/
     └── run.json          # 提交，记录上游归档、模型、候选数、状态
 ```
 
-成片**不提交**。每天 4MB 的 mp4 进 git 意味着一年后 `.git` 多出 1.4GB，而 `git rm` 只清工作区、
-blob 永远留在历史里——那等于没删。成片改为上传到 GitHub Release `video-<date>`，
-CI 末尾删掉 7 天前的 Release，资产随之真正消失。
+成片**不提交**。每天 10MB 的 mp4 进 git 意味着一年后 `.git` 多出 3GB，而 `git rm` 只清工作区、
+blob 永远留在历史里——那等于没删。mp4 还不可 diff：改一帧就是一个全新的 10MB blob，
+而这条管线每次 `--force` 重跑都会产生一个新版本。
 
-`video.json` 保留全部历史：v3 同时记录 AI 内容标题、所选问题和十条回答。它只有几 KB，是重跑成片和生成同日图片消息的唯一输入，也是判断某天是否已处理的依据。
+成片上传到 GitHub Release `video-<date>`，**一直保留，没有清理逻辑**。公开仓库的 Release
+存储不计费，先攒着；真到了需要清的那天再加，届时也能按实际增速定策略，而不是现在拍一个数字。
+选 Release 而不是 Actions artifact，是因为它有公开直链、匿名可下、下载即原文件；
+artifact 要登录或 `gh run download`，浏览器拿到的还是个 zip。
+
+同一天重跑走 `gh release upload --clobber` 覆盖资产，而不是先删再建——这条链路不删任何
+已发布的东西。
+
+**资产名写死 `movie.mp4`**。GitHub 把资产名规范化到 `[A-Za-z0-9._-]`，而本地成片按问题命名，
+清洗后主干为空——实测退回成 `default.mp4`，连日期都不剩。与其让 GitHub 挑一个名字，
+不如自己给一个稳定的；问题放进 Release 标题，页面上照样一眼看到它讲什么。
+
+`video.json` 保留全部历史：v4 顶层记录第一组 AI 内容标题、问题和十条回答，`additionalIssues` 记录第二组。它只有几 KB，是重跑成片和生成同日两篇图片消息的唯一输入，也是判断某天是否已处理的依据。
 同一天重跑时若 `video.json` 已存在则直接复用，不重新调用模型；`--force` 才重新选卡。
 
 ## 9. 运行方式
@@ -190,5 +202,5 @@ pnpm --filter reddit-life-video studio
 - `actions/cache` 缓存 `~/.cache/remotion`，否则每天多下 120MB 的 Chrome Headless Shell
 - 归档目录缺失 → 记 summary 后成功退出
 - 选卡结果用 `.github/actions/archive-commit` 提交 `data/reddit-life-video`
-- 成片 `gh release create video-<date>`，随后 `gh release delete` 掉 7 天前的
-- 渲染量约 3700 帧全静态，预估 3–8 分钟
+- 成片 `gh release create video-<date> movie.mp4 --title <问题>`；已存在则 `upload --clobber` 覆盖
+- 渲染量约 3000 帧全静态，预估 3–8 分钟

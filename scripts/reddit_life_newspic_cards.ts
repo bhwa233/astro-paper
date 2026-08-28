@@ -24,7 +24,7 @@ export function renderRedditLifeNewspicCards(selection: RedditLifeNewspicSelecti
       propsFile,
       `${JSON.stringify({
         manifest: {
-          version: 3,
+          version: 4,
           archiveDate: selection.archiveDate,
           title: selection.title,
           question: selection.question,

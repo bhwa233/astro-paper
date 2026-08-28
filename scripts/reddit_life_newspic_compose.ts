@@ -13,6 +13,7 @@ export type RedditLifeNewspicCard = {
 
 export type RedditLifeNewspicSelection = {
   archiveDate: string;
+  issueNumber: number;
   title: string;
   question: string;
   cards: RedditLifeNewspicCard[];
@@ -23,19 +24,14 @@ function validDate(value: string, label: string): string {
   return value;
 }
 
-/** 视频选题是唯一内容输入，图片消息与同日视频因此讲同一个问题。 */
-export function parseRedditLifeNewspicSelection(raw: unknown, expectedDate: string): RedditLifeNewspicSelection {
-  validDate(expectedDate, "Reddit life newspic archive date");
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life newspic selection must be a JSON object");
+function parseIssue(raw: unknown, expectedDate: string, issueNumber: number): RedditLifeNewspicSelection {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`Reddit life newspic issue ${issueNumber} must be a JSON object`);
   const value = raw as Record<string, unknown>;
-  if (value.version !== 3) throw new Error(`Reddit life newspic needs video selection version 3, got ${String(value.version)}`);
-  if (value.archiveDate !== expectedDate) throw new Error(`Reddit life newspic selection date ${String(value.archiveDate)} does not match ${expectedDate}`);
-
   const question = compact(String(value.question || ""));
-  if (!question || !/[一-鿿]/.test(question)) throw new Error("Reddit life newspic selection needs a Chinese question");
+  if (!question || !/[一-鿿]/.test(question)) throw new Error(`Reddit life newspic issue ${issueNumber} needs a Chinese question`);
   const title = validateRedditLifeVideoTitle(value.title, question);
   if (!Array.isArray(value.cards) || value.cards.length < 1 || value.cards.length > REDDIT_LIFE_NEWSPIC_ANSWER_LIMIT) {
-    throw new Error(`Reddit life newspic selection needs 1-${REDDIT_LIFE_NEWSPIC_ANSWER_LIMIT} answers`);
+    throw new Error(`Reddit life newspic issue ${issueNumber} needs 1-${REDDIT_LIFE_NEWSPIC_ANSWER_LIMIT} answers`);
   }
 
   const sourceIndexes = new Set<number>();
@@ -54,12 +50,31 @@ export function parseRedditLifeNewspicSelection(raw: unknown, expectedDate: stri
     return { index, body, sourceIndex };
   });
 
-  return { archiveDate: expectedDate, title, question, cards };
+  return { archiveDate: expectedDate, issueNumber, title, question, cards };
 }
 
-export function redditLifeNewspicSyncId(archiveDate: string): string {
+/** 同一份视频选题归档同时携带当天两组内容，图文侧不再抓取或调用模型。 */
+export function parseRedditLifeNewspicSelections(raw: unknown, expectedDate: string): RedditLifeNewspicSelection[] {
+  validDate(expectedDate, "Reddit life newspic archive date");
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life newspic selection must be a JSON object");
+  const value = raw as Record<string, unknown>;
+  if (value.version !== 4) throw new Error(`Reddit life newspic needs video selection version 4, got ${String(value.version)}`);
+  if (value.archiveDate !== expectedDate) throw new Error(`Reddit life newspic selection date ${String(value.archiveDate)} does not match ${expectedDate}`);
+  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length !== 1) {
+    throw new Error("Reddit life newspic selection needs exactly one additional issue");
+  }
+
+  const selections = [parseIssue(value, expectedDate, 1), parseIssue(value.additionalIssues[0], expectedDate, 2)];
+  if (new Set(selections.map(selection => selection.question)).size !== selections.length) {
+    throw new Error("Reddit life newspic daily issues must use different questions");
+  }
+  return selections;
+}
+
+export function redditLifeNewspicSyncId(archiveDate: string, issueNumber: number): string {
   validDate(archiveDate, "Reddit life newspic archive date");
-  return `reddit-life-newspic-${archiveDate}`;
+  if (!Number.isInteger(issueNumber) || issueNumber < 1 || issueNumber > 2) throw new Error(`invalid Reddit life newspic issue number: ${issueNumber}`);
+  return `reddit-life-newspic-${archiveDate}-${String(issueNumber).padStart(2, "0")}`;
 }
 
 export function redditLifeNewspicCardFile(index: number): string {
@@ -71,7 +86,7 @@ export function redditLifeNewspicCardFile(index: number): string {
 
 /** 图片消息没有「阅读原文」：新草稿在创建前不存在可公开、自指向的 URL。 */
 export function renderRedditLifeNewspicMarkdown(selection: RedditLifeNewspicSelection): string {
-  const { archiveDate, title, question, cards } = selection;
+  const { archiveDate, issueNumber, title, question, cards } = selection;
   validDate(archiveDate, "Reddit life newspic archive date");
   if (!question) throw new Error("Reddit life newspic needs a question");
   if (!cards.length || cards.length > REDDIT_LIFE_NEWSPIC_ANSWER_LIMIT) {
@@ -87,7 +102,7 @@ export function renderRedditLifeNewspicMarkdown(selection: RedditLifeNewspicSele
     wechatEnabled: true,
   }).replace(
     "wechat:\n  enabled: true",
-    ["wechat:", "  enabled: true", `  syncId: \"${redditLifeNewspicSyncId(archiveDate)}\"`, '  articleType: "newspic"'].join("\n"),
+    ["wechat:", "  enabled: true", `  syncId: \"${redditLifeNewspicSyncId(archiveDate, issueNumber)}\"`, '  articleType: "newspic"'].join("\n"),
   );
   const images = Array.from({ length: cards.length + 1 }, (_, index) => `![](${redditLifeNewspicCardFile(index)})`);
   return `${metadata}${question}\n\n${images.join("\n\n")}\n`;

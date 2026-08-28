@@ -25,9 +25,6 @@ importers:
       '@ai-sdk/openai':
         specifier: ^4.0.42
         version: 4.0.42(zod@4.4.3)
-      '@appnest/masonry-layout':
-        specifier: 2.2.3
-        version: 2.2.3
       '@astrojs/markdown-satteri':
         specifier: ^0.3.5
         version: 0.3.5
@@ -228,9 +225,6 @@ packages:
   '@ai-sdk/provider@4.0.7':
     resolution: {integrity: sha512-6or44XprPzKbr8zkmzosowSE0pxkvJcoojBL+mCZvPUt3kvXp3XSNqeVun9golb1acEfSo6yaEBRT18h2VU+1Q==}
     engines: {node: '>=22'}
-
-  '@appnest/masonry-layout@2.2.3':
-    resolution: {integrity: sha512-q4q48iygVyaFaaogu5xeYNHR5jj4yZMB4zC1JmfOggz7DPCp/QIJGbnLctf3y2maNtGz4PiLXrQRQlmx5hO57A==}
 
   '@asamuzakjp/css-color@5.1.11':
     resolution: {integrity: sha512-KVw6qIiCTUQhByfTd78h2yD1/00waTmm9uy/R7Ck/ctUyAPj+AEDLkQIdJW0T8+qGgj3j5bpNKK7Q3G+LedJWg==}
@@ -3956,8 +3950,6 @@ snapshots:
   '@ai-sdk/provider@4.0.7':
     dependencies:
       json-schema: 0.4.0
-
-  '@appnest/masonry-layout@2.2.3': {}
 
   '@asamuzakjp/css-color@5.1.11':
     dependencies:

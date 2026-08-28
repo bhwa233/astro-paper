@@ -34,11 +34,9 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
       homepagePosts.length > 0 && (
         <section id="home-posts" class="py-8">
           <h1 class="sr-only">{t.pages.postsTitle}</h1>
-          <masonry-layout
+          <ul
             id="home-post-grid"
             role="list"
-            gap="20"
-            maxcolwidth="420"
             data-feed-base={feedBasePath}
             data-next-page="2"
             data-has-more={hasMorePosts}
@@ -50,7 +48,7 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
             {homepagePosts.map(data => (
               <Card variant="h3" {...data} />
             ))}
-          </masonry-layout>
+          </ul>
           <div id="home-post-sentinel" aria-live="polite" />
         </section>
       )
@@ -60,7 +58,6 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
 </Layout>
 
 <script>
-  import "@appnest/masonry-layout";
   import { formatCompactDate } from "@/utils/formatCompactDate";
 
   type HomePost = {
@@ -74,12 +71,7 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
     wordCount: number;
   };
 
-  type MasonryLayoutElement = HTMLElement & { layout?: () => void };
-
-  function createCard(
-    post: HomePost,
-    grid: MasonryLayoutElement
-  ): HTMLLIElement {
+  function createCard(post: HomePost, grid: HTMLElement): HTMLLIElement {
     const item = document.createElement("li");
     item.className =
       "border-border bg-surface/60 hover:bg-surface-hover/80 rounded-lg border p-4 transition-colors";
@@ -144,8 +136,7 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
   }
 
   function setupInfinitePosts() {
-    const grid =
-      document.querySelector<MasonryLayoutElement>("#home-post-grid");
+    const grid = document.querySelector<HTMLElement>("#home-post-grid");
     const sentinel = document.querySelector("#home-post-sentinel");
     if (!grid || !sentinel || grid.dataset.hasMore !== "true") return;
 
@@ -168,7 +159,6 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
           hasMore: boolean;
         };
         grid.append(...feed.posts.map(post => createCard(post, grid)));
-        grid.layout?.();
 
         if (feed.hasMore) {
           nextPage += 1;
@@ -212,12 +202,13 @@ const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
 </script>
 
 <style>
-  :global(#home-post-grid > li) {
-    margin: 0.5rem;
+  :global(#home-post-grid) {
     list-style: none;
   }
 
-  :global(#home-post-grid > li > a) {
-    font-size: 1rem;
+  /* Card 自带 my-5，但脚本追加的卡片没有类名，这里统一间距。 */
+  :global(#home-post-grid > li) {
+    margin: 1.25rem 0;
+    list-style: none;
   }
 </style>

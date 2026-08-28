@@ -1,6 +1,6 @@
 name: Publish Reddit Life Image Message
 
-# 视频选题在 13:00 UTC 归档；本任务晚一小时读取同一份 video.json，按图文数量配置生成图片消息且不再次调用模型。
+# 视频任务成功后立即触发本任务，读取同一份 video.json，按图文数量配置生成图片消息且不再次调用模型。
 # 图片由 video/ 工作区的 Remotion 静帧渲染器生成，因此安装与浏览器缓存同视频任务。
 permissions:
   contents: write
@@ -9,8 +9,6 @@ on:
   workflow_run:
     workflows: ["Publish Reddit Life Vertical Video"]
     types: [completed]
-  schedule:
-    - cron: "0 14 * * *"
   workflow_dispatch:
     inputs:
       date:

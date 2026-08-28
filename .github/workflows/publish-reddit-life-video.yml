@@ -153,8 +153,11 @@ jobs:
           NODE
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" 1.mp4 2.mp4 metadata.json --clobber
-            # v1 Release 只有 movie.mp4。新资产全部上传成功后再删旧名，迁移失败也不会丢片。
-            gh release delete-asset "$tag" movie.mp4 --yes >/dev/null 2>&1 || true
+            # 历史版本用过 movie.mp4，中文名还曾被 GitHub 规范化成 default.mp4。
+            # 新资产全部上传成功后再清理旧名，迁移失败也不会丢片。
+            for legacy_asset in movie.mp4 default.mp4; do
+              gh release delete-asset "$tag" "$legacy_asset" --yes >/dev/null 2>&1 || true
+            done
             gh release edit "$tag" --title "Reddit 精选问答 $ARCHIVE_DATE" --notes "$notes"
           else
             gh release create "$tag" 1.mp4 2.mp4 metadata.json --title "Reddit 精选问答 $ARCHIVE_DATE" --notes "$notes"

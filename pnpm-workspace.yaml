@@ -1,3 +1,10 @@
+# video/ 是独立包而不是根依赖：Remotion 拖进 react、react-dom 和一套 @remotion/*，
+# 而二十多个定时 workflow 全都跑 `pnpm install --frozen-lockfile`。放进根 dependencies
+# 会让每一个不渲染视频的任务都多装这些。只有 publish-reddit-life-video 用 --filter 装它。
+packages:
+  - "."
+  - "video"
+
 overrides:
   vite: ^8.2.0
   esbuild: 0.28.1

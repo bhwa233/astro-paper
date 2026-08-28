@@ -27,7 +27,8 @@ export async function renderRedditLifeWechatCover(titles: string[], brand: strin
   try {
     const fonts = await loadSubsetFonts(`${entries.join("")}${brand}0123456789`);
     const tree = wechatCoverTree({ titles: entries, brand, theme: PLATFORM_THEMES.reddit, fontFamily: SATORI_FONT_FAMILY });
-    const svg = await satori(tree, { width: WECHAT_COVER_WIDTH, height: WECHAT_COVER_HEIGHT, fonts });
+    // 对象树而不是 JSX；转换的理由见 platformTheme.ts 的 SatoriNode。
+    const svg = await satori(tree as Parameters<typeof satori>[0], { width: WECHAT_COVER_WIDTH, height: WECHAT_COVER_HEIGHT, fonts });
     return await svgToPng(svg);
   } catch (error) {
     writeStderr(`WARN: [reddit-life-wechat] cover rendering failed, falling back to the configured defaultCover: ${error instanceof Error ? error.message : String(error)}`);

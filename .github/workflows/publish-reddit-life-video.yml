@@ -1,0 +1,178 @@
+name: Publish Reddit Life Vertical Video
+
+# 独立 cron，不是 publish-reddit-life.yml 的子 workflow：它只读那条链路已经提交的
+# 微信归档，两者之间没有需要传递的 upstream_sha。上游 10:00 UTC 起跑，中间还有微信
+# 同步，这里留三小时余量。归档还没到就跳过，不把上游延迟变成一条红线。
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      force:
+        description: "Reselect cards even when video.json already exists."
+        required: false
+        default: false
+        type: boolean
+      ai_model:
+        description: "Card selection model. Empty = Gemini 3.7 Flash."
+        required: false
+        type: string
+
+concurrency:
+  group: reddit-life-video-${{ github.ref }}
+  cancel-in-progress: false
+
+# 保留几天的成片。改这个数字要同时改 docs/reddit-life-video-pipeline.md。
+env:
+  RELEASE_RETENTION_DAYS: "7"
+
+jobs:
+  render-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
+        with:
+          # 根包提供选卡脚本，video 包提供 Remotion。这条链路两个都要。
+          filter: "./**"
+
+      - name: Resolve archive date
+        id: date
+        env:
+          INPUT_DATE: ${{ inputs.date || '' }}
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_DATE" ]; then
+            echo "value=$INPUT_DATE" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=$(TZ=America/Los_Angeles date +%F)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Select cards
+        id: select
+        env:
+          ARCHIVE_DATE: ${{ steps.date.outputs.value }}
+          INPUT_FORCE: ${{ inputs.force || false }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: https://rightapi.ai/gemini
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+          AI_API_STYLE: gemini
+          AI_FALLBACK_ENABLED: "false"
+          AI_TIMEOUT_MS: "600000"
+        run: |
+          set -euo pipefail
+          args=(--date "$ARCHIVE_DATE" --artifacts-dir reddit-life-video-artifacts)
+          if [ "$INPUT_FORCE" = "true" ]; then args+=(--force); fi
+          node --import tsx scripts/generate_reddit_life_video.ts "${args[@]}" | tee reddit-life-video-select.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const result = JSON.parse(fs.readFileSync("reddit-life-video-select.json", "utf8"));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `status=${result.status}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `card_count=${result.cardCount}\n`);
+          NODE
+
+      - name: Commit card selection
+        if: steps.select.outputs.status == 'processed'
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: data/reddit-life-video
+          message: "feat(reddit): archive life video cards"
+
+      # Chrome Headless Shell 约 92MB。不缓存的话每天都要重下一次，
+      # 而它由 Remotion 版本唯一决定，锁文件不变就不会失效。
+      - name: Restore Remotion browser cache
+        if: steps.select.outputs.status == 'processed'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/remotion
+          key: remotion-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Render video
+        if: steps.select.outputs.status == 'processed'
+        id: render
+        env:
+          ARCHIVE_DATE: ${{ steps.date.outputs.value }}
+        run: |
+          set -euo pipefail
+          pnpm --filter reddit-life-video run render -- --date "$ARCHIVE_DATE" | tee reddit-life-video-render.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const result = JSON.parse(fs.readFileSync("reddit-life-video-render.json", "utf8"));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `output=${result.outputLocation}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `frames=${result.durationInFrames}\n`);
+          NODE
+
+      # 成片走 Release 而不是提交：每天 10MB 进 git，一年后 .git 多出 3GB，
+      # 而删除提交并不会让历史里的 blob 消失。Release 资产删掉就是真的没了。
+      - name: Publish release
+        if: steps.select.outputs.status == 'processed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCHIVE_DATE: ${{ steps.date.outputs.value }}
+          RENDER_OUTPUT: ${{ steps.render.outputs.output }}
+        run: |
+          set -euo pipefail
+          tag="video-$ARCHIVE_DATE"
+          gh release delete "$tag" --cleanup-tag --yes || true
+          gh release create "$tag" "$RENDER_OUTPUT" \
+            --title "Reddit 问答精选 $ARCHIVE_DATE" \
+            --notes "竖屏短视频，由 publish-reddit-life-video.yml 自动生成。保留 ${RELEASE_RETENTION_DAYS} 天。"
+
+      - name: Prune expired releases
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cutoff=$(date -u -d "-${RELEASE_RETENTION_DAYS} days" +%F)
+          # jq 而不是 grep 做过滤：没有匹配项时 grep 退出码 1，在 pipefail 下会
+          # 把「今天没有过期成片」变成一次失败的构建。
+          gh release list --limit 200 --json tagName \
+            --jq '.[].tagName | select(test("^video-\\d{4}-\\d{2}-\\d{2}$"))' > expired-candidates.txt
+          while read -r tag; do
+            [ -n "$tag" ] || continue
+            if [[ "${tag#video-}" < "$cutoff" ]]; then
+              echo "deleting $tag (older than $cutoff)"
+              gh release delete "$tag" --cleanup-tag --yes
+            fi
+          done < expired-candidates.txt
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reddit-life-video
+          path: |
+            reddit-life-video-select.json
+            reddit-life-video-render.json
+            reddit-life-video-artifacts/
+          if-no-files-found: ignore
+
+      - name: Summarize run
+        if: always()
+        env:
+          ARCHIVE_DATE: ${{ steps.date.outputs.value }}
+          STATUS: ${{ steps.select.outputs.status }}
+          CARD_COUNT: ${{ steps.select.outputs.card_count }}
+          FRAMES: ${{ steps.render.outputs.frames }}
+        run: |
+          {
+            echo "### Reddit life vertical video"
+            echo
+            echo "- Archive date: ${ARCHIVE_DATE}"
+            echo "- Status: ${STATUS:-not-run}"
+            echo "- Cards: ${CARD_COUNT:-0}"
+            echo "- Frames: ${FRAMES:-0}"
+          } >> "$GITHUB_STEP_SUMMARY"

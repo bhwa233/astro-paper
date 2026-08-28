@@ -11,6 +11,13 @@ inputs:
     description: "Node.js major version to install."
     required: false
     default: "24"
+  # 仓库是 pnpm workspace（根包 + video）。不给 filter 的话 `pnpm install` 会把
+  # 每个工作区包都装上，二十多个跟视频无关的定时任务都要多下 Remotion 那一套。
+  # 默认只装根包，保持加 video/ 之前的行为；渲染视频的 workflow 显式改这个值。
+  filter:
+    description: "pnpm --filter selector for the install. Default installs only the root package."
+    required: false
+    default: "."
 
 runs:
   using: composite
@@ -28,4 +35,6 @@ runs:
 
     - name: "Install dependencies"
       shell: bash
-      run: pnpm install --frozen-lockfile
+      env:
+        INSTALL_FILTER: ${{ inputs.filter }}
+      run: pnpm install --frozen-lockfile --filter "$INSTALL_FILTER"

@@ -3,7 +3,7 @@
 //
 // 底色与卡片色来自 src/utils/platformTheme.ts——那份色板同时供博客文章的 OG 图使用，
 // 封面与 OG 必须同色，色板就不能在 scripts 这边再存一份。
-import { platformCard, type PlatformTheme, type SatoriNode } from "../src/utils/platformTheme.ts";
+import { BRAND_CIRCLE, platformCard, type PlatformTheme, type SatoriNode } from "../src/utils/platformTheme.ts";
 
 // 微信首图按 2.35:1 裁剪，用别的比例会被两侧切掉。
 export const WECHAT_COVER_WIDTH = 1175;
@@ -70,13 +70,7 @@ export function coverEntryFontSize(titles: string[]): number {
 // 代价：参考图里末字微微探出圈外的手绘感没有了，现在圈总是完整套住品牌。
 //
 // 外层必须 alignSelf: flex-start，否则它在列里被拉伸到满宽，椭圆会跟着横跨整张卡片。
-// 全部按字号的比例给，图片消息的卡片用同一个圈但字号大得多；写死的 30/14/12 换到 72px
-// 品牌上会细成一根发丝。比例取自原先在 36px 下量定的值，让不同字号保持相同的手绘线条比例。
-const BRAND_CIRCLE_INSET_X_EM = 30 / 36;
-const BRAND_CIRCLE_INSET_TOP_EM = 14 / 36;
-const BRAND_CIRCLE_INSET_BOTTOM_EM = 12 / 36;
-const BRAND_CIRCLE_OUTER_BORDER_EM = 4 / 36;
-const BRAND_CIRCLE_INNER_BORDER_EM = 3 / 36;
+// 椭圆比例在 src/utils/platformTheme.ts 的 BRAND_CIRCLE 里，与竖屏视频共用同一份。
 
 function brandEllipse(accent: string, fontSize: number, border: number, grow: number, rotate: number, opacity: string): SatoriNode {
   return {
@@ -84,10 +78,10 @@ function brandEllipse(accent: string, fontSize: number, border: number, grow: nu
     props: {
       style: {
         position: "absolute",
-        top: `${-Math.round(fontSize * BRAND_CIRCLE_INSET_TOP_EM) - grow}px`,
-        bottom: `${-Math.round(fontSize * BRAND_CIRCLE_INSET_BOTTOM_EM) - grow}px`,
-        left: `${-Math.round(fontSize * BRAND_CIRCLE_INSET_X_EM) - grow}px`,
-        right: `${-Math.round(fontSize * BRAND_CIRCLE_INSET_X_EM) - grow}px`,
+        top: `${-Math.round(fontSize * BRAND_CIRCLE.insetTopEm) - grow}px`,
+        bottom: `${-Math.round(fontSize * BRAND_CIRCLE.insetBottomEm) - grow}px`,
+        left: `${-Math.round(fontSize * BRAND_CIRCLE.insetXEm) - grow}px`,
+        right: `${-Math.round(fontSize * BRAND_CIRCLE.insetXEm) - grow}px`,
         border: `${border}px solid ${accent}`,
         borderRadius: "50%",
         transform: `rotate(${rotate}deg)`,
@@ -99,7 +93,7 @@ function brandEllipse(accent: string, fontSize: number, border: number, grow: nu
 
 /** 笔圈栏目名。封面与图片消息卡片共用，字号由调用方给。 */
 export function circledBrand(brand: string, accent: string, fontSize: number = BRAND_FONT_SIZE): SatoriNode {
-  const outerBorder = Math.round(fontSize * BRAND_CIRCLE_OUTER_BORDER_EM);
+  const outerBorder = Math.round(fontSize * BRAND_CIRCLE.outerBorderEm);
   return {
     type: "div",
     props: {
@@ -112,8 +106,8 @@ export function circledBrand(brand: string, accent: string, fontSize: number = B
         lineHeight: BRAND_LINE_HEIGHT,
       },
       children: [
-        brandEllipse(accent, fontSize, outerBorder, outerBorder, -3, "1"),
-        brandEllipse(accent, fontSize, Math.round(fontSize * BRAND_CIRCLE_INNER_BORDER_EM), 0, 2, "0.88"),
+        brandEllipse(accent, fontSize, outerBorder, outerBorder, BRAND_CIRCLE.outerRotateDeg, "1"),
+        brandEllipse(accent, fontSize, Math.round(fontSize * BRAND_CIRCLE.innerBorderEm), 0, BRAND_CIRCLE.innerRotateDeg, String(BRAND_CIRCLE.innerOpacity)),
         { type: "div", props: { style: { display: "flex" }, children: brand } },
       ],
     },

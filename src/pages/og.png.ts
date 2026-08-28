@@ -122,7 +122,7 @@ export const GET: APIRoute = async context => {
           },
         ],
       },
-    },
+    } as Parameters<typeof satori>[0], // 对象树而不是 JSX；理由见 platformTheme.ts 的 SatoriNode
     {
       width: 1200,
       height: 630,

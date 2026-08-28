@@ -164,7 +164,8 @@ function topicTree(item: WeiboTrendingWechatItem, index: number, total: number):
 }
 
 async function renderCard(tree: SatoriNode, fonts: LoadedFont[]): Promise<Buffer> {
-  const svg = await satori(tree, { width: WECHAT_CARD_SIZE, height: WECHAT_CARD_SIZE, fonts });
+  // 对象树而不是 JSX；转换的理由见 platformTheme.ts 的 SatoriNode。
+  const svg = await satori(tree as Parameters<typeof satori>[0], { width: WECHAT_CARD_SIZE, height: WECHAT_CARD_SIZE, fonts });
   return svgToPng(svg);
 }
 

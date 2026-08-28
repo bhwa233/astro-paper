@@ -64,8 +64,35 @@ export function resolvePlatformTheme(
 /**
  * satori 吃的是普通对象树，不是 JSX。这里给一个最小结构类型，
  * 免得共享模块为了标注返回值把 react 类型拖进来。
+ *
+ * satori 的形参标注是 `ReactNode`，但普通对象树同样是它支持的用法。以前本仓装不到
+ * `@types/react`，`ReactNode` 解析成 any，这个不匹配无从暴露；`video/` 引入
+ * `@types/react` 之后 pnpm 把它提升进虚拟 store，四个调用点同时开始报错。
+ * 因此调用点统一写 `as Parameters<typeof satori>[0]`——转换的理由在这里，
+ * 那边只留一句指路。
  */
 export type SatoriNode = { type: string; props: Record<string, unknown> };
+
+/**
+ * 笔圈栏目名的椭圆几何，全部按字号的比例给：图片消息卡片和竖屏视频用同一个圈，
+ * 但字号差好几倍，写死的像素值换到大字号上会细成一根发丝。
+ * 比例取自最初在 36px 品牌行上量定的值。
+ *
+ * 放在这里而不是各自的版式文件里，是因为它有两个消费方——`scripts/wechat_cover_layout.ts`
+ * 画 satori 树，`video/src/CircledBrand.tsx` 画 React 节点。两边各存一份就会各调各的，
+ * 同一个品牌在封面和视频里长得不一样。
+ */
+export const BRAND_CIRCLE = {
+  insetXEm: 30 / 36,
+  insetTopEm: 14 / 36,
+  insetBottomEm: 12 / 36,
+  outerBorderEm: 4 / 36,
+  innerBorderEm: 3 / 36,
+  /** 两道描边错开的角度，模仿手绘。 */
+  outerRotateDeg: -3,
+  innerRotateDeg: 2,
+  innerOpacity: 0.88,
+} as const;
 
 /**
  * 卡片相对整张图的尺寸。OG（1200×630）与公众号封面（1175×500）两种画布共用同一组百分比，

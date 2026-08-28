@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "archiveDate": "2026-08-27",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-08-27",
+    "drafts": [
+      "01-1vzsnj8.md",
+      "02-1vzvh6g.md"
+    ],
+    "sha256": "4f11aaf241ca9e2773507f491c2cf9f03cf4be2f047b74baf2f2a40186ec9aa9"
+  },
+  "model": "gemini-3.7-flash",
+  "candidateCount": 229,
+  "cardCount": 10
+}

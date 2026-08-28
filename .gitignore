@@ -53,3 +53,8 @@ data/weibo-trending-wechat/**/.content-limit-probe-*.md
 # committed. Only written at all while the QR card is switched on.
 data/weibo-trending-wechat/*/qr.png
 data/reddit-life-wechat/*/qr.png
+
+# 竖屏视频成片。每天约 10MB，进 git 一年就是 3GB，而 `git rm` 只清工作区、
+# blob 永远留在历史里——那等于没删。成片改为上传 GitHub Release 并保留 7 天，
+# 只有几 KB 的 video.json / run.json 提交进仓库。
+video/out/

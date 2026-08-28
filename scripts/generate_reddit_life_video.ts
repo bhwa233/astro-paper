@@ -63,7 +63,9 @@ async function main(): Promise<void> {
     const existing = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as RunManifest;
     if (existing.version === MANIFEST_VERSION) {
       writeStderr(`[reddit-life-video] reusing existing manifest for ${date}; pass --force to reselect\n`);
-      writeStdout(`${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), cardCount: REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`);
+      writeStdout(
+        `${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), videoCount: REDDIT_LIFE_DAILY_ISSUE_COUNT, cardCount: REDDIT_LIFE_DAILY_ISSUE_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`,
+      );
       return;
     }
     // 旧版 manifest 没有 question，渲染端会直接拒收。与其让下游报一个语焉不详的
@@ -98,7 +100,9 @@ async function main(): Promise<void> {
   const finish = (): void => {
     ensureDir(outDir);
     fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-    writeStdout(`${JSON.stringify({ date, status: manifest.status, videoPath: manifest.status === "processed" ? path.relative(repo, videoPath) : "", cardCount: manifest.status === "processed" ? REDDIT_LIFE_VIDEO_ANSWER_COUNT : 0, reused: false })}\n`);
+    writeStdout(
+      `${JSON.stringify({ date, status: manifest.status, videoPath: manifest.status === "processed" ? path.relative(repo, videoPath) : "", videoCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_ISSUE_COUNT : 0, cardCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_ISSUE_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT : 0, reused: false })}\n`,
+    );
   };
 
   // 上游还没跑完不是错误：独立 cron 早于归档提交时会撞上这个，让 job 成功退出即可。

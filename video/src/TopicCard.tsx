@@ -1,4 +1,4 @@
-// 内容卡：accent 序号 + 倒计时进度条同一行 / 分隔线 / 正文 / 结尾三秒的大数字。
+// 内容卡：accent 序号 + 倒计时进度条同一行 / 分隔线 / 正文 / 右下角结尾三秒的大数字。
 //
 // 没有标题：封面已经把问题抛出来了，卡片只是它的第 N 条回答，再起一个小标题只会
 // 抢走正文的高度。序号也只出现一次——早期版本卡内一个大号序号、右下角又来一次
@@ -64,7 +64,20 @@ export const TopicCard: React.FC<{ durationInFrames: number; card: VideoCard; to
         {card.body}
       </div>
 
-      <div style={{ display: "flex", alignItems: "flex-end", flexShrink: 0, height: 80, fontSize: 72, lineHeight: 1, fontWeight: 700, color: THEME.accent, opacity: isCountingDown ? 0.85 : 0 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "flex-end",
+          flexShrink: 0,
+          height: 80,
+          fontSize: 72,
+          lineHeight: 1,
+          fontWeight: 700,
+          color: THEME.accent,
+          opacity: isCountingDown ? 0.85 : 0,
+        }}
+      >
         {countdownDigit}
       </div>
     </Frame>

@@ -8,7 +8,7 @@
 `reddit-life-wechat.yml` 每天把 `r/AskReddit` / `r/askscience` 的问答精选转成两篇微信草稿，
 落在 `data/reddit-life-wechat/<date>/`。那批中文译文已经过一次 AI 选题过滤，是现成的优质语料。
 
-这条管线把同一份语料再做一次转换，产出一支 1080×1920 竖屏短视频，用于视频号 / 抖音这类
+这条管线把同一份语料再做一次转换，每天产出两支 1080×1920 竖屏短视频，用于视频号 / 抖音这类
 竖屏分发渠道。它只读微信归档的已提交结果，不重新请求 Reddit，也不改动微信侧任何产物。
 
 参考样片是「黑底大字 + TTS 旁白 + Reddit 用户名」的英文搬运号风格。本方案**不照抄它**：
@@ -23,7 +23,7 @@
 
 目标：
 
-- 每个归档日产出一支 1080×1920 / 30fps 的 mp4，固定 1 张封面卡 + 10 张内容卡
+- 每个归档日产出两支 1080×1920 / 30fps 的 mp4，每支固定 1 张封面卡 + 10 张内容卡
 - 卡片版式与 `weibo_trending_wechat_cards.ts` 同构，配色取 `PLATFORM_THEMES.reddit`
 - 每张内容卡有可见倒计时；最后 3 秒逐秒响一声柔和提示音
 - 全片一条循环 BGM，音量固定
@@ -47,9 +47,9 @@ reddit-life-wechat.yml（已有，10:00 UTC 链路）
             ├─ [Gemini] 一次选 2 组不同的 1 问 10 答，各生成 ≤20 字标题
             └─ data/reddit-life-video/<date>/video.json v4 ← 提交
                  └─ video/（Remotion）
-                      └─ out/<问题>.mp4                    ← 不提交
+                      └─ out/<date>/1.mp4 + 2.mp4          ← 不提交
                            └─ GitHub Release `video-<date>`（一直保留）
-                                └─ 资产名 movie.mp4，标题是问题
+                                └─ 1.mp4 + 2.mp4 + metadata.json
 ```
 
 `publish-reddit-life-video.yml` 是独立 cron（13:00 UTC），不是 `publish-reddit-life.yml` 的
@@ -59,7 +59,7 @@ reddit-life-wechat.yml（已有，10:00 UTC 链路）
 ## 4. 内容选取
 
 - **候选**：`parseRedditLifeVideoQuestions` 读当天全部 `0X-*.md`，按 `## ` 二级标题切出问题，再按 `N\.` 切出每条回答；回答少于 10 条的问题不进入候选。
-- **模型职责**：一次请求选出两个不同问题，每个问题各选 10 条回答，并分别生成内容标题。第一组继续用于视频，两个组都用于每日两篇图片消息。原回答不超过 100 字时原样使用，超长时只压缩、不扩写。
+- **模型职责**：一次请求选出两个不同问题，每个问题各选 10 条回答，并分别生成内容标题。两组按顺序同时用于两支视频和每日两篇图片消息。原回答不超过 100 字时原样使用，超长时只压缩、不扩写。
 - **标题**：每组 `title` 必须是基于该组最终问题与回答生成的具体中文标题，最多 20 个 Unicode 字符；不得使用固定栏目名、日期或 `Reddit` 前缀，也不得照抄完整问题。图片消息直接复用，不再调用模型。
 - **硬约束**（校验不过就 JSON 重试）：恰好两组且问题不同；每组恰好 10 条；所有 `sourceIndex` 都属于本组问题且互不重复；`body` 含中文、≤100 字且不长于原回答；`title` 满足上述边界。
 - **候选不足**：少于两个问题达到 10 条回答时写 `status: insufficient-candidates` 且不出片。
@@ -172,9 +172,10 @@ artifact 要登录或 `gh run download`，浏览器拿到的还是个 zip。
 同一天重跑走 `gh release upload --clobber` 覆盖资产，而不是先删再建——这条链路不删任何
 已发布的东西。
 
-**资产名写死 `movie.mp4`**。GitHub 把资产名规范化到 `[A-Za-z0-9._-]`，而本地成片按问题命名，
-清洗后主干为空——实测退回成 `default.mp4`，连日期都不剩。与其让 GitHub 挑一个名字，
-不如自己给一个稳定的；问题放进 Release 标题，页面上照样一眼看到它讲什么。
+**视频资产按选题顺序命名为 `1.mp4`、`2.mp4`**。GitHub 会把中文文件名规范化得无法辨认，
+因此每个 Release 同时上传稳定 ASCII 文件名 `metadata.json`；其中 `videos` 数组按相同顺序记录
+每支视频的 `index`、`videoAsset`、AI 内容标题和完整问题。Release 页面使用栏目名加归档日期，
+下载端只靠这三个资产就能恢复两支视频与中文内容的对应关系。
 
 `video.json` 保留全部历史：v4 顶层记录第一组 AI 内容标题、问题和十条回答，`additionalIssues` 记录第二组。它只有几 KB，是重跑成片和生成同日两篇图片消息的唯一输入，也是判断某天是否已处理的依据。
 同一天重跑时若 `video.json` 已存在则直接复用，不重新调用模型；`--force` 才重新选卡。
@@ -202,5 +203,5 @@ pnpm --filter reddit-life-video studio
 - `actions/cache` 缓存 `~/.cache/remotion`，否则每天多下 120MB 的 Chrome Headless Shell
 - 归档目录缺失 → 记 summary 后成功退出
 - 选卡结果用 `.github/actions/archive-commit` 提交 `data/reddit-life-video`
-- 成片 `gh release create video-<date> movie.mp4 --title <问题>`；已存在则 `upload --clobber` 覆盖
+- 两支成片与元数据一并发布：`1.mp4` + `2.mp4` + `metadata.json`；已存在则 `upload --clobber` 覆盖
 - 渲染量约 3000 帧全静态，预估 3–8 分钟

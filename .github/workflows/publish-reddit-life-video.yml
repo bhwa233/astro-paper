@@ -76,6 +76,7 @@ jobs:
           import fs from "node:fs";
           const result = JSON.parse(fs.readFileSync("reddit-life-video-select.json", "utf8"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `status=${result.status}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `video_count=${result.videoCount}\n`);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `card_count=${result.cardCount}\n`);
           NODE
 
@@ -108,22 +109,16 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const result = JSON.parse(fs.readFileSync("reddit-life-video-render.json", "utf8"));
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `output=${result.outputLocation}\n`);
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `frames=${result.durationInFrames}\n`);
-          NODE
-          node --input-type=module <<'NODE' >> "$GITHUB_ENV"
-          import fs from "node:fs";
-          const result = JSON.parse(fs.readFileSync("reddit-life-video-render.json", "utf8"));
-          // 问题里有换行的可能性为零，但 GITHUB_ENV 是行式格式，用 heredoc 分隔符兜住。
-          process.stdout.write(`RELEASE_TITLE<<RELEASE_TITLE_EOF\n${result.question}\nRELEASE_TITLE_EOF\n`);
+          if (!Array.isArray(result.videos) || result.videos.length !== 2) throw new Error(`Expected two rendered videos, got ${result.videos?.length ?? 0}`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `video_count=${result.videos.length}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `frames=${result.videos.reduce((sum, video) => sum + video.durationInFrames, 0)}\n`);
           NODE
 
       # 成片走 Release 而不是提交进仓库：每天 10MB 进 git，一年后 .git 多出 3GB，
       # 而删掉提交并不会让历史里的 blob 消失。Release 资产删掉就是真的没了。
       #
-      # 资产名写死 movie.mp4。GitHub 会把资产名规范化到 [A-Za-z0-9._-]，而本地成片按
-      # 问题命名，清洗后主干为空——实测退回成 `default.mp4`，连日期都不剩。与其让
-      # GitHub 挑一个名字，不如自己给一个稳定的，问题放到 Release 标题里。
+      # 两支成片按选题顺序写成 1.mp4 / 2.mp4。metadata.json 以相同顺序保存完整标题和
+      # 问题，让下载端通过稳定 ASCII 文件名恢复内容语义。
       #
       # Release 一直保留，没有清理逻辑。同一天重跑走 upload --clobber 覆盖资产，
       # 而不是先删再建：这条链路不删任何已发布的东西。
@@ -132,17 +127,37 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}
-          RENDER_OUTPUT: ${{ steps.render.outputs.output }}
         run: |
           set -euo pipefail
           tag="video-$ARCHIVE_DATE"
           notes="竖屏短视频，由 publish-reddit-life-video.yml 自动生成。归档日期 ${ARCHIVE_DATE}。"
-          cp "$RENDER_OUTPUT" movie.mp4
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const result = JSON.parse(fs.readFileSync("reddit-life-video-render.json", "utf8"));
+          for (const [position, video] of result.videos.entries()) {
+            const index = position + 1;
+            if (video.index !== index) throw new Error(`Unexpected video index ${video.index} at position ${position}`);
+            fs.copyFileSync(video.outputLocation, `${index}.mp4`);
+          }
+          const metadata = {
+            version: 1,
+            archiveDate: result.date,
+            videos: result.videos.map(({ index, title, question }) => ({
+              index,
+              videoAsset: `${index}.mp4`,
+              title,
+              question,
+            })),
+          };
+          fs.writeFileSync("metadata.json", `${JSON.stringify(metadata, null, 2)}\n`, "utf8");
+          NODE
           if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" movie.mp4 --clobber
-            gh release edit "$tag" --title "$RELEASE_TITLE" --notes "$notes"
+            gh release upload "$tag" 1.mp4 2.mp4 metadata.json --clobber
+            # v1 Release 只有 movie.mp4。新资产全部上传成功后再删旧名，迁移失败也不会丢片。
+            gh release delete-asset "$tag" movie.mp4 --yes >/dev/null 2>&1 || true
+            gh release edit "$tag" --title "Reddit 精选问答 $ARCHIVE_DATE" --notes "$notes"
           else
-            gh release create "$tag" movie.mp4 --title "$RELEASE_TITLE" --notes "$notes"
+            gh release create "$tag" 1.mp4 2.mp4 metadata.json --title "Reddit 精选问答 $ARCHIVE_DATE" --notes "$notes"
           fi
 
       - name: Upload diagnostics
@@ -153,6 +168,7 @@ jobs:
           path: |
             reddit-life-video-select.json
             reddit-life-video-render.json
+            metadata.json
             reddit-life-video-artifacts/
           if-no-files-found: ignore
 
@@ -162,6 +178,7 @@ jobs:
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}
           STATUS: ${{ steps.select.outputs.status }}
           CARD_COUNT: ${{ steps.select.outputs.card_count }}
+          VIDEO_COUNT: ${{ steps.render.outputs.video_count || steps.select.outputs.video_count }}
           FRAMES: ${{ steps.render.outputs.frames }}
         run: |
           {
@@ -169,6 +186,7 @@ jobs:
             echo
             echo "- Archive date: ${ARCHIVE_DATE}"
             echo "- Status: ${STATUS:-not-run}"
+            echo "- Videos: ${VIDEO_COUNT:-0}"
             echo "- Cards: ${CARD_COUNT:-0}"
             echo "- Frames: ${FRAMES:-0}"
           } >> "$GITHUB_STEP_SUMMARY"

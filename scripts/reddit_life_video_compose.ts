@@ -12,7 +12,7 @@ import { compact } from "./blog_common.ts";
 /** 一支视频固定十条回答。 */
 export const REDDIT_LIFE_VIDEO_ANSWER_COUNT = 10;
 
-/** 每天一支视频取第一组内容，图片消息使用同一次 AI 选出的两组内容。 */
+/** 每天两支视频和两篇图片消息共同使用同一次 AI 选出的两组内容。 */
 export const REDDIT_LIFE_DAILY_ISSUE_COUNT = 2;
 
 /**

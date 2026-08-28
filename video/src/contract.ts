@@ -59,3 +59,27 @@ export function parseVideoManifest(raw: unknown): VideoManifest {
 
   return { version: 4, archiveDate, title, question, cards };
 }
+
+/** 归档根对象携带当天两组内容；每组都复用同一个 Remotion composition。 */
+export function parseVideoManifests(raw: unknown): VideoManifest[] {
+  const primary = parseVideoManifest(raw);
+  const value = raw as Record<string, unknown>;
+  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length !== 1) {
+    throw new Error("video manifest needs exactly one additional issue");
+  }
+
+  const manifests = [
+    primary,
+    ...value.additionalIssues.map(issue =>
+      parseVideoManifest({
+        ...(issue as Record<string, unknown>),
+        version: primary.version,
+        archiveDate: primary.archiveDate,
+      }),
+    ),
+  ];
+  if (new Set(manifests.map(manifest => manifest.question)).size !== manifests.length) {
+    throw new Error("video manifest issues must use different questions");
+  }
+  return manifests;
+}

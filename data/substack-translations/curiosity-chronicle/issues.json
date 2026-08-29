@@ -45,6 +45,21 @@
         "outputTokens": 2879,
         "totalTokens": 5377
       }
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/the-focusing-illusion-a-science-backed",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/the-focusing-illusion-a-science-backed",
+      "sourcePublishedAt": "2026-08-28T12:46:21.000Z",
+      "sourceSha256": "3bd6a4591fa9750f09426ee5c43aa3466fccc1647581121bc1e78e2c45f138cf",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260828-the-focusing-illusion-a-science-backed.md",
+      "translatedAt": "2026-08-29T07:09:34.791Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2157,
+        "outputTokens": 5053,
+        "totalTokens": 7210
+      }
     }
   ]
 }

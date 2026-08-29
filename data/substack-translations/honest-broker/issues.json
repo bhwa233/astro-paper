@@ -41,6 +41,21 @@
         "outputTokens": 3670,
         "totalTokens": 7070
       }
+    },
+    {
+      "guid": "https://www.honest-broker.com/p/the-3-bad-types-of-humanities-professor",
+      "canonicalUrl": "https://www.honest-broker.com/p/the-3-bad-types-of-humanities-professor",
+      "sourcePublishedAt": "2026-08-28T17:42:47.000Z",
+      "sourceSha256": "d830e0c43339903a3591f77743b022ecc3ef444e8883fdbf8c48f924e08f5de9",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/honest-broker-20260828-the-3-bad-types-of-humanities-professor.md",
+      "translatedAt": "2026-08-29T07:09:47.367Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2286,
+        "outputTokens": 2564,
+        "totalTokens": 4850
+      }
     }
   ]
 }

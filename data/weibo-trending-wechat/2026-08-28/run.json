@@ -4,8 +4,8 @@
   "timeZone": "Asia/Shanghai",
   "status": "processed",
   "upstream": {
-    "generatedSha": "08718a0326cecd5035a69a80468c1fb55db7a7a7",
-    "workflowRun": "33132059827",
+    "generatedSha": "11b9b8ca91e51c56ad7d2dc55866191a12acd0d0",
+    "workflowRun": "33223928794",
     "articlePath": "src/content/posts/zh-cn/wb-20260828.md"
   },
   "rawSources": {
@@ -16,7 +16,7 @@
   },
   "draft": {
     "path": "data/weibo-trending-wechat/2026-08-28/01.md",
-    "sha256": "c1278d0ca1859e8535764dda1308b7eee74c60d0ef6743af44eb4f8a40b17470",
+    "sha256": "50b1617a5ef55d6310d0b43b8fc5cc65a92dec2de559aa4ca7c6ef226d255c2d",
     "itemCount": 10,
     "truncatedItemCount": 32,
     "cards": [

@@ -32,7 +32,8 @@ export const TopicCard: React.FC<{ durationInFrames: number; card: VideoCard; to
   const frame = useCurrentFrame();
   const remaining = (durationInFrames - frame) / FPS;
   const isCountingDown = remaining <= TICK_LEAD_SECONDS;
-  // 数字取上整：剩 2.4s 显示 3，剩 1.0s 显示 1，与整秒响的提示音对得上。
+  // 数字取上整：剩 1.4s 显示 2，剩 1.0s 显示 1，与整秒响的提示音对得上。
+  // 能显示的最大值就是 TICK_LEAD_SECONDS，因为再早 isCountingDown 还是 false。
   const countdownDigit = Math.max(1, Math.ceil(remaining));
 
   const progress = interpolate(frame, [0, durationInFrames], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });

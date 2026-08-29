@@ -15,7 +15,7 @@ data/reddit-life-video/<date>/video.json
 
 每组第一张 `1080x1440` PNG 是问题卡；后续一到十张是依照选题排序的中文高赞回答卡。所有卡片均由 `video/` 工作区的 Remotion 静帧渲染器以 React/CSS 排版并归档为 PNG，第一张同时作为该微信图片消息的封面。静态卡片框架与批量渲染器可供后续图文 composition 复用。
 
-视频选题的 v4 `video.json` 必须携带两组由选题 AI 根据最终问题和回答生成的中文 `title`，每个最多 20 个 Unicode 字符。第一组保留在顶层以兼容视频渲染，第二组存入 `additionalIssues`。图片消息直接复用两个标题，不再额外调用模型；每篇归档稿的 `description` 和图片消息纯文本 `content` 使用各自完整问题。微信的 `newspic` 草稿不接受普通图文的 `digest` 字段，因此必须把问题放在 Markdown 图片列表之前，才能作为草稿描述发送。
+视频选题的 v5 `video.json` 必须携带两组由选题 AI 根据最终问题和回答生成的中文 `title`，每个最多 20 个 Unicode 字符。第一组保留在顶层以兼容视频渲染，第二组存入 `additionalIssues`。图片消息直接复用两个标题，不再额外调用模型；每篇归档稿的 `description` 和图片消息纯文本 `content` 使用各自完整问题。微信的 `newspic` 草稿不接受普通图文的 `digest` 字段，因此必须把问题放在 Markdown 图片列表之前，才能作为草稿描述发送。
 
 归档 Markdown 固定使用 `wechat.articleType: newspic`、独立的 `reddit-life-newspic-<date>-01/02` sync ID 和 `Reddit人生讨论` 标签。它不写 `sourceURL`：微信的“阅读原文”必须在创建草稿前提供一个公开 URL，而新图片消息在这个时点没有自己的公开地址。
 

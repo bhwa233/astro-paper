@@ -209,6 +209,13 @@ function cleanHtml(
       "script,style,noscript,iframe,object,embed,form,input,button,template,svg"
     )
     .forEach(node => node.remove());
+  // WordPress 的 emoji 脚本把正文里的 ™ ☺ 等字符换成 s.w.org 上的图片。它们是文字而不是插图，
+  // 留着会让镜像流程去抓一个不在 imageHosts 里的域名，然后整个 publication 失败。还原 alt 原字符。
+  body.querySelectorAll("img.wp-smiley").forEach(node => {
+    const alt = node.getAttribute("alt") || "";
+    if (alt) node.replaceWith(node.ownerDocument.createTextNode(alt));
+    else node.remove();
+  });
   for (const selector of publication.removeSelectors) {
     try {
       body.querySelectorAll(selector).forEach(node => node.remove());

@@ -123,6 +123,25 @@ test("Substack cuts retain content before the closing CTA and demote body H1", (
   assert.doesNotMatch(article.markdown, /^# Section heading$/m);
 });
 
+// Regression: WordPress rewrote a caption's ™ into an s.w.org emoji image, and the
+// mirror step failed the whole publication on a host that is not an image source.
+test("Substack restores WordPress emoji images to their source characters", () => {
+  const article = prepareArticle(
+    [
+      "<figure><figcaption>Tove Jansson: self-portrait © Moomin Characters",
+      '<img src="https://s.w.org/images/core/emoji/17.0.2/72x72/2122.png"',
+      ' alt="™" class="wp-smiley" style="height: 1em; max-height: 1em;" />',
+      "</figcaption></figure>",
+      "<p>The retained article body.</p>",
+    ].join(""),
+    "https://www.themarginalian.org/2026/08/24/too-ticky-quotes-tove-jansson",
+    publicationByKey("marginalian")
+  );
+
+  assert.match(article.markdown, /Moomin Characters™/);
+  assert.doesNotMatch(article.markdown, /s\.w\.org/);
+});
+
 // Regression: The Marginalian preserves Markdown thematic breaks as `***`.
 test("Substack quality accepts thematic breaks but rejects incomplete emphasis", () => {
   const prefix = "---\ndescription: \"有效摘要\"\ntitle: \"标题\"\n---\n";

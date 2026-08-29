@@ -107,6 +107,21 @@
       "sourceTextChars": 3681,
       "minimumSourceTextChars": 4000,
       "evaluatedAt": "2026-08-28T11:30:14.598Z"
+    },
+    {
+      "guid": "http://www.brainpickings.org/?p=37910",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/24/too-ticky-quotes-tove-jansson",
+      "sourcePublishedAt": "2026-08-24T20:36:51.000Z",
+      "sourceSha256": "b880f8bf9d34e7f3d06c1139ce464333e81365ade1e224b1a155cc65099baf0d",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260824-too-ticky-quotes-tove-jansson.md",
+      "translatedAt": "2026-08-29T00:42:47.722Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3697,
+        "outputTokens": 3895,
+        "totalTokens": 7592
+      }
     }
   ]
 }

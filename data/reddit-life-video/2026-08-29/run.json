@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-08-29",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-08-29",
+    "drafts": [
+      "01-1w0v245.md",
+      "02-1w1auv7.md"
+    ],
+    "sha256": "7b2e33fbfcd170aa6206d8992219bede8b02f76d9a934fe1ec9154d42a4834f1"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 9,
+  "selectedQuestionIndexes": [
+    3,
+    1
+  ],
+  "titles": [
+    "多年以后依然让人清醒的话",
+    "过了40岁迎面撞上的生活真相"
+  ],
+  "questions": [
+    "多年以后，哪句别人对你说过的话依然让你记忆犹新？",
+    "40岁以上的人：有哪些年轻人尚未做好准备就会迎面撞上的现实？"
+  ],
+  "verbatimCounts": [
+    10,
+    10
+  ]
+}

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { VIDEO_MANIFEST_VERSION, type VideoManifest } from "../video/src/contract.ts";
 import type { RedditLifeNewspicSelection } from "./reddit_life_newspic_compose.ts";
 
 const scriptRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -20,16 +21,17 @@ export function renderRedditLifeNewspicCards(selection: RedditLifeNewspicSelecti
   try {
     const propsFile = path.join(scratch, "props.json");
     const outputDir = path.join(scratch, "cards");
+    const manifest: VideoManifest = {
+      version: VIDEO_MANIFEST_VERSION,
+      archiveDate: selection.archiveDate,
+      title: selection.title,
+      question: selection.question,
+      cards: selection.cards.map(card => ({ ...card, verbatim: true })),
+    };
     fs.writeFileSync(
       propsFile,
       `${JSON.stringify({
-        manifest: {
-          version: 4,
-          archiveDate: selection.archiveDate,
-          title: selection.title,
-          question: selection.question,
-          cards: selection.cards.map(card => ({ ...card, verbatim: true })),
-        },
+        manifest,
       })}\n`,
       "utf8",
     );

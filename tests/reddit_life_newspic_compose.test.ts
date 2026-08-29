@@ -5,11 +5,12 @@ import {
   parseRedditLifeNewspicSelections,
   renderRedditLifeNewspicMarkdown,
 } from "../scripts/reddit_life_newspic_compose.ts";
+import { VIDEO_MANIFEST_VERSION } from "../video/src/contract.ts";
 
 test("Reddit image messages preserve both AI titles and selected questions", () => {
   const selections = parseRedditLifeNewspicSelections(
     {
-      version: 4,
+      version: VIDEO_MANIFEST_VERSION,
       archiveDate: "2099-01-02",
       title: "普通习惯背后的健康代价",
       question: "哪些习惯看似普通，实际上最值得警惕？",
@@ -44,7 +45,7 @@ test("Reddit image message refuses a selection that mixes duplicate source answe
     () =>
       parseRedditLifeNewspicSelections(
         {
-          version: 4,
+          version: VIDEO_MANIFEST_VERSION,
           archiveDate: "2099-01-02",
           title: "普通习惯背后的健康代价",
           question: "哪些习惯看似普通，实际上最值得警惕？",
@@ -71,7 +72,7 @@ test("Reddit image messages require two different questions", () => {
     () =>
       parseRedditLifeNewspicSelections(
         {
-          version: 4,
+          version: VIDEO_MANIFEST_VERSION,
           archiveDate: "2099-01-02",
           title: "普通习惯背后的健康代价",
           question: "哪些习惯看似普通，实际上最值得警惕？",

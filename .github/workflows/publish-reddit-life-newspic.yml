@@ -92,11 +92,15 @@ jobs:
           import fs from "node:fs";
           const lines = ["### Reddit life image-message generation", ""];
           if (fs.existsSync("reddit-life-newspic-result.json")) {
-            const result = JSON.parse(fs.readFileSync("reddit-life-newspic-result.json", "utf8"));
-            lines.push(`- Archive date: ${result.date}`);
-            lines.push(`- Status: ${result.status}`);
-            lines.push(`- Manifest: \`${result.manifestPath}\``);
-            lines.push(`- Generated files: ${(result.generatedPaths || []).length}`);
+            try {
+              const result = JSON.parse(fs.readFileSync("reddit-life-newspic-result.json", "utf8"));
+              lines.push(`- Archive date: ${result.date}`);
+              lines.push(`- Status: ${result.status}`);
+              lines.push(`- Manifest: \`${result.manifestPath}\``);
+              lines.push(`- Generated files: ${(result.generatedPaths || []).length}`);
+            } catch {
+              lines.push("- Generation did not produce a valid result JSON. Relevant diagnostics are in the uploaded artifact.");
+            }
           } else {
             lines.push("- Generation did not produce a result JSON. Relevant diagnostics are in the uploaded artifact.");
           }

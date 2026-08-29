@@ -3,6 +3,8 @@
 // 而不是靠 TypeScript 断言假装它一定对。
 import { REDDIT_LIFE_DAILY_SELECTION_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT } from "../../src/utils/redditLifePublishing.ts";
 
+export const VIDEO_MANIFEST_VERSION = 5;
+
 /** 一张内容卡，就是所选问题下的一条回答。`sourceIndex` 指回归档里的回答序号。 */
 export type VideoCard = {
   index: number;
@@ -13,7 +15,7 @@ export type VideoCard = {
 };
 
 export type VideoManifest = {
-  version: 5;
+  version: typeof VIDEO_MANIFEST_VERSION;
   archiveDate: string;
   /** 同一次选题 AI 根据最终问题和回答生成的发行标题。 */
   title: string;
@@ -36,7 +38,7 @@ export function parseVideoManifest(raw: unknown): VideoManifest {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("video manifest must be a JSON object");
   const value = raw as Record<string, unknown>;
   // v1 没有 question，v2 没有 AI 内容标题，v3 每天只有一组图片消息。
-  if (value.version !== 5) throw new Error(`unsupported video manifest version: ${String(value.version)}; regenerate with --force`);
+  if (value.version !== VIDEO_MANIFEST_VERSION) throw new Error(`unsupported video manifest version: ${String(value.version)}; regenerate with --force`);
 
   const archiveDate = requireString(value.archiveDate, "video manifest archiveDate");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(archiveDate)) throw new Error(`invalid video manifest archiveDate: ${archiveDate}`);
@@ -58,7 +60,7 @@ export function parseVideoManifest(raw: unknown): VideoManifest {
     };
   });
 
-  return { version: 5, archiveDate, title, question, cards };
+  return { version: VIDEO_MANIFEST_VERSION, archiveDate, title, question, cards };
 }
 
 /** 归档根对象携带满足两个发布端的选题；视频端只消费配置数量的前几组。 */

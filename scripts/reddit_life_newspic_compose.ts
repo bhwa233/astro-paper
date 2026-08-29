@@ -2,6 +2,7 @@
 import { compact, frontmatter } from "./blog_common.ts";
 import { validateRedditLifeVideoTitle } from "./reddit_life_video_compose.ts";
 import { REDDIT_LIFE_DAILY_NEWSPIC_COUNT, REDDIT_LIFE_DAILY_SELECTION_COUNT } from "../src/utils/redditLifePublishing.ts";
+import { VIDEO_MANIFEST_VERSION } from "../video/src/contract.ts";
 
 export const REDDIT_LIFE_NEWSPIC_TAG = "Reddit人生讨论";
 export const REDDIT_LIFE_NEWSPIC_ANSWER_LIMIT = 10;
@@ -59,7 +60,9 @@ export function parseRedditLifeNewspicSelections(raw: unknown, expectedDate: str
   validDate(expectedDate, "Reddit life newspic archive date");
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life newspic selection must be a JSON object");
   const value = raw as Record<string, unknown>;
-  if (value.version !== 5) throw new Error(`Reddit life newspic needs video selection version 5, got ${String(value.version)}`);
+  if (value.version !== VIDEO_MANIFEST_VERSION) {
+    throw new Error(`Reddit life newspic needs video selection version ${VIDEO_MANIFEST_VERSION}, got ${String(value.version)}`);
+  }
   if (value.archiveDate !== expectedDate) throw new Error(`Reddit life newspic selection date ${String(value.archiveDate)} does not match ${expectedDate}`);
   const expectedAdditionalIssues = REDDIT_LIFE_DAILY_SELECTION_COUNT - 1;
   if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length !== expectedAdditionalIssues) {

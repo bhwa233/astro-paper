@@ -19,9 +19,13 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
       - "src/content.config.ts"
+      - "src/utils/**"
       - "prompts/blog/**"
       - "scripts/**"
       - "tests/**"
+      # 渲染契约住在 video/，脚本和测试都 import 它。漏掉这条时，一个只改
+      # video/src/contract.ts 的改动跳过了整道门，红了八天才被定时任务撞出来。
+      - "video/**"
   workflow_dispatch:
   workflow_call:
 

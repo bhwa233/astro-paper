@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-08-29",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "2c26b6209e04201a141581d3ad48567d78ef6ee8",
+    "workflowRun": "33258545607",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-29-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-29/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "探讨衰老、时间加速与父母离去等人生必然阶段，回答真实深刻且具有极强的跨代际共鸣与长尾沉淀价值。"
+      },
+      {
+        "rank": 10,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从慢性压力、缺觉与情绪内耗切入揭示加速衰老的日常习惯，兼具健康认知启发与广泛切身痛点。"
+      },
+      {
+        "rank": 19,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从趋同演化与生存权衡角度科学解释树叶形态多样性，打破单一最优解思维，求知价值极高且永不过时。"
+      },
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深刻解构长久婚姻中朋友搭子属性、日常协作与互相包容的本质，对亲密关系极具普适参考价值。"
+      },
+      {
+        "rank": 17,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "素人故事中陌生人的善意与认知点醒感人至深，能唤起强烈的个人经历回溯与情感共振。"
+      },
+      {
+        "rank": 14,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "颠覆大众对土豆、味精和鸡蛋的固有偏见，兼具营养科普硬知识与日常生活指导价值。"
+      },
+      {
+        "rank": 4,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "细腻展现脱离内耗婚姻后的平静自由与偶发心理落差，故事生动且具普遍的人际可迁移性。"
+      },
+      {
+        "rank": 24,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "围绕走出虚度焦虑、把握当下真实社交与接纳自我展开，对青年成长期读者极具启发意义。"
+      },
+      {
+        "rank": 13,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "直击三十岁年龄关口的焦虑与心境转变，不同境遇对比鲜明，受众代入感极强。"
+      },
+      {
+        "rank": 22,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "通过误拨电话与错发消息等真实尴尬场景揭穿虚伪人际关系，极易引发读者的社交防备共鸣与倾诉欲。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 2,
+        "category": "narrow_interest",
+        "reason": "属于无厘头与荒谬喜剧电影的片单盘点，依赖特定影视作品观影经历，普遍共鸣有限。"
+      },
+      {
+        "rank": 3,
+        "category": "region_specific",
+        "reason": "高度依赖美国两党政治、本土选民意识形态与特定政治人物争端，跨地域普适性不足。"
+      },
+      {
+        "rank": 5,
+        "category": "narrow_interest",
+        "reason": "属于高分美剧清单盘点，讨论高度依赖读者对特定长篇剧集情节与制作背景的了解。"
+      },
+      {
+        "rank": 6,
+        "category": "narrow_interest",
+        "reason": "美剧高开低走吐槽清单，高度依赖特定剧集烂尾剧情细节与主创八卦，受众圈层较窄。"
+      },
+      {
+        "rank": 7,
+        "category": "low_resonance",
+        "reason": "围绕假设性高薪如何开销展开闲聊，回答分散且多限于个人收支碎念，缺乏深度思考与广泛共鸣。"
+      },
+      {
+        "rank": 8,
+        "category": "narrow_interest",
+        "reason": "纯粹针对早期互联网拨号与特定硬件音效的怀旧清单，依赖特定时代科技产品的记忆符号。"
+      },
+      {
+        "rank": 9,
+        "category": "narrow_interest",
+        "reason": "欧美流行歌手独特声线盘点，依赖特定音乐人认知，缺少具有普适迁移性的故事与讨论深度。"
+      },
+      {
+        "rank": 11,
+        "category": "region_specific",
+        "reason": "核心讨论集中于欧美主流媒体与公共广播的立场倾向，高度依赖西方具体新闻制度与媒体生态。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "对猫使用摔角招式的恶搞无厘头段子，属于浅层口水闲聊，缺乏实质讨论深度与现实意义。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "个人记忆中名人离世清单盘点，属于浅表的情感怀旧罗列，缺少可延展的深层共鸣与迁移价值。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "假想无限畅吃食物的日常闲聊，内容浅显单薄，缺乏生活洞察与深层共鸣。"
+      },
+      {
+        "rank": 20,
+        "category": "low_resonance",
+        "reason": "个人口味挑食吐槽，属于日常琐碎喜好罗列，缺乏建设性讨论与普遍共鸣。"
+      },
+      {
+        "rank": 21,
+        "category": "narrow_interest",
+        "reason": "个人动画电影前三名片单盘点，内容高度依赖特定动画作品知识与小众个人审美。"
+      },
+      {
+        "rank": 23,
+        "category": "narrow_interest",
+        "reason": "盲买游戏经历分享，完全依赖特定电子游戏作品背景与玩家经历，圈层属性过重。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "慢热美剧推荐片单，回答高度依赖特定情景喜剧角色与季度演变细节，缺乏普适价值。"
+      },
+      {
+        "rank": 26,
+        "category": "narrow_interest",
+        "reason": "英语老派俚语词汇盘点，存在显著的跨语言文化理解壁垒，受限于特定文化背景。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "对90年代无网络座机生活的单纯生活细节怀旧，属于浅层怀旧清单，缺乏跨周期深层共鸣。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "针对特定科技巨头与健身房退订难的商业吐槽，内容偏向负面情绪发泄，缺乏建设性长尾价值。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "单纯报出实际年龄与身心感知年龄的数字调侃，内容单薄且缺少具体故事支撑。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "架空超能力假想设定的推演闲聊，偏向小众科幻脑洞探讨，缺少现实生活的普适共鸣。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w0v245",
+      "title": "40岁以上的人：有哪些年轻人尚未做好准备就会迎面撞上的现实？",
+      "subreddit": "AskReddit",
+      "points": "3650 points · 2658 评论",
+      "numComments": 2658,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0v245/people_over_40_whats_coming_that_young_people/",
+      "sourceRank": 1,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/01-1w0v245.md",
+      "contentSha256": "f24dd68df76bc3b1acc2c82b59a004edeb52326c72282a7ea591ca4596062f69",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w1auv7",
+      "title": "有哪些容易被忽视、却在悄悄让人加速变老的习惯？",
+      "subreddit": "AskReddit",
+      "points": "664 points · 278 评论",
+      "numComments": 278,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w1auv7/whats_a_habit_that_makes_you_age_but_is_often/",
+      "sourceRank": 10,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/02-1w1auv7.md",
+      "contentSha256": "4c03accfef64214289d9622f3c2a3b547588bb754b75a7eb8c354dc2f36a5fa1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w0zofr",
+      "title": "同一片森林里争夺阳光，为什么树木没有演化出一种通用的“最优”叶片形状？",
+      "subreddit": "askscience",
+      "points": "226 points · 62 评论",
+      "numComments": 62,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1w0zofr/why_are_there_so_many_leaf_shapes/",
+      "sourceRank": 19,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/01-1w0v245.md",
+      "contentSha256": "f24dd68df76bc3b1acc2c82b59a004edeb52326c72282a7ea591ca4596062f69",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w11x2e",
+      "title": "能让一对夫妻携手走过漫长岁月的最关键原因是什么？",
+      "subreddit": "AskReddit",
+      "points": "408 points · 237 评论",
+      "numComments": 237,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w11x2e/what_would_you_say_is_the_top_reason_as_to_why_a/",
+      "sourceRank": 15,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/02-1w1auv7.md",
+      "contentSha256": "4c03accfef64214289d9622f3c2a3b547588bb754b75a7eb8c354dc2f36a5fa1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w1kl2s",
+      "title": "多年以后，哪句别人对你说过的话依然让你记忆犹新？",
+      "subreddit": "AskReddit",
+      "points": "300 points · 554 评论",
+      "numComments": 554,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w1kl2s/whats_a_sentence_someone_said_to_you_that_you/",
+      "sourceRank": 17,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/01-1w0v245.md",
+      "contentSha256": "f24dd68df76bc3b1acc2c82b59a004edeb52326c72282a7ea591ca4596062f69",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w1k52z",
+      "title": "哪些食物其实很健康，只是公关形象太差？",
+      "subreddit": "AskReddit",
+      "points": "413 points · 458 评论",
+      "numComments": 458,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w1k52z/what_food_is_actually_healthy_but_just_has_bad_pr/",
+      "sourceRank": 14,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/02-1w1auv7.md",
+      "contentSha256": "4c03accfef64214289d9622f3c2a3b547588bb754b75a7eb8c354dc2f36a5fa1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w1bzuf",
+      "title": "离婚后重新开始生活，最让人意想不到的是什么？",
+      "subreddit": "AskReddit",
+      "points": "1407 points · 644 评论",
+      "numComments": 644,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w1bzuf/divorced_people_of_reddit_what_surprised_you_most/",
+      "sourceRank": 4,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/01-1w0v245.md",
+      "contentSha256": "f24dd68df76bc3b1acc2c82b59a004edeb52326c72282a7ea591ca4596062f69",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w173vi",
+      "title": "如果能对20岁的自己说一句话，你会告诫当年的自己什么？",
+      "subreddit": "AskReddit",
+      "points": "140 points · 354 评论",
+      "numComments": 354,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w173vi/if_you_could_tell_your_20_yearold_self_one_thing/",
+      "sourceRank": 24,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/02-1w1auv7.md",
+      "contentSha256": "4c03accfef64214289d9622f3c2a3b547588bb754b75a7eb8c354dc2f36a5fa1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w0yq0l",
+      "title": "迈入三十岁那道门槛时，你心里到底是什么滋味？",
+      "subreddit": "AskReddit",
+      "points": "486 points · 413 评论",
+      "numComments": 413,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w0yq0l/how_did_you_feel_about_turning_30/",
+      "sourceRank": 13,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/01-1w0v245.md",
+      "contentSha256": "f24dd68df76bc3b1acc2c82b59a004edeb52326c72282a7ea591ca4596062f69",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w14e1e",
+      "title": "别人做过什么事，让你瞬间看清对方极度虚伪？",
+      "subreddit": "AskReddit",
+      "points": "147 points · 43 评论",
+      "numComments": 43,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w14e1e/what_was_it_that_someone_did_that_made_you/",
+      "sourceRank": 22,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-29/02-1w1auv7.md",
+      "contentSha256": "4c03accfef64214289d9622f3c2a3b547588bb754b75a7eb8c354dc2f36a5fa1",
+      "volume": "v2"
+    }
+  ]
+}

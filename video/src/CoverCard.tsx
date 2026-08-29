@@ -33,18 +33,22 @@ export const CoverCard: React.FC<{ question: string; answerCount: number }> = ({
         <div style={{ width: 96, height: 8, background: THEME.accent }} />
         <div style={{ fontSize: 34, color: MUTED_COLOR }}>{answerCount} 个回答</div>
       </div>
-      <div
-        style={{
-          flexGrow: 1,
-          display: "flex",
-          alignItems: "center",
-          fontSize,
-          lineHeight: QUESTION_LINE_HEIGHT,
-          fontWeight: 700,
-          color: TITLE_COLOR,
-        }}
-      >
-        {question}
+      {/* 内层这个 div 不是多余的：裸文本当 flex 孩子会因 min-width:auto 被长英文串撑宽，
+          详见 TopicCard.tsx 正文那段注释。 */}
+      <div style={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
+        <div
+          style={{
+            width: "100%",
+            minWidth: 0,
+            fontSize,
+            lineHeight: QUESTION_LINE_HEIGHT,
+            fontWeight: 700,
+            color: TITLE_COLOR,
+            overflowWrap: "anywhere",
+          }}
+        >
+          {question}
+        </div>
       </div>
     </Frame>
   );

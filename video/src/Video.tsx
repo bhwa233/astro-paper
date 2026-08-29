@@ -15,12 +15,18 @@ const THEME = PLATFORM_THEMES.reddit;
 // BGM 与提示音都已统一到 -3.5dB 峰值（见 public/CREDITS.md 的处理记录），
 // 因此这两个数字是可比的：提示音要盖过垫乐但不能盖过阅读。
 // 第一版成片实测整体偏响，BGM 已降到原来的八成；提示音再按试听反馈降到 0.28 的六成。
+// page-turn.mp3 的系数看着最大，但它的源文件本身就比另外两个轻 14dB，没做过增益统一，
+// 三者在成片里的有效峰值其实是同一量级。
+//
+// 乘数与基准分开写：三个基准描述的是素材之间的配比，MASTER_GAIN 是整体响度的唯一旋钮。
+// 2026-08-29 试听仍嫌吵，整体降到六成；配比不动，因为吵的是总量不是某一个声音。
 //
 // BGM 比任何一天的成片都长，loop 实际不会触发；留着它是为了将来卡片数或时长上限
 // 变大时不至于突然静音。
-const BGM_VOLUME = 0.144;
-const TICK_VOLUME = 0.168;
-const PAGE_TURN_VOLUME = 1;
+const MASTER_GAIN = 0.6;
+const BGM_VOLUME = 0.144 * MASTER_GAIN;
+const TICK_VOLUME = 0.168 * MASTER_GAIN;
+const PAGE_TURN_VOLUME = 1 * MASTER_GAIN;
 const BGM_FADE_OUT_FRAMES = FPS;
 // page-turn.mp3 的有效声音在源文件第 4 至第 20 帧；前后都是静音。
 const PAGE_TURN_TRIM_BEFORE = 4;

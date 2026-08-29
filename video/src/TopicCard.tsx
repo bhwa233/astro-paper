@@ -83,8 +83,16 @@ export const TopicCard: React.FC<{ durationInFrames: number; card: VideoCard; to
 
       <div style={{ width: "100%", height: 2, background: DIVIDER_COLOR, margin: "28px 0 0", flexShrink: 0 }} />
 
-      <div style={{ flexGrow: 1, display: "flex", alignItems: "center", fontSize: bodyFontSize, lineHeight: BODY_LINE_HEIGHT, color: BODY_COLOR }}>
-        {card.body}
+      {/* 正文必须裹一层 div，不能直接当这个横向 flex 的孩子：裸文本会变成匿名 flex item，
+          而横向 flex item 的 min-width 默认是 auto，即不会窄于 min-content。正文里只要有一个
+          断不开的长英文串（邮箱、网址），min-content 就是那个串的宽度，文本盒会被撑到比卡片还宽，
+          每一行都按撑开后的宽度折行，右边多出来的部分被 Frame 的 overflow:hidden 裁掉。
+          `minWidth: 0` 是解药本身——只写 width:100% 不管用，那只改首选宽度，min-width 照样兜底到
+          min-content。 */}
+      <div style={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
+        <div style={{ width: "100%", minWidth: 0, fontSize: bodyFontSize, lineHeight: BODY_LINE_HEIGHT, color: BODY_COLOR, overflowWrap: "anywhere" }}>
+          {card.body}
+        </div>
       </div>
     </Frame>
   );

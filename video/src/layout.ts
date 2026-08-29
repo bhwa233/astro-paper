@@ -40,11 +40,49 @@ export const BODY_COLOR = "#343434";
 export const TITLE_COLOR = "#191919";
 export const MUTED_COLOR = "#9A9A9A";
 
+function charEm(char: string): number {
+  if (/\s/.test(char)) return 0.35;
+  return char.codePointAt(0)! <= 0x7f ? 0.55 : 1;
+}
+
+/**
+ * 最长的一个「断不开的片段」有多宽。
+ *
+ * CJK 每个字都能断行，所以只有连续的非空白 ASCII 才成串——`name+site@gmail.com`
+ * 这种邮箱、长网址、代码标识符都属此列。浏览器不会在它中间折行，它比可用宽度长的话，
+ * 折行宽度就以它为准，而不是以容器为准。
+ */
+// 0.55em 是 ASCII 的平均宽度，摊在整段正文上够准，摊在一个十几字符的片段上不够：
+// `@` `m` `w` 都明显宽于平均，`name+site@gmail.com` 按 0.55 算是 10.45em，实测约 11em。
+// 总宽估偏了只会让字号差一档，片段估偏了会让那个串被 overflowWrap 拦腰断开，
+// 所以这一条单独留 8% 余量。
+const RUN_SAFETY = 1.08;
+
+function longestRunEm(text: string): number {
+  let longest = 0;
+  let current = 0;
+  for (const char of text) {
+    // 非 ASCII 或空白都是断点：前者每字可断，后者本身就是断点。
+    if (/\s/.test(char) || char.codePointAt(0)! > 0x7f) {
+      current = 0;
+      continue;
+    }
+    current += charEm(char);
+    if (current > longest) longest = current;
+  }
+  return longest;
+}
+
 /**
  * 按估算行数选字号，从大到小取第一个排得下的。
  *
  * CJK 一字约 1em，ASCII 约 0.55em；估宽偏保守只会让字小一号，
  * 而估宽偏乐观会让最后一行掉出卡片——后者是静默丢内容，不能接受。
+ *
+ * 除了总高度，还要求最长的不可断片段能塞进一行。少了这条，含长英文串的卡片会挑一个
+ * 「按总字数算排得下」但那个串放不下的字号，于是整块文本按串的宽度折行、右侧被裁掉
+ * ——同样是静默丢内容。片段长到连 min 都塞不下时这里让步，交给调用方的
+ * `overflowWrap` 去断词。
  */
 export function fitFontSize({
   text,
@@ -61,14 +99,14 @@ export function fitFontSize({
   min: number;
   max: number;
 }): number {
-  const widthEm = [...text].reduce((sum, char) => {
-    if (/\s/.test(char)) return sum + 0.35;
-    return sum + (char.codePointAt(0)! <= 0x7f ? 0.55 : 1);
-  }, 0);
+  const widthEm = [...text].reduce((sum, char) => sum + charEm(char), 0);
+  const runEm = longestRunEm(text) * RUN_SAFETY;
 
   for (let fontSize = max; fontSize > min; fontSize -= 1) {
     const lines = Math.ceil((widthEm * fontSize) / width);
-    if (lines * fontSize * lineHeight <= height) return fontSize;
+    if (lines * fontSize * lineHeight > height) continue;
+    if (runEm * fontSize > width) continue;
+    return fontSize;
   }
   return min;
 }

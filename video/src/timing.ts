@@ -4,8 +4,12 @@ import type { VideoCard } from "./contract.ts";
 
 export const FPS = 30;
 
+// 整体节奏的唯一旋钮。下面那些秒数描述的是「读完要多久」这套配比，PACE 描述的是
+// 成片实际比它快多少。2026-08-29 试看嫌拖，统一提速到八成；配比不动，因为慢的是全片不是某一张。
+const PACE = 0.8;
+
 /** 封面只放一个问题，读完就够，不按字数算。 */
-export const COVER_SECONDS = 4;
+export const COVER_SECONDS = 4 * PACE;
 
 // 没有旁白，时长只能由「读完这几个字要多久」决定。
 // 0.5s 是硬切之后眼睛落位的最小开销，之后按字数线性加。
@@ -13,9 +17,12 @@ export const COVER_SECONDS = 4;
 // 各只有 0.3s，观众真正能读的时间接近整张卡的时长。
 const BASE_SECONDS = 0.5;
 const SECONDS_PER_CHARACTER = 0.13;
-// 下限 6s 不只是为了读得完：倒计时最后 3 秒要响三声提示音，太短会挤到卡片刚出现的瞬间。
-// 实测归档里有短到 5 字的回答，没有这个下限它只会闪一下就过去。
-const MIN_SECONDS = 6;
+// 下限管的是「短回答别一闪而过」——实测归档里有短到 5 字的回答。
+// 写 5 是为了乘完 PACE 之后落在 4s 整：调 PACE 的话这个数要跟着改，才守得住 4s 这条线。
+// 4s 卡里，最后 3 秒的三声提示音从第 1 秒就开始响，占了整张卡的四分之三。
+// 原来的 6s 下限本是为了不让提示音挤到卡片刚出现的瞬间，现在这条余量基本让掉了；
+// 真嫌吵的话该动的是 TICK_LEAD_SECONDS，不是把下限再抬回去。
+const MIN_SECONDS = 5;
 // 上限对应 100 字的正文上限（0.5 + 100 × 0.13 = 13.5）。留 14 是给上限本身一点余量，
 // 而不是让最长的那张卡正好卡在公式的拐点上。
 const MAX_SECONDS = 14;
@@ -23,16 +30,20 @@ const MAX_SECONDS = 14;
 /** 提示音在卡片结束前几秒开始逐秒响。 */
 export const TICK_LEAD_SECONDS = 3;
 
+// 先夹再乘，不是先乘再夹：这样每张卡都恰好是原时长的 PACE 倍，短卡不会因为压在下限上
+// 而独自保持原速。代价是 MIN_SECONDS / MAX_SECONDS 不再是成片里的真实边界，
+// 真实区间是它们各自乘过 PACE 之后的值（当前 4s–11.2s）。
 export function cardSeconds(card: VideoCard): number {
   const raw = BASE_SECONDS + [...card.body].length * SECONDS_PER_CHARACTER;
-  return Math.min(MAX_SECONDS, Math.max(MIN_SECONDS, raw));
+  return PACE * Math.min(MAX_SECONDS, Math.max(MIN_SECONDS, raw));
 }
 
 export function cardFrames(card: VideoCard): number {
   return Math.round(cardSeconds(card) * FPS);
 }
 
-export const COVER_FRAMES = COVER_SECONDS * FPS;
+// 取整：PACE 一旦不是能整除 FPS 的数，封面就会摊上小数帧，而 Sequence 的 from 必须是整数。
+export const COVER_FRAMES = Math.round(COVER_SECONDS * FPS);
 
 /** 新纸完成覆盖前，旧纸继续挂在它下面；这段时间包含在新卡原有的落位余量里。 */
 export const PAPER_OVERLAY_FRAMES = 13;

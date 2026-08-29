@@ -37,7 +37,9 @@ const Answer: React.FC<{ body: string; index: number; total: number }> = ({ body
   return (
     <StaticCardFrame background={THEME.bg} surface={THEME.card}>
       <Masthead />
-      <div style={{ marginTop: CONTENT_TOP_GAP, fontSize, lineHeight: 1.52, color: "#343434" }}>{body}</div>
+      {/* 这里的父级是纵向 flex，宽度由 stretch 给定，撑不宽；但断不开的长英文串仍会溢出这一行
+          被裁掉。`fitFontSize` 已经会为这种串压字号，`overflowWrap` 只兜住连最小字号都塞不下的。 */}
+      <div style={{ marginTop: CONTENT_TOP_GAP, fontSize, lineHeight: 1.52, color: "#343434", overflowWrap: "anywhere" }}>{body}</div>
       <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end", flexShrink: 0, fontSize: 28, lineHeight: 1, color: "#777777" }}>{String(index).padStart(2, "0")} / {String(total).padStart(2, "0")}</div>
     </StaticCardFrame>
   );

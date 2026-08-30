@@ -1259,6 +1259,61 @@
       "writeState": "committed",
       "updatedAt": "2026-08-28T01:23:43.946Z",
       "mediaId": "lAMaLd-mzPj_bm0zorBkNKPe6LuSvIRuadE7BLo4NhnRWJL5eU_NnjDDiRO5Pz02"
+    },
+    "weibo-trending-2026-08-30": {
+      "sourceId": "weibo-trending-2026-08-30",
+      "contentHash": "a7263c58a66f9b3c385b5fb67eb97b3ac694b3db55a5be829891e5c892b28c44",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "imageMaterialIds": [
+        {
+          "contentHash": "9cb77c8cd26569dc",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNLxXfZYLgsB3Z_d4gc19ZA1osgwf9nQyO0BD0S0NY9BY"
+        },
+        {
+          "contentHash": "b2141df080c31c11",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNAwDgPbKOsbT9fpUYxSfN6v-Hv0WIDpyEHtAPh9FZm04"
+        },
+        {
+          "contentHash": "c936fb9a7d0cb6ca",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNIGlGBLP27nmx-Dq-ZfHskgdp43mgX5Hy4Yb8ZuPeJuw"
+        },
+        {
+          "contentHash": "1ff0446efc1cbc28",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNCqqdTi0rz9Rvl0SDTYMNSc4IIsP1bBs_54iNrnaHYmM"
+        },
+        {
+          "contentHash": "1727f4f5db74727a",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNKM8fHyGvRDUomuSPSUG8XM65CpQ9UiVPVz9VIS2PU3r"
+        },
+        {
+          "contentHash": "f309f191c1bce1cb",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNF1dYt_yNQQuU4j70yZuu5XW-555E5rbjJPseXOB117o"
+        },
+        {
+          "contentHash": "7ee92b1955c514a4",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNIxkyfFfOP26hXLd4Ka2Tfm3ALv-d36UDAUtOFr0B73J"
+        },
+        {
+          "contentHash": "67f7d2743ec00665",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNCKqY5jrzwxG_9-iz7Ozzz85FfPEdWWQybbUSagxIRZn"
+        },
+        {
+          "contentHash": "c47a13c48bc0f3b0",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNESOgxujGMqW2roewRCJG3x19n5FZ9lZvlsNfnENPLoh"
+        },
+        {
+          "contentHash": "918defdc775f4629",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNL8ON9wfwnJSQuMzDvqe_syCx1RgIBS-4_hjDAahdh7Q"
+        },
+        {
+          "contentHash": "2af9c903eb2c6f0e",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNLezuJZY79h_4XokYA6TEG_XRt8lKqba9x5Qvi9trJ0C"
+        }
+      ],
+      "writeState": "committed",
+      "updatedAt": "2026-08-30T19:42:39.769Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNC5WgNfDwdeMlFWKLHQj6Nbr-sHNupx_ZngJrUl66HkU"
     }
   }
 }

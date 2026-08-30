@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-08-30",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-08-30",
+    "drafts": [
+      "01-1w2axrl.md",
+      "02-1w1zn0h.md"
+    ],
+    "sha256": "de195f16353b9bbc7b31d72d57dd65b1fa2f1e1fa4a5e8c99dd07a512981230f"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 9,
+  "selectedQuestionIndexes": [
+    1,
+    10
+  ],
+  "titles": [
+    "富豪身边人见过的离奇挥霍",
+    "当年习以为常如今算玩命的童年"
+  ],
+  "questions": [
+    "在超级富豪身边工作的人，见过他们最匪夷所思的日常开销是什么？",
+    "三四十年前孩子习以为常、如今父母觉得极度危险的事有哪些？"
+  ],
+  "verbatimCounts": [
+    6,
+    10
+  ]
+}

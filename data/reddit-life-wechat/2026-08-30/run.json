@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-08-30",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "394896216c74e924734555f35833a94ace97c34e",
+    "workflowRun": "33317219595",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-30-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-30/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "富豪身边工作人员揭示消费心理与「生活阻力脱离」现象，视角新颖且具有极强的人性观察价值与长尾吸引力。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "真实动人的婚礼突发变故故事，戏剧张力与情感共鸣拉满，跨越时间与文化背景依然震撼人心。"
+      },
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "探讨秒睡人群背后的心理暗示与长期照护者的辛酸现实，兼具实用技巧与深层人文关怀。"
+      },
+      {
+        "rank": 12,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深度揭开巡演音乐人、田园牧歌和自由职业光鲜背后的沉重消耗，极具反常识认知与职场共鸣。"
+      },
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "聚焦女性更年期的医疗常识误区与亲身经验，具有不可替代的医学科普长尾价值与现实关怀。"
+      },
+      {
+        "rank": 22,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深入剖析线上赌博、情绪消费和日常依赖如何侵蚀财富，给读者带来极深刻的财务警示与心理反思。"
+      },
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "求职面试缺点问答的具体技巧与避坑指南，提供高度可迁移的职场经验与真实策略。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "假想断电后食物储存与老派手艺的生存思想实验，极具知识延展性与求知趣味。"
+      },
+      {
+        "rank": 10,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "讽刺刻板男性气质的荒唐日常行为，生动幽默且精准切中社会心理痛点，互动讨论欲极高。"
+      },
+      {
+        "rank": 9,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "对比数十年间育儿安全标准与童年自由度的剧变，唤起强烈的代际回忆与教育反思。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 3,
+        "category": "low_resonance",
+        "reason": "代表回答多为宽带网络、图书馆借书证等日常琐碎清单，讨论深度与共鸣价值相对有限。"
+      },
+      {
+        "rank": 4,
+        "category": "narrow_interest",
+        "reason": "围绕特定代际的英语口头烂梗盘点，受特定语境限制且缺乏普遍共鸣与深度。"
+      },
+      {
+        "rank": 7,
+        "category": "region_specific",
+        "reason": "高赞核心讨论严重依赖美国医疗保险、高额医疗债务与个人破产制度等特定地区背景。"
+      },
+      {
+        "rank": 11,
+        "category": "narrow_interest",
+        "reason": "数据中心周边居住体验切入点过于特定小众，缺乏大众普遍代入感。"
+      },
+      {
+        "rank": 13,
+        "category": "low_resonance",
+        "reason": "副业赚钱案例偏向论坛刷分或零碎调侃，缺乏可借鉴的干货与广泛共鸣。"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "拒绝购买的物品偏向个人主观杂谈，观点分散且缺乏启发性讨论。"
+      },
+      {
+        "rank": 16,
+        "category": "narrow_interest",
+        "reason": "无聊电影吐槽盘点高度依赖具体影视剧情知识，属于小众娱乐向内容。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "致郁歌曲清单盘点依赖特定小众音乐作品与历史背景，受众面较窄。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "最低工资工作的职场讨论观点较为简短扁平，缺乏具体深度的故事支撑。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "半夜床底恐惧设想多为无厘头段子与恐怖假想，缺乏长尾阅读与共鸣价值。"
+      },
+      {
+        "rank": 20,
+        "category": "low_resonance",
+        "reason": "处理大量啤酒纯属脑洞调侃与水帖段子，缺少实质内容与传播价值。"
+      },
+      {
+        "rank": 21,
+        "category": "narrow_interest",
+        "reason": "特定海外零食快餐品牌改版控诉，高度依赖特定地区饮食品牌的童年记忆。"
+      },
+      {
+        "rank": 23,
+        "category": "region_specific",
+        "reason": "核心议题完全依赖各国具体地理、交通与地缘政治国情，属于典型的地区依赖型讨论。"
+      },
+      {
+        "rank": 24,
+        "category": "low_resonance",
+        "reason": "代表回答包含体验致幻剂等偏门争议内容，不符合通用传播标准与普遍共鸣导向。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "常规书单推荐与调侃缺乏新颖视角与深入讨论，清单感较重。"
+      },
+      {
+        "rank": 26,
+        "category": "narrow_interest",
+        "reason": "虚构末日电影世界盘点依赖特定影视作品设定，属于小众影迷闲聊。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "多走路和少喝甜饮料等健康建议过于基础常规，缺乏独特洞察与讨论深度。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "个人奇葩外号闲聊缺乏普遍代入感与深层信息价值。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "针对虐待动物和冷漠等泛化道德控诉，以情绪宣泄为主，缺乏具体独特视角。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "推荐维基百科等常规免费网站，内容浅显常见且缺乏新鲜讨论增量。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w2axrl",
+      "title": "在超级富豪身边工作的人，见过他们最匪夷所思的日常开销是什么？",
+      "subreddit": "AskReddit",
+      "points": "1422 points · 837 评论",
+      "numComments": 837,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2axrl/people_who_work_around_extremely_wealthy_people/",
+      "sourceRank": 5,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/01-1w2axrl.md",
+      "contentSha256": "6e431dd769ad104b66a7eb6301cd7dc5ceea314d4f21f17998a8ccb195f738c9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w1zn0h",
+      "title": "你在婚礼上亲眼见过哪些离奇到令人难以置信的场面？",
+      "subreddit": "AskReddit",
+      "points": "3951 points · 1980 评论",
+      "numComments": 1980,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w1zn0h/whats_the_wildest_thing_youve_ever_seen_happen_at/",
+      "sourceRank": 1,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/02-1w1zn0h.md",
+      "contentSha256": "384daf315c3f20f105cd4755118c7d86a4580fe82d5a6cd9c3eca8c2742a502b",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w23anw",
+      "title": "那些脑袋挨着枕头十秒就能睡着的人，究竟是怎么做到的？",
+      "subreddit": "AskReddit",
+      "points": "3434 points · 2297 评论",
+      "numComments": 2297,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w23anw/people_who_can_fall_asleep_10_seconds_after_your/",
+      "sourceRank": 2,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/01-1w2axrl.md",
+      "contentSha256": "6e431dd769ad104b66a7eb6301cd7dc5ceea314d4f21f17998a8ccb195f738c9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w222or",
+      "title": "网上看着像神仙日子，现实中体验却极度心累的生活方式有哪些？",
+      "subreddit": "AskReddit",
+      "points": "383 points · 226 评论",
+      "numComments": 226,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w222or/whats_something_that_looks_like_a_dream_lifestyle/",
+      "sourceRank": 12,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/02-1w1zn0h.md",
+      "contentSha256": "384daf315c3f20f105cd4755118c7d86a4580fe82d5a6cd9c3eca8c2742a502b",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w1w9w2",
+      "title": "经历过绝经期（menopause）的女性，最希望提前得知哪些建议与真相？",
+      "subreddit": "AskReddit",
+      "points": "1243 points · 712 评论",
+      "numComments": 712,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w1w9w2/women_of_reddit_who_have_gone_through_menopause/",
+      "sourceRank": 8,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/01-1w2axrl.md",
+      "contentSha256": "6e431dd769ad104b66a7eb6301cd7dc5ceea314d4f21f17998a8ccb195f738c9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w2441x",
+      "title": "长期来看，哪种日常习惯最容易让人倾家荡产？",
+      "subreddit": "AskReddit",
+      "points": "92 points · 188 评论",
+      "numComments": 188,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2441x/what_daily_habit_is_most_likely_to_result_in_a/",
+      "sourceRank": 22,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/02-1w1zn0h.md",
+      "contentSha256": "384daf315c3f20f105cd4755118c7d86a4580fe82d5a6cd9c3eca8c2742a502b",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w23ire",
+      "title": "求职面试时聊到自己的缺点，说什么才算既真实又不得罪人？",
+      "subreddit": "AskReddit",
+      "points": "221 points · 205 评论",
+      "numComments": 205,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w23ire/what_is_a_good_weakness_you_can_mention_in_a_job/",
+      "sourceRank": 15,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/01-1w2axrl.md",
+      "contentSha256": "6e431dd769ad104b66a7eb6301cd7dc5ceea314d4f21f17998a8ccb195f738c9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w1zo4d",
+      "title": "如果电永远消失了，哪些老派手艺会重新变成千金难求的绝活？",
+      "subreddit": "AskReddit",
+      "points": "1380 points · 1199 评论",
+      "numComments": 1199,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w1zo4d/if_electricity_permanently_disappeared_whats_an/",
+      "sourceRank": 6,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/02-1w1zn0h.md",
+      "contentSha256": "384daf315c3f20f105cd4755118c7d86a4580fe82d5a6cd9c3eca8c2742a502b",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w1qlcs",
+      "title": "你听过别人把什么最离奇的事情说成「不够爷们」？",
+      "subreddit": "AskReddit",
+      "points": "517 points · 1282 评论",
+      "numComments": 1282,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w1qlcs/whats_the_strangest_thing_youve_ever_heard/",
+      "sourceRank": 10,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/01-1w2axrl.md",
+      "contentSha256": "6e431dd769ad104b66a7eb6301cd7dc5ceea314d4f21f17998a8ccb195f738c9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w1wc2j",
+      "title": "三四十年前孩子习以为常、如今父母觉得极度危险的事有哪些？",
+      "subreddit": "AskReddit",
+      "points": "1230 points · 1958 评论",
+      "numComments": 1958,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w1wc2j/what_did_kids_3040_years_ago_routinely_do_that/",
+      "sourceRank": 9,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-30/02-1w1zn0h.md",
+      "contentSha256": "384daf315c3f20f105cd4755118c7d86a4580fe82d5a6cd9c3eca8c2742a502b",
+      "volume": "v2"
+    }
+  ]
+}

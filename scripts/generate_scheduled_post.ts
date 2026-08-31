@@ -8,7 +8,7 @@ import { archivePost } from "./astro_paper_archive.ts";
 import { readPromptTemplate, validateMarkdown, renderPrompt, resolvePromptFile } from "./ai_blog_writer.ts";
 import { callAi, generateJsonStageWithRetries, retryAttempts, retryDelayMs, writeAiArtifact as writeArtifact } from "./ai_json_stage.ts";
 import { type AiCallResult, envAiConfig } from "./blog_ai_client.ts";
-import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, envPositiveInt, fetchJson, parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, envPositiveInt, fetchJson, mapWithConcurrency, parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { type Task, isEpisodeArticleTask, isTaskInput, scheduledTaskInput, taskInfo, taskPostRelPath, taskTags, taskTitle, taskTitleWithSuffix, tasksForInput } from "./blog_tasks.ts";
 import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
@@ -48,6 +48,8 @@ import { redditTrendingMarkdownFromTitleTranslations } from "./reddit_trending_c
 import { buildCombinedRedditTrendingSource, buildRedditTrendingSource } from "./reddit_trending_source.ts";
 import { weiboTrendingArticleFromSummaries } from "./weibo_trending_compose.ts";
 import { buildCombinedWeiboTrendingSource, buildWeiboTrendingSource } from "./weibo_trending_source.ts";
+import { forumSourceWithSummaries, forumTop10MarkdownFromSummaries, parseForumItemSummary, parseForumTop10Payload } from "./forum_top10_compose.ts";
+import { buildForumTop10Source, type ForumTop10Item } from "./forum_top10_source.ts";
 
 export type ResultItem = ReturnType<typeof archivePost> & {
   skip_reason?: string;
@@ -282,6 +284,7 @@ const SOURCE_BUILDERS: Record<Task, ((date: string, ctx: SourceContext) => Promi
   // 只取榜和粗筛，选题与深挖留给 SOURCE_COMBINERS——那一层才拿得到模型与提示词目录。
   "reddit-trending": date => buildRedditTrendingSource(date),
   "weibo-trending": date => buildWeiboTrendingSource(date),
+  "forum-top10": () => buildForumTop10Source(),
 };
 
 async function sourceForTask(task: Task, date: string, sourceFixtureDir = "", repo = repoRoot(), redditCategory?: RedditCategory): Promise<string> {
@@ -367,21 +370,6 @@ function parseDailyItemSummaryResponse(text: string, meta: DailyCandidateMeta): 
     concerns: truncateField(payload.concerns, 260),
     importance,
   };
-}
-
-async function mapWithConcurrency<T, R>(items: T[], concurrency: number, mapper: (item: T, index: number) => Promise<R>): Promise<R[]> {
-  const results = new Array<R>(items.length);
-  let next = 0;
-  async function worker(): Promise<void> {
-    for (;;) {
-      const index = next;
-      next += 1;
-      if (index >= items.length) return;
-      results[index] = await mapper(items[index], index);
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, () => worker()));
-  return results;
 }
 
 async function summarizeDailyItem({
@@ -659,6 +647,57 @@ async function buildCombinedRedditSource({
     }),
   ].join("\n");
   writeArtifact(artifactsDir, "reddit-top20", "source.dynamic.md", combined);
+  return combined;
+}
+
+type ForumItemSummaryOutcome = { summary: string; error: string };
+
+function forumItemPromptText(item: ForumTop10Item): string {
+  return [
+    `平台：${item.platform}`,
+    `平台排名：${item.rank}`,
+    `原始标题：${item.title}`,
+    `板块：${item.board || "未标明"}`,
+    `正文：\n${item.body || "（无可读取的文本正文；图片内容未识别）"}`,
+    `评论：\n${item.comments.length ? item.comments.join("\n\n") : "（无可读取的文本评论）"}`,
+  ].join("\n\n");
+}
+
+async function buildCombinedForumTop10Source({
+  source,
+  date,
+  repo,
+  model,
+  promptDir,
+  artifactsDir,
+}: CombineArgs): Promise<string> {
+  const payload = parseForumTop10Payload(source);
+  writeArtifact(artifactsDir, "forum-top10", "source.raw.md", source);
+  const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
+  const template = readPromptTemplate(resolvedPromptDir, "forum-top10-item-summary");
+  const outcomes = await mapWithConcurrency(payload.items, envPositiveInt("FORUM_TOP10_AI_CONCURRENCY", 4, 8), async item => {
+    if (!item.body && !item.comments.length) {
+      return [item.itemId, { summary: "", error: item.detailError || "no readable text evidence" }] as const;
+    }
+    const prompt = template
+      .replaceAll("{date}", date)
+      .replaceAll("{item_id}", String(item.itemId))
+      .replaceAll("{item_text}", forumItemPromptText(item));
+    const outcome = await generateJsonStageWithRetries<ForumItemSummaryOutcome>({
+      task: "forum-top10",
+      stage: `forum Top 10 item ${item.itemId}`,
+      artifactPrefix: `item-${String(item.itemId).padStart(2, "0")}-summary`,
+      prompt,
+      model,
+      artifactsDir,
+      jitterMs: 1_000,
+      parse: content => ({ summary: parseForumItemSummary(content, item.itemId), error: "" }),
+      onExhausted: error => ({ summary: "", error }),
+    });
+    return [item.itemId, outcome] as const;
+  });
+  const combined = forumSourceWithSummaries(payload, new Map(outcomes));
+  writeArtifact(artifactsDir, "forum-top10", "source.dynamic.md", combined);
   return combined;
 }
 
@@ -994,6 +1033,7 @@ const SOURCE_COMBINERS: Record<Task, ((args: CombineArgs) => Promise<string>) | 
   "reddit-top20": buildCombinedRedditSource,
   "reddit-trending": buildCombinedRedditTrendingSource,
   "weibo-trending": buildCombinedWeiboTrendingSource,
+  "forum-top10": buildCombinedForumTop10Source,
   "economist-weekly": combineMagazineSource,
   "new-yorker-weekly": combineMagazineSource,
   "atlantic-monthly": combineMagazineSource,
@@ -1018,6 +1058,7 @@ const LEDGER_APPENDERS: Record<Task, ((source: string, meta: LedgerMeta, ctx: So
   "tech-daily": null,
   "reddit-trending": null,
   "weibo-trending": null,
+  "forum-top10": null,
   "mdblist-weekly": (source, meta, { repo }) =>
     appendMdblistRecommendations(parseMdblistRecommendationsFromSource(source), meta, path.join(repo, MDBLIST_LEDGER_REL_PATH)),
   "nyt-books-weekly": (source, meta, { repo }) =>
@@ -1175,6 +1216,17 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     titleSuffix = article.titleSuffix;
     wechatTitle = article.wechatTitle;
     description = article.wechatDescription;
+    const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
+    const itemConfig = envAiConfig({ model });
+    generation = {
+      ai_model: itemConfig.model,
+      ai_base_url: itemConfig.baseUrl,
+      ai_fallback_used: false,
+      source_artifact: sourceArtifact,
+      mocked_ai: Boolean(mockResponseDir),
+    };
+  } else if (task === "forum-top10" && useAi) {
+    body = forumTop10MarkdownFromSummaries(source);
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
     const itemConfig = envAiConfig({ model });
     generation = {

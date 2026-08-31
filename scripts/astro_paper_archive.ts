@@ -403,6 +403,7 @@ const ARCHIVE_FORMATTERS: Record<Task, ArchiveFormatter> = {
   "reddit-top20": body => ({ markdown: formatRedditTop20(body) }),
   "reddit-trending": body => ({ markdown: formatRedditTrending(body) }),
   "weibo-trending": body => ({ markdown: formatWeiboTrending(body) }),
+  "forum-top10": body => ({ markdown: normalizeMarkdown(body) }),
   "daily-podcasts": formatPodcastEpisode,
   "apple-top-podcasts": formatPodcastEpisode,
   "xyzrank-top-episodes": formatPodcastEpisode,

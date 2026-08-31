@@ -199,6 +199,21 @@ export const BLOG_TASKS = {
       requiredPatterns: [{ label: "topic links", pattern: /- \*\*话题\*\*：https:\/\// }],
     },
   },
+  "forum-top10": {
+    titlePrefix: "5ch 与 DC Inside 每日 Top 10",
+    category: "社区",
+    tag: "日韩论坛热榜",
+    description: "每日固定时间截取 5ch 全板势い榜与 DC Inside 实时最佳榜原始 Top 10，并逐帖整理可读取的文字正文与评论。",
+    fileName: "5ch-dcinside-{date}.md",
+    sourceContract: {
+      minNumberedBlocks: 20,
+      requiredTerms: ["平台：5ch", "平台：DC Inside", "原始标题：", "中文摘要："],
+      requiredPatterns: [
+        { label: "5ch post links", pattern: /- 原帖：https:\/\/[A-Za-z0-9.-]+\.5ch\.io\/test\/read\.cgi\// },
+        { label: "DC Inside post links", pattern: /- 原帖：https:\/\/gall\.dcinside\.com\/board\/view\// },
+      ],
+    },
+  },
 } as const satisfies Record<string, BlogTaskInfo>;
 
 export type Task = keyof typeof BLOG_TASKS;
@@ -226,6 +241,8 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "30 11 * * *": { task: "reddit-trending", dateTimeZone: "America/Los_Angeles" },
   // 北京时间次日 00:20 读取前一天完整累积榜，避免当天中午只拿到半天热搜。
   "20 16 * * *": { task: "weibo-trending", dateOffset: -1, dateTimeZone: "Asia/Shanghai" },
+  // 北京 22:30 / 日本与韩国 23:30，各站按同一时刻冻结一次实时榜单快照。
+  "30 14 * * *": { task: "forum-top10", dateTimeZone: "Asia/Shanghai" },
 };
 
 export function isTask(value: string): value is Task {

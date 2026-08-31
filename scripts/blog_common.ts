@@ -223,6 +223,25 @@ export async function sleep(ms: number): Promise<void> {
   if (ms > 0) await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  async function worker(): Promise<void> {
+    for (;;) {
+      const index = next;
+      next += 1;
+      if (index >= items.length) return;
+      results[index] = await mapper(items[index], index);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(Math.max(1, concurrency), items.length) }, () => worker()));
+  return results;
+}
+
 // 环境变量数字读取的唯一入口：未设、非法、非正一律回落到 fallback。
 // max 用于给并发之类的旋钮钳上界，超出时取 max 而不是回落——运维填大了应该被压住，不是被忽略。
 export function envPositiveInt(name: string, fallback: number, max = Number.POSITIVE_INFINITY): number {

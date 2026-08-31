@@ -29,6 +29,7 @@ export type ForumTop10Item = {
   comments: string[];
   imagesIgnored: number;
   detailError: string;
+  titleZh?: string;
   summary?: string;
   summaryError?: string;
 };
@@ -255,8 +256,8 @@ function renderItemEvidence(item: ForumTop10Item): string {
   if (item.detailError) lines.push(`- 取证异常：${item.detailError}`);
   lines.push("", "### 正文证据", "", item.body || "（无可读取的文本正文；图片内容未识别）", "", `### 评论证据（最多 ${item.platform === "5ch" ? FIVE_CH_REPLY_LIMIT : DC_INSIDE_COMMENT_LIMIT} 条）`, "");
   lines.push(item.comments.length ? item.comments.join("\n\n") : "（无可读取的文本评论）");
-  if (item.summary !== undefined || item.summaryError) {
-    lines.push("", `- 中文摘要：${JSON.stringify(item.summary || "")}`);
+  if (item.titleZh !== undefined || item.summary !== undefined || item.summaryError) {
+    lines.push("", `- 中文标题：${JSON.stringify(item.titleZh || "")}`, `- 中文摘要：${JSON.stringify(item.summary || "")}`);
     if (item.summaryError) lines.push(`- 摘要异常：${item.summaryError}`);
   }
   return lines.join("\n");

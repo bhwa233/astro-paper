@@ -23,6 +23,7 @@ function item(itemId: number): ForumTop10Item {
     comments: ["第一条评论"],
     imagesIgnored: 0,
     detailError: "",
+    titleZh: `第 ${rank} 条中文标题`,
     summary: itemId === 3 ? "" : `第 ${rank} 条帖子的中文摘要，保留原帖信息和评论区讨论。`,
     summaryError: itemId === 3 ? "model failed" : "",
   };
@@ -36,12 +37,13 @@ function source(items = Array.from({ length: 20 }, (_, index) => item(index + 1)
   });
 }
 
-test("forum Top 10 composition preserves every original rank, title, and link", () => {
+test("forum Top 10 composition displays translated titles while preserving every original rank, title, and link", () => {
   const markdown = forumTop10MarkdownFromSummaries(source());
   assert.equal((markdown.match(/^### \d+\./gm) || []).length, 20);
   for (let id = 1; id <= 20; id += 1) {
     const expected = item(id);
-    assert.ok(markdown.includes(`### ${expected.rank}. ${expected.platform} 原题 \\[${expected.rank}\\] \\*保持不变\\*`));
+    assert.ok(markdown.includes(`### ${expected.rank}. ${expected.titleZh}`));
+    assert.ok(markdown.includes(`- **原始标题**：${expected.platform} 原题 \\[${expected.rank}\\] \\*保持不变\\*`));
     assert.ok(markdown.includes(`(${expected.url})`));
   }
   assert.match(markdown, /本次摘要生成失败，原始榜单条目按快照保留。/);
@@ -56,6 +58,10 @@ test("forum Top 10 contract rejects a missing or reordered raw rank", () => {
 
 test("forum item summaries cannot be attached to a different ranked item", () => {
   const summary = "这是一段只依据帖子正文和评论写成的中文摘要，包含足够的具体信息、讨论焦点与分歧，也不会改写原始标题或榜单事实。".repeat(2);
-  assert.equal(parseForumItemSummary(JSON.stringify({ item_id: 4, summary }), 4), summary);
-  assert.throws(() => parseForumItemSummary(JSON.stringify({ item_id: 5, summary }), 4), /ID mismatch/);
+  assert.deepEqual(parseForumItemSummary(JSON.stringify({ item_id: 4, title_zh: "准确的中文标题", summary }), 4), {
+    titleZh: "准确的中文标题",
+    summary,
+  });
+  assert.throws(() => parseForumItemSummary(JSON.stringify({ item_id: 5, title_zh: "准确的中文标题", summary }), 4), /ID mismatch/);
+  assert.throws(() => parseForumItemSummary(JSON.stringify({ item_id: 4, title_zh: "English only", summary }), 4), /needs a Chinese title/);
 });

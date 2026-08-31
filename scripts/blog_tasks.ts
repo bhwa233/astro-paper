@@ -207,7 +207,7 @@ export const BLOG_TASKS = {
     fileName: "5ch-dcinside-{date}.md",
     sourceContract: {
       minNumberedBlocks: 20,
-      requiredTerms: ["平台：5ch", "平台：DC Inside", "原始标题：", "中文摘要："],
+      requiredTerms: ["平台：5ch", "平台：DC Inside", "原始标题：", "中文标题：", "中文摘要："],
       requiredPatterns: [
         { label: "5ch post links", pattern: /- 原帖：https:\/\/[A-Za-z0-9.-]+\.5ch\.io\/test\/read\.cgi\// },
         { label: "DC Inside post links", pattern: /- 原帖：https:\/\/gall\.dcinside\.com\/board\/view\// },

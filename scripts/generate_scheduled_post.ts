@@ -650,7 +650,7 @@ async function buildCombinedRedditSource({
   return combined;
 }
 
-type ForumItemSummaryOutcome = { summary: string; error: string };
+type ForumItemSummaryOutcome = { titleZh: string; summary: string; error: string };
 
 function forumItemPromptText(item: ForumTop10Item): string {
   return [
@@ -676,9 +676,7 @@ async function buildCombinedForumTop10Source({
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const template = readPromptTemplate(resolvedPromptDir, "forum-top10-item-summary");
   const outcomes = await mapWithConcurrency(payload.items, envPositiveInt("FORUM_TOP10_AI_CONCURRENCY", 4, 8), async item => {
-    if (!item.body && !item.comments.length) {
-      return [item.itemId, { summary: "", error: item.detailError || "no readable text evidence" }] as const;
-    }
+    const hasTextEvidence = Boolean(item.body || item.comments.length);
     const prompt = template
       .replaceAll("{date}", date)
       .replaceAll("{item_id}", String(item.itemId))
@@ -691,8 +689,14 @@ async function buildCombinedForumTop10Source({
       model,
       artifactsDir,
       jitterMs: 1_000,
-      parse: content => ({ summary: parseForumItemSummary(content, item.itemId), error: "" }),
-      onExhausted: error => ({ summary: "", error }),
+      parse: content => {
+        const parsed = parseForumItemSummary(content, item.itemId, !hasTextEvidence);
+        return {
+          ...parsed,
+          error: hasTextEvidence ? "" : item.detailError || "no readable text evidence",
+        };
+      },
+      onExhausted: error => ({ titleZh: "", summary: "", error }),
     });
     return [item.itemId, outcome] as const;
   });

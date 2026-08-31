@@ -3,6 +3,11 @@ import { FORUM_TOP10_CONTRACT_VERSION, FORUM_TOP10_LIMIT, type ForumPlatform, ty
 
 const SUMMARY_MIN_CHARS = 80;
 
+export type ForumItemSummary = {
+  titleZh: string;
+  summary: string;
+};
+
 function validItems(items: unknown): ForumTop10Item[] {
   if (!Array.isArray(items)) throw new Error("forum Top 10 payload items must be an array");
   const parsed = items as ForumTop10Item[];
@@ -46,25 +51,28 @@ export function parseForumTop10Payload(source: string): ForumTop10Payload {
   return { contract_version: FORUM_TOP10_CONTRACT_VERSION, snapshot_at: payload.snapshot_at, items: validItems(payload.items) };
 }
 
-export function parseForumItemSummary(raw: string, expectedItemId: number): string {
+export function parseForumItemSummary(raw: string, expectedItemId: number, allowEmptySummary = false): ForumItemSummary {
   const payload = parseModelJsonObject(raw, `forum Top 10 item ${expectedItemId}`);
   const itemId = Number(payload.item_id);
+  const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
   const summary = normalizeMarkdownBlock(String(payload.summary || ""));
   if (itemId !== expectedItemId) throw new Error(`forum Top 10 item ID mismatch: ${itemId} vs ${expectedItemId}`);
+  if (!titleZh || !hasChinese(titleZh)) throw new Error(`forum Top 10 item ${expectedItemId} needs a Chinese title`);
+  if (allowEmptySummary && !summary) return { titleZh, summary: "" };
   if (!summary || !hasChinese(summary)) throw new Error(`forum Top 10 item ${expectedItemId} needs a Chinese summary`);
   if (/^\s{0,3}#{1,6}\s/m.test(summary)) throw new Error(`forum Top 10 item ${expectedItemId} summary must not use Markdown headings`);
   const length = summary.replace(/\s+/g, "").length;
   if (length < SUMMARY_MIN_CHARS) throw new Error(`forum Top 10 item ${expectedItemId} summary is too short: ${length} < ${SUMMARY_MIN_CHARS}`);
-  return summary;
+  return { titleZh, summary };
 }
 
-export function forumSourceWithSummaries(payload: ForumTop10Payload, outcomes: Map<number, { summary: string; error: string }>): string {
+export function forumSourceWithSummaries(payload: ForumTop10Payload, outcomes: Map<number, { titleZh: string; summary: string; error: string }>): string {
   return renderForumTop10Source({
     ...payload,
     items: payload.items.map(item => {
       const outcome = outcomes.get(item.itemId);
       if (!outcome) throw new Error(`forum Top 10 summary outcome is missing item ${item.itemId}`);
-      return { ...item, summary: outcome.summary, summaryError: outcome.error };
+      return { ...item, titleZh: outcome.titleZh, summary: outcome.summary, summaryError: outcome.error };
     }),
   });
 }
@@ -87,7 +95,11 @@ function markdownInlineText(value: string): string {
 }
 
 function articleItem(item: ForumTop10Item): string {
-  const lines = [`### ${item.rank}. ${markdownInlineText(item.title)}`, ""];
+  const lines = [
+    `### ${item.rank}. ${markdownInlineText(item.titleZh || item.title)}`,
+    "",
+    `- **原始标题**：${markdownInlineText(item.title)}`,
+  ];
   if (item.platform === "5ch") {
     lines.push(`- **板块**：${markdownInlineText(item.board || "未标明")}`);
     if (item.commentCount !== null) lines.push(`- **回复**：${item.commentCount}`);
@@ -111,7 +123,7 @@ export function forumTop10MarkdownFromSummaries(source: string): string {
     return [`## ${title}`, "", ...items.flatMap(item => [articleItem(item), ""])].join("\n").trim();
   };
   return [
-    `榜单截取时间：${payload.snapshot_at}。以下排名、标题和链接均按两站当时榜单原样保留；当前版本仅总结可读取的文字正文与评论，不识别帖子图片。`,
+    `榜单截取时间：${payload.snapshot_at}。以下排名、原始标题和链接均按两站当时榜单原样保留，标题行提供中文翻译；当前版本仅总结可读取的文字正文与评论，不识别帖子图片。`,
     "",
     section("5ch", "5ch 全板势い Top 10"),
     "",

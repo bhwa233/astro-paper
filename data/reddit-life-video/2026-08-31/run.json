@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-08-31",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-08-31",
+    "drafts": [
+      "01-1w2naoi.md",
+      "02-1w2kp7u.md"
+    ],
+    "sha256": "a57e1b20ff352b8fc3d1a8041101d58a9468afc81657a82826d80d1badae99ab"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 10,
+  "selectedQuestionIndexes": [
+    9,
+    3
+  ],
+  "titles": [
+    "常被大部分人忽略的日常卫生盲区",
+    "富人颠覆认知的金钱与财富法则"
+  ],
+  "questions": [
+    "有哪些明明很基础的个人卫生习惯，没能做到的人却多得惊人？",
+    "有钱人对你说的哪句话，真正彻底改变了你对金钱的认知？"
+  ],
+  "verbatimCounts": [
+    6,
+    8
+  ]
+}

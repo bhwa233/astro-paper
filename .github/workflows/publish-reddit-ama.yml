@@ -4,8 +4,24 @@ permissions:
   contents: write
 
 on:
-  schedule:
-    - cron: "5 10 * * *"
+  # 定时入口收归 publish-reddit-life.yml。四个分类打的是同一个上游服务，用 needs 串行才是
+  # 真的错开；四条各自抖动几小时的 cron 不是，而且它们共用 blog-publish.yml 的 concurrency
+  # 组，同组里先排队的会被后到的挤掉。归档日期也由父工作流统一解析后传入。
+  workflow_call:
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      force:
+        description: "Overwrite an existing post for the same date"
+        required: false
+        type: boolean
+        default: false
+      ai_model:
+        description: "Optional AI_MODEL override. Empty = Gemini 3.7 Flash."
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       date:

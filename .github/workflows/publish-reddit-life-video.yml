@@ -1,18 +1,46 @@
 name: Publish Reddit Life Vertical Video
 
-# 独立 cron，不是 publish-reddit-life.yml 的子 workflow：它只读那条链路已经提交的
-# 微信归档，两者之间没有需要传递的 upstream_sha。上游 10:00 UTC 起跑，中间还有微信
-# 同步，这里留三小时余量。归档还没到就跳过，不把上游延迟变成一条红线。
+# publish-reddit-life.yml 的子 workflow，不再自带 cron。它读 reddit-life-wechat 提交的
+# 归档，所以必须按那一步的 upstream_sha 检出——原来靠"上游 10:00 UTC 起跑、这里留三小时
+# 余量"来碰运气，而 GitHub 的 schedule 延迟已经是小时级，那个余量早就不成立了。
+#
+# 手动派发时 upstream_sha 留空即可，检出默认分支最新提交，行为和原来的独立 cron 一致。
 permissions:
   contents: write
 
 on:
-  schedule:
-    - cron: "0 13 * * *"
+  workflow_call:
+    outputs:
+      generated_sha:
+        description: "The commit containing the archived card selection. Empty when selection was skipped."
+        value: ${{ jobs.render-and-publish.outputs.generated_sha }}
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      upstream_sha:
+        description: "Commit that already contains the reddit-life-wechat archive. Empty = default branch head."
+        required: false
+        type: string
+      force:
+        description: "Reselect cards even when video.json already exists."
+        required: false
+        default: false
+        type: boolean
+      ai_model:
+        description: "Question, answer and title selection model. Empty = Gemini 3.7 Flash."
+        required: false
+        type: string
+  # 手动入口：对着某个已归档提交补跑一次选卡与渲染，不必等父工作流的下一次定时执行。
   workflow_dispatch:
     inputs:
       date:
         description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      upstream_sha:
+        description: "Commit that already contains the reddit-life-wechat archive. Empty = default branch head."
         required: false
         type: string
       force:
@@ -33,10 +61,20 @@ jobs:
   render-and-publish:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    outputs:
+      generated_sha: ${{ steps.head.outputs.sha }}
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.upstream_sha || '' }}
           fetch-depth: 0
+
+      # 按 upstream_sha 检出会进入分离头指针，归档提交需要一个可写分支。
+      - name: Prepare writable archive branch
+        if: inputs.upstream_sha != ''
+        env:
+          UPSTREAM_SHA: ${{ inputs.upstream_sha }}
+        run: git checkout -B "${GITHUB_REF_NAME}" "$UPSTREAM_SHA"
 
       - name: "Set up Node and pnpm"
         uses: ./.github/actions/setup
@@ -86,6 +124,12 @@ jobs:
         with:
           paths: data/reddit-life-video
           message: "feat(reddit): archive life video cards"
+
+      # 图文任务读的就是这一次提交里的 video.json。选卡被跳过时不产出 sha，
+      # 父工作流据此跳过图文，而不是让它去读一份不存在的归档。
+      - id: head
+        if: steps.select.outputs.status == 'processed'
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       # Chrome Headless Shell 约 92MB。不缓存的话每天都要重下一次，
       # 而它由 Remotion 版本唯一决定，锁文件不变就不会失效。

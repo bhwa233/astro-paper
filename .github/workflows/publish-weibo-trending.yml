@@ -4,9 +4,9 @@ permissions:
   contents: write
 
 on:
-  # 北京时间次日 00:20，归档前一天的完整累积榜。
+  # 北京时间次日 00:23，归档前一天的完整累积榜。分钟数避开整点整分，那是最拥挤的调度槽位。
   schedule:
-    - cron: "20 16 * * *"
+    - cron: "23 16 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -32,7 +32,7 @@ jobs:
     with:
       task: weibo-trending
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '20 16 * * *' }}
+      event_schedule: ${{ github.event.schedule || '23 16 * * *' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
     secrets: inherit

@@ -1,18 +1,38 @@
 name: Publish Reddit Life Image Message
 
-# 视频任务成功后立即触发本任务，读取同一份 video.json，按图文数量配置生成图片消息且不再次调用模型。
+# 视频任务之后立即运行，读取同一份 video.json，按图文数量配置生成图片消息且不再次调用模型。
 # 图片由 video/ 工作区的 Remotion 静帧渲染器生成，因此安装与浏览器缓存同视频任务。
+#
+# 原来靠 workflow_run 挂在视频任务上。视频改成 publish-reddit-life.yml 的子 workflow 之后
+# 不再产生顶层运行，那个触发器永远不会再响，所以这里也一并收进同一条 needs 链。
 permissions:
   contents: write
 
 on:
-  workflow_run:
-    workflows: ["Publish Reddit Life Vertical Video"]
-    types: [completed]
+  workflow_call:
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      upstream_sha:
+        description: "Commit that already contains the video card selection. Empty = default branch head."
+        required: false
+        type: string
+      force:
+        description: "Rerender cards and create a replacement WeChat draft."
+        required: false
+        default: false
+        type: boolean
+  # 手动入口：对着某个已归档提交补跑一次图文，不必等父工作流的下一次定时执行。
   workflow_dispatch:
     inputs:
       date:
         description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      upstream_sha:
+        description: "Commit that already contains the video card selection. Empty = default branch head."
         required: false
         type: string
       force:
@@ -27,7 +47,6 @@ concurrency:
 
 jobs:
   generate-and-archive:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -37,7 +56,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.upstream_sha || '' }}
           fetch-depth: 0
+      # 按 upstream_sha 检出会进入分离头指针，归档提交需要一个可写分支。
+      - name: Prepare writable archive branch
+        if: inputs.upstream_sha != ''
+        env:
+          UPSTREAM_SHA: ${{ inputs.upstream_sha }}
+        run: git checkout -B "${GITHUB_REF_NAME}" "$UPSTREAM_SHA"
       - name: "Set up Node and pnpm"
         uses: ./.github/actions/setup
         with:

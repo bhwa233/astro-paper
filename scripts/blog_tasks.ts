@@ -221,28 +221,37 @@ export type TaskInput = Task | "all";
 
 export const TASKS = Object.keys(BLOG_TASKS) as Task[];
 
+// 键是 workflow 传下来的 EVENT_SCHEDULE 字符串，只用来补齐"没有显式 --date 时按哪个时区、
+// 偏移几天算归档日"。改动 workflow 里的 cron 必须同步改这里的键，否则查不到就回落成
+// dateOffset 0 + 北京时区（见 generate_scheduled_post.ts 的 offsetDate），对 PT 任务是错的。
+//
+// 分钟数一律避开 0/5/10/15/30 这类整分：那是全球最拥挤的调度槽位，GitHub 的 schedule
+// 事件本身就是 best-effort，挤在整点上延迟最严重。
 export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset?: number; dateTimeZone?: string }> = {
   "30 0 * * *": { task: "tech-daily", dateTimeZone: "America/Los_Angeles" },
   "30 1 * * *": { task: "daily-podcasts" },
-  "0 6 * * *": { task: "hn-top10", dateTimeZone: "America/Los_Angeles" },
+  "41 6 * * *": { task: "hn-top10", dateTimeZone: "America/Los_Angeles" },
   "0 2 * * 1": { task: "xyzrank-top-episodes", dateTimeZone: "Asia/Shanghai" },
-  "0 23 * * *": { task: "github-trending-daily", dateTimeZone: "America/Los_Angeles" },
-  "0 2 * * 5": { task: "mdblist-weekly", dateTimeZone: "Asia/Shanghai" },
-  "0 2 * * 0": { task: "nyt-books-weekly", dateTimeZone: "Asia/Shanghai" },
-  "0 3 * * 6": { task: "economist-weekly", dateTimeZone: "Asia/Shanghai" },
-  "0 5 * * 6": { task: "new-yorker-weekly", dateTimeZone: "Asia/Shanghai" },
-  "0 6 * * 6": { task: "atlantic-monthly", dateTimeZone: "Asia/Shanghai" },
-  "0 7 * * 6": { task: "wired-monthly", dateTimeZone: "Asia/Shanghai" },
-  "0 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
+  "52 23 * * *": { task: "github-trending-daily", dateTimeZone: "America/Los_Angeles" },
+  "38 2 * * 5": { task: "mdblist-weekly", dateTimeZone: "Asia/Shanghai" },
+  "47 2 * * 0": { task: "nyt-books-weekly", dateTimeZone: "Asia/Shanghai" },
+  "26 3 * * 6": { task: "economist-weekly", dateTimeZone: "Asia/Shanghai" },
+  "34 5 * * 6": { task: "new-yorker-weekly", dateTimeZone: "Asia/Shanghai" },
+  "19 6 * * 6": { task: "atlantic-monthly", dateTimeZone: "Asia/Shanghai" },
+  "43 7 * * 6": { task: "wired-monthly", dateTimeZone: "Asia/Shanghai" },
+  // 这三条不再对应任何 cron——四个 Reddit 分类的定时入口已经收归 publish-reddit-life.yml，
+  // 由它统一解析日期后当 --date 传下来。这里只剩三个薄壳单独手动派发且不填日期时还要用，
+  // 所以键退化成纯粹的时区策略令牌，别再当成排期读。
   "5 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   "10 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   "15 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
-  // 错开上面四条分类发布工作流：它们和热搜打的是同一个来源服务，热搜还要额外跑一次深挖作业。
-  "30 11 * * *": { task: "reddit-trending", dateTimeZone: "America/Los_Angeles" },
-  // 北京时间次日 00:20 读取前一天完整累积榜，避免当天中午只拿到半天热搜。
-  "20 16 * * *": { task: "weibo-trending", dateOffset: -1, dateTimeZone: "Asia/Shanghai" },
-  // 北京 22:30 / 日本与韩国 23:30，各站按同一时刻冻结一次实时榜单快照。
-  "30 14 * * *": { task: "forum-top10", dateTimeZone: "Asia/Shanghai" },
+  // 定时已关闭，只在手动派发时用到。恢复后要错开上面那条 Reddit 链：打的是同一个来源服务，
+  // 而热搜还要额外跑一次评论深挖作业。
+  "29 11 * * *": { task: "reddit-trending", dateTimeZone: "America/Los_Angeles" },
+  // 北京时间次日 00:23 读取前一天完整累积榜，避免当天中午只拿到半天热搜。
+  "23 16 * * *": { task: "weibo-trending", dateOffset: -1, dateTimeZone: "Asia/Shanghai" },
+  // 北京 22:37 / 日本与韩国 23:37，各站按同一时刻冻结一次实时榜单快照。
+  "37 14 * * *": { task: "forum-top10", dateTimeZone: "Asia/Shanghai" },
 };
 
 export function isTask(value: string): value is Task {

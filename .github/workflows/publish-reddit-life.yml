@@ -1,11 +1,29 @@
 name: Publish Reddit Life
 
+# 整条 Reddit 链路的唯一定时入口。四个分类、视频、图文全部挂在这里按 needs 串行，
+# 各自不再带 cron，但都保留 workflow_dispatch 以便单独补跑。三个理由：
+#
+# 一、GitHub 的 schedule 调度延迟已经到小时级，且每条 cron 独立抖动（实测同一天里
+# 名义 06:00 的任务 11:06 才创建运行，名义 10:00 的 14:34 才创建）。原来用
+# 0/5/10/15 四条 cron 错开五分钟来避让同一个上游服务，这个前提早就不成立了。
+# 依赖图才是真的错开。
+#
+# 二、四个分类都会调到 blog-publish.yml，它和 reddit-life-wechat.yml 共用
+# concurrency 组 scheduled-posts-<ref>。同组内只保留一个排队运行，先排队的会被后到的
+# 挤掉——discussions 在 8-28、8-29 两次定时运行就是这样变成 cancelled 的，既不是失败
+# 也没有告警。串成一条链之后组内不再自相竞争。
+#
+# 三、归档日期只在 archive-date 里解析一次再往下传。原来每个 workflow 各自跑
+# TZ=America/Los_Angeles date +%F，抖动几小时就可能跨过 PT 日界，同一批任务算出
+# 不同日期。这是唯一会产出错误内容的问题，不只是慢。
+
 permissions:
   contents: write
 
 on:
   schedule:
-    - cron: "0 10 * * *"
+    # 避开整点整分。那是全球最拥挤的调度槽位，延迟也最严重。
+    - cron: "23 10 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -13,7 +31,7 @@ on:
         required: false
         type: string
       force:
-        description: "Regenerate the post and create replacement WeChat drafts; existing drafts are retained."
+        description: "Regenerate posts and create replacement WeChat drafts across the whole chain; existing drafts are retained."
         required: false
         type: boolean
         default: false
@@ -23,30 +41,122 @@ on:
         type: string
 
 jobs:
+  archive-date:
+    name: Resolve archive date
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.resolve.outputs.value }}
+    steps:
+      - name: Resolve archive date
+        id: resolve
+        env:
+          INPUT_DATE: ${{ inputs.date || '' }}
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_DATE" ]; then
+            value="$INPUT_DATE"
+          else
+            value="$(TZ=America/Los_Angeles date +%F)"
+          fi
+          [[ "$value" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+
   publish:
     name: Publish Reddit Q&A
+    needs: archive-date
     permissions:
       contents: write
     uses: ./.github/workflows/blog-publish.yml
     with:
       task: reddit-top20
       reddit_category: life
-      date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '0 10 * * *' }}
+      date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
     secrets: inherit
 
-  reddit-life-wechat:
+  # 紧跟 publish，保持微信草稿的产出时刻不被后面几个分类推迟。
+  wechat:
     name: Archive Reddit Life WeChat Drafts
-    needs: publish
+    needs: [archive-date, publish]
     permissions:
       contents: write
     uses: ./.github/workflows/reddit-life-wechat.yml
     with:
-      date: ${{ inputs.date || '' }}
+      date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.publish.outputs.generated_sha }}
       upstream_workflow_run: ${{ github.run_id }}
       ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
       force_rebuild: ${{ inputs.force || false }}
+    secrets: inherit
+
+  # 以下三个分类和 life 没有数据依赖，needs 只用来排队，不用来传值，所以 always()：
+  # life 失败不该把它们一起拖下水（近 13 天 life 失败过 3 次，那几天这三篇本来是正常的）。
+  ama:
+    name: Publish Reddit AMA
+    needs: [archive-date, wechat]
+    if: always() && needs.archive-date.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-reddit-ama.yml
+    with:
+      date: ${{ needs.archive-date.outputs.value }}
+      force: ${{ inputs.force || false }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+    secrets: inherit
+
+  markets:
+    name: Publish Reddit Markets
+    needs: [archive-date, ama]
+    if: always() && needs.archive-date.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-reddit-markets.yml
+    with:
+      date: ${{ needs.archive-date.outputs.value }}
+      force: ${{ inputs.force || false }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+    secrets: inherit
+
+  discussions:
+    name: Publish Reddit Life Discussions
+    needs: [archive-date, markets]
+    if: always() && needs.archive-date.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-reddit-life-discussions.yml
+    with:
+      date: ${{ needs.archive-date.outputs.value }}
+      force: ${{ inputs.force || false }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+    secrets: inherit
+
+  # 视频读 wechat 提交的归档，所以按那一步的 sha 检出，wechat 没成功就没有可读的数据。
+  # needs 里的 discussions 只用来排到三个分类之后：视频渲染慢，文章先落地。
+  video:
+    name: Publish Reddit Life Vertical Video
+    needs: [archive-date, wechat, discussions]
+    if: always() && needs.wechat.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-reddit-life-video.yml
+    with:
+      date: ${{ needs.archive-date.outputs.value }}
+      upstream_sha: ${{ needs.wechat.outputs.generated_sha }}
+      force: ${{ inputs.force || false }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+    secrets: inherit
+
+  # 视频跳过选卡时不产出 generated_sha，图文没有可读的 video.json，据此跳过。
+  newspic:
+    name: Publish Reddit Life Image Message
+    needs: [archive-date, video]
+    if: always() && needs.video.result == 'success' && needs.video.outputs.generated_sha != ''
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-reddit-life-newspic.yml
+    with:
+      date: ${{ needs.archive-date.outputs.value }}
+      upstream_sha: ${{ needs.video.outputs.generated_sha }}
+      force: ${{ inputs.force || false }}
     secrets: inherit

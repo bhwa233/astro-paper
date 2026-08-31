@@ -5,7 +5,7 @@ permissions:
 
 on:
   schedule:
-    - cron: "30 14 * * *"
+    - cron: "37 14 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -31,7 +31,7 @@ jobs:
     with:
       task: forum-top10
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '30 14 * * *' }}
+      event_schedule: ${{ github.event.schedule || '37 14 * * *' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
     secrets: inherit

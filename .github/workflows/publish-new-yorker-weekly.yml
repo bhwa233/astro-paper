@@ -5,7 +5,7 @@ permissions:
 
 on:
   schedule:
-    - cron: "0 5 * * 6"
+    - cron: "34 5 * * 6"
   workflow_dispatch:
     inputs:
       date:
@@ -31,7 +31,7 @@ jobs:
     with:
       task: new-yorker-weekly
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '0 5 * * 6' }}
+      event_schedule: ${{ github.event.schedule || '34 5 * * 6' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || '' }}
     secrets: inherit

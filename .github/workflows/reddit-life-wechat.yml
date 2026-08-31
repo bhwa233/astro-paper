@@ -5,6 +5,10 @@ permissions:
 
 on:
   workflow_call:
+    outputs:
+      generated_sha:
+        description: "The commit containing the archived WeChat drafts."
+        value: ${{ jobs.generate-and-archive.outputs.generated_sha }}
     inputs:
       date:
         required: false

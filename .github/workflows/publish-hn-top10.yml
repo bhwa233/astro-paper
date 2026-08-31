@@ -5,7 +5,7 @@ permissions:
 
 on:
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "41 6 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -31,7 +31,7 @@ jobs:
     with:
       task: hn-top10
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '0 6 * * *' }}
+      event_schedule: ${{ github.event.schedule || '41 6 * * *' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || '' }}
     secrets: inherit

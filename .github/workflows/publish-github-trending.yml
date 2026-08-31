@@ -5,7 +5,7 @@ permissions:
 
 on:
   schedule:
-    - cron: "0 23 * * *"
+    - cron: "52 23 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -31,7 +31,7 @@ jobs:
     with:
       task: github-trending-daily
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '0 23 * * *' }}
+      event_schedule: ${{ github.event.schedule || '52 23 * * *' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || '' }}
     secrets: inherit

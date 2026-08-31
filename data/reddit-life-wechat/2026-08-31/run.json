@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-08-31",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "2b68c7a194aa3f65e2192cd316856b0cd4397557",
+    "workflowRun": "33387429627",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-08-31-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-08-31/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击婚姻中沟通断裂与冷漠死角的真实痛点，对亲密关系的维系极具反思与长尾警示价值。"
+      },
+      {
+        "rank": 28,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "关于成长心态、人际边界与破除聚光灯效应的深刻感悟，能引发极强的群体自我和解共鸣。"
+      },
+      {
+        "rank": 13,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "围绕至亲认知退化与生离死别的真实经历叙事，情感极为深沉真挚，极易唤起普遍同理心。"
+      },
+      {
+        "rank": 17,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "既有温馨可爱的育儿生活细节又有真实的疲惫与压力，立体展现了引发广泛共鸣的母职体验。"
+      },
+      {
+        "rank": 20,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从购买选择权与获得自由的视角重新解构金钱本质，提供了跨越周期的高价值金钱底层认知。"
+      },
+      {
+        "rank": 11,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "聚焦数字时代儿童读写能力滑坡的教育普遍痛点，提供了来自一线教师的实用家庭陪读建议。"
+      },
+      {
+        "rank": 5,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "从生活异味与做客租房场景切入，细节描写极其生动接地气，具有很强的讨论欲与生活避坑价值。"
+      },
+      {
+        "rank": 6,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "直击日常生活中普遍被忽视的个人卫生盲区，兼具强烈的生活代入感与实用健康提醒意义。"
+      },
+      {
+        "rank": 8,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "打破对跑步等主流爱好的盲从光环，分享诚实且真实的祛魅经历，能唤起深切的日常经验共鸣。"
+      },
+      {
+        "rank": 16,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "聚焦癌症疫苗与实验室器官培育等医学重大突破，兼具科学证据支撑与令人振奋的求知启发价值。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 1,
+        "category": "region_specific",
+        "reason": "核心依赖美国联邦机构（FDA/DOGE）裁员政策与美国近期食品安全时事，属于强地区政策事件。"
+      },
+      {
+        "rank": 3,
+        "category": "low_resonance",
+        "reason": "回答多为情绪化的排斥约会宣泄或零散雷点罗列，讨论深度和普遍启发性相对有限。"
+      },
+      {
+        "rank": 4,
+        "category": "low_resonance",
+        "reason": "偏向对职业体育规则的奇思妙想脑洞，缺少真实生活经历支撑与广泛大众共鸣。"
+      },
+      {
+        "rank": 7,
+        "category": "narrow_interest",
+        "reason": "属于极其小众且罕见的特定生活设想，缺乏普遍代表性与迁移讨论价值。"
+      },
+      {
+        "rank": 9,
+        "category": "narrow_interest",
+        "reason": "内容高度依赖特定游戏品类及机制讨论，对非核心玩家群体的共鸣门槛较高。"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "属于特定系列影视与文学作品的收尾吐槽，依赖特定剧情背景知识。"
+      },
+      {
+        "rank": 12,
+        "category": "time_sensitive",
+        "reason": "盘点特定高龄名人的健康与生死，具有明显的时效性且高度依赖欧美流行文化圈背景。"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "社交加分项的回答较为分散且包含无厘头玩梗，缺乏连贯深刻的讨论价值。"
+      },
+      {
+        "rank": 15,
+        "category": "low_resonance",
+        "reason": "围绕特定金额拆解美股ETF投资配比偏向财务空想，启发性不及通用金钱认知议题。"
+      },
+      {
+        "rank": 18,
+        "category": "region_specific",
+        "reason": "讨论基于海外搜索引擎生态与特定工具替代，对中文大众读者的实际迁移价值较低。"
+      },
+      {
+        "rank": 19,
+        "category": "narrow_interest",
+        "reason": "属于特定年代经典欧美电视剧的怀旧盘点，依赖受众特定的剧集观看积累。"
+      },
+      {
+        "rank": 21,
+        "category": "time_sensitive",
+        "reason": "探讨当周周末游戏动态的即时闲聊帖，时效极短且一个月后完全失效。"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "关于树林恐惧声响的趣味调侃缺乏真实普适的生活代入场景，讨论较浅。"
+      },
+      {
+        "rank": 23,
+        "category": "narrow_interest",
+        "reason": "纯粹的欧美情景喜剧推荐清单，受限于特定影视作品的文化背景。"
+      },
+      {
+        "rank": 24,
+        "category": "low_resonance",
+        "reason": "酒吧点水或无酒精饮料的回答较为单一浅显，缺乏深层次的情绪共鸣或认知启发。"
+      },
+      {
+        "rank": 25,
+        "category": "low_resonance",
+        "reason": "聚焦水球、冰球等运动技术门槛的对比分析，受众面较窄且缺乏大众生活共鸣。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "给时代命名的哲学调侃多为只言片语的吐槽，缺乏具体生活故事或深度论述。"
+      },
+      {
+        "rank": 27,
+        "category": "narrow_interest",
+        "reason": "针对特定水下地质构造名词的纯学术辨识，内容过于单一且受众极其小众。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "奇特过敏源的个人经历偏向罕见猎奇，缺乏可广泛迁移的日常生活经验。"
+      },
+      {
+        "rank": 30,
+        "category": "narrow_interest",
+        "reason": "属于特定催泪影视作品的清单式推荐，缺乏延展性与深入的生活哲思探讨。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w2naoi",
+      "title": "自认「被突袭离婚」的已婚男士们，回过头看最想给当年的自己什么告诫？",
+      "subreddit": "AskReddit",
+      "points": "2602 points · 866 评论",
+      "numComments": 866,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2naoi/men_of_reddit_who_felt_blindsided_by_divorce/",
+      "sourceRank": 2,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/01-1w2naoi.md",
+      "contentSha256": "efe87dfe484a904d44c5b97fc93b4271cee3b01230dcc85d861d97a7acc542f7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w2kp7u",
+      "title": "随着年纪变大，你逐渐意识到了哪些扎心或释怀的真相？",
+      "subreddit": "AskReddit",
+      "points": "82 points · 188 评论",
+      "numComments": 188,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2kp7u/whats_one_thing_you_realized_as_you_got_older/",
+      "sourceRank": 28,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/02-1w2kp7u.md",
+      "contentSha256": "1ef17d2e7fabc82547d62961e9e921c1ddea8091082cc85d3703ddbcd72b7a5a",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w2tndu",
+      "title": "你上一次大哭是因为什么？",
+      "subreddit": "AskReddit",
+      "points": "342 points · 1219 评论",
+      "numComments": 1219,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2tndu/what_was_the_reason_for_the_last_time_you_cried/",
+      "sourceRank": 13,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/01-1w2naoi.md",
+      "contentSha256": "efe87dfe484a904d44c5b97fc93b4271cee3b01230dcc85d861d97a7acc542f7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w2z4m0",
+      "title": "当妈妈到底是一种什么样的体验？",
+      "subreddit": "AskReddit",
+      "points": "216 points · 387 评论",
+      "numComments": 387,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2z4m0/what_is_being_a_mom_actually_like/",
+      "sourceRank": 17,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/02-1w2kp7u.md",
+      "contentSha256": "1ef17d2e7fabc82547d62961e9e921c1ddea8091082cc85d3703ddbcd72b7a5a",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w2fh6m",
+      "title": "有钱人对你说的哪句话，真正彻底改变了你对金钱的认知？",
+      "subreddit": "AskReddit",
+      "points": "175 points · 252 评论",
+      "numComments": 252,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2fh6m/what_did_a_rich_person_tell_you_that_actually/",
+      "sourceRank": 20,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/01-1w2naoi.md",
+      "contentSha256": "efe87dfe484a904d44c5b97fc93b4271cee3b01230dcc85d861d97a7acc542f7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w32quw",
+      "title": "教师们如何看待阿尔法世代（Gen Alpha）的读写能力（literacy）危机？",
+      "subreddit": "AskReddit",
+      "points": "501 points · 420 评论",
+      "numComments": 420,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w32quw/teachers_of_reddit_what_do_you_have_to_say_about/",
+      "sourceRank": 11,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/02-1w2kp7u.md",
+      "contentSha256": "1ef17d2e7fabc82547d62961e9e921c1ddea8091082cc85d3703ddbcd72b7a5a",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w2hx40",
+      "title": "进别人家门时，闻到什么味道会让你立刻想掉头就走？",
+      "subreddit": "AskReddit",
+      "points": "1050 points · 1594 评论",
+      "numComments": 1594,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2hx40/what_smell_inside_somebodys_house_immediately/",
+      "sourceRank": 5,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/01-1w2naoi.md",
+      "contentSha256": "efe87dfe484a904d44c5b97fc93b4271cee3b01230dcc85d861d97a7acc542f7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w2irvb",
+      "title": "有哪些明明很基础的个人卫生习惯，没能做到的人却多得惊人？",
+      "subreddit": "AskReddit",
+      "points": "776 points · 655 评论",
+      "numComments": 655,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2irvb/what_basic_hygiene_measure_do_you_think_way_too/",
+      "sourceRank": 6,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/02-1w2kp7u.md",
+      "contentSha256": "1ef17d2e7fabc82547d62961e9e921c1ddea8091082cc85d3703ddbcd72b7a5a",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w2k2mf",
+      "title": "有哪些你满怀期待去尝试，结果却深恶痛绝的爱好？",
+      "subreddit": "AskReddit",
+      "points": "608 points · 943 评论",
+      "numComments": 943,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w2k2mf/whats_a_hobby_you_tried_and_hated/",
+      "sourceRank": 8,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/01-1w2naoi.md",
+      "contentSha256": "efe87dfe484a904d44c5b97fc93b4271cee3b01230dcc85d861d97a7acc542f7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w35ebh",
+      "title": "有哪些曾经被认为绝不可能、但我们这辈子很可能会亲眼见证的重大科学突破？",
+      "subreddit": "AskReddit",
+      "points": "219 points · 177 评论",
+      "numComments": 177,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w35ebh/whats_a_scientific_breakthrough_we_may_see_in_our/",
+      "sourceRank": 16,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-08-31/02-1w2kp7u.md",
+      "contentSha256": "1ef17d2e7fabc82547d62961e9e921c1ddea8091082cc85d3703ddbcd72b7a5a",
+      "volume": "v2"
+    }
+  ]
+}

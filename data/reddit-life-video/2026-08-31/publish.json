@@ -2,36 +2,36 @@
   "version": 1,
   "archiveDate": "2026-08-31",
   "model": "gemini-3.7-flash",
-  "sourceSha": "249ca90198b1327019945cead672540447ad8520e45f7cee77dffc9954965f14",
+  "sourceSha": "fa970eb00d6be674d79a1d5f2681dd534c938b3e3b7d12236b5714a68f8719bb",
   "issues": [
     {
       "position": 1,
-      "questionIndex": 1,
+      "questionIndex": 3,
       "status": "processed",
       "tags": [
-        "婚姻情感",
-        "人性观察",
-        "中年人生",
-        "相处之道",
-        "破防瞬间"
+        "金钱消费",
+        "认知思维",
+        "富人世界",
+        "反常识",
+        "高赞问答"
       ],
-      "summary": "妻子不再争吵并不代表风平浪静，彻底的沉默与冷漠往往是已经决定离开的信号",
+      "summary": "真正的财富不是挥霍物质，而是用金钱换取时间、选择权以及对讨厌事物说不的自由",
       "droppedTags": [],
       "summaryOutOfBand": false,
       "problems": []
     },
     {
       "position": 2,
-      "questionIndex": 9,
+      "questionIndex": 1,
       "status": "processed",
       "tags": [
-        "身心健康",
+        "婚姻情感",
+        "家庭关系",
         "人性观察",
-        "健康常识",
-        "避坑指南",
-        "冷知识"
+        "相处之道",
+        "后悔清单"
       ],
-      "summary": "看似最基本的洗手、换洗枕套和盖盖冲马桶，在现实中却有惊人数量的人完全没做到",
+      "summary": "对方停止争吵往往不是风平浪静而是彻底死心，日常的情感忽视终会演变成离开的雪崩",
       "droppedTags": [],
       "summaryOutOfBand": false,
       "problems": []

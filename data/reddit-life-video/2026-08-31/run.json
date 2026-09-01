@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 5,
   "archiveDate": "2026-08-31",
   "timeZone": "America/Los_Angeles",
   "status": "processed",
@@ -16,19 +16,19 @@
   "questionCount": 10,
   "eligibleQuestionCount": 10,
   "selectedQuestionIndexes": [
-    1,
-    9
+    3,
+    1
   ],
   "titles": [
-    "被突袭离婚男人的扎心告诫",
-    "常被忽视的日常卫生盲区"
+    "富人颠覆认知的金钱观",
+    "被突袭离婚男士的忠告"
   ],
   "questions": [
-    "自认「被突袭离婚」的已婚男士们，回过头看最想给当年的自己什么告诫？",
-    "有哪些明明很基础的个人卫生习惯，没能做到的人却多得惊人？"
+    "有钱人对你说的哪句话，真正彻底改变了你对金钱的认知？",
+    "自认「被突袭离婚」的已婚男士们，回过头看最想给当年的自己什么告诫？"
   ],
   "verbatimCounts": [
-    2,
-    5
+    9,
+    0
   ]
 }

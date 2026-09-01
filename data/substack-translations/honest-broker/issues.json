@@ -56,6 +56,21 @@
         "outputTokens": 2564,
         "totalTokens": 4850
       }
+    },
+    {
+      "guid": "https://www.honest-broker.com/p/10-brutally-honest-predictions-on",
+      "canonicalUrl": "https://www.honest-broker.com/p/10-brutally-honest-predictions-on",
+      "sourcePublishedAt": "2026-08-31T19:05:18.000Z",
+      "sourceSha256": "2c9c7027255ca96092c32fbaf2231daeda57e9f7135f4b114995763312986628",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/honest-broker-20260831-10-brutally-honest-predictions-on.md",
+      "translatedAt": "2026-09-01T05:18:22.903Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3477,
+        "outputTokens": 3620,
+        "totalTokens": 7097
+      }
     }
   ]
 }

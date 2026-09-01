@@ -137,6 +137,32 @@
         "outputTokens": 1926,
         "totalTokens": 4368
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=85512",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/26/suffering-creativity-canetti-rilke",
+      "sourcePublishedAt": "2026-08-26T04:10:06.000Z",
+      "sourceSha256": "de2c6f91ca03f41facff7154d3f52b0c16cd05365dc9a98bc456b4db4c033f42",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3567,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-01T05:18:28.555Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=85693",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/26/margaret-boden-creativity",
+      "sourcePublishedAt": "2026-08-26T16:16:50.000Z",
+      "sourceSha256": "0a98e6cf22e6665aa86d3e06bf8bcc9fab25c49456abbccdc7278eef5c16a21b",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260826-margaret-boden-creativity.md",
+      "translatedAt": "2026-09-01T05:19:07.600Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3757,
+        "outputTokens": 3929,
+        "totalTokens": 7686
+      }
     }
   ]
 }

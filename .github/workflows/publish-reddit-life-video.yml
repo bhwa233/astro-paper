@@ -164,8 +164,9 @@ jobs:
       # 成片走 Release 而不是提交进仓库：每天 10MB 进 git，一年后 .git 多出 3GB，
       # 而删掉提交并不会让历史里的 blob 消失。Release 资产删掉就是真的没了。
       #
-      # 成片按选题顺序写成 1.mp4 / 2.mp4 ...。metadata.json 以相同顺序保存完整标题和
-      # 问题，让下载端通过稳定 ASCII 文件名恢复内容语义。
+      # 成片按选题顺序写成 1.mp4 / 2.mp4 ...。metadata.json 以相同顺序保存标题、问题、
+      # 栏目名以及各平台描述要用的标签与一句话结论，让下载端通过稳定 ASCII 文件名恢复
+      # 内容语义。标签与结论来自 publish.json，缺席时整个字段省略，不影响发布。
       #
       # Release 一直保留，没有清理逻辑。同一天重跑走 upload --clobber 覆盖资产，
       # 而不是先删再建：这条链路不删任何已发布的东西。
@@ -178,27 +179,9 @@ jobs:
           set -euo pipefail
           tag="video-$ARCHIVE_DATE"
           notes="竖屏短视频，由 publish-reddit-life-video.yml 自动生成。归档日期 ${ARCHIVE_DATE}。"
-          node --input-type=module <<'NODE'
-          import fs from "node:fs";
-          const result = JSON.parse(fs.readFileSync("reddit-life-video-render.json", "utf8"));
-          for (const [position, video] of result.videos.entries()) {
-            const index = position + 1;
-            if (video.index !== index) throw new Error(`Unexpected video index ${video.index} at position ${position}`);
-            fs.copyFileSync(video.outputLocation, `${index}.mp4`);
-          }
-          const metadata = {
-            version: 1,
-            archiveDate: result.date,
-            videos: result.videos.map(({ index, title, question }) => ({
-              index,
-              videoAsset: `${index}.mp4`,
-              title,
-              question,
-            })),
-          };
-          fs.writeFileSync("metadata.json", `${JSON.stringify(metadata, null, 2)}\n`, "utf8");
-          fs.writeFileSync("release-assets.txt", `${result.videos.map((_, position) => `${position + 1}.mp4`).join("\n")}\n`, "utf8");
-          NODE
+          node --import tsx scripts/build_reddit_life_video_release_metadata.ts \
+            --render-json reddit-life-video-render.json \
+            --publish-json "data/reddit-life-video/${ARCHIVE_DATE}/publish.json"
           mapfile -t assets < release-assets.txt
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "${assets[@]}" metadata.json --clobber

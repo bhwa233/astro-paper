@@ -12,6 +12,17 @@ import {
   validateRedditLifeVideoTitle,
   type RedditLifeVideoQuestion,
 } from "./reddit_life_video_compose.ts";
+import {
+  redditLifeVideoTagVocabularyPrompt,
+  resolveRedditLifeVideoTaxonomy,
+  REDDIT_LIFE_VIDEO_PRIMARY_TAG_MIN,
+  REDDIT_LIFE_VIDEO_SUMMARY_HARD_MAX_CHARS,
+  REDDIT_LIFE_VIDEO_SUMMARY_MAX_CHARS,
+  REDDIT_LIFE_VIDEO_SUMMARY_MIN_CHARS,
+  REDDIT_LIFE_VIDEO_TAG_MAX,
+  REDDIT_LIFE_VIDEO_TAG_MIN,
+  type RedditLifeVideoTaxonomy,
+} from "./reddit_life_video_taxonomy.ts";
 
 const PROMPT_TASK = "reddit-life-video-cards";
 
@@ -28,6 +39,8 @@ export type RedditLifeVideoIssueSelection = {
   title: string;
   question: string;
   cards: RedditLifeVideoCard[];
+  /** 发布元数据。软校验，失败只降级不重试——不写进 video.json，见 generate_reddit_life_video.ts。 */
+  taxonomy: RedditLifeVideoTaxonomy;
 };
 
 export type RedditLifeVideoSelection = {
@@ -80,7 +93,7 @@ function validateIssue(raw: unknown, position: number, questions: RedditLifeVide
     return { index: position + 1, body, sourceIndex, verbatim: body === source };
   });
 
-  return { questionIndex, title, question: question.question, cards };
+  return { questionIndex, title, question: question.question, cards, taxonomy: resolveRedditLifeVideoTaxonomy(value, title) };
 }
 
 export function validateRedditLifeVideoSelection(raw: unknown, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
@@ -125,6 +138,13 @@ export async function selectRedditLifeVideoCards({
     .replaceAll("{card_count}", String(REDDIT_LIFE_VIDEO_ANSWER_COUNT))
     .replaceAll("{body_max}", String(CARD_BODY_MAX_CHARS))
     .replaceAll("{title_max}", String(REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS))
+    .replaceAll("{tag_min}", String(REDDIT_LIFE_VIDEO_TAG_MIN))
+    .replaceAll("{tag_max}", String(REDDIT_LIFE_VIDEO_TAG_MAX))
+    .replaceAll("{primary_tag_min}", String(REDDIT_LIFE_VIDEO_PRIMARY_TAG_MIN))
+    .replaceAll("{summary_min}", String(REDDIT_LIFE_VIDEO_SUMMARY_MIN_CHARS))
+    .replaceAll("{summary_max}", String(REDDIT_LIFE_VIDEO_SUMMARY_MAX_CHARS))
+    .replaceAll("{summary_hard_max}", String(REDDIT_LIFE_VIDEO_SUMMARY_HARD_MAX_CHARS))
+    .replaceAll("{tag_vocabulary}", redditLifeVideoTagVocabularyPrompt())
     .replaceAll("{source_text}", evidence);
   writeAiArtifact(artifactsDir, PROMPT_TASK, "prompt.md", prompt);
   return generateJsonStageWithRetries({

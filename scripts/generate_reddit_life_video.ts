@@ -21,7 +21,16 @@ import { REDDIT_LIFE_DAILY_SELECTION_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT } from
 const SOURCE_TIME_ZONE = "America/Los_Angeles";
 const SOURCE_ROOT_REL = "data/reddit-life-wechat";
 const ROOT_REL = "data/reddit-life-video";
-const MANIFEST_VERSION = 5;
+const MANIFEST_VERSION = 6;
+
+/**
+ * 发布元数据的独立版本号，和选卡分开升。
+ *
+ * publish.json 单独成文件而不是并进 video.json：generate_reddit_life_newspic.ts 拿
+ * video.json 的**整份字节**算 sha256 来判断要不要重建，往里加字段会让图文整天重渲染、
+ * 微信草稿重推一遍。存成兄弟文件，那份哈希就一个字节都不会变。
+ */
+const PUBLISH_VERSION = 1;
 
 type RunStatus = "processed" | "upstream-empty" | "insufficient-candidates";
 
@@ -58,9 +67,11 @@ async function main(): Promise<void> {
   const outDir = path.join(repo, ROOT_REL, date);
   const manifestPath = path.join(outDir, "run.json");
   const videoPath = path.join(outDir, "video.json");
+  const publishPath = path.join(outDir, "publish.json");
 
   // 复用已有结果而不是重新调模型：同一天重跑（补渲染、改版式）不该换掉内容。
-  if (!force && fs.existsSync(videoPath) && fs.existsSync(manifestPath)) {
+  // publish.json 也要在：标签与结论出自同一次调用，缺了它就说明这份归档早于该契约。
+  if (!force && fs.existsSync(videoPath) && fs.existsSync(manifestPath) && fs.existsSync(publishPath)) {
     const existing = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as RunManifest;
     if (existing.version === MANIFEST_VERSION && existing.selectionCount === REDDIT_LIFE_DAILY_SELECTION_COUNT) {
       writeStderr(`[reddit-life-video] reusing existing manifest for ${date}; pass --force to reselect\n`);
@@ -150,22 +161,47 @@ async function main(): Promise<void> {
   writeStderr(`[reddit-life-video] ${date}: questions ${manifest.selectedQuestionIndexes.join(", ")} of ${eligible.length} eligible; verbatim answers ${manifest.verbatimCounts.join(", ")}\n`);
 
   ensureDir(outDir);
+  // taxonomy 刻意不写进这里。下游图文用 video.json 的整份字节做缓存键，
+  // 加字段等于每天让图文白重跑一次。
+  const videoJson = `${JSON.stringify(
+    {
+      version: MANIFEST_VERSION,
+      archiveDate: date,
+      title: primary.title,
+      question: primary.question,
+      cards: primary.cards,
+      additionalIssues: additionalIssues.map(issue => ({ title: issue.title, question: issue.question, cards: issue.cards })),
+    },
+    null,
+    2,
+  )}\n`;
+  fs.writeFileSync(videoPath, videoJson, "utf8");
+
+  // position 是 [primary, ...additionalIssues] 里的位次，也是渲染结果的 index。
+  // 发布时按它 join，不按 questionIndex——后者只作冗余校验。
+  const publishIssues = selection.issues.map((issue, position) => ({
+    position: position + 1,
+    questionIndex: issue.questionIndex,
+    status: issue.taxonomy.status,
+    tags: issue.taxonomy.tags,
+    summary: issue.taxonomy.summary,
+    droppedTags: issue.taxonomy.droppedTags,
+    summaryOutOfBand: issue.taxonomy.summaryOutOfBand,
+    problems: issue.taxonomy.problems,
+  }));
   fs.writeFileSync(
-    videoPath,
-    `${JSON.stringify(
-      {
-        version: MANIFEST_VERSION,
-        archiveDate: date,
-        title: primary.title,
-        question: primary.question,
-        cards: primary.cards,
-        additionalIssues: additionalIssues.map(issue => ({ title: issue.title, question: issue.question, cards: issue.cards })),
-      },
-      null,
-      2,
-    )}\n`,
+    publishPath,
+    `${JSON.stringify({ version: PUBLISH_VERSION, archiveDate: date, model, sourceSha: sha256(videoJson), issues: publishIssues }, null, 2)}\n`,
     "utf8",
   );
+
+  const degraded = publishIssues.filter(issue => issue.status !== "processed");
+  if (degraded.length) {
+    writeStderr(`WARN: [reddit-life-video] ${date}: ${degraded.length} of ${publishIssues.length} issues have no publish metadata: ${degraded.map(issue => issue.problems.join("; ")).join(" | ")}\n`);
+  }
+  const dropped = [...new Set(publishIssues.flatMap(issue => issue.droppedTags))];
+  if (dropped.length) writeStderr(`[reddit-life-video] ${date}: tags outside the vocabulary were dropped: ${dropped.join(", ")}\n`);
+
   finish();
 }
 

@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "archiveDate": "2026-08-31",
   "timeZone": "America/Los_Angeles",
   "status": "processed",
@@ -16,19 +16,19 @@
   "questionCount": 10,
   "eligibleQuestionCount": 10,
   "selectedQuestionIndexes": [
-    9,
-    3
+    1,
+    9
   ],
   "titles": [
-    "常被大部分人忽略的日常卫生盲区",
-    "富人颠覆认知的金钱与财富法则"
+    "被突袭离婚男人的扎心告诫",
+    "常被忽视的日常卫生盲区"
   ],
   "questions": [
-    "有哪些明明很基础的个人卫生习惯，没能做到的人却多得惊人？",
-    "有钱人对你说的哪句话，真正彻底改变了你对金钱的认知？"
+    "自认「被突袭离婚」的已婚男士们，回过头看最想给当年的自己什么告诫？",
+    "有哪些明明很基础的个人卫生习惯，没能做到的人却多得惊人？"
   ],
   "verbatimCounts": [
-    6,
-    8
+    2,
+    5
   ]
 }

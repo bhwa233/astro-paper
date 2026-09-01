@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-01",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-09-01",
+    "drafts": [
+      "01-1w3k492.md",
+      "02-1w42bw2.md"
+    ],
+    "sha256": "fd254a01ba28e060a740b4c7f42073a51a1028951c57aea44f94dc716e03b96b"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 9,
+  "selectedQuestionIndexes": [
+    6,
+    5
+  ],
+  "titles": [
+    "心理彻底崩溃前的隐秘信号",
+    "本意纯洁却极具暧昧感的举动"
+  ],
+  "questions": [
+    "在心理健康彻底崩溃前，有哪些你自己都很难察觉的隐秘信号？",
+    "有哪些本意纯洁无辜的举动，却让人觉得暧昧甚至撩人？"
+  ],
+  "verbatimCounts": [
+    9,
+    9
+  ]
+}

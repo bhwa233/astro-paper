@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-01",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "c7f2d9c8825b22493f869e50a47cd435e2c655884655ce885470ee9fb722fac9",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 6,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "健康常识",
+        "细思极恐"
+      ],
+      "summary": "心理崩溃并非突然爆发，而是从戒掉音乐、频繁叹气以及对微小日常失控悄悄开始的。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 5,
+      "status": "processed",
+      "tags": [
+        "婚姻情感",
+        "人性观察",
+        "相处之道",
+        "意想不到"
+      ],
+      "summary": "最撩人的从来不是刻意示好，而是不经意的细节记忆、眼神停留与自然的肢体越界。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

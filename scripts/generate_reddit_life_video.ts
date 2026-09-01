@@ -16,19 +16,32 @@ import {
   REDDIT_LIFE_VIDEO_ANSWER_COUNT,
 } from "./reddit_life_video_compose.ts";
 import { REDDIT_LIFE_DAILY_SELECTION_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT } from "../src/utils/redditLifePublishing.ts";
+import { VIDEO_MANIFEST_VERSION } from "../video/src/contract.ts";
 
 // 微信归档按美西日切分目录，视频沿用同一个口径，两边的 <date> 才指同一天。
 const SOURCE_TIME_ZONE = "America/Los_Angeles";
 const SOURCE_ROOT_REL = "data/reddit-life-wechat";
 const ROOT_REL = "data/reddit-life-video";
-const MANIFEST_VERSION = 6;
 
 /**
- * 发布元数据的独立版本号，和选卡分开升。
+ * 写入端直接用读取端的契约常量，不再各留一份。
+ *
+ * 这里原本是个字面量 5。它和 video/src/contract.ts 的 VIDEO_MANIFEST_VERSION 是同一个
+ * 数，但分两处写，升级时只改了这边，Remotion 侧当场以「unsupported video manifest
+ * version」拒收——而 scripts/reddit_life_newspic_compose.ts 早就是从那边 import 的。
+ * contract.ts 只依赖 src/utils，不会把 Remotion 拖进这条不装它的链路。
+ */
+const MANIFEST_VERSION = VIDEO_MANIFEST_VERSION;
+
+/**
+ * 发布元数据的独立版本号，和 video.json 的契约分开走。
  *
  * publish.json 单独成文件而不是并进 video.json：generate_reddit_life_newspic.ts 拿
  * video.json 的**整份字节**算 sha256 来判断要不要重建，往里加字段会让图文整天重渲染、
  * 微信草稿重推一遍。存成兄弟文件，那份哈希就一个字节都不会变。
+ *
+ * 也正因为形状没变，MANIFEST_VERSION 不该跟着升：让老日期重新产出 publish.json 的是
+ * 下面复用守卫里的 existsSync(publishPath)，升版本只会连带作废 Remotion 与图文的校验。
  */
 const PUBLISH_VERSION = 1;
 

@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-01",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "6fe690213225f905df0a549350ad70b4b3985963",
+    "workflowRun": "33522739551",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-01-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-01/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "围绕金钱利益、道德牺牲与生存极限揭示人性暗面，案例具体深刻且具备极高的跨时空普适价值。"
+      },
+      {
+        "rank": 9,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "精准捕捉不再听音乐、逃避社交与强迫性吹毛求疵等细微心理征兆，极易唤起大众的强烈自我觉察与共鸣。"
+      },
+      {
+        "rank": 14,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "聚焦劝告失效与目睹父母衰老等代际转折点，情感真挚饱满，能击中不同年龄圈层的群体心理。"
+      },
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "通过便利店员的握手问候、孩子的无心之言等真实细节展现成瘾之痛，具有震撼人心的叙事感染力与长尾警示意义。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "剖析格斗、讲故事与表演等领域的达克效应，观点辛辣且包含可迁移的生活认知，互动讨论欲极强。"
+      },
+      {
+        "rank": 21,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从物种锐减、审美流水线同质化到社交伪连接，深刻剖析现代文明的隐形危机，兼具认知深度与长久警示价值。"
+      },
+      {
+        "rank": 22,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "以详实数据和同源对比科学破除大脑专属基因的迷思，解释清晰透彻且富有颠覆常识的科普趣味。"
+      },
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "通过贝当、朱利安尼等经典历史人物的沉浮，生动探讨英雄与堕落的边界，具有经久不衰的人文历史价值。"
+      },
+      {
+        "rank": 3,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "细致拆解眼神停留、记忆细节等日常人际微互动，趣味性与代入感极高，极易引发读者自发分享与讨论。"
+      },
+      {
+        "rank": 2,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "以生动幽默的多宠结盟与领地博弈故事展现家庭宠物心理，画面感强，具备普遍治愈的情感价值。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 4,
+        "category": "narrow_interest",
+        "reason": "属于特定出版书单推荐，阅读体验高度依赖具体文本，缺乏跨领域的认知迁移价值。"
+      },
+      {
+        "rank": 5,
+        "category": "narrow_interest",
+        "reason": "围绕特定欧美明星的婚姻八卦展开，依赖对特定公众人物人设的了解，属于小众娱乐谈资。"
+      },
+      {
+        "rank": 6,
+        "category": "low_resonance",
+        "reason": "主要讨论美国401(k)和Roth IRA等具体养老账户机制，对普遍读者而言缺乏通用代入感。"
+      },
+      {
+        "rank": 10,
+        "category": "region_specific",
+        "reason": "依赖美加边境地理争议与美国大选、行政命令等本土政治诉求。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "针对特定政治人物的历史地位发散推测，观点主观泛化且缺乏深度论据支撑。"
+      },
+      {
+        "rank": 12,
+        "category": "region_specific",
+        "reason": "高度依赖美国国会薪资制度、华盛顿特区开销及公民联合法案等本地法律政治背景。"
+      },
+      {
+        "rank": 13,
+        "category": "narrow_interest",
+        "reason": "答案高度依赖万智牌具体单卡与特定装机配件等圈内专业行情，受众局限。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "围绕博彩广告监管政策的泛泛讨论，缺乏生动具体的个人经历与深度叙事支撑。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "回答混杂了美剧虚构角色、商业吉祥物与特定政治人物，缺乏统一深入的讨论价值。"
+      },
+      {
+        "rank": 18,
+        "category": "narrow_interest",
+        "reason": "内容高度依赖英语姓名拼写与特定文化语境，跨语言跨文化共鸣较弱。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "关于遗体变成堆肥等后事偏好的个人陈述，信息量较为单一且缺乏讨论深度。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "盘点欧美老牌摇滚歌手与演员的私生活经历，依赖对特定名人的背景了解。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "列举房租、外出就餐昂贵等常见常识，讨论过于泛泛且缺少新颖洞察。"
+      },
+      {
+        "rank": 24,
+        "category": "time_sensitive",
+        "reason": "属于年度特定新晋乐队盘点，带有明显时间限制且受众群体狭窄。"
+      },
+      {
+        "rank": 25,
+        "category": "low_resonance",
+        "reason": "回答多为宽泛的成功学鸡汤与人际感慨，缺少具体扎实的事例与论证支撑。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "恋爱酗酒和理财悔恨等案例较为老套，叙事深度不及入选的同类主题。"
+      },
+      {
+        "rank": 27,
+        "category": "region_specific",
+        "reason": "核心围绕美国零售结算场景、法定货币定义及纽约市地方立法规定展开。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "回答多为简短的胎位不正或糖尿病等病症罗列，缺少展开探讨的深度与广度。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "特定美剧影视剧的剧情吐槽盘点，严重依赖对特定剧集的观看经历。"
+      },
+      {
+        "rank": 30,
+        "category": "narrow_interest",
+        "reason": "年代久远的欧美老电影怀旧清单，受众断代严重且缺乏跨群体传播价值。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w3k492",
+      "title": "怎样能最快看清一个人把道德和底线抛到脑后？",
+      "subreddit": "AskReddit",
+      "points": "1575 points · 883 评论",
+      "numComments": 883,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w3k492/whats_the_quickest_way_to_watch_someones_morals/",
+      "sourceRank": 8,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/01-1w3k492.md",
+      "contentSha256": "aa283718f64191f6fe7e651e35dab70a5af5d354c53a8b3429e96c8dc61f245b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w42bw2",
+      "title": "在心理健康彻底崩溃前，有哪些你自己都很难察觉的隐秘信号？",
+      "subreddit": "AskReddit",
+      "points": "1494 points · 605 评论",
+      "numComments": 605,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w42bw2/what_is_a_subtle_sign_that_your_mental_health_is/",
+      "sourceRank": 9,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/02-1w42bw2.md",
+      "contentSha256": "fd976e6d0595d65e4b71da1ca1b79abc022e77cb221c4f355c61e509269d8082",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w489ao",
+      "title": "30岁以上的人眼中，年轻人最缺乏心理准备的是什么？",
+      "subreddit": "AskReddit",
+      "points": "909 points · 1238 评论",
+      "numComments": 1238,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w489ao/people_over_30_what_are_younger_people_completely/",
+      "sourceRank": 14,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/01-1w3k492.md",
+      "contentSha256": "aa283718f64191f6fe7e651e35dab70a5af5d354c53a8b3429e96c8dc61f245b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w3r9v9",
+      "title": "你在现实中亲眼见过最令人心碎的成瘾场面是什么？",
+      "subreddit": "AskReddit",
+      "points": "660 points · 740 评论",
+      "numComments": 740,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w3r9v9/whats_the_saddest_display_of_addiction_you/",
+      "sourceRank": 15,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/02-1w42bw2.md",
+      "contentSha256": "fd976e6d0595d65e4b71da1ca1b79abc022e77cb221c4f355c61e509269d8082",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w3lujb",
+      "title": "有哪些技能是几乎人人都觉得自己很擅长，直到遇见真正的高手才被彻底打脸？",
+      "subreddit": "AskReddit",
+      "points": "8951 points · 4644 评论",
+      "numComments": 4644,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w3lujb/whats_a_skill_almost_everyone_thinks_theyre_good/",
+      "sourceRank": 1,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/01-1w3k492.md",
+      "contentSha256": "aa283718f64191f6fe7e651e35dab70a5af5d354c53a8b3429e96c8dc61f245b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w3rhp1",
+      "title": "有哪些鲜为人知却正在严重破坏世界的“隐形流行病”？",
+      "subreddit": "AskReddit",
+      "points": "212 points · 512 评论",
+      "numComments": 512,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w3rhp1/whats_a_hidden_epidemic_that_you_believe_is/",
+      "sourceRank": 21,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/02-1w42bw2.md",
+      "contentSha256": "fd976e6d0595d65e4b71da1ca1b79abc022e77cb221c4f355c61e509269d8082",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w3m3zb",
+      "title": "人类基因组（genome）里究竟有多少比例是专门留给大脑的？",
+      "subreddit": "askscience",
+      "points": "171 points · 43 评论",
+      "numComments": 43,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1w3m3zb/how_much_of_our_genome_is_devoted_to_the_brain/",
+      "sourceRank": 22,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/01-1w3k492.md",
+      "contentSha256": "aa283718f64191f6fe7e651e35dab70a5af5d354c53a8b3429e96c8dc61f245b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w45n8c",
+      "title": "现实中有哪些「要么作为英雄死去，要么活得太久看着自己变成恶魔」的典型例子？",
+      "subreddit": "AskReddit",
+      "points": "1634 points · 1481 评论",
+      "numComments": 1481,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w45n8c/whos_the_best_reallife_example_of_you_either_die/",
+      "sourceRank": 7,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/02-1w42bw2.md",
+      "contentSha256": "fd976e6d0595d65e4b71da1ca1b79abc022e77cb221c4f355c61e509269d8082",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w3zyj3",
+      "title": "有哪些本意纯洁无辜的举动，却让人觉得暧昧甚至撩人？",
+      "subreddit": "AskReddit",
+      "points": "2846 points · 726 评论",
+      "numComments": 726,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w3zyj3/whats_something_innocent_that_feels_dangerously/",
+      "sourceRank": 3,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/01-1w3k492.md",
+      "contentSha256": "aa283718f64191f6fe7e651e35dab70a5af5d354c53a8b3429e96c8dc61f245b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w3gn0a",
+      "title": "养了多只宠物的家庭，它们之间最近在上演什么抓马大戏？",
+      "subreddit": "AskReddit",
+      "points": "3480 points · 1240 评论",
+      "numComments": 1240,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w3gn0a/people_who_own_multiple_pets_what_is_the_current/",
+      "sourceRank": 2,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-01/02-1w42bw2.md",
+      "contentSha256": "fd976e6d0595d65e4b71da1ca1b79abc022e77cb221c4f355c61e509269d8082",
+      "volume": "v2"
+    }
+  ]
+}

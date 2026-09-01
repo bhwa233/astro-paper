@@ -7,8 +7,12 @@
 // 不该让当天的选题重摇，所以这里的解析函数**从不抛错**，只降级并把原因记下来。
 import { compact } from "./blog_common.ts";
 
-/** 固定栏目名。不进 AI，也不逐条存储，发布时直接写进 metadata.json。 */
-export const REDDIT_LIFE_VIDEO_SERIES = "有趣的问题";
+/**
+ * 固定栏目名。不进 AI，也不逐条存储，发布时直接写进 metadata.json。
+ *
+ * 和主题域标签「人性观察」只差一个字，读 publish.json 时容易看串：这里是栏目，那里是标签。
+ */
+export const REDDIT_LIFE_VIDEO_SERIES = "人生观察";
 
 /**
  * 主题域。每条内容至少命中两个，保证「这条视频讲什么」始终有答案。

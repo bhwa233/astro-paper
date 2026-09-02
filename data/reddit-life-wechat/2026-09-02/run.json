@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-02",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "3e78c9567713022aa78ba65b1c86473fba0f3b5d",
+    "workflowRun": "33642733910",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-02-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-02/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "精准剖析不认错、巨婴与好为人师等窒息人际特质，具有极高的人际代入感和长尾共鸣"
+      },
+      {
+        "rank": 24,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "反思讨好他人、过度在意评价与成瘾消耗的人生教训，极具启发性与跨年龄普遍共鸣"
+      },
+      {
+        "rank": 23,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击父母衰老、时间加速与人生懊悔等青年向中年过渡的深刻痛点，情绪共鸣强烈"
+      },
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深刻洞察AI时代视听公信力崩塌与行业人才培养断层等深层危机，极具前瞻与讨论价值"
+      },
+      {
+        "rank": 11,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "细致拆解能量耗尽、动力丧失等心理亚健康信号，兼具实用识别价值与广泛共情"
+      },
+      {
+        "rank": 29,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "揭示敷衍说教与虚假正能量对悲痛者的二次伤害，具备很强的同理心反思与长期沟通指导价值"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "围绕大额资产与终身不工作的两难选择，兼具财务测算故事与人生选择的普遍探讨欲"
+      },
+      {
+        "rank": 6,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "聚焦职场尊严与奇葩管理冲突下的果断辞职经历，故事具体且极易激发打工人共鸣"
+      },
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从普通人微观视角回忆危机前夕的冻结信号，对经济周期感知具有跨时间的参照价值"
+      },
+      {
+        "rank": 17,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "科学解释海洋哺乳动物的补水与渗透压机制，满足读者强烈的好奇心且解释详实严谨"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 2,
+        "category": "region_specific",
+        "reason": "核心讨论严重依赖特定国家或州的法律条文、判例与地方执法细则"
+      },
+      {
+        "rank": 4,
+        "category": "narrow_interest",
+        "reason": "内容高度绑定特定小说与作品世界观设定，属于圈层娱乐假设"
+      },
+      {
+        "rank": 7,
+        "category": "time_sensitive",
+        "reason": "围绕特定月份宣传节点展开，且回答多为口号式干预信息与碎片表达"
+      },
+      {
+        "rank": 9,
+        "category": "low_resonance",
+        "reason": "汽车功能配置吐槽偏向表面琐碎抱怨，缺乏深入的讨论空间"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "单纯的经典喜剧电影清单盘点与台词引用，依赖特定影视背景"
+      },
+      {
+        "rank": 12,
+        "category": "narrow_interest",
+        "reason": "微交易与排期机制讨论高度局限于核心游戏玩家圈层"
+      },
+      {
+        "rank": 13,
+        "category": "low_resonance",
+        "reason": "职业淘汰预测较为泛泛，且与AI深层影响等选题相比讨论深度有限"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "极速飙车体验受众较窄且缺少深层启发与广泛代入感"
+      },
+      {
+        "rank": 15,
+        "category": "low_resonance",
+        "reason": "动物开口说话属于浅层娱乐脑洞，缺少实质性探讨深度"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "品牌被收购后的吐槽内容碎片化且多为情绪宣泄"
+      },
+      {
+        "rank": 18,
+        "category": "narrow_interest",
+        "reason": "主要围绕单一恐怖片的情怀回忆展开，话题范围过窄"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "身体剧痛多为个例伤病细节描述，缺乏可迁移的经验与认知价值"
+      },
+      {
+        "rank": 20,
+        "category": "region_specific",
+        "reason": "内容高度依赖北美本土儿童麦片品牌认知与特定的童年饮食文化"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "接听前任电话的回答多为段子式表态，缺少深度反思与故事延展"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "极端假设下的消极情绪宣泄偏多，普遍共鸣与讨论价值有限"
+      },
+      {
+        "rank": 25,
+        "category": "low_resonance",
+        "reason": "极端低温记录与天气闲聊，内容单薄且缺少长尾启发"
+      },
+      {
+        "rank": 26,
+        "category": "narrow_interest",
+        "reason": "老款联机射击游戏情怀盘点，答案依赖特定复古游戏经历"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "在商场长期居住属于纯假设娱乐脑洞，讨论深度不足"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "暴饮暴食与打瞌睡等调侃偏浅层段子，缺乏严肃讨论价值"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "自然灾害破坏力讨论较为泛泛，缺乏新颖视角与深度共鸣"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w4r4bh",
+      "title": "人际交往中，哪些性格特质相处起来最让人心力交瘁？",
+      "subreddit": "AskReddit",
+      "points": "1173 points · 1112 评论",
+      "numComments": 1112,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w4r4bh/what_personality_traits_do_you_find_exhausting_to/",
+      "sourceRank": 8,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/01-1w4r4bh.md",
+      "contentSha256": "452983ac4607c4c3dacf80d6471feecfbe9401838baea1307a1f5c02fdb9d304",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w55f99",
+      "title": "有哪些事情，让你后悔白白浪费了自己好几年的大好人生？",
+      "subreddit": "AskReddit",
+      "points": "178 points · 503 评论",
+      "numComments": 503,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w55f99/whats_something_you_regret_wasting_years_of_your/",
+      "sourceRank": 24,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/02-1w55f99.md",
+      "contentSha256": "0a47c83c77c235e74ef01b1648675b0db392ac536a5f0bdd17f9e26bb256c584",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w4truu",
+      "title": "步入三十岁，最让人难以承受的现实是什么？",
+      "subreddit": "AskReddit",
+      "points": "194 points · 243 评论",
+      "numComments": 243,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w4truu/whats_the_worst_thing_about_being_in_your_30s/",
+      "sourceRank": 23,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/01-1w4r4bh.md",
+      "contentSha256": "452983ac4607c4c3dacf80d6471feecfbe9401838baea1307a1f5c02fdb9d304",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w50qeq",
+      "title": "未来十年极可能发生却几乎没人做准备的事有哪些？",
+      "subreddit": "AskReddit",
+      "points": "2194 points · 1734 评论",
+      "numComments": 1734,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w50qeq/whats_something_thats_highly_likely_to_happen_in/",
+      "sourceRank": 3,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/02-1w55f99.md",
+      "contentSha256": "0a47c83c77c235e74ef01b1648675b0db392ac536a5f0bdd17f9e26bb256c584",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w4yabm",
+      "title": "有哪些迹象说明一个人的心理健康状态正在恶化？",
+      "subreddit": "AskReddit",
+      "points": "686 points · 519 评论",
+      "numComments": 519,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w4yabm/whats_a_sign_your_mental_health_is_declining/",
+      "sourceRank": 11,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/01-1w4r4bh.md",
+      "contentSha256": "452983ac4607c4c3dacf80d6471feecfbe9401838baea1307a1f5c02fdb9d304",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w4snmw",
+      "title": "对处于极度悲痛中的人，哪些看似安慰的话其实最伤人？",
+      "subreddit": "AskReddit",
+      "points": "126 points · 322 评论",
+      "numComments": 322,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w4snmw/what_are_the_most_unhelpful_things_to_say_to/",
+      "sourceRank": 29,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/02-1w55f99.md",
+      "contentSha256": "0a47c83c77c235e74ef01b1648675b0db392ac536a5f0bdd17f9e26bb256c584",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w4v39y",
+      "title": "一次性给你两百万美元但终身禁止再工作，你会立刻辞职吗？",
+      "subreddit": "AskReddit",
+      "points": "5088 points · 3023 评论",
+      "numComments": 3023,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w4v39y/would_you_quit_your_job_forever_right_now_and/",
+      "sourceRank": 1,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/01-1w4r4bh.md",
+      "contentSha256": "452983ac4607c4c3dacf80d6471feecfbe9401838baea1307a1f5c02fdb9d304",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w4ib99",
+      "title": "你最快辞掉一份工作用了多久？因何瞬间决定走人？",
+      "subreddit": "AskReddit",
+      "points": "1419 points · 843 评论",
+      "numComments": 843,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w4ib99/whats_the_quickest_you_have_ever_quit_a_job_and/",
+      "sourceRank": 6,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/02-1w55f99.md",
+      "contentSha256": "0a47c83c77c235e74ef01b1648675b0db392ac536a5f0bdd17f9e26bb256c584",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w4r651",
+      "title": "2008年经济衰退（recession）来临前，有哪些让人细思极恐的微小征兆？",
+      "subreddit": "AskReddit",
+      "points": "1551 points · 2043 评论",
+      "numComments": 2043,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w4r651/millennials_and_gen_x_of_reddit_what_little_signs/",
+      "sourceRank": 5,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/01-1w4r4bh.md",
+      "contentSha256": "452983ac4607c4c3dacf80d6471feecfbe9401838baea1307a1f5c02fdb9d304",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w4qpu0",
+      "title": "整天泡在海里的鲸鱼，为什么还会因脱水（dehydration）丧命？",
+      "subreddit": "askscience",
+      "points": "404 points · 108 评论",
+      "numComments": 108,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1w4qpu0/how_does_a_whale_become_dehydrated/",
+      "sourceRank": 17,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-02/02-1w55f99.md",
+      "contentSha256": "0a47c83c77c235e74ef01b1648675b0db392ac536a5f0bdd17f9e26bb256c584",
+      "volume": "v2"
+    }
+  ]
+}

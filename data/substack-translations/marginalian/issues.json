@@ -163,6 +163,39 @@
         "outputTokens": 3929,
         "totalTokens": 7686
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87783",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/26/james-baldwin-orilla-bill-miller",
+      "sourcePublishedAt": "2026-08-27T02:11:20.000Z",
+      "sourceSha256": "49a3b2a93c8193f8b982e1f3f7f786b85e67e811ffeb7966a051259b5ce33b1a",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3397,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-02T04:44:11.463Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=85826",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/27/ode-to-a-good-pen",
+      "sourcePublishedAt": "2026-08-27T20:09:21.000Z",
+      "sourceSha256": "0e70e6a0fdf9fa357f645bb6eff8524c4afd0c71ba70a8fef45ea3570494202c",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 851,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-02T04:44:11.492Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=77766",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/27/bruce-springsteen-depression",
+      "sourcePublishedAt": "2026-08-27T20:13:16.000Z",
+      "sourceSha256": "59dbd5bd3df4292ccc61f1751a22906377de019681c5b911715ec380be3aff03",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3376,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-02T04:44:11.521Z"
     }
   ]
 }

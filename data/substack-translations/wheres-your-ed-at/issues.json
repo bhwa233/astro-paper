@@ -45,6 +45,21 @@
         "outputTokens": 4472,
         "totalTokens": 6772
       }
+    },
+    {
+      "guid": "6a96eccabc13f200017d782c",
+      "canonicalUrl": "https://www.wheresyoured.at/hyperscale-normalization",
+      "sourcePublishedAt": "2026-09-01T17:39:44.000Z",
+      "sourceSha256": "957f04cdbe702cc5020f0e1ea7623158f9a0c6ef8b660022281daebb1bf3dbfb",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/wheres-your-ed-at-20260901-hyperscale-normalization.md",
+      "translatedAt": "2026-09-02T04:44:04.619Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 17924,
+        "outputTokens": 18925,
+        "totalTokens": 36849
+      }
     }
   ]
 }

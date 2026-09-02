@@ -71,6 +71,21 @@
         "outputTokens": 3620,
         "totalTokens": 7097
       }
+    },
+    {
+      "guid": "https://www.honest-broker.com/p/wendell-berrys-nine-rules",
+      "canonicalUrl": "https://www.honest-broker.com/p/wendell-berrys-nine-rules",
+      "sourcePublishedAt": "2026-09-01T16:32:07.000Z",
+      "sourceSha256": "68d0b15847db8d391b5512bbdcead5a6f28ec46656d600be4b11b5f69a1a40cf",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/honest-broker-20260901-wendell-berrys-nine-rules.md",
+      "translatedAt": "2026-09-02T04:42:43.126Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3205,
+        "outputTokens": 3559,
+        "totalTokens": 6764
+      }
     }
   ]
 }

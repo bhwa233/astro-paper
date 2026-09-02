@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-02",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-09-02",
+    "drafts": [
+      "01-1w4r4bh.md",
+      "02-1w55f99.md"
+    ],
+    "sha256": "594deb5768e16fed677fe56148765114be4a4870c240447dc9bcff6443c908e7"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 8,
+  "selectedQuestionIndexes": [
+    9,
+    3
+  ],
+  "titles": [
+    "让人瞬间决定辞职的奇葩经历",
+    "心理状态正在悄悄恶化的迹象"
+  ],
+  "questions": [
+    "你最快辞掉一份工作用了多久？因何瞬间决定走人？",
+    "有哪些迹象说明一个人的心理健康状态正在恶化？"
+  ],
+  "verbatimCounts": [
+    9,
+    9
+  ]
+}

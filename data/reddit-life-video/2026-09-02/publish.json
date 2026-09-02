@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-02",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "5d2f82327d4c7f04cce156ba0eea92e52cedd33058d03fecb7b1482ab1ccab20",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 9,
+      "status": "processed",
+      "tags": [
+        "职场生存",
+        "人性观察",
+        "亲身经历",
+        "离谱见闻",
+        "避坑指南"
+      ],
+      "summary": "压垮打工人的往往不是工作本身，而是触及基本尊严与底线的奇葩规定和虚假承诺",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 3,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "人性观察",
+        "健康常识",
+        "灵魂拷问"
+      ],
+      "summary": "心理恶化往往始于日常琐事执行力丧失，以及用情绪自动巡航来掩盖内心的彻底麻木",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

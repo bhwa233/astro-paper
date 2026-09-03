@@ -4,8 +4,8 @@ description: "Stages the given paths, commits them, and pushes with retries arou
 # 归档任务彼此并发，推同一个分支会互相打败。重试次数和退避写在这里，不再散落在
 # 每个 workflow 的内联脚本里。
 #
-# 不覆盖 blog-publish.yml 的 "Commit and push generated content"：那一步用
-# `--rebase -X theirs`，并且在产物路径缺失时要以失败告终，两条语义都和这里相反。
+# 不覆盖 blog-publish.yml 的 "Commit generated content" / "Push generated content"：
+# 那边提交与推送之间夹着一次构建，并且在产物路径缺失时要以失败告终，语义和这里不同。
 inputs:
   paths:
     description: "Space-separated repository paths to stage. Paths that do not exist are skipped."

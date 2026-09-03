@@ -8,10 +8,10 @@ name: Publish Reddit Life
 # 0/5/10/15 四条 cron 错开五分钟来避让同一个上游服务，这个前提早就不成立了。
 # 依赖图才是真的错开。
 #
-# 二、四个分类都会调到 blog-publish.yml，它和 reddit-life-wechat.yml 共用
-# concurrency 组 scheduled-posts-<ref>。同组内只保留一个排队运行，先排队的会被后到的
-# 挤掉——discussions 在 8-28、8-29 两次定时运行就是这样变成 cancelled 的，既不是失败
-# 也没有告警。串成一条链之后组内不再自相竞争。
+# 二、四个分类都会调到 blog-publish.yml。它的 concurrency 组以前是全仓一个
+# scheduled-posts-<ref>，同组内只保留一个排队运行，先排队的会被后到的挤掉——discussions
+# 在 8-28、8-29 两次定时运行就是这样变成 cancelled 的，既不是失败也没有告警。串成一条链
+# 之后组内不再自相竞争；现在组已按任务拆开，但四个分类同属 reddit-top20 一个任务，链仍有必要。
 #
 # 三、归档日期只在 archive-date 里解析一次再往下传。原来每个 workflow 各自跑
 # TZ=America/Los_Angeles date +%F，抖动几小时就可能跨过 PT 日界，同一批任务算出
@@ -44,6 +44,7 @@ jobs:
   archive-date:
     name: Resolve archive date
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       value: ${{ steps.resolve.outputs.value }}
     steps:

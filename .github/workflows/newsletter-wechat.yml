@@ -111,8 +111,10 @@ jobs:
           mapfile -t paths < newsletter-wechat-paths.txt
           args=()
           if [ "$INPUT_FORCE_CREATE" = "true" ]; then args+=(--force-create); fi
+          # 管道里 $? 是 tee 的退出码，tee 只要写得出文件就是 0；这里没开 pipefail，
+          # 所以要读 PIPESTATUS[0] 才是 publish 自己的退出码。
           pnpm run wechat publish "${paths[@]}" "${args[@]}" --json | tee wechat-results.json
-          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
           exit 0
 
       - name: Commit WeChat ledger

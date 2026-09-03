@@ -94,8 +94,12 @@ on:
         type: boolean
         default: false
 
+# 按任务分组，而不是全仓一个组。GitHub 同一组只留一个排队运行，第三个到达的会把排队的
+# 静默 cancel 掉（不算失败、没有告警）；十几条 cron 挤一个组、调度延迟又到小时级，周六
+# 尤其容易撞上。不同任务写的是不同文件，推送竞争交给下面的 rebase 重试处理即可。
+# 同一任务自身仍然串行：手动补跑和定时运行不会同时改同一份产物。
 concurrency:
-  group: scheduled-posts-${{ github.ref }}
+  group: scheduled-posts-${{ github.ref }}-${{ inputs.task }}-${{ inputs.reddit_category }}
   cancel-in-progress: false
 
 jobs:
@@ -275,10 +279,10 @@ jobs:
           fi
           git status --short
 
-      - name: "Build site with generated content"
-        run: pnpm run build
-
-      - name: "Commit and push generated content"
+      # 先提交并 rebase 到分支最新头，再构建，最后推送：这样验证过的树就是要推出去的树。
+      # 原来的顺序是构建、再 rebase、再推送，rebase 进来的别人的提交从没被这次构建看过。
+      # 不再用 `-X theirs`：各任务写各自的文件，真冲突说明出了别的问题，应当失败而不是静默丢掉对方的改动。
+      - name: "Commit generated content"
         if: steps.diff.outputs.changed == 'true'
         run: |
           set -euo pipefail
@@ -297,8 +301,20 @@ jobs:
           fi
           git add -- $staged
           git commit -m "feat(posts): archive scheduled posts"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+
+      # 没有新产物就不构建：定时任务大多数时候是「今天已经归档过」，全量 astro check + build +
+      # pagefind 白跑一遍。真正的部署构建在 Cloudflare Pages，这一步只是推送前的门禁。
+      - name: "Build site with generated content"
+        if: steps.diff.outputs.changed == 'true'
+        run: pnpm run build
+
+      - name: "Push generated content"
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
           for attempt in 1 2 3; do
-            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
             if git push origin "HEAD:${GITHUB_REF_NAME}"; then
               exit 0
             fi

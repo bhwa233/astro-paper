@@ -44,8 +44,9 @@ on:
         default: "400000"
         type: string
 
+# 独立分组；理由见 blog-publish.yml 的 concurrency 注释。
 concurrency:
-  group: scheduled-posts-${{ github.ref }}
+  group: substack-translations-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -62,6 +63,20 @@ jobs:
 
       - name: "Set up Node and pnpm"
         uses: ./.github/actions/setup
+
+      # 与 blog-publish.yml 同一套 key：这条流水线每天都要跑一次全量 build，之前没还原
+      # cacheDir，增量构建和 OG 图缓存在这里等于不存在，每次都是冷构建。
+      - name: "Resolve build cache day"
+        id: cache-day
+        run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: "Restore Astro build cache"
+        uses: actions/cache@v5
+        with:
+          path: node_modules/.astro
+          key: astro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'astro.config.ts', 'astro-paper.config.ts') }}-${{ steps.cache-day.outputs.day }}
+          restore-keys: |
+            astro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'astro.config.ts', 'astro-paper.config.ts') }}-
 
       - name: Restore validated article cache
         uses: actions/cache@v5
@@ -160,7 +175,19 @@ jobs:
       - name: Verify newsletter content quality
         run: pnpm run check:conventions
 
+      - name: Detect publishable changes
+        id: diff
+        run: |
+          if [ -z "$(git status --porcelain -- src/content/posts/zh-cn data/substack-translations public/images/substack)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+          git status --short
+
+      # 没有新译文就不构建；理由见 blog-publish.yml 同名步骤。
       - name: Build site
+        if: steps.diff.outputs.changed == 'true'
         run: pnpm run build
 
       - name: Commit and push translations

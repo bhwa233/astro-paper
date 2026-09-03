@@ -119,24 +119,19 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  // 只配浏览器真正会加载的字体。Noto Sans SC 只有构建期画 OG 图用到，它走
+  // src/utils/satoriFont.ts 按文字裁子集；配在这里会让 34MB 的 CJK 字体文件跟着进 dist。
+  // 字重只列样式里用到的（400/500/600/700），全站没有 300，也没有需要真斜体的地方。
+  // formats 默认只有 woff2；多下一份 woff 给 satori 画 OG 图用（它不认 woff2），浏览器仍优先 woff2。
   fonts: [
     {
       name: "Google Sans Code",
       cssVariable: "--font-google-sans-code",
       provider: fontProviders.google(),
       fallbacks: ["monospace"],
-      weights: [300, 400, 500, 600, 700],
-      styles: ["normal", "italic"],
-      formats: ["woff", "ttf"],
-    },
-    {
-      name: "Noto Sans SC",
-      cssVariable: "--font-noto-sans-sc",
-      provider: fontProviders.google(),
-      fallbacks: ["sans-serif"],
-      weights: [400, 700],
+      weights: [400, 500, 600, 700],
       styles: ["normal"],
-      formats: ["woff", "ttf"],
+      formats: ["woff2", "woff"],
     },
   ],
   env: {

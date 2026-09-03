@@ -66,6 +66,7 @@ jobs:
       generated_sha: ${{ steps.head.outputs.sha }}
       manifest_path: ${{ steps.generate.outputs.manifest_path }}
       generated_count: ${{ steps.generate.outputs.generated_count }}
+      wechat_paths: ${{ steps.wechat-paths.outputs.paths }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -101,6 +102,24 @@ jobs:
           const result = JSON.parse(fs.readFileSync("reddit-life-wechat-result.json", "utf8"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `manifest_path=${result.manifestPath}\n`);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `generated_count=${(result.generatedPaths || []).length}\n`);
+          NODE
+      # 供 sync-wechat 用：按 manifest 算出要发布的稿件路径，一行一个。
+      - name: Collect WeChat draft paths
+        id: wechat-paths
+        if: steps.generate.outputs.manifest_path != ''
+        env:
+          MANIFEST_PATH: ${{ steps.generate.outputs.manifest_path }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
+          // 一篇收录五帖，五条 Entry 共享同一个 path；不去重会把同一篇发布五次。
+          //
+          // manifest.posts 已按 AI 选后顺序排列，各卷连续共享 path。草稿箱按创建时间倒序，
+          // 因此先发末卷、最后发首卷，排名最高的一篇才会显示在最上面。
+          const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).map(post => post.path))].reverse();
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `paths<<PATHS\n${paths.join("\n")}\nPATHS\n`);
           NODE
       - name: Upload generation artifacts
         if: always()
@@ -140,93 +159,12 @@ jobs:
   sync-wechat:
     needs: generate-and-archive
     if: needs.generate-and-archive.outputs.generated_count != '0'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: wechat-production
-    concurrency:
-      group: wechat-sync-${{ github.repository }}
-      cancel-in-progress: false
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.generate-and-archive.outputs.generated_sha }}
-          fetch-depth: 0
-      - name: Prepare writable ledger branch
-        env:
-          GENERATED_SHA: ${{ needs.generate-and-archive.outputs.generated_sha }}
-        run: git checkout -B "${GITHUB_REF_NAME}" "$GENERATED_SHA"
-      - name: "Set up Node and pnpm"
-        uses: ./.github/actions/setup
-      - name: Collect generated draft paths
-        id: paths
-        env:
-          MANIFEST_PATH: ${{ needs.generate-and-archive.outputs.manifest_path }}
-        run: |
-          set -euo pipefail
-          node --input-type=module <<'NODE'
-          import fs from "node:fs";
-          const manifest = JSON.parse(fs.readFileSync(process.env.MANIFEST_PATH, "utf8"));
-          // 一篇收录五帖，五条 Entry 共享同一个 path；不去重会把同一篇发布五次。
-          //
-          // manifest.posts 已按 AI 选后顺序排列，各卷连续共享 path。草稿箱按创建时间倒序，
-          // 因此先发末卷、最后发首卷，排名最高的一篇才会显示在最上面。
-          const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).map(post => post.path))].reverse();
-          fs.writeFileSync("reddit-life-wechat-paths.txt", paths.join("\n"));
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
-          NODE
-      - name: Validate planned drafts
-        if: steps.paths.outputs.count != '0'
-        env:
-          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
-          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
-          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
-          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
-          INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
-        run: |
-          set -euo pipefail
-          mapfile -t paths < reddit-life-wechat-paths.txt
-          args=()
-          if [ "$INPUT_FORCE_REBUILD" = "true" ]; then args+=(--force-create); fi
-          pnpm run wechat publish "${paths[@]}" "${args[@]}" --dry-run --json | tee wechat-dry-run.json
-          node --input-type=module <<'NODE'
-          import fs from "node:fs";
-          const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
-          if (!Array.isArray(results) || results.some(item => item.status !== "planned" && !(item.status === "skipped" && item.skipReason === "already-synchronized"))) throw new Error(`Unexpected WeChat dry-run result: ${JSON.stringify(results)}`);
-          NODE
-      - name: Create drafts serially and retain partial ledger
-        if: steps.paths.outputs.count != '0'
-        id: publish
-        env:
-          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
-          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
-          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
-          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
-          INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
-        run: |
-          set +e
-          mapfile -t paths < reddit-life-wechat-paths.txt
-          args=()
-          if [ "$INPUT_FORCE_REBUILD" = "true" ]; then args+=(--force-create); fi
-          # 管道里 $? 是 tee 的退出码，tee 只要写得出文件就是 0；这里没开 pipefail，
-          # 所以要读 PIPESTATUS[0] 才是 publish 自己的退出码。
-          pnpm run wechat publish "${paths[@]}" "${args[@]}" --json | tee wechat-results.json
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-          exit 0
-      - name: Commit WeChat ledger
-        if: always() && steps.paths.outputs.count != '0'
-        uses: ./.github/actions/archive-commit
-        with:
-          paths: .astro-wechat/ledger.json
-          message: "chore: update WeChat sync ledger [skip ci]"
-      - name: Upload WeChat results
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: reddit-life-wechat-sync
-          path: |
-            wechat-dry-run.json
-            wechat-results.json
-          if-no-files-found: ignore
-      - name: Fail after retaining partial ledger
-        if: steps.publish.outputs.exit_code != '' && steps.publish.outputs.exit_code != '0'
-        run: exit 1
+    permissions:
+      contents: write
+    uses: ./.github/workflows/wechat-sync.yml
+    with:
+      upstream_sha: ${{ needs.generate-and-archive.outputs.generated_sha }}
+      article_paths: ${{ needs.generate-and-archive.outputs.wechat_paths }}
+      force_create: ${{ inputs.force_rebuild || false }}
+      artifact_name: reddit-life-wechat-sync
+    secrets: inherit

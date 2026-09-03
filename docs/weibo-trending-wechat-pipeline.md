@@ -42,14 +42,14 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
 
 ## 5. Workflow
 
-`.github/workflows/publish-weibo-trending.yml` 在站点文章发布成功后调用 `.github/workflows/weibo-trending-wechat.yml`，传入父提交、父 workflow run 和可选归档日。
+`.github/workflows/scheduled-publish.yml` 的 `weibo-trending-wechat` job 在站点文章发布成功后调用 `.github/workflows/weibo-trending-wechat.yml`，传入父提交、父 workflow run 和可选归档日。
 
 子 workflow 分为两个 job：
 
 1. checkout 父提交，生成并提交 `data/weibo-trending-wechat/<date>/`，上传运行 artifact。
 2. checkout 新归档提交，执行 astro-wechat dry-run，只接受 `planned` 或 `already-synchronized`，随后创建草稿。
 
-所有微信同步 job 使用 `wechat-sync-${{ github.repository }}` 并发组串行执行。正式发布即使部分失败，也会先提交 `.astro-wechat/ledger.json`，再让 job 失败，避免重跑重复创建已成功的草稿。
+微信同步统一走 `.github/workflows/wechat-sync.yml`（全仓唯一的同步 job，`wechat-sync-${{ github.repository }}` 并发组串行执行），本 workflow 只负责算出稿件路径传给它。正式发布即使部分失败，也会先提交 `.astro-wechat/ledger.json`，再让 job 失败，避免重跑重复创建已成功的草稿。
 
 专用 workflow 同时提供 `workflow_dispatch` 补跑入口。对已有归档补跑时应传原始归档日期、包含上游文章的提交 SHA 和对应 workflow run；普通补跑会复用 manifest。父 workflow 的 `force=true` 或专用 workflow 的 `force_rebuild=true` 会重新渲染当日卡片，并给微信 dry-run 和正式同步传 `--force-create`，绕过 `already-synchronized` 新建替代草稿。旧草稿不会更新或删除，同步台账在成功后改为记录最新草稿。`sync-wechat-draft.yml` 的路径白名单也接受该目录，它在建草稿前会按稿件所在目录的 `run.json` 从 Release 恢复卡片；本地直接调用 astro-wechat 前也要先跑 `node --import tsx scripts/release_assets.ts restore --article <稿件路径>`（需要 `gh auth login`）。
 

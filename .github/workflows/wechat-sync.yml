@@ -1,0 +1,200 @@
+name: WeChat Sync
+
+# 全仓唯一的微信草稿同步 job。技术日报 / NYT 图书、Newsletter 译文、Reddit 人生稿、Reddit 图片消息、
+# 微博热搜图片消息、人工补推六个来源以前各抄一份同构的 sync-wechat job，只差「稿件路径从哪来」
+# 和 artifact 名。PIPESTATUS 那个吞错 bug 当时要改四处，Release 卡片的 restore 步骤又抄了三处——
+# 收成一份之后调用方只负责算出稿件路径列表传进来。
+#
+# 契约：
+# - `upstream_sha` 必须是已经包含稿件的提交；这里 checkout 它并建可写分支，只为提交台账。
+# - `article_paths` 一行一个仓库相对路径。空列表直接成功退出，不当错误。
+# - dry-run 只接受 planned 或 already-synchronized 跳过；别的跳过原因说明配置或稿子有问题，宁可失败。
+# - 正式发布即使部分失败也先提交 .astro-wechat/ledger.json 再让 job 失败，避免重跑重复建草稿。
+# - 图片消息的卡片不在仓库里，发布前按稿件旁的 run.json 从 Release 放回并核对哈希（release_assets.ts）；
+#   普通文章和老式全提交归档在那一步什么也不做。
+permissions:
+  contents: write
+
+on:
+  workflow_call:
+    inputs:
+      upstream_sha:
+        description: "Committed revision that already contains the articles."
+        required: true
+        type: string
+      article_paths:
+        description: "Repository-relative Markdown paths, one per line, in publish order."
+        required: true
+        type: string
+      force_create:
+        description: "Create replacement drafts even when the articles are already synchronized."
+        required: false
+        default: false
+        type: boolean
+      artifact_name:
+        description: "Name of the uploaded diagnostics artifact."
+        required: false
+        default: wechat-sync
+        type: string
+      require_created:
+        description: "Fail unless every article produced a created draft (manual re-sync entry)."
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  sync:
+    name: Sync drafts to WeChat
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: wechat-production
+    # 全仓串行：微信接口对同一账号并发建稿会互相打败，台账也只有一份。
+    concurrency:
+      group: wechat-sync-${{ github.repository }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout generated revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.upstream_sha }}
+          fetch-depth: 0
+
+      # 按 sha 检出会进入分离头指针，提交台账需要一个可写分支。
+      - name: Prepare writable ledger branch
+        env:
+          UPSTREAM_SHA: ${{ inputs.upstream_sha }}
+        run: git checkout -B "${GITHUB_REF_NAME}" "$UPSTREAM_SHA"
+
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
+
+      - name: Validate article paths
+        id: paths
+        env:
+          ARTICLE_PATHS: ${{ inputs.article_paths }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          import path from "node:path";
+          const allowed = ["src/content/posts/", "data/reddit-life-wechat/", "data/reddit-life-newspic/", "data/weibo-trending-wechat/"];
+          const paths = (process.env.ARTICLE_PATHS || "").split("\n").map(line => line.trim()).filter(Boolean);
+          if (new Set(paths).size !== paths.length) throw new Error("article paths contain duplicates");
+          for (const articlePath of paths) {
+            if (/[\0\r]/.test(articlePath)) throw new Error("article path contains control characters");
+            const normalized = path.posix.normalize(articlePath);
+            if (normalized !== articlePath) throw new Error(`article path is not normalized: ${articlePath}`);
+            if (!allowed.some(prefix => normalized.startsWith(prefix)) || !normalized.endsWith(".md")) throw new Error(`unexpected article path: ${articlePath}`);
+            if (!fs.existsSync(articlePath)) throw new Error(`article is missing at the generated revision: ${articlePath}`);
+          }
+          fs.writeFileSync("wechat-paths.txt", paths.join("\n"));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
+          NODE
+
+      - name: Restore release assets
+        if: steps.paths.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mapfile -t paths < wechat-paths.txt
+          for article in "${paths[@]}"; do
+            node --import tsx scripts/release_assets.ts restore --article "$article"
+          done
+
+      - name: Validate planned drafts
+        if: steps.paths.outputs.count != '0'
+        env:
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
+          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE_CREATE: ${{ inputs.force_create }}
+        run: |
+          set -euo pipefail
+          mapfile -t paths < wechat-paths.txt
+          args=()
+          if [ "$INPUT_FORCE_CREATE" = "true" ]; then args+=(--force-create); fi
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --dry-run --json | tee wechat-dry-run.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
+          const ok = item => item.status === "planned" || (item.status === "skipped" && item.skipReason === "already-synchronized");
+          if (!Array.isArray(results) || results.length !== fs.readFileSync("wechat-paths.txt", "utf8").split("\n").filter(Boolean).length || !results.every(ok)) {
+            throw new Error(`Unexpected WeChat dry-run result: ${JSON.stringify(results)}`);
+          }
+          NODE
+
+      - name: Create drafts and retain partial ledger
+        id: publish
+        if: steps.paths.outputs.count != '0'
+        env:
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
+          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
+          INPUT_FORCE_CREATE: ${{ inputs.force_create }}
+        run: |
+          set +e
+          mapfile -t paths < wechat-paths.txt
+          args=()
+          if [ "$INPUT_FORCE_CREATE" = "true" ]; then args+=(--force-create); fi
+          # 管道里 $? 是 tee 的退出码，tee 只要写得出文件就是 0；这里没开 pipefail，
+          # 所以要读 PIPESTATUS[0] 才是 publish 自己的退出码。
+          pnpm run wechat publish "${paths[@]}" "${args[@]}" --json | tee wechat-results.json
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Commit WeChat ledger
+        if: always() && steps.paths.outputs.count != '0'
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: .astro-wechat/ledger.json
+          message: "chore: update WeChat sync ledger [skip ci]"
+
+      - name: Summarize WeChat sync
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const lines = ["### WeChat synchronization", ""];
+          if (!fs.existsSync("wechat-paths.txt") || !fs.readFileSync("wechat-paths.txt", "utf8").trim()) {
+            lines.push("- No articles to synchronize.");
+          } else if (!fs.existsSync("wechat-results.json")) {
+            lines.push("- Publish did not produce a result JSON; see the uploaded artifact.");
+          } else {
+            lines.push("| Article | Status | Detail |", "| --- | --- | --- |");
+            for (const item of JSON.parse(fs.readFileSync("wechat-results.json", "utf8"))) {
+              const detail = String(item.skipReason || item.errorMessage || item.draftId || "").replaceAll("|", "\\|").replaceAll("\n", " ");
+              lines.push(`| ${item.path || item.source || "-"} | ${item.status} | ${detail} |`);
+            }
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
+          NODE
+
+      - name: Upload WeChat results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: |
+            wechat-paths.txt
+            wechat-dry-run.json
+            wechat-results.json
+          if-no-files-found: ignore
+
+      # 人工补推的语义是「我要一篇新草稿」：已同步而没传 force_create 时要明确失败，而不是静默跳过。
+      - name: Require created drafts
+        if: inputs.require_created && steps.paths.outputs.count != '0'
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const results = fs.existsSync("wechat-results.json") ? JSON.parse(fs.readFileSync("wechat-results.json", "utf8")) : [];
+          if (!Array.isArray(results) || !results.length || results.some(item => item.status !== "created")) {
+            throw new Error(`Expected every article to produce a created draft, got: ${JSON.stringify(results)}`);
+          }
+          NODE
+
+      - name: Fail after retaining partial ledger
+        if: steps.publish.outputs.exit_code != '' && steps.publish.outputs.exit_code != '0'
+        run: exit 1

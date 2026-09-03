@@ -13,7 +13,7 @@
 
 文章严格保留两站各自的原始排名、可见标题和原帖链接。任何条目都不按主题、质量或摘要结果过滤，也不使用候补条目补位。模型只填写中文摘要字段，不能生成或修改榜单事实。
 
-定时 workflow 为 `.github/workflows/publish-forum-top10.yml`，每天 `14:30 UTC` 运行，对应北京 `22:30`、日本与韩国 `23:30`。归档日期使用 `Asia/Shanghai`。
+定时入口是 `.github/workflows/scheduled-publish.yml`（cron `37 14 * * *`），每天 `14:37 UTC` 运行，对应北京 `22:37`、日本与韩国 `23:37`。归档日期使用 `Asia/Shanghai`。
 
 ## 2. 取源
 

@@ -1,0 +1,112 @@
+name: Scheduled Publish
+
+# 十个定时发布任务的唯一入口。以前一个任务一个 workflow 文件，除了 cron 和 task 那两行逐字相同。
+#
+# cron 到 task 的映射在本文件出现两次（run-name 和 publish.with.task）：Actions 的 run-name
+# 读不到 job 输出，只能各写一遍表达式。scripts/check_conventions.ts 会核对这两处和
+# scripts/blog_tasks.ts 的 SCHEDULED_TASK_INPUTS 三者一致，改 cron 时三处一起改，漏了 lint 会报。
+#
+# 分钟数一律避开整点整分：那是全球最拥挤的调度槽位，GitHub 的 schedule 事件本身就是 best-effort。
+# 每个任务在 blog-publish.yml 里按 task 分并发组，彼此不会互相排队或被静默 cancel。
+run-name: >-
+  Publish ${{ inputs.task
+  || (github.event.schedule == '41 6 * * *' && 'hn-top10')
+  || (github.event.schedule == '52 23 * * *' && 'github-trending-daily')
+  || (github.event.schedule == '37 14 * * *' && 'forum-top10')
+  || (github.event.schedule == '47 2 * * 0' && 'nyt-books-weekly')
+  || (github.event.schedule == '38 2 * * 5' && 'mdblist-weekly')
+  || (github.event.schedule == '26 3 * * 6' && 'economist-weekly')
+  || (github.event.schedule == '34 5 * * 6' && 'new-yorker-weekly')
+  || (github.event.schedule == '19 6 * * 6' && 'atlantic-monthly')
+  || (github.event.schedule == '43 7 * * 6' && 'wired-monthly')
+  || (github.event.schedule == '23 16 * * *' && 'weibo-trending')
+  || github.event.schedule }}
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: "41 6 * * *" # hn-top10
+    - cron: "52 23 * * *" # github-trending-daily
+    - cron: "37 14 * * *" # forum-top10，北京 22:37 / 日韩 23:37 冻结实时榜
+    - cron: "47 2 * * 0" # nyt-books-weekly
+    - cron: "38 2 * * 5" # mdblist-weekly
+    - cron: "26 3 * * 6" # economist-weekly
+    - cron: "34 5 * * 6" # new-yorker-weekly
+    - cron: "19 6 * * 6" # atlantic-monthly，月刊按周轮询，账本去重
+    - cron: "43 7 * * 6" # wired-monthly，同上
+    - cron: "23 16 * * *" # weibo-trending，北京次日 00:23 归档前一天完整累积榜
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Scheduled task to run now."
+        type: choice
+        required: true
+        default: hn-top10
+        options:
+          - hn-top10
+          - github-trending-daily
+          - forum-top10
+          - nyt-books-weekly
+          - mdblist-weekly
+          - economist-weekly
+          - new-yorker-weekly
+          - atlantic-monthly
+          - wired-monthly
+          - weibo-trending
+      date:
+        description: "Archive date, YYYY-MM-DD. Empty = today in the task's own time zone (weibo-trending: previous day)."
+        required: false
+        type: string
+      force:
+        description: "Regenerate the post for the same date; sources with WeChat sync create a replacement draft."
+        required: false
+        type: boolean
+        default: false
+      ai_model:
+        description: "Optional AI_MODEL override. Empty = gemini-3.7-flash."
+        required: false
+        type: string
+
+jobs:
+  publish:
+    name: Publish
+    permissions:
+      contents: write
+    uses: ./.github/workflows/blog-publish.yml
+    with:
+      task: >-
+        ${{ inputs.task
+        || (github.event.schedule == '41 6 * * *' && 'hn-top10')
+        || (github.event.schedule == '52 23 * * *' && 'github-trending-daily')
+        || (github.event.schedule == '37 14 * * *' && 'forum-top10')
+        || (github.event.schedule == '47 2 * * 0' && 'nyt-books-weekly')
+        || (github.event.schedule == '38 2 * * 5' && 'mdblist-weekly')
+        || (github.event.schedule == '26 3 * * 6' && 'economist-weekly')
+        || (github.event.schedule == '34 5 * * 6' && 'new-yorker-weekly')
+        || (github.event.schedule == '19 6 * * 6' && 'atlantic-monthly')
+        || (github.event.schedule == '43 7 * * 6' && 'wired-monthly')
+        || (github.event.schedule == '23 16 * * *' && 'weibo-trending')
+        || '' }}
+      date: ${{ inputs.date || '' }}
+      # 手动派发没有 cron；生成器会按 task 在 SCHEDULED_TASK_INPUTS 里反查时区与日期偏移。
+      event_schedule: ${{ github.event.schedule || '' }}
+      force: ${{ inputs.force || false }}
+      ai_model: ${{ inputs.ai_model || '' }}
+      sync_wechat: ${{ inputs.task == 'nyt-books-weekly' || github.event.schedule == '47 2 * * 0' }}
+    secrets: inherit
+
+  weibo-trending-wechat:
+    name: Archive Weibo Trending WeChat Draft
+    needs: publish
+    if: ${{ inputs.task == 'weibo-trending' || github.event.schedule == '23 16 * * *' }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/weibo-trending-wechat.yml
+    with:
+      date: ${{ inputs.date || '' }}
+      upstream_sha: ${{ needs.publish.outputs.generated_sha }}
+      upstream_workflow_run: ${{ github.run_id }}
+      force_rebuild: ${{ inputs.force || false }}
+    secrets: inherit

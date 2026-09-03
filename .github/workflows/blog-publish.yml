@@ -112,6 +112,7 @@ jobs:
       PUBLISH_PATHS: "src/content/posts data public/images/podcast public/images/magazine"
     outputs:
       generated_sha: ${{ steps.head.outputs.sha }}
+      wechat_article_path: ${{ steps.wechat-article.outputs.path }}
 
     steps:
       - name: "Checkout repository"
@@ -324,6 +325,25 @@ jobs:
           echo "failed to push generated posts after 3 attempts" >&2
           exit 1
 
+      # 供 sync-wechat 用：这次运行里该任务生成的稿件路径，没有就是空。
+      - name: "Select generated WeChat article"
+        id: wechat-article
+        if: always()
+        env:
+          WECHAT_TASK: ${{ inputs.task }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          let articlePath = "";
+          if (fs.existsSync("scheduled-posts-result.json")) {
+            const payload = JSON.parse(fs.readFileSync("scheduled-posts-result.json", "utf8"));
+            const item = (payload.results || []).find(result => result.task === process.env.WECHAT_TASK);
+            if (item && !item.failed && item.path && !/[\0\r\n]/.test(item.path)) articlePath = item.path;
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `path=${articlePath}\n`);
+          NODE
+
       - name: "Record generated revision"
         id: head
         if: always()
@@ -353,118 +373,14 @@ jobs:
   sync-wechat:
     name: Sync selected article to WeChat
     needs: generate
-    # 每类文章独立恢复微信推送，避免打开一个来源时连带恢复其他来源。
-    if: ${{ needs.generate.result == 'success' && inputs.sync_wechat && ((inputs.task == 'tech-daily' && vars.ENABLE_TECH_DAILY_WECHAT_SYNC == 'true') || (inputs.task == 'nyt-books-weekly' && vars.ENABLE_NYT_BOOKS_WECHAT_SYNC == 'true')) }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: wechat-production
-    concurrency:
-      group: wechat-sync-${{ github.repository }}
-      cancel-in-progress: false
-
-    steps:
-      - name: "Checkout generated revision"
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.generate.outputs.generated_sha }}
-          fetch-depth: 0
-
-      - name: "Download generation result"
-        uses: actions/download-artifact@v8
-        with:
-          name: scheduled-posts-generation-artifacts
-          path: scheduled-posts-generation-artifacts
-
-      - name: "Set up Node and pnpm"
-        uses: ./.github/actions/setup
-
-      - name: "Select generated WeChat article"
-        id: source
-        env:
-          WECHAT_TASK: ${{ inputs.task }}
-        run: |
-          set -euo pipefail
-          node --input-type=module <<'NODE'
-          import fs from "node:fs";
-
-          const resultPath = "scheduled-posts-generation-artifacts/scheduled-posts-result.json";
-          const payload = JSON.parse(fs.readFileSync(resultPath, "utf8"));
-          const item = (payload.results || []).find(result => result.task === process.env.WECHAT_TASK);
-          const output = process.env.GITHUB_OUTPUT;
-          if (!item || item.failed || !item.path || /[\0\r\n]/.test(item.path)) {
-            fs.appendFileSync(output, "path=\n");
-            console.log("No publishable WeChat article was generated.");
-            process.exit(0);
-          }
-          fs.appendFileSync(output, `path=${item.path}\n`);
-          NODE
-
-      - name: "Dry-run WeChat synchronization"
-        id: dry-run
-        if: steps.source.outputs.path != ''
-        env:
-          ARTICLE_PATH: ${{ steps.source.outputs.path }}
-          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
-          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
-          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
-          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
-          INPUT_FORCE: ${{ inputs.force || false }}
-        run: |
-          set -euo pipefail
-          args=()
-          if [ "$INPUT_FORCE" = "true" ]; then args+=(--force-create); fi
-          pnpm run wechat publish "$ARTICLE_PATH" "${args[@]}" --dry-run --json | tee wechat-dry-run.json
-
-      - name: "Approve planned draft creation"
-        id: decision
-        if: steps.source.outputs.path != ''
-        run: |
-          set -euo pipefail
-          node --input-type=module <<'NODE'
-          import fs from "node:fs";
-
-          const results = JSON.parse(fs.readFileSync("wechat-dry-run.json", "utf8"));
-          if (!Array.isArray(results) || results.length !== 1) {
-            throw new Error("WeChat dry-run must return exactly one result.");
-          }
-          const [result] = results;
-          if (result.status === "planned") {
-            fs.appendFileSync(process.env.GITHUB_OUTPUT, "publish=true\n");
-          } else if (result.status === "skipped") {
-            fs.appendFileSync(process.env.GITHUB_OUTPUT, "publish=false\n");
-          } else {
-            throw new Error(`WeChat dry-run did not produce a publishable result: ${result.errorMessage || result.status}`);
-          }
-          NODE
-
-      - name: "Create WeChat draft"
-        if: steps.decision.outputs.publish == 'true'
-        env:
-          ARTICLE_PATH: ${{ steps.source.outputs.path }}
-          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
-          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
-          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
-          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
-          INPUT_FORCE: ${{ inputs.force || false }}
-        run: |
-          set -euo pipefail
-          args=()
-          if [ "$INPUT_FORCE" = "true" ]; then args+=(--force-create); fi
-          pnpm run wechat publish "$ARTICLE_PATH" "${args[@]}" --json | tee wechat-results.json
-
-      - name: "Commit WeChat ledger"
-        if: always() && steps.decision.outputs.publish == 'true'
-        uses: ./.github/actions/archive-commit
-        with:
-          paths: .astro-wechat/ledger.json
-          message: "chore: update WeChat sync ledger [skip ci]"
-
-      - name: "Upload WeChat synchronization results"
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: wechat-sync-results
-          path: |
-            wechat-dry-run.json
-            wechat-results.json
-          if-no-files-found: ignore
+    # 每类文章独立恢复微信推送，避免打开一个来源时连带恢复其他来源。同步 job 本身在 wechat-sync.yml。
+    if: ${{ needs.generate.result == 'success' && needs.generate.outputs.wechat_article_path != '' && inputs.sync_wechat && ((inputs.task == 'tech-daily' && vars.ENABLE_TECH_DAILY_WECHAT_SYNC == 'true') || (inputs.task == 'nyt-books-weekly' && vars.ENABLE_NYT_BOOKS_WECHAT_SYNC == 'true')) }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/wechat-sync.yml
+    with:
+      upstream_sha: ${{ needs.generate.outputs.generated_sha }}
+      article_paths: ${{ needs.generate.outputs.wechat_article_path }}
+      force_create: ${{ inputs.force || false }}
+      artifact_name: wechat-sync-results
+    secrets: inherit

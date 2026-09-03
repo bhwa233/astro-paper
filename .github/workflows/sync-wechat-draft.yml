@@ -1,5 +1,6 @@
 name: Sync Existing WeChat Draft
 
+# 人工补推入口：校验路径后交给 wechat-sync.yml，同步逻辑不在这里。
 permissions:
   contents: write
 
@@ -17,21 +18,16 @@ on:
         type: boolean
 
 jobs:
-  sync:
-    name: Sync selected article to WeChat
+  validate:
+    name: Validate article path
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: wechat-production
-    concurrency:
-      group: wechat-sync-${{ github.repository }}
-      cancel-in-progress: false
-
+    timeout-minutes: 5
+    outputs:
+      path: ${{ steps.article.outputs.path }}
+      is_reddit: ${{ steps.article.outputs.is_reddit }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-
-      - name: "Set up Node and pnpm"
-        uses: ./.github/actions/setup
 
       - name: Validate article path
         id: article
@@ -50,50 +46,18 @@ jobs:
           printf 'path=%s\n' "$normalized" >> "$GITHUB_OUTPUT"
           printf 'is_reddit=%s\n' "$is_reddit" >> "$GITHUB_OUTPUT"
 
-      # 图片消息的卡片在 Release 里而不在仓库里（见 scripts/release_assets.ts）。
-      # 普通文章和老式全提交归档没有 release 段，这一步什么也不做。
-      - name: Restore release assets for the article
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ARTICLE_PATH: ${{ steps.article.outputs.path }}
-        run: node --import tsx scripts/release_assets.ts restore --article "$ARTICLE_PATH"
-
-      - name: Create WeChat draft
-        id: sync
-        if: ${{ steps.article.outputs.is_reddit == 'true' || vars.ENABLE_MANUAL_NON_REDDIT_WECHAT_SYNC == 'true' }}
-        env:
-          ARTICLE_PATH: ${{ steps.article.outputs.path }}
-          FORCE_CREATE: ${{ inputs.force_create }}
-          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
-          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
-          WECHAT_PROXY_URL: ${{ secrets.WECHAT_PROXY_URL }}
-          WECHAT_PROXY_TOKEN: ${{ secrets.WECHAT_PROXY_TOKEN }}
-        run: |
-          set -euo pipefail
-          args=()
-          if [ "$FORCE_CREATE" = "true" ]; then args+=(--force-create); fi
-          pnpm run wechat publish "$ARTICLE_PATH" "${args[@]}" --json | tee wechat-results.json
-          node --input-type=module <<'NODE'
-          import fs from "node:fs";
-
-          const results = JSON.parse(fs.readFileSync("wechat-results.json", "utf8"));
-          if (!Array.isArray(results) || results.length !== 1 || results[0].status !== "created") {
-            throw new Error(`Expected one created draft, got: ${JSON.stringify(results)}`);
-          }
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, "created=true\n");
-          NODE
-
-      - name: Commit WeChat ledger
-        if: steps.sync.outputs.created == 'true'
-        uses: ./.github/actions/archive-commit
-        with:
-          paths: .astro-wechat/ledger.json
-          message: "chore: update WeChat sync ledger [skip ci]"
-
-      - name: Upload synchronization result
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: wechat-sync-results
-          path: wechat-results.json
-          if-no-files-found: ignore
+  sync:
+    name: Sync selected article to WeChat
+    needs: validate
+    if: ${{ needs.validate.outputs.is_reddit == 'true' || vars.ENABLE_MANUAL_NON_REDDIT_WECHAT_SYNC == 'true' }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/wechat-sync.yml
+    with:
+      upstream_sha: ${{ github.sha }}
+      article_paths: ${{ needs.validate.outputs.path }}
+      force_create: ${{ inputs.force_create }}
+      artifact_name: wechat-sync-results
+      # 补推的语义是「我要一篇新草稿」：已同步而没传 force_create 时要明确失败，而不是静默跳过。
+      require_created: true
+    secrets: inherit

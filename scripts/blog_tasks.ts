@@ -322,3 +322,13 @@ export function scheduledTaskInput(schedule: string): { task: TaskInput; dateOff
   const mapped = SCHEDULED_TASK_INPUTS[schedule];
   return { task: mapped?.task || "all", dateOffset: mapped?.dateOffset || 0, dateTimeZone: mapped?.dateTimeZone };
 }
+
+/**
+ * 手动派发没有 cron 时，按任务名反查它定时运行时的时区与日期偏移。
+ * 不查的话 hn-top10 这类 PT 任务不填日期会按北京时间算归档日，和定时运行差一天。
+ * 查不到（all、daily-digests 这类分组输入）就是北京时区、当天。
+ */
+export function scheduleDefaultsForTask(task: string): { dateOffset: number; dateTimeZone?: string } {
+  const mapped = Object.values(SCHEDULED_TASK_INPUTS).find(entry => entry.task === task);
+  return { dateOffset: mapped?.dateOffset || 0, dateTimeZone: mapped?.dateTimeZone };
+}

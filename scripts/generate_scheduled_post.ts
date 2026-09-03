@@ -9,7 +9,7 @@ import { readPromptTemplate, validateMarkdown, renderPrompt, resolvePromptFile }
 import { callAi, generateJsonStageWithRetries, retryAttempts, retryDelayMs, writeAiArtifact as writeArtifact } from "./ai_json_stage.ts";
 import { type AiCallResult, envAiConfig } from "./blog_ai_client.ts";
 import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, envPositiveInt, fetchJson, mapWithConcurrency, parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { type Task, isEpisodeArticleTask, isTaskInput, scheduledTaskInput, taskInfo, taskPostRelPath, taskTags, taskTitle, taskTitleWithSuffix, tasksForInput } from "./blog_tasks.ts";
+import { type Task, isEpisodeArticleTask, isTaskInput, scheduleDefaultsForTask, scheduledTaskInput, taskInfo, taskPostRelPath, taskTags, taskTitle, taskTitleWithSuffix, tasksForInput } from "./blog_tasks.ts";
 import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
@@ -1279,9 +1279,11 @@ async function main(): Promise<void> {
   const repo = path.resolve(stringArg(args, "repo", repoRoot()));
   const explicitDate = stringArg(args, "date");
   const offsetArg = stringArg(args, "date-offset");
-  const offset = Number(offsetArg || scheduled.dateOffset);
-  if (!Number.isInteger(offset)) throw new Error(`invalid --date-offset: ${offsetArg || scheduled.dateOffset}`);
-  const date = explicitDate || offsetDate(offset, scheduled.dateTimeZone);
+  // 带 cron 的运行按 cron 查时区；手动派发只有任务名，按任务反查，别让 PT 任务按北京时间算日期。
+  const schedule = process.env.EVENT_SCHEDULE ? scheduled : scheduleDefaultsForTask(taskArg);
+  const offset = Number(offsetArg || schedule.dateOffset);
+  if (!Number.isInteger(offset)) throw new Error(`invalid --date-offset: ${offsetArg || schedule.dateOffset}`);
+  const date = explicitDate || offsetDate(offset, schedule.dateTimeZone);
   const tasks = tasksForInput(taskArg);
   const results: ResultItem[] = [];
   for (const task of tasks as Task[]) {

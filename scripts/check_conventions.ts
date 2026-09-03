@@ -6,8 +6,9 @@
 // 这个在 lint 阶段校验仓库自身的结构，不需要任何运行产物。
 import fs from "node:fs";
 import path from "node:path";
+import { parse as parseYaml } from "yaml";
 import { repoRoot, writeStderr, writeStdout } from "./blog_common.ts";
-import { TASKS } from "./blog_tasks.ts";
+import { SCHEDULED_TASK_INPUTS, TASKS } from "./blog_tasks.ts";
 import { substackPostQualityViolations } from "./substack_quality.ts";
 
 type Violation = { file: string; message: string };
@@ -89,11 +90,47 @@ function checkSubstackPostQuality(repo: string): Violation[] {
   });
 }
 
+// scheduled-publish.yml 里 cron→task 的表写了两遍（run-name 与 publish.with.task，Actions 的
+// run-name 读不到 job 输出），blog_tasks.ts 的 SCHEDULED_TASK_INPUTS 是带时区的第三份。
+// 三处不一致的后果是定时任务静默跑成别的任务或算错归档日，所以在 lint 阶段比对。
+type ScheduledPublish = {
+  "run-name"?: string;
+  on?: { schedule?: { cron: string }[] };
+  jobs?: { publish?: { with?: { task?: string } } };
+};
+
+function checkScheduledPublish(repo: string): Violation[] {
+  const rel = ".github/workflows/scheduled-publish.yml";
+  const file = path.join(repo, rel);
+  if (!fs.existsSync(file)) return [{ file: rel, message: "定时发布入口不存在" }];
+  const doc = parseYaml(fs.readFileSync(file, "utf8")) as ScheduledPublish;
+  const crons = (doc.on?.schedule || []).map(entry => entry.cron);
+  const pairsOf = (expression = "") =>
+    new Map([...expression.matchAll(/github\.event\.schedule == '([^']+)' && '([^']+)'/g)].map(match => [match[1], match[2]] as const));
+  const tables = { "run-name": pairsOf(doc["run-name"]), "publish.with.task": pairsOf(doc.jobs?.publish?.with?.task) };
+  const violations: Violation[] = [];
+  for (const cron of crons) {
+    const expected = SCHEDULED_TASK_INPUTS[cron]?.task;
+    if (!expected) violations.push({ file: rel, message: `cron "${cron}" 在 blog_tasks.ts 的 SCHEDULED_TASK_INPUTS 里没有条目` });
+    for (const [where, table] of Object.entries(tables)) {
+      const actual = table.get(cron);
+      if (actual !== expected) violations.push({ file: rel, message: `cron "${cron}" 在 ${where} 里映射到 ${actual ?? "空"}，SCHEDULED_TASK_INPUTS 说是 ${expected ?? "空"}` });
+    }
+  }
+  for (const [where, table] of Object.entries(tables)) {
+    for (const cron of table.keys()) {
+      if (!crons.includes(cron)) violations.push({ file: rel, message: `${where} 里的 cron "${cron}" 不在 on.schedule 里` });
+    }
+  }
+  return violations;
+}
+
 export function checkConventions(repo = repoRoot()): Violation[] {
   return [
     ...checkDependencyOwners(repo),
     ...checkPromptsAreReferenced(repo),
     ...checkSubstackPostQuality(repo),
+    ...checkScheduledPublish(repo),
   ];
 }
 

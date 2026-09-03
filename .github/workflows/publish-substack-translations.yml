@@ -56,6 +56,7 @@ jobs:
     outputs:
       generated_sha: ${{ steps.head.outputs.sha }}
       wechat_count: ${{ steps.wechat.outputs.count }}
+      wechat_paths: ${{ steps.wechat.outputs.paths }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -140,12 +141,17 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from "node:fs";
-          let count = 0;
+          import path from "node:path";
+          let paths = [];
           if (fs.existsSync("substack-translation-result.json")) {
             const payload = JSON.parse(fs.readFileSync("substack-translation-result.json", "utf8"));
-            count = (payload.results || []).filter(item => item.status === "published" && item.postPath && item.wechat?.enabled === true).length;
+            paths = (payload.results || []).filter(item => item.status === "published" && item.postPath && item.wechat?.enabled === true).map(item => item.postPath);
           }
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${count}\n`);
+          for (const articlePath of paths) {
+            const portable = String(articlePath).split(path.sep).join("/");
+            if (path.posix.normalize(portable) !== portable || !portable.startsWith("src/content/posts/zh-cn/") || !portable.endsWith(".md")) throw new Error(`Unexpected newsletter article path: ${articlePath}`);
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\npaths<<PATHS\n${paths.join("\n")}\nPATHS\n`);
           NODE
 
       - name: Summarize generation
@@ -213,12 +219,14 @@ jobs:
   sync-newsletter-wechat:
     name: Sync opted-in newsletters to WeChat
     needs: translate
+    # 调用方守一次 Newsletter 自己的软开关；同步 job 本身在 wechat-sync.yml。
     if: ${{ always() && needs.translate.outputs.generated_sha != '' && needs.translate.outputs.wechat_count != '0' && vars.ENABLE_NEWSLETTER_WECHAT_SYNC == 'true' }}
     permissions:
       contents: write
-    uses: ./.github/workflows/newsletter-wechat.yml
+    uses: ./.github/workflows/wechat-sync.yml
     with:
       upstream_sha: ${{ needs.translate.outputs.generated_sha }}
-      upstream_workflow_run: ${{ github.run_id }}
+      article_paths: ${{ needs.translate.outputs.wechat_paths }}
       force_create: ${{ inputs.force || false }}
+      artifact_name: newsletter-wechat-sync
     secrets: inherit

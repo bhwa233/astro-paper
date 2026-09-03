@@ -58,3 +58,8 @@ data/reddit-life-wechat/*/qr.png
 # blob 永远留在历史里——那等于没删。成片改为上传 GitHub Release 长期保留，
 # 只有几 KB 的 video.json / run.json 提交进仓库。
 video/out/
+
+# 图片消息卡片走 GitHub Release，仓库只留 Markdown 与 run.json；理由同上面 video/out 那条，
+# 契约见 scripts/release_assets.ts。改走 Release 之前提交进来的旧卡片留在历史里，重渲染时会解除跟踪。
+data/reddit-life-newspic/*/*/card-*.png
+data/weibo-trending-wechat/*/card-*.png

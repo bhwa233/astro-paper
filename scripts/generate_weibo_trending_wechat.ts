@@ -1,11 +1,26 @@
 #!/usr/bin/env tsx
 // 微博热搜微信稿编排：只读取父任务已经提交的站点文章，做纯规则转换并归档。
-import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+//
+// 卡片 PNG 不进仓库：manifest 的 `release` 段记录它们在 GitHub Release 里的资产名与哈希，
+// workflow 在提交 run.json 之前上传，微信同步前再按 manifest 放回原位（见 release_assets.ts）。
 import fs from "node:fs";
 import path from "node:path";
 import { booleanArg, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
+import {
+  assertCommittedHandoff,
+  assertCommittedPath,
+  isArchivedFile,
+  isArchiveDate,
+  loadRunManifest,
+  sha256,
+  untrackPaths,
+  verifyArchivedFile,
+  writeJson,
+  writeTextArtifact,
+  type ArchivedFile,
+} from "./committed_handoff.ts";
+import { buildReleaseManifest, isReleaseManifest, type ReleaseManifest } from "./release_assets.ts";
 import {
   parseWeiboTrendingArticle,
   parseWeiboTrendingArticleDescription,
@@ -18,15 +33,20 @@ import {
 } from "./weibo_trending_wechat_compose.ts";
 import { renderWeiboTrendingWechatCards } from "./weibo_trending_wechat_cards.ts";
 
+const LABEL = "Weibo trending WeChat";
 const ROOT_REL = "data/weibo-trending-wechat";
-const MANIFEST_VERSION = 2;
+// v1 普通图文；v2 图片消息、卡片提交进仓库；v3 卡片改走 Release。
+const MANIFEST_VERSION = 3;
+const COMMITTED_CARDS_VERSION = 2;
 const LEGACY_MANIFEST_VERSION = 1;
 const LEGACY_ITEM_LIMIT = 30;
 
-type ArchivedFile = { path: string; sha256: string };
+export function weiboTrendingWechatReleaseTag(date: string): string {
+  return `weibo-trending-wechat-${date}`;
+}
 
 export type WeiboTrendingWechatRunManifest = {
-  version: 1 | 2;
+  version: 1 | 2 | 3;
   archiveDate: string;
   timeZone: "Asia/Shanghai";
   status: "processed" | "upstream-empty";
@@ -37,38 +57,15 @@ export type WeiboTrendingWechatRunManifest = {
     truncatedItemCount: number;
     /** v1 ordinary article cover. */
     cover?: ArchivedFile;
-    /** v2 image-message cards, in image_list order. */
+    /** v2+ image-message cards, in image_list order. */
     cards?: ArchivedFile[];
   };
+  /** v3：卡片在 Release 里，不在仓库里。 */
+  release?: ReleaseManifest;
 };
 
-function sha256(content: string | Buffer): string {
-  return createHash("sha256").update(content).digest("hex");
-}
-
-function gitOutput(repo: string, args: string[]): string {
-  try {
-    return execFileSync("git", ["-C", repo, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-  } catch (error) {
-    throw new Error(`failed to verify the Weibo trending committed handoff: ${error instanceof Error ? error.message : String(error)}`);
-  }
-}
-
-function assertCommittedHandoff(repo: string, upstreamSha: string): string {
-  if (!/^[0-9a-f]{7,64}$/i.test(upstreamSha)) throw new Error(`invalid --upstream-sha: ${upstreamSha || "missing"}`);
-  const expected = gitOutput(repo, ["rev-parse", "--verify", `${upstreamSha}^{commit}`]).toLowerCase();
-  const head = gitOutput(repo, ["rev-parse", "HEAD"]).toLowerCase();
-  if (head !== expected) throw new Error(`Weibo trending WeChat HEAD ${head} does not match --upstream-sha ${expected}`);
-  return expected;
-}
-
-function assertCommittedPath(repo: string, relPath: string): void {
-  const status = gitOutput(repo, ["status", "--porcelain", "--untracked-files=all", "--", relPath]);
-  if (status) throw new Error(`Weibo trending WeChat handoff path must match HEAD: ${relPath}`);
-}
-
 function archiveDate(input: string): string {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) throw new Error(`--date is required and must be YYYY-MM-DD: ${input || "missing"}`);
+  if (!isArchiveDate(input)) throw new Error(`--date is required and must be YYYY-MM-DD: ${input || "missing"}`);
   return input;
 }
 
@@ -76,17 +73,12 @@ function runRelPath(date: string): string {
   return path.join(ROOT_REL, date, "run.json");
 }
 
-function parseArchivedFile(raw: unknown): raw is ArchivedFile {
-  const value = raw as Partial<ArchivedFile> | null;
-  return Boolean(value && typeof value.path === "string" && value.path && typeof value.sha256 === "string" && /^[0-9a-f]{64}$/i.test(value.sha256));
-}
-
 function parseManifest(raw: unknown, file: string): WeiboTrendingWechatRunManifest {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`invalid Weibo trending WeChat run manifest: ${file}`);
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`invalid ${LABEL} run manifest: ${file}`);
   const value = raw as Partial<WeiboTrendingWechatRunManifest>;
   if (
-    (value.version !== LEGACY_MANIFEST_VERSION && value.version !== MANIFEST_VERSION) ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(value.archiveDate || "") ||
+    (value.version !== LEGACY_MANIFEST_VERSION && value.version !== COMMITTED_CARDS_VERSION && value.version !== MANIFEST_VERSION) ||
+    !isArchiveDate(value.archiveDate || "") ||
     value.timeZone !== "Asia/Shanghai" ||
     (value.status !== "processed" && value.status !== "upstream-empty") ||
     !value.upstream ||
@@ -94,49 +86,41 @@ function parseManifest(raw: unknown, file: string): WeiboTrendingWechatRunManife
     !/^\d+$/.test(value.upstream.workflowRun || "") ||
     !value.upstream.articlePath
   ) {
-    throw new Error(`invalid Weibo trending WeChat run manifest structure: ${file}`);
+    throw new Error(`invalid ${LABEL} run manifest structure: ${file}`);
   }
   if (value.status === "upstream-empty") {
-    if (value.rawSources || value.draft) throw new Error(`invalid Weibo trending WeChat upstream-empty manifest: ${file}`);
+    if (value.rawSources || value.draft || value.release) throw new Error(`invalid ${LABEL} upstream-empty manifest: ${file}`);
   } else if (
     !value.rawSources ||
-    !parseArchivedFile(value.rawSources.upstreamMarkdown) ||
+    !isArchivedFile(value.rawSources.upstreamMarkdown) ||
     !value.draft ||
-    !parseArchivedFile(value.draft) ||
+    !isArchivedFile(value.draft) ||
     !Number.isInteger(value.draft.itemCount) ||
     value.draft.itemCount < 1 ||
     !Number.isInteger(value.draft.truncatedItemCount) ||
     value.draft.truncatedItemCount < 0 ||
-    (value.draft.cover !== undefined && !parseArchivedFile(value.draft.cover)) ||
-    (value.draft.cards !== undefined && (!Array.isArray(value.draft.cards) || !value.draft.cards.every(parseArchivedFile)))
+    (value.draft.cover !== undefined && !isArchivedFile(value.draft.cover)) ||
+    (value.draft.cards !== undefined && (!Array.isArray(value.draft.cards) || !value.draft.cards.every(isArchivedFile)))
   ) {
-    throw new Error(`invalid Weibo trending WeChat processed manifest: ${file}`);
+    throw new Error(`invalid ${LABEL} processed manifest: ${file}`);
   }
   if (value.status === "processed") {
     const draft = value.draft!;
     if (value.version === LEGACY_MANIFEST_VERSION) {
-      if (draft.cards || draft.itemCount + draft.truncatedItemCount > LEGACY_ITEM_LIMIT) {
-        throw new Error(`invalid legacy Weibo trending WeChat draft: ${file}`);
+      if (draft.cards || value.release || draft.itemCount + draft.truncatedItemCount > LEGACY_ITEM_LIMIT) {
+        throw new Error(`invalid legacy ${LABEL} draft: ${file}`);
       }
-    } else if (
-      draft.cover ||
-      draft.itemCount > WEIBO_TRENDING_WECHAT_ITEM_LIMIT ||
-      draft.cards?.length !== draft.itemCount + 1
-    ) {
-      throw new Error(`invalid image Weibo trending WeChat draft: ${file}`);
+    } else if (draft.cover || draft.itemCount > WEIBO_TRENDING_WECHAT_ITEM_LIMIT || draft.cards?.length !== draft.itemCount + 1) {
+      throw new Error(`invalid image ${LABEL} draft: ${file}`);
+    } else if (value.version === COMMITTED_CARDS_VERSION ? value.release !== undefined : !isReleaseManifest(value.release) || value.release.tag !== weiboTrendingWechatReleaseTag(value.archiveDate!) || value.release.assets.length !== draft.cards!.length) {
+      throw new Error(`invalid ${LABEL} release section: ${file}`);
     }
   }
   return value as WeiboTrendingWechatRunManifest;
 }
 
 export function loadWeiboTrendingWechatRunManifest(file: string): WeiboTrendingWechatRunManifest | null {
-  if (!fs.existsSync(file)) return null;
-  try {
-    return parseManifest(JSON.parse(fs.readFileSync(file, "utf8")), file);
-  } catch (error) {
-    if (error instanceof Error && error.message.startsWith("invalid Weibo trending WeChat")) throw error;
-    throw new Error(`invalid Weibo trending WeChat run manifest: ${file}: ${error instanceof Error ? error.message : String(error)}`);
-  }
+  return loadRunManifest(file, LABEL, parseManifest);
 }
 
 export function shouldRebuildWeiboTrendingWechatManifest(
@@ -150,24 +134,6 @@ export function shouldRebuildWeiboTrendingWechatManifest(
   // A processed archive is tied to the parent's committed handoff. Reusing it after the
   // handoff changes leaves stale rendered Markdown in place, hiding changes such as syncId.
   return existing.upstream.generatedSha !== upstreamSha;
-}
-
-function writeJson(file: string, value: unknown): void {
-  ensureDir(path.dirname(file));
-  fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-}
-
-function writeTextArtifact(dir: string, name: string, content: string): void {
-  if (!dir) return;
-  ensureDir(dir);
-  fs.writeFileSync(path.join(dir, name), content, "utf8");
-}
-
-function verifyArchivedFile(repo: string, archived: ArchivedFile, label: string): void {
-  assertCommittedPath(repo, archived.path);
-  const file = path.join(repo, archived.path);
-  if (!fs.existsSync(file)) throw new Error(`Weibo trending WeChat manifest ${label} is missing: ${archived.path}`);
-  if (sha256(fs.readFileSync(file)) !== archived.sha256) throw new Error(`Weibo trending WeChat manifest ${label} hash does not match: ${archived.path}`);
 }
 
 export async function generateWeiboTrendingWechat({
@@ -184,18 +150,18 @@ export async function generateWeiboTrendingWechat({
   workflowRun: string;
   artifactsDir?: string;
   force?: boolean;
-}): Promise<{ manifestPath: string; generatedPaths: string[]; status: WeiboTrendingWechatRunManifest["status"] }> {
+}): Promise<{ manifestPath: string; generatedPaths: string[]; status: WeiboTrendingWechatRunManifest["status"]; rendered: boolean }> {
   date = archiveDate(date);
   if (!upstreamSha) throw new Error("--upstream-sha is required; Weibo trending WeChat must read the committed parent handoff");
   if (!/^\d+$/.test(workflowRun)) throw new Error("--upstream-workflow-run is required and must be a GitHub Actions run ID");
-  upstreamSha = assertCommittedHandoff(repo, upstreamSha);
+  upstreamSha = assertCommittedHandoff(repo, upstreamSha, LABEL);
 
   const manifestRel = runRelPath(date);
   const manifestFile = path.join(repo, manifestRel);
   const articlePath = taskPostRelPath("weibo-trending", date);
   const upstreamFile = path.join(repo, articlePath);
-  assertCommittedPath(repo, manifestRel);
-  assertCommittedPath(repo, articlePath);
+  assertCommittedPath(repo, manifestRel, LABEL);
+  assertCommittedPath(repo, articlePath, LABEL);
   const existing = loadWeiboTrendingWechatRunManifest(manifestFile);
   if (existing) {
     if (existing.archiveDate !== date) throw new Error(`Weibo trending WeChat manifest date does not match its directory: ${manifestRel}`);
@@ -206,17 +172,20 @@ export async function generateWeiboTrendingWechat({
           existing.rawSources!.upstreamMarkdown.path !== path.join(expectedDayDir, "upstream.md") ||
           existing.draft!.path !== path.join(expectedDayDir, "01.md") ||
           (existing.version === LEGACY_MANIFEST_VERSION && existing.draft!.cover && existing.draft!.cover!.path !== path.join(expectedDayDir, "cover.png")) ||
-          (existing.version === MANIFEST_VERSION && existing.draft!.cards!.some((card, index) => card.path !== path.join(expectedDayDir, weiboTrendingWechatCardFile(index))))
+          (existing.version !== LEGACY_MANIFEST_VERSION && existing.draft!.cards!.some((card, index) => card.path !== path.join(expectedDayDir, weiboTrendingWechatCardFile(index))))
         ) {
           throw new Error(`invalid Weibo trending WeChat archive paths or counts: ${manifestRel}`);
         }
-        verifyArchivedFile(repo, existing.rawSources!.upstreamMarkdown, "upstream snapshot");
-        verifyArchivedFile(repo, existing.draft!, "draft");
-        if (existing.draft!.cover) verifyArchivedFile(repo, existing.draft!.cover!, "cover");
-        for (const [index, card] of (existing.draft!.cards ?? []).entries()) verifyArchivedFile(repo, card, `card ${index}`);
+        verifyArchivedFile(repo, existing.rawSources!.upstreamMarkdown, LABEL, "upstream snapshot");
+        verifyArchivedFile(repo, existing.draft!, LABEL, "draft");
+        if (existing.draft!.cover) verifyArchivedFile(repo, existing.draft!.cover!, LABEL, "cover");
+        // v2 的卡片提交在仓库里，照常核对；v3 的卡片不在仓库里，同步 job 从 Release 放回时逐张核对哈希。
+        if (existing.version === COMMITTED_CARDS_VERSION) {
+          for (const [index, card] of (existing.draft!.cards ?? []).entries()) verifyArchivedFile(repo, card, LABEL, `card ${index}`);
+        }
       }
       writeStderr(`[weibo-trending-wechat] archive=${date}: reused manifest (${existing.status})`);
-      return { manifestPath: manifestRel, generatedPaths: existing.draft ? [existing.draft.path] : [], status: existing.status };
+      return { manifestPath: manifestRel, generatedPaths: existing.draft ? [existing.draft.path] : [], status: existing.status, rendered: false };
     }
     if (force) {
       writeStderr(`[weibo-trending-wechat] archive=${date}: forced rebuild of existing manifest`);
@@ -237,7 +206,7 @@ export async function generateWeiboTrendingWechat({
     };
     writeJson(manifestFile, manifest);
     writeStderr(`[weibo-trending-wechat] archive=${date}: upstream article missing at ${articlePath}; wrote upstream-empty manifest`);
-    return { manifestPath: manifestRel, generatedPaths: [], status: manifest.status };
+    return { manifestPath: manifestRel, generatedPaths: [], status: manifest.status, rendered: false };
   }
 
   const upstreamMarkdown = fs.readFileSync(upstreamFile, "utf8");
@@ -269,6 +238,12 @@ export async function generateWeiboTrendingWechat({
     writeStderr(`[weibo-trending-wechat] rendered ${cardRel} (${card.length} bytes)`);
     return { path: cardRel, sha256: sha256(card) };
   });
+  // v2 归档把同名卡片提交进了仓库；重建同一天时先解除跟踪，提交步骤才不会再把它们带上。
+  untrackPaths(
+    repo,
+    archivedCards.map(card => card.path),
+    LABEL,
+  );
   const markdown = renderWeiboTrendingWechatMarkdown({
     itemCount: selectedItems.length,
     archiveDate: date,
@@ -295,12 +270,13 @@ export async function generateWeiboTrendingWechat({
     upstream: { generatedSha: upstreamSha, workflowRun, articlePath },
     rawSources: { upstreamMarkdown: { path: upstreamRel, sha256: sha256(upstreamMarkdown) } },
     draft,
+    release: buildReleaseManifest(weiboTrendingWechatReleaseTag(date), dayDir, archivedCards),
   };
   writeJson(manifestFile, manifest);
   writeStderr(
     `[weibo-trending-wechat] archive=${date}: complete items=${draft.itemCount}/${selectedItems.length} truncated=${draft.truncatedItemCount} draft=${draftRel}`,
   );
-  return { manifestPath: manifestRel, generatedPaths: [draftRel], status: manifest.status };
+  return { manifestPath: manifestRel, generatedPaths: [draftRel], status: manifest.status, rendered: true };
 }
 
 async function main(): Promise<void> {

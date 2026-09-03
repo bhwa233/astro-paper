@@ -1,27 +1,45 @@
 #!/usr/bin/env tsx
 // Reddit 图片消息编排：只消费已提交的视频选题，按图文数量配置渲染并归档每篇 1 题至多 10 答的图片消息。
-import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+//
+// 卡片 PNG 不进仓库：manifest 的 `release` 段记录它们在 GitHub Release 里的资产名与哈希，
+// workflow 在提交 run.json 之前上传，微信同步前再按 manifest 放回原位（见 release_assets.ts）。
 import fs from "node:fs";
 import path from "node:path";
 import { booleanArg, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import {
+  assertCommittedHandoff,
+  assertCommittedPath,
+  isArchivedFile,
+  isArchiveDate,
+  loadRunManifest,
+  sha256,
+  untrackPaths,
+  verifyArchivedFile,
+  writeJson,
+  type ArchivedFile,
+} from "./committed_handoff.ts";
+import { buildReleaseManifest, isReleaseManifest, type ReleaseManifest } from "./release_assets.ts";
+import {
   parseRedditLifeNewspicSelections,
   redditLifeNewspicCardFile,
   renderRedditLifeNewspicMarkdown,
-  type RedditLifeNewspicSelection,
 } from "./reddit_life_newspic_compose.ts";
 import { renderRedditLifeNewspicCards } from "./reddit_life_newspic_cards.ts";
 import { REDDIT_LIFE_DAILY_NEWSPIC_COUNT } from "../src/utils/redditLifePublishing.ts";
 
+const LABEL = "Reddit life newspic";
 const ROOT_REL = "data/reddit-life-newspic";
 const VIDEO_ROOT_REL = "data/reddit-life-video";
-const MANIFEST_VERSION = 3;
+// v4：卡片改走 Release，manifest 多出 release 段。v3 及更早的卡片仍提交在仓库里，读取器不接受它们，
+// 同一天再跑就按当前规则重建（重建会先解除旧 PNG 的跟踪）。
+const MANIFEST_VERSION = 4;
 
-type ArchivedFile = { path: string; sha256: string };
+export function redditLifeNewspicReleaseTag(date: string): string {
+  return `reddit-life-newspic-${date}`;
+}
 
 export type RedditLifeNewspicRunManifest = {
-  version: 3;
+  version: 4;
   archiveDate: string;
   timeZone: "America/Los_Angeles";
   issueCount: number;
@@ -29,49 +47,20 @@ export type RedditLifeNewspicRunManifest = {
   upstream: { generatedSha: string; selection: ArchivedFile };
   rawSources?: { videoSelection: ArchivedFile };
   drafts?: Array<ArchivedFile & { issueNumber: number; answerCount: number; cards: ArchivedFile[] }>;
+  release?: ReleaseManifest;
 };
 
-function sha256(content: string | Buffer): string {
-  return createHash("sha256").update(content).digest("hex");
-}
-
 function archiveDate(value: string): string {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error(`--date is required and must be YYYY-MM-DD: ${value || "missing"}`);
+  if (!isArchiveDate(value)) throw new Error(`--date is required and must be YYYY-MM-DD: ${value || "missing"}`);
   return value;
 }
 
-function gitOutput(repo: string, args: string[]): string {
-  try {
-    return execFileSync("git", ["-C", repo, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-  } catch (error) {
-    throw new Error(`failed to verify the Reddit life newspic committed handoff: ${error instanceof Error ? error.message : String(error)}`);
-  }
-}
-
-function assertCommittedHandoff(repo: string, upstreamSha: string): string {
-  if (!/^[0-9a-f]{7,64}$/i.test(upstreamSha)) throw new Error(`invalid --upstream-sha: ${upstreamSha || "missing"}`);
-  const expected = gitOutput(repo, ["rev-parse", "--verify", `${upstreamSha}^{commit}`]).toLowerCase();
-  const head = gitOutput(repo, ["rev-parse", "HEAD"]).toLowerCase();
-  if (head !== expected) throw new Error(`Reddit life newspic HEAD ${head} does not match --upstream-sha ${expected}`);
-  return expected;
-}
-
-function assertCommittedPath(repo: string, relPath: string): void {
-  const status = gitOutput(repo, ["status", "--porcelain", "--untracked-files=all", "--", relPath]);
-  if (status) throw new Error(`Reddit life newspic handoff path must match HEAD: ${relPath}`);
-}
-
-function isArchivedFile(value: unknown): value is ArchivedFile {
-  const file = value as Partial<ArchivedFile> | null;
-  return Boolean(file && typeof file.path === "string" && file.path && typeof file.sha256 === "string" && /^[0-9a-f]{64}$/i.test(file.sha256));
-}
-
 function parseManifest(raw: unknown, file: string): RedditLifeNewspicRunManifest {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`invalid Reddit life newspic manifest: ${file}`);
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`invalid ${LABEL} manifest: ${file}`);
   const value = raw as Partial<RedditLifeNewspicRunManifest>;
   if (
     value.version !== MANIFEST_VERSION ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(value.archiveDate || "") ||
+    !isArchiveDate(value.archiveDate || "") ||
     value.timeZone !== "America/Los_Angeles" ||
     value.issueCount !== REDDIT_LIFE_DAILY_NEWSPIC_COUNT ||
     (value.status !== "processed" && value.status !== "upstream-empty") ||
@@ -79,10 +68,10 @@ function parseManifest(raw: unknown, file: string): RedditLifeNewspicRunManifest
     !/^[0-9a-f]{7,64}$/i.test(value.upstream.generatedSha || "") ||
     !isArchivedFile(value.upstream.selection)
   ) {
-    throw new Error(`invalid Reddit life newspic manifest structure: ${file}`);
+    throw new Error(`invalid ${LABEL} manifest structure: ${file}`);
   }
   if (value.status === "upstream-empty") {
-    if (value.rawSources || value.drafts) throw new Error(`invalid Reddit life newspic upstream-empty manifest: ${file}`);
+    if (value.rawSources || value.drafts || value.release) throw new Error(`invalid ${LABEL} upstream-empty manifest: ${file}`);
   } else if (
     !value.rawSources ||
     !isArchivedFile(value.rawSources.videoSelection) ||
@@ -98,24 +87,21 @@ function parseManifest(raw: unknown, file: string): RedditLifeNewspicRunManifest
         Array.isArray(draft.cards) &&
         draft.cards.length === draft.answerCount + 1 &&
         draft.cards.every(isArchivedFile),
-    )
+    ) ||
+    !isReleaseManifest(value.release) ||
+    value.release.tag !== redditLifeNewspicReleaseTag(value.archiveDate!) ||
+    value.release.assets.length !== value.drafts.reduce((sum, draft) => sum + draft.cards.length, 0)
   ) {
-    throw new Error(`invalid Reddit life newspic processed manifest: ${file}`);
+    throw new Error(`invalid ${LABEL} processed manifest: ${file}`);
   }
   return value as RedditLifeNewspicRunManifest;
 }
 
 export function loadRedditLifeNewspicRunManifest(file: string): RedditLifeNewspicRunManifest | null {
-  if (!fs.existsSync(file)) return null;
-  try {
-    const raw = JSON.parse(fs.readFileSync(file, "utf8"));
-    const header = raw as { version?: unknown; issueCount?: unknown };
-    if (header.version !== MANIFEST_VERSION || header.issueCount !== REDDIT_LIFE_DAILY_NEWSPIC_COUNT) return null;
-    return parseManifest(raw, file);
-  } catch (error) {
-    if (error instanceof Error && error.message.startsWith("invalid Reddit life newspic")) throw error;
-    throw new Error(`invalid Reddit life newspic manifest: ${file}: ${error instanceof Error ? error.message : String(error)}`);
-  }
+  return loadRunManifest(file, LABEL, parseManifest, raw => {
+    const header = raw as { version?: unknown; issueCount?: unknown } | null;
+    return header?.version === MANIFEST_VERSION && header.issueCount === REDDIT_LIFE_DAILY_NEWSPIC_COUNT;
+  });
 }
 
 export function shouldRebuildRedditLifeNewspicManifest(
@@ -132,18 +118,6 @@ export function shouldRebuildRedditLifeNewspicManifest(
   return existing.upstream.generatedSha !== upstreamSha;
 }
 
-function writeJson(file: string, value: unknown): void {
-  ensureDir(path.dirname(file));
-  fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-}
-
-function verifyArchivedFile(repo: string, archived: ArchivedFile, label: string): void {
-  assertCommittedPath(repo, archived.path);
-  const file = path.join(repo, archived.path);
-  if (!fs.existsSync(file)) throw new Error(`Reddit life newspic manifest ${label} is missing: ${archived.path}`);
-  if (sha256(fs.readFileSync(file)) !== archived.sha256) throw new Error(`Reddit life newspic manifest ${label} hash does not match: ${archived.path}`);
-}
-
 export async function generateRedditLifeNewspic({
   repo = repoRoot(),
   date,
@@ -156,16 +130,16 @@ export async function generateRedditLifeNewspic({
   upstreamSha: string;
   artifactsDir?: string;
   force?: boolean;
-}): Promise<{ manifestPath: string; generatedPaths: string[]; status: RedditLifeNewspicRunManifest["status"] }> {
+}): Promise<{ manifestPath: string; generatedPaths: string[]; status: RedditLifeNewspicRunManifest["status"]; rendered: boolean }> {
   date = archiveDate(date);
-  upstreamSha = assertCommittedHandoff(repo, upstreamSha);
+  upstreamSha = assertCommittedHandoff(repo, upstreamSha, LABEL);
   const dayDir = path.join(ROOT_REL, date);
   const manifestRel = path.join(dayDir, "run.json");
   const manifestFile = path.join(repo, manifestRel);
   const selectionRel = path.join(VIDEO_ROOT_REL, date, "video.json");
   const selectionFile = path.join(repo, selectionRel);
-  assertCommittedPath(repo, manifestRel);
-  assertCommittedPath(repo, selectionRel);
+  assertCommittedPath(repo, manifestRel, LABEL);
+  assertCommittedPath(repo, selectionRel, LABEL);
 
   const existing = loadRedditLifeNewspicRunManifest(manifestFile);
   const upstreamAvailable = fs.existsSync(selectionFile);
@@ -173,15 +147,13 @@ export async function generateRedditLifeNewspic({
   const selectionSha = upstreamAvailable ? sha256(upstreamSelection) : "";
   if (existing && !shouldRebuildRedditLifeNewspicManifest(existing, upstreamSha, upstreamAvailable, force, selectionSha)) {
     if (existing.status === "processed") {
-      verifyArchivedFile(repo, existing.upstream.selection, "selection handoff");
-      verifyArchivedFile(repo, existing.rawSources!.videoSelection, "selection snapshot");
-      for (const draft of existing.drafts!) {
-        verifyArchivedFile(repo, draft, `draft ${draft.issueNumber}`);
-        for (const [index, card] of draft.cards.entries()) verifyArchivedFile(repo, card, `draft ${draft.issueNumber} card ${index}`);
-      }
+      verifyArchivedFile(repo, existing.upstream.selection, LABEL, "selection handoff");
+      verifyArchivedFile(repo, existing.rawSources!.videoSelection, LABEL, "selection snapshot");
+      // 卡片不在仓库里，这里核对不了；同步 job 从 Release 放回时逐张核对哈希。
+      for (const draft of existing.drafts!) verifyArchivedFile(repo, draft, LABEL, `draft ${draft.issueNumber}`);
     }
     writeStderr(`[reddit-life-newspic] archive=${date}: reused manifest (${existing.status})`);
-    return { manifestPath: manifestRel, generatedPaths: existing.drafts?.map(draft => draft.path) || [], status: existing.status };
+    return { manifestPath: manifestRel, generatedPaths: existing.drafts?.map(draft => draft.path) || [], status: existing.status, rendered: false };
   }
 
   if (!upstreamAvailable) {
@@ -195,7 +167,7 @@ export async function generateRedditLifeNewspic({
     };
     writeJson(manifestFile, manifest);
     writeStderr(`[reddit-life-newspic] archive=${date}: video selection missing; wrote upstream-empty manifest`);
-    return { manifestPath: manifestRel, generatedPaths: [], status: manifest.status };
+    return { manifestPath: manifestRel, generatedPaths: [], status: manifest.status, rendered: false };
   }
 
   const selections = parseRedditLifeNewspicSelections(JSON.parse(upstreamSelection), date);
@@ -210,7 +182,7 @@ export async function generateRedditLifeNewspic({
   const snapshotRel = path.join(dayDir, "video.json");
   ensureDir(path.join(repo, dayDir));
 
-  // Render all replacements before removing the previous tracked image set.
+  // Render all replacements before removing the previous image set.
   if (existing?.status === "processed") {
     for (const draft of existing.drafts!) {
       fs.rmSync(path.join(repo, draft.path), { force: true });
@@ -240,6 +212,12 @@ export async function generateRedditLifeNewspic({
       cards: archivedCards,
     };
   });
+  // 卡片改走 Release 之前的归档日把同名 PNG 提交进了仓库；重建同一天时先解除跟踪，提交步骤才不会再把它们带上。
+  untrackPaths(
+    repo,
+    drafts.flatMap(draft => draft.cards.map(card => card.path)),
+    LABEL,
+  );
   fs.writeFileSync(path.join(repo, snapshotRel), upstreamSelection, "utf8");
   if (artifactsDir) {
     ensureDir(artifactsDir);
@@ -255,10 +233,15 @@ export async function generateRedditLifeNewspic({
     upstream: { generatedSha: upstreamSha, selection: { path: selectionRel, sha256: sha256(upstreamSelection) } },
     rawSources: { videoSelection: { path: snapshotRel, sha256: sha256(upstreamSelection) } },
     drafts,
+    release: buildReleaseManifest(
+      redditLifeNewspicReleaseTag(date),
+      dayDir,
+      drafts.flatMap(draft => draft.cards),
+    ),
   };
   writeJson(manifestFile, manifest);
   writeStderr(`[reddit-life-newspic] archive=${date}: complete drafts=${drafts.map(draft => draft.path).join(",")}`);
-  return { manifestPath: manifestRel, generatedPaths: drafts.map(draft => draft.path), status: manifest.status };
+  return { manifestPath: manifestRel, generatedPaths: drafts.map(draft => draft.path), status: manifest.status, rendered: true };
 }
 
 async function main(): Promise<void> {

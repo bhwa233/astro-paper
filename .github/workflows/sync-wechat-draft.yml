@@ -20,6 +20,7 @@ jobs:
   sync:
     name: Sync selected article to WeChat
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment: wechat-production
     concurrency:
       group: wechat-sync-${{ github.repository }}
@@ -48,6 +49,14 @@ jobs:
           esac
           printf 'path=%s\n' "$normalized" >> "$GITHUB_OUTPUT"
           printf 'is_reddit=%s\n' "$is_reddit" >> "$GITHUB_OUTPUT"
+
+      # 图片消息的卡片在 Release 里而不在仓库里（见 scripts/release_assets.ts）。
+      # 普通文章和老式全提交归档没有 release 段，这一步什么也不做。
+      - name: Restore release assets for the article
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTICLE_PATH: ${{ steps.article.outputs.path }}
+        run: node --import tsx scripts/release_assets.ts restore --article "$ARTICLE_PATH"
 
       - name: Create WeChat draft
         id: sync

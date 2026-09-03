@@ -101,6 +101,7 @@ jobs:
           const result = JSON.parse(fs.readFileSync("reddit-life-newspic-result.json", "utf8"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `manifest_path=${result.manifestPath}\n`);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `generated_count=${(result.generatedPaths || []).length}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `rendered=${result.rendered ? "true" : "false"}\n`);
           NODE
       - name: Upload generation artifacts
         if: always()
@@ -132,6 +133,15 @@ jobs:
           }
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
           NODE
+      # 卡片先上 Release 再提交 run.json：上传失败这一步就失败，不会出现「manifest 说有、Release 里没有」的提交。
+      # 复用旧 manifest 的运行没有渲染，本地也没有卡片，跳过。资产契约见 scripts/release_assets.ts。
+      - name: Publish card assets to release
+        if: steps.generate.outputs.rendered == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MANIFEST_PATH: ${{ steps.generate.outputs.manifest_path }}
+          ARCHIVE_DATE: ${{ steps.archive-date.outputs.date }}
+        run: node --import tsx scripts/release_assets.ts upload --manifest "$MANIFEST_PATH" --title "Reddit 图片消息 $ARCHIVE_DATE" --notes "微信图片消息卡片，由 publish-reddit-life-newspic.yml 自动生成。归档日期 ${ARCHIVE_DATE}。"
       - name: Commit archive
         uses: ./.github/actions/archive-commit
         with:
@@ -144,6 +154,7 @@ jobs:
     needs: generate-and-archive
     if: needs.generate-and-archive.outputs.generated_count != '0'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment: wechat-production
     concurrency:
       group: wechat-sync-${{ github.repository }}
@@ -175,6 +186,13 @@ jobs:
           fs.writeFileSync("reddit-life-newspic-paths.txt", paths.join("\n"));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${paths.length}\n`);
           NODE
+      # 卡片不在仓库里：按 manifest 从 Release 放回 Markdown 旁边并核对哈希，astro-wechat 读到的和以前一样。
+      - name: Restore card assets from release
+        if: steps.paths.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MANIFEST_PATH: ${{ needs.generate-and-archive.outputs.manifest_path }}
+        run: node --import tsx scripts/release_assets.ts restore --manifest "$MANIFEST_PATH"
       - name: Validate planned draft
         if: steps.paths.outputs.count != '0'
         env:
@@ -208,8 +226,10 @@ jobs:
           mapfile -t paths < reddit-life-newspic-paths.txt
           args=()
           if [ "$INPUT_FORCE" = "true" ]; then args+=(--force-create); fi
+          # 管道里 $? 是 tee 的退出码，tee 只要写得出文件就是 0；这里没开 pipefail，
+          # 所以要读 PIPESTATUS[0] 才是 publish 自己的退出码。
           pnpm run wechat publish "${paths[@]}" "${args[@]}" --json | tee wechat-results.json
-          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Commit WeChat ledger
         if: always() && steps.paths.outputs.count != '0'

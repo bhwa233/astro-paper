@@ -5,8 +5,8 @@
 // 第一帖标题由上游做技术长度兜底，这里仍按微信平台限制防御性收口。
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
 import { booleanArg, dateStringInTimeZone, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { assertCommittedHandoff, assertCommittedPath, loadRunManifest, writeJson, writeTextArtifact } from "./committed_handoff.ts";
 import {
   countDroppableStories,
   dropTrailingStories,
@@ -36,6 +36,7 @@ import {
 import { renderQrPng } from "./qr_code.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 
+const LABEL = "Reddit life WeChat";
 const ROOT_REL = "data/reddit-life-wechat";
 const MANIFEST_VERSION = 4;
 
@@ -68,28 +69,6 @@ export type RedditLifeRunManifest = {
   };
   posts: Entry[];
 };
-
-function gitOutput(repo: string, args: string[]): string {
-  try {
-    return execFileSync("git", ["-C", repo, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`failed to verify the Reddit life committed handoff: ${detail}`);
-  }
-}
-
-function assertCommittedHandoff(repo: string, upstreamSha: string): string {
-  if (!/^[0-9a-f]{7,64}$/i.test(upstreamSha)) throw new Error(`invalid --upstream-sha: ${upstreamSha || "missing"}`);
-  const expected = gitOutput(repo, ["rev-parse", "--verify", `${upstreamSha}^{commit}`]).toLowerCase();
-  const head = gitOutput(repo, ["rev-parse", "HEAD"]).toLowerCase();
-  if (head !== expected) throw new Error(`Reddit life WeChat HEAD ${head} does not match --upstream-sha ${expected}`);
-  return expected;
-}
-
-function assertCommittedPath(repo: string, relPath: string): void {
-  const status = gitOutput(repo, ["status", "--porcelain", "--untracked-files=all", "--", relPath]);
-  if (status) throw new Error(`Reddit life WeChat handoff path must match HEAD: ${relPath}`);
-}
 
 function archiveDate(input: string): string {
   if (input) {
@@ -159,24 +138,7 @@ function parseManifest(raw: unknown, file: string): RedditLifeRunManifest {
 }
 
 export function loadRedditLifeRunManifest(file: string): RedditLifeRunManifest | null {
-  if (!fs.existsSync(file)) return null;
-  try {
-    return parseManifest(JSON.parse(fs.readFileSync(file, "utf8")), file);
-  } catch (error) {
-    if (error instanceof Error && error.message.startsWith("invalid Reddit life WeChat")) throw error;
-    throw new Error(`invalid Reddit life WeChat run manifest: ${file}: ${error instanceof Error ? error.message : String(error)}`);
-  }
-}
-
-function writeJson(file: string, value: unknown): void {
-  ensureDir(path.dirname(file));
-  fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-}
-
-function writeArtifact(dir: string, name: string, content: string): void {
-  if (!dir) return;
-  ensureDir(dir);
-  fs.writeFileSync(path.join(dir, name), `${content.trim()}\n`, "utf8");
+  return loadRunManifest(file, LABEL, parseManifest);
 }
 
 // 一帖的故事条数不可控，渲染出的 HTML 随时可能撞上微信 20000 字符上限，而上游无法预知渲染后的长度。
@@ -303,10 +265,10 @@ export async function generateRedditLifeWechat({
 }): Promise<{ manifestPath: string; generatedPaths: string[]; status: RedditLifeRunManifest["status"] }> {
   if (!upstreamSha) throw new Error("--upstream-sha is required; Reddit life WeChat must read the committed parent handoff");
   if (!/^\d+$/.test(workflowRun)) throw new Error("--upstream-workflow-run is required and must be a GitHub Actions run ID");
-  upstreamSha = assertCommittedHandoff(repo, upstreamSha);
+  upstreamSha = assertCommittedHandoff(repo, upstreamSha, LABEL);
   const manifestRel = runRelPath(date);
   const manifestFile = path.join(repo, manifestRel);
-  assertCommittedPath(repo, manifestRel);
+  assertCommittedPath(repo, manifestRel, LABEL);
   const existing = loadRedditLifeRunManifest(manifestFile);
   if (existing && !force) {
     const generated = existing.posts.filter(post => post.status === "generated");
@@ -316,7 +278,7 @@ export async function generateRedditLifeWechat({
   }
   if (existing) writeStderr(`[reddit-life-wechat] archive=${date}: force rebuilding existing manifest (${existing.status})`);
   const lifeArticlePath = taskPostRelPath("reddit-top20", date.replace(/$/, "-life"));
-  assertCommittedPath(repo, lifeArticlePath);
+  assertCommittedPath(repo, lifeArticlePath, LABEL);
   const upstreamFile = path.join(repo, lifeArticlePath);
   if (!fs.existsSync(upstreamFile)) {
     const manifest: RedditLifeRunManifest = { version: MANIFEST_VERSION, archiveDate: date, timeZone: "America/Los_Angeles", status: "upstream-empty", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, posts: [] };
@@ -325,7 +287,7 @@ export async function generateRedditLifeWechat({
     return { manifestPath: manifestRel, generatedPaths: [], status: manifest.status };
   }
   const upstreamMarkdown = fs.readFileSync(upstreamFile, "utf8");
-  writeArtifact(artifactsDir, "upstream-life.md", upstreamMarkdown);
+  writeTextArtifact(artifactsDir, "upstream-life.md", upstreamMarkdown);
   const sourceCandidates = parseRedditLifeCandidates(upstreamMarkdown);
   const selection = await selectRedditLifeWechatCandidates({
     candidates: sourceCandidates,

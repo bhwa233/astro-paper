@@ -11,7 +11,7 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
   -> scripts/generate_weibo_trending_wechat.ts
        -> data/weibo-trending-wechat/<date>/01.md
        -> data/weibo-trending-wechat/<date>/upstream.md
-       -> data/weibo-trending-wechat/<date>/card-00.png ... card-10.png
+       -> data/weibo-trending-wechat/<date>/card-00.png ... card-10.png  （不提交，上传到 Release weibo-trending-wechat-<date>）
        -> data/weibo-trending-wechat/<date>/run.json
 ```
 
@@ -34,11 +34,11 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
 
 ## 4. 归档与幂等
 
-生成器要求 `--date`、`--upstream-sha` 和 `--upstream-workflow-run`，并校验当前 `HEAD` 等于父任务提交。v2 `run.json` 记录北京时间归档日、父提交及 workflow run、上游文章与快照路径、稿件路径、全部卡片路径与 SHA-256，以及收录数。
+生成器要求 `--date`、`--upstream-sha` 和 `--upstream-workflow-run`，并校验当前 `HEAD` 等于父任务提交。v3 `run.json` 记录北京时间归档日、父提交及 workflow run、上游文章与快照路径、稿件路径、全部卡片路径与 SHA-256、收录数，以及 `release` 段（Release tag 与每张卡片的资产名）。
 
 同一天已有合法 manifest 且父提交不变时直接复用，不重新转换正文。复用前会校验已归档文件仍与 manifest 的 SHA-256 一致。读取器继续接受 v1 普通图文历史归档，普通重跑不会改写它；只有显式传入不同的父提交时才按当前规则重建为 v2 图片消息，并清理旧 manifest 记录但已不再引用的封面或卡片。manifest 无法解析或归档文件不匹配时直接失败，防止把损坏状态当作空归档。上游文章不存在时写入 `upstream-empty` manifest，不创建草稿，也不把空结果当作错误。
 
-`card-*.png`、`01.md`、`upstream.md` 和 `run.json` 都会提交；同步 job checkout 归档提交后即可解析全部图片，不需要恢复运行时资源。
+`01.md`、`upstream.md` 和 `run.json` 提交进仓库；`card-*.png` 被 `.gitignore` 挡住，改由 workflow 在提交 `run.json` 之前上传到 GitHub Release `weibo-trending-wechat-<date>`（`scripts/release_assets.ts upload`）。同步 job checkout 归档提交后先按 manifest 从 Release 把卡片放回 Markdown 旁边并逐张核对 SHA-256（`scripts/release_assets.ts restore`），之后 astro-wechat 读到的和以前完全一样。改走 Release 之前的 v2 归档卡片仍在仓库里，读取器照常接受；重建那样的日期会先解除旧卡片的跟踪。
 
 ## 5. Workflow
 
@@ -51,7 +51,7 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
 
 所有微信同步 job 使用 `wechat-sync-${{ github.repository }}` 并发组串行执行。正式发布即使部分失败，也会先提交 `.astro-wechat/ledger.json`，再让 job 失败，避免重跑重复创建已成功的草稿。
 
-专用 workflow 同时提供 `workflow_dispatch` 补跑入口。对已有归档补跑时应传原始归档日期、包含上游文章的提交 SHA 和对应 workflow run；普通补跑会复用 manifest。父 workflow 的 `force=true` 或专用 workflow 的 `force_rebuild=true` 会重新渲染当日卡片，并给微信 dry-run 和正式同步传 `--force-create`，绕过 `already-synchronized` 新建替代草稿。旧草稿不会更新或删除，同步台账在成功后改为记录最新草稿。`sync-wechat-draft.yml` 的路径白名单也接受该目录；稿件及卡片都已提交，本地直接调用 astro-wechat 前不需要恢复任何资源。
+专用 workflow 同时提供 `workflow_dispatch` 补跑入口。对已有归档补跑时应传原始归档日期、包含上游文章的提交 SHA 和对应 workflow run；普通补跑会复用 manifest。父 workflow 的 `force=true` 或专用 workflow 的 `force_rebuild=true` 会重新渲染当日卡片，并给微信 dry-run 和正式同步传 `--force-create`，绕过 `already-synchronized` 新建替代草稿。旧草稿不会更新或删除，同步台账在成功后改为记录最新草稿。`sync-wechat-draft.yml` 的路径白名单也接受该目录，它在建草稿前会按稿件所在目录的 `run.json` 从 Release 恢复卡片；本地直接调用 astro-wechat 前也要先跑 `node --import tsx scripts/release_assets.ts restore --article <稿件路径>`（需要 `gh auth login`）。
 
 图片消息的所有卡片会作为永久图片素材上传。微信当前的草稿读取接口看不到 `newspic`，因此创建请求结果未知时系统会保留 pending 台账并停止自动重试；操作人员需要先到公众号草稿箱确认，不能依靠远端自动对账。
 

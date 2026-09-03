@@ -196,6 +196,39 @@
       "sourceTextChars": 3376,
       "minimumSourceTextChars": 4000,
       "evaluatedAt": "2026-09-02T04:44:11.521Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=80973",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/28/hannah-emerson-center-of-the-universe",
+      "sourcePublishedAt": "2026-08-28T18:43:02.000Z",
+      "sourceSha256": "2fb6e38f33c88836d2429de82e9569bb90a5402d898d4236e253bbfc1dee3ee5",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 1677,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-03T04:38:57.337Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=86871",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/28/trees",
+      "sourcePublishedAt": "2026-08-28T21:08:08.000Z",
+      "sourceSha256": "e14dcd8b805a07d02948bc3542f5ba87d1c700bbec89881b6cd8532a4ca3791a",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2891,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-03T04:38:57.366Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87796",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/28/tree-river-becker",
+      "sourcePublishedAt": "2026-08-28T23:04:40.000Z",
+      "sourceSha256": "d6511fb3448dfdef68cbaa64ff7ed7c48167cb430fea128ebb7e30b8f318cd57",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 1951,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-03T04:38:57.392Z"
     }
   ]
 }

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-07-the-rest-is-history.webp"
+ogImage: "/images/podcast/2026-07-09-07-the-rest-is-history.webp"
 description: "剖析杰斐逊的多维面孔：立国功勋背后的权力手腕、奴隶制矛盾与历"
 timezone: Asia/Shanghai
 ---

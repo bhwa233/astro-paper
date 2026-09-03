@@ -7,7 +7,9 @@ import {
   ensureDir,
   parseArgs,
   repoRoot,
+  envBool,
   stringArg,
+  writeStderr,
   writeStdout,
 } from "./blog_common.ts";
 import {
@@ -165,7 +167,11 @@ function readCache(file: string): CachedTranslation | undefined {
     )
       return undefined;
     return parsed;
-  } catch {
+  } catch (error) {
+    // 缓存坏了只是多花一次模型调用，不值得中断；但要说出来，否则损坏的缓存会一直静默重算。
+    writeStderr(
+      `WARN: [substack-translations] ignoring corrupt cache ${file}: ${error instanceof Error ? error.message : String(error)}`
+    );
     return undefined;
   }
 }
@@ -355,7 +361,7 @@ export async function processItem(params: {
       cached = undefined;
     }
   }
-  const fallbackRequested = process.env.AI_FALLBACK_ENABLED === "true";
+  const fallbackRequested = envBool("AI_FALLBACK_ENABLED", false);
   const fallbackEnabled =
     fallbackRequested && estimatedTokens * 2 <= params.remainingBudget;
   const reservedTokens = estimatedTokens * (fallbackEnabled ? 2 : 1);

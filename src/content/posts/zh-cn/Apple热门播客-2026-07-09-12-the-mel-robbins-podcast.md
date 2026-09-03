@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-12-the-mel-robbins-podcast.webp"
+ogImage: "/images/podcast/2026-07-09-12-the-mel-robbins-podcast.webp"
 description: "本期播客由 Mel Robbins 对话世界级读心大师 Oz"
 timezone: Asia/Shanghai
 ---

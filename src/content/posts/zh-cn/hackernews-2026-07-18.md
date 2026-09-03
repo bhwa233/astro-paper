@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AWS 账单异常、医疗场景里的AI管理、开放模型竞争格局升温"
 timezone: Asia/Shanghai
 ---

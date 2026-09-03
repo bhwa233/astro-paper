@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-21-03-morbid.webp"
+ogImage: "/images/podcast/2026-07-21-03-morbid.webp"
 description: "本期播客探討了英國歷史上由集體恐慌引發的兩起「幽靈襲擊」事件"
 timezone: Asia/Shanghai
 ---

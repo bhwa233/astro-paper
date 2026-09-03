@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "OpenRouter 并入 Stripe，Go 1.27 发"
 timezone: Asia/Shanghai
 ---

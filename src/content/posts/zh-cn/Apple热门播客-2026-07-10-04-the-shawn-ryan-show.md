@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-10-04-the-shawn-ryan-show.webp"
+ogImage: "/images/podcast/2026-07-10-04-the-shawn-ryan-show.webp"
 description: "独立研究员 Danny Goler 深入探讨二甲基色胺（DM"
 timezone: Asia/Shanghai
 ---

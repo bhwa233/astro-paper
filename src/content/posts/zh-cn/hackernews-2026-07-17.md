@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "开源大模型逼近前沿，AI创作与人机协作代价引争议"
 timezone: Asia/Shanghai
 ---

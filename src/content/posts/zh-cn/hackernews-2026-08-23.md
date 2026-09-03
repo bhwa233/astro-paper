@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AI逆向硬件生态引发安全反思，微软删数据风波与大模型商业化困"
 timezone: Asia/Shanghai
 ---

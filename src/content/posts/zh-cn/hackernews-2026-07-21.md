@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "开放权重模型与AI经济竞争升温，数学验证和基础设施风险同样成"
 timezone: Asia/Shanghai
 ---

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-08-real-af-with-andy-frisella.webp"
+ogImage: "/images/podcast/2026-07-09-08-real-af-with-andy-frisella.webp"
 description: "特朗普伊拉克/伊朗谈判、意大利海滩义警行为与WNBA争端"
 timezone: Asia/Shanghai
 ---

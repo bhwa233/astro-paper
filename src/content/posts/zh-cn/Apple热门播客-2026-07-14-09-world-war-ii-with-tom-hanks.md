@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-14-09-world-war-ii-with-tom-hanks.webp"
+ogImage: "/images/podcast/2026-07-14-09-world-war-ii-with-tom-hanks.webp"
 description: "讲述希金斯如何凭借创新的登陆艇设计突破军工体制，助力盟军赢得"
 timezone: Asia/Shanghai
 ---

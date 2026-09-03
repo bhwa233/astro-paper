@@ -1,8 +1,6 @@
-import { getCollection } from "astro:content";
 import type { SiteLocale } from "@/i18n/locales";
-import { filterCollectionByLocale } from "@/utils/contentLocale";
 import { getPostUrl } from "@/utils/getPostPaths";
-import { getSortedPosts } from "@/utils/getSortedPosts";
+import { getSortedPostsForLocale } from "@/utils/localeStaticPaths";
 import { getPostMetrics } from "@/utils/readingTime";
 import { getStaticPathCacheKey } from "@/utils/staticPathCache";
 
@@ -24,9 +22,8 @@ export type HomePostFeed = {
   hasMore: boolean;
 };
 
-export async function getHomePosts(locale: SiteLocale) {
-  const posts = filterCollectionByLocale(await getCollection("posts"), locale);
-  return getSortedPosts(posts);
+export function getHomePosts(locale: SiteLocale) {
+  return getSortedPostsForLocale(locale);
 }
 
 export function toHomePostFeed(

@@ -27,6 +27,13 @@ const DEPENDENCY_OWNERS: Record<string, string> = {
   "file-type": "scripts/substack_image.ts",
 };
 
+// 站点侧的同一条规则。src/pages 的两个 OG 端点曾各自直接调 satori + sharp，
+// 和 scripts 里的封装互不知情；现在都走 src/utils/renderPng.ts。
+const SRC_DEPENDENCY_OWNERS: Record<string, string> = {
+  sharp: "src/utils/renderPng.ts",
+  satori: "src/utils/renderPng.ts",
+};
+
 function listFiles(dir: string, extension: string): string[] {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
@@ -48,14 +55,19 @@ function ownScriptFiles(repo: string): string[] {
 
 function checkDependencyOwners(repo: string): Violation[] {
   const violations: Violation[] = [];
-  for (const file of ownScriptFiles(repo)) {
-    const rel = path.relative(repo, file).split(path.sep).join("/");
-    const text = fs.readFileSync(file, "utf8");
-    for (const [pkg, owner] of Object.entries(DEPENDENCY_OWNERS)) {
-      if (rel === owner) continue;
-      if (text.includes(`from "${pkg}"`)) violations.push({ file: rel, message: `直接 import ${pkg}；应经 ${owner} 封装引用` });
+  const check = (files: string[], owners: Record<string, string>) => {
+    for (const file of files) {
+      const rel = path.relative(repo, file).split(path.sep).join("/");
+      const text = fs.readFileSync(file, "utf8");
+      for (const [pkg, owner] of Object.entries(owners)) {
+        if (rel === owner) continue;
+        if (text.includes(`from "${pkg}"`)) violations.push({ file: rel, message: `直接 import ${pkg}；应经 ${owner} 封装引用` });
+      }
     }
-  }
+  };
+  check(ownScriptFiles(repo), DEPENDENCY_OWNERS);
+  const src = path.join(repo, "src");
+  check([...listFiles(src, ".ts"), ...listFiles(src, ".astro")], SRC_DEPENDENCY_OWNERS);
   return violations;
 }
 

@@ -1,6 +1,5 @@
 ---
 import { getRelativeLocaleUrl } from "astro:i18n";
-import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
@@ -9,7 +8,7 @@ import Footer from "@/components/Footer.astro";
 import Card from "@/components/Card.astro";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { postFilter } from "@/utils/postFilter";
-import { filterCollectionByLocale } from "@/utils/contentLocale";
+import { getPostsForLocale } from "@/utils/localeStaticPaths";
 import { getSharedLocaleAlternates } from "@/utils/localeAlternates";
 import { getLocalizedSiteTitle } from "@/utils/siteMeta";
 import { getPostsByGroupCondition } from "./_utils/getPostsByGroupCondition";
@@ -27,7 +26,7 @@ if (!config.features.showArchives && notFoundUrl) {
 const t = useTranslations(locale);
 const siteTitle = getLocalizedSiteTitle(locale);
 
-const posts = filterCollectionByLocale(await getCollection("posts"), locale);
+const posts = await getPostsForLocale(locale);
 const filteredPosts = posts.filter(postFilter);
 const monthFormatter = new Intl.DateTimeFormat(locale, { month: "long" });
 ---

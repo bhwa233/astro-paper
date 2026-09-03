@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-18-02-ted-radio-hour.webp"
+ogImage: "/images/podcast/2026-07-18-02-ted-radio-hour.webp"
 description: "追寻与重构：废墟重建、野火防控、绿色转型与日常体验中的乐园重"
 timezone: Asia/Shanghai
 ---

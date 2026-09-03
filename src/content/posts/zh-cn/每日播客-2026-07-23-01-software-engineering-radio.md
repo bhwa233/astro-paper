@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-23-01-software-engineering-radio.webp"
+ogImage: "/images/podcast/2026-07-23-01-software-engineering-radio.webp"
 description: "Thoughtworks 杰出工程师深入探讨 AI 智能体的"
 timezone: Asia/Shanghai
 ---

@@ -5,12 +5,21 @@ import Header from "@/components/Header.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import Main from "@/components/Main.astro";
 import Footer from "@/components/Footer.astro";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import config from "@/config";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { getLocalizedPageId } from "@/utils/contentLocale";
 import { getSharedLocaleAlternates } from "@/utils/localeAlternates";
 import { getLocalizedSiteTitle } from "@/utils/siteMeta";
 
 const locale = Astro.currentLocale ?? DEFAULT_LOCALE;
+
+// 与 search.astro 同一做法：关掉的功能不只是藏掉导航入口，页面本身也不再构建出来。
+const notFoundUrl = getRelativeLocaleUrl(locale, "404");
+if (!config.features.showAbout && notFoundUrl) {
+  return Astro.rewrite(notFoundUrl);
+}
+
 const about = await getEntry("pages", getLocalizedPageId("about", locale));
 const siteTitle = getLocalizedSiteTitle(locale);
 

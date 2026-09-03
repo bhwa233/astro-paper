@@ -119,41 +119,70 @@ export type FetchTextOptions = {
   body?: string;
 };
 
+/** 写进 frontmatter `wechat:` 块的字段；键顺序就是输出顺序。含义见 scripts/wechat 的 eligibility / adapter。 */
+export type WechatFrontmatter = {
+  enabled?: boolean;
+  title?: string;
+  syncId?: string;
+  articleType?: "newspic";
+  showCoverInBody?: boolean;
+  digest?: string;
+  sourceURL?: string;
+};
+
+function yamlString(value: string): string {
+  return `"${value.replaceAll('"', '\\"')}"`;
+}
+
+/**
+ * 生成归档稿的 frontmatter。`wechat` 块在这里一次写全，调用方不要再对返回的字符串做
+ * `.replace("wechat:\n  enabled: true", …)` 之类的手术：那依赖这里的缩进和键顺序，
+ * 一旦改动，replace 静默不命中，稿子就带着缺字段的 frontmatter 归档出去。
+ * `description` 传 undefined 表示整行不要（不进内容集合的微信稿）；空串仍会写出来。
+ * `extra` 是不进 schema 的顶层键，按给定顺序写在 timezone 之后。
+ */
 export function frontmatter({
   title,
   date,
   description,
   tags,
   ogImage = "",
-  wechatEnabled = false,
-  wechatTitle = "",
+  wechat,
+  extra,
 }: {
   title: string;
   date: string;
-  description: string;
+  description?: string;
   tags: string[];
   ogImage?: string;
-  wechatEnabled?: boolean;
-  wechatTitle?: string;
+  wechat?: WechatFrontmatter;
+  extra?: Record<string, string>;
 }): string {
   const lines = [
     "---",
     `author: ${AUTHOR}`,
     `pubDatetime: ${bjtArchiveInstant(date)}`,
     `modDatetime: ${new Date().toISOString().replace(/\.\d{3}Z$/, "Z")}`,
-    `title: "${title.replaceAll('"', '\\"')}"`,
+    `title: ${yamlString(title)}`,
     "featured: false",
     "draft: false",
     "tags:",
     ...tags.map(tag => `  - ${tag}`),
   ];
-  if (ogImage) lines.push(`ogImage: "${ogImage}"`);
-  if (wechatEnabled || wechatTitle) {
-    lines.push("wechat:");
-    if (wechatEnabled) lines.push("  enabled: true");
-    if (wechatTitle) lines.push(`  title: "${wechatTitle.replaceAll('"', '\\"')}"`);
-  }
-  lines.push(`description: "${description.replaceAll('"', '\\"')}"`, "timezone: Asia/Shanghai", "---", "");
+  if (ogImage) lines.push(`ogImage: ${yamlString(ogImage)}`);
+  const wechatLines: string[] = [];
+  if (wechat?.enabled) wechatLines.push("  enabled: true");
+  if (wechat?.title) wechatLines.push(`  title: ${yamlString(wechat.title)}`);
+  if (wechat?.syncId) wechatLines.push(`  syncId: ${yamlString(wechat.syncId)}`);
+  if (wechat?.articleType) wechatLines.push(`  articleType: ${yamlString(wechat.articleType)}`);
+  if (wechat?.showCoverInBody !== undefined) wechatLines.push(`  showCoverInBody: ${wechat.showCoverInBody}`);
+  if (wechat?.digest !== undefined) wechatLines.push(`  digest: ${yamlString(wechat.digest)}`);
+  if (wechat?.sourceURL) wechatLines.push(`  sourceURL: ${yamlString(wechat.sourceURL)}`);
+  if (wechatLines.length) lines.push("wechat:", ...wechatLines);
+  if (description !== undefined) lines.push(`description: ${yamlString(description)}`);
+  lines.push("timezone: Asia/Shanghai");
+  for (const [key, value] of Object.entries(extra || {})) lines.push(`${key}: ${yamlString(value)}`);
+  lines.push("---", "");
   return `${lines.join("\n")}\n`;
 }
 
@@ -250,6 +279,18 @@ export function envPositiveInt(name: string, fallback: number, max = Number.POSI
 }
 
 // 同上，但允许小数（倍速、时长比例这类旋钮）。整数旋钮一律用 envPositiveInt。
+/**
+ * 布尔开关的唯一读取器。以前四处各写一套真值表：一处认 1/true/yes/on，一处只认 "true"，
+ * 于是 AI_FALLBACK_ENABLED=1 在一条管线里开、在另一条里关。这里统一：
+ * 1/true/yes/on 为真，0/false/no/off 为假，其它（含未设置）用默认值。
+ */
+export function envBool(name: string, fallback: boolean): boolean {
+  const value = (process.env[name] || "").trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(value)) return true;
+  if (["0", "false", "no", "off"].includes(value)) return false;
+  return fallback;
+}
+
 export function envPositiveNumber(name: string, fallback: number): number {
   const value = Number(process.env[name] || "");
   return Number.isFinite(value) && value > 0 ? value : fallback;

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-10-the-toast.webp"
+ogImage: "/images/podcast/2026-07-09-10-the-toast.webp"
 description: "探讨流行真人秀动态、历史趣味卫生习惯与现代社交“拒绝”哲学的"
 timezone: Asia/Shanghai
 ---

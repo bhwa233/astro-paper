@@ -304,27 +304,24 @@ export function renderRedditLifeWechatMarkdown({
   if (!candidates.length) throw new Error("Reddit life WeChat article needs at least one post");
   if (!articleUrl) throw new Error("Reddit life WeChat article needs the upstream article URL");
   const [primary] = candidates;
-  const wechatFields = [
-    `  syncId: "${redditLifeWechatSyncId(archiveDate, volume)}"`,
-    "  showCoverInBody: false",
-    // 摘要交给微信自己从正文抽。astro-wechat 按 wechat.digest → description → 正文前 400 字取值，
-    // 而取值前会 asString() 先 trim 再丢掉空串，所以删 description、留空、填空格都一样回落到正文，
-    // 再被砍到 120 字并报 digest-truncated。零宽空格不在 trim 的空白集里，是唯一能穿过那道链的空值。
-    `  digest: "${WECHAT_EMPTY_DIGEST}"`,
-  ];
-  if (showSourceUrl) wechatFields.push(`  sourceURL: "${articleUrl}"`);
+  // 稿子不进 src/content/posts，不受博客 collection schema 约束，description 整行不要。
   const metadata = frontmatter({
     title: redditLifeWechatTitle(headline),
     date: archiveDate,
-    description: "",
     tags: [REDDIT_LIFE_WECHAT_TAG],
     ogImage: coverFile,
-    wechatEnabled: true,
-  })
-    .replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"))
-    // 稿子不进 src/content/posts，不受博客 collection schema 约束，description 整行可以不要。
-    .replace('description: ""\n', "")
-    .replace("---\n\n", [`redditPostId: "${primary.postId}"`, `subreddit: "${primary.subreddit}"`, "---", ""].join("\n"));
+    wechat: {
+      enabled: true,
+      syncId: redditLifeWechatSyncId(archiveDate, volume),
+      showCoverInBody: false,
+      // 摘要交给微信自己从正文抽。astro-wechat 按 wechat.digest → description → 正文前 400 字取值，
+      // 而取值前会 asString() 先 trim 再丢掉空串，所以删 description、留空、填空格都一样回落到正文，
+      // 再被砍到 120 字并报 digest-truncated。零宽空格不在 trim 的空白集里，是唯一能穿过那道链的空值。
+      digest: WECHAT_EMPTY_DIGEST,
+      sourceURL: showSourceUrl ? articleUrl : undefined,
+    },
+    extra: { redditPostId: primary.postId, subreddit: primary.subreddit },
+  });
   return `${metadata}${[redditLifeWechatOpening(candidates.map(candidate => candidate.title)), redditLifeWechatBody(candidates, replyLimit), footer].filter(Boolean).join("\n\n")}\n`;
 }
 

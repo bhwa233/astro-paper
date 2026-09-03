@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-10-09-the-toast.webp"
+ogImage: "/images/podcast/2026-07-10-09-the-toast.webp"
 description: "2026年艾美奖提名、世界杯中场秀及迪士尼《花豹少女4》重启"
 timezone: Asia/Shanghai
 ---

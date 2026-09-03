@@ -1,5 +1,5 @@
 ---
-import { getCollection, type CollectionEntry, render } from "astro:content";
+import { type CollectionEntry, render } from "astro:content";
 import PostLayout from "@/layouts/PostLayout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -15,7 +15,7 @@ import BackToTopButton from "./_components/BackToTopButton.astro";
 import AdjacentPostNav from "./_components/AdjacentPostNav.astro";
 import TableOfContents from "./_components/TableOfContents.astro";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
-import { getPostDetailPaths } from "@/utils/localeStaticPaths";
+import { getAllPosts, getPostDetailPaths } from "@/utils/localeStaticPaths";
 import { getLocalizedSiteTitle } from "@/utils/siteMeta";
 import { getPostLocaleAlternates } from "@/utils/localeAlternates";
 import { useTranslations } from "@/i18n";
@@ -43,7 +43,7 @@ const { post, prevPost, nextPost } = Astro.props;
 const locale = Astro.currentLocale ?? DEFAULT_LOCALE;
 const siteTitle = getLocalizedSiteTitle(locale);
 const t = useTranslations(locale);
-const allPosts = await getCollection("posts");
+const allPosts = await getAllPosts();
 
 const {
   title,
@@ -61,13 +61,7 @@ const { Content, headings } = await render(post);
 
 const { readingTime, wordCount } = getPostMetrics(post.body ?? "");
 
-let ogImageUrl: string | undefined;
-
-if (typeof initOgImage === "string") {
-  ogImageUrl = initOgImage;
-} else if (initOgImage?.src) {
-  ogImageUrl = initOgImage.src;
-}
+let ogImageUrl: string | undefined = initOgImage;
 
 if (!ogImageUrl && config.features.dynamicOgImage) {
   const postUrl = getPostUrl(post.id, post.filePath, locale).replace(

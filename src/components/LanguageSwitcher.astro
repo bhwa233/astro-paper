@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getAllPosts } from "@/utils/localeStaticPaths";
 import {
   DEFAULT_LOCALE,
   ENGLISH_LOCALE,
@@ -13,7 +13,7 @@ import config from "@/config";
 const locale = Astro.currentLocale ?? config.site.lang;
 const currentLocale = isSupportedLocale(locale) ? locale : DEFAULT_LOCALE;
 const t = useTranslations(locale);
-const posts = await getCollection("posts");
+const posts = await getAllPosts();
 
 const relativePath = stripBase(Astro.url.pathname);
 const normalizedPath =

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-17-08-the-mel-robbins-podcast.webp"
+ogImage: "/images/podcast/2026-07-17-08-the-mel-robbins-podcast.webp"
 description: "耶鲁情绪智能研究核心：构建RULER系统，将情绪转化为人生进"
 timezone: Asia/Shanghai
 ---

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "Nvidia拟巨资收购HF引垄断担忧；AI算力长约暗藏违约悬"
 timezone: Asia/Shanghai
 ---

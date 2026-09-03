@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "今日焦点集中于AI模型竞争、云基础设施安全与软件工程可靠性。"
 timezone: Asia/Shanghai
 ---

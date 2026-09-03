@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "Google AI 重组与科研自动化领跑，代理安全和 LLM"
 timezone: Asia/Shanghai
 ---

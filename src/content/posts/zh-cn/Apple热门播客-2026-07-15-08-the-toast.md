@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-15-08-the-toast.webp"
+ogImage: "/images/podcast/2026-07-15-08-the-toast.webp"
 description: "播客《The Toast》深度剖析网红创业公司Fia的欺诈丑"
 timezone: Asia/Shanghai
 ---

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "美国制裁激进技术集体、GLM-5.3开源权重及GUI全键盘交"
 timezone: Asia/Shanghai
 ---

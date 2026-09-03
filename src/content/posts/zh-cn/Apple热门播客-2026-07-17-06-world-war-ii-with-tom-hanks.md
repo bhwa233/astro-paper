@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-17-06-world-war-ii-with-tom-hanks.webp"
+ogImage: "/images/podcast/2026-07-17-06-world-war-ii-with-tom-hanks.webp"
 description: "盟军诺曼底登陆战役的决策与执行"
 timezone: Asia/Shanghai
 ---

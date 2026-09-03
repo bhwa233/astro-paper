@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-08-01-up-first-from-npr.webp"
+ogImage: "/images/podcast/2026-07-08-01-up-first-from-npr.webp"
 description: "美伊停火终结与地缘博弈、缅因州民主党参选人危机、国际奥委会恢"
 timezone: Asia/Shanghai
 ---

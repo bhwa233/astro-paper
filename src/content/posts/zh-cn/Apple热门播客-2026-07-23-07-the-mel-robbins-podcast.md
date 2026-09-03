@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-23-07-the-mel-robbins-podcast.webp"
+ogImage: "/images/podcast/2026-07-23-07-the-mel-robbins-podcast.webp"
 description: "Dr. Sharon Malone shares a med"
 timezone: Asia/Shanghai
 ---

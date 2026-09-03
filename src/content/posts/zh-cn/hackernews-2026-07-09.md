@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "维修权落地、代码评测重估、AI工具链继续上移"
 timezone: Asia/Shanghai
 ---

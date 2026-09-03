@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AI安全与代理基础设施升温，开发工具和系统工程继续受到关注"
 timezone: Asia/Shanghai
 ---

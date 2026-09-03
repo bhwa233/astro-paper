@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "模型推理提速与代理工程化并进，硬件安全和数字保存风险浮现"
 timezone: Asia/Shanghai
 ---

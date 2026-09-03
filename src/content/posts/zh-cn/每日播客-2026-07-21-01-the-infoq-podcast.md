@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-21-01-the-infoq-podcast.webp"
+ogImage: "/images/podcast/2026-07-21-01-the-infoq-podcast.webp"
 description: "探讨开源框架 Strands Agents 的演进与实践经验"
 timezone: Asia/Shanghai
 ---

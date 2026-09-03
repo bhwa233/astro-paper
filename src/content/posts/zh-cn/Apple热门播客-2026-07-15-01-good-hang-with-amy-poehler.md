@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-15-01-good-hang-with-amy-poehler.webp"
+ogImage: "/images/podcast/2026-07-15-01-good-hang-with-amy-poehler.webp"
 description: "Will Ferrell与Amy Poehler畅聊喜剧人生"
 timezone: Asia/Shanghai
 ---

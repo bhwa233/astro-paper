@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "Linux内核漏洞、复古计算与工程实践占据讨论中心"
 timezone: Asia/Shanghai
 ---

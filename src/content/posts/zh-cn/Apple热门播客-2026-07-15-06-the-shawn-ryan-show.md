@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-15-06-the-shawn-ryan-show.webp"
+ogImage: "/images/podcast/2026-07-15-06-the-shawn-ryan-show.webp"
 description: "探索斯多葛哲学在现代焦虑与逆境中的应用"
 timezone: Asia/Shanghai
 ---

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-14-08-the-mel-robbins-podcast.webp"
+ogImage: "/images/podcast/2026-07-14-08-the-mel-robbins-podcast.webp"
 description: "探讨如何通过正念、微小的人际连接和寻找微小的惊奇（Awe）来"
 timezone: Asia/Shanghai
 ---

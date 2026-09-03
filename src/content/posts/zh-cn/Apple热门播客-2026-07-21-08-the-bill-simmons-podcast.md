@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-21-08-the-bill-simmons-podcast.webp"
+ogImage: "/images/podcast/2026-07-21-08-the-bill-simmons-podcast.webp"
 description: "本期播客讨论了2026年世界杯决赛西班牙夺冠的技战术原因，以"
 timezone: Asia/Shanghai
 ---

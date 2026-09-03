@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-21-06-the-rest-is-history.webp"
+ogImage: "/images/podcast/2026-07-21-06-the-rest-is-history.webp"
 description: "19世纪奥匈帝国皇室丑闻「梅耶林惨案」背景分析与历史意义。"
 timezone: Asia/Shanghai
 ---

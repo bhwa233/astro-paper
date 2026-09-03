@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-02-01-oxide-and-friends.webp"
+ogImage: "/images/podcast/2026-07-02-01-oxide-and-friends.webp"
 description: "每日海外 Podcasts 热门节目中文长文笔记。"
 timezone: Asia/Shanghai
 ---

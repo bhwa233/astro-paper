@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AI工程可信度、专家能力与开放工具成为焦点，产业与社会议题并"
 timezone: Asia/Shanghai
 ---

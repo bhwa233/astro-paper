@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-14-01-up-first-from-npr.webp"
+ogImage: "/images/podcast/2026-07-14-01-up-first-from-npr.webp"
 description: "美伊霍尔木兹海峡冲突升级、参议员格雷厄姆逝世以及国会面临的立"
 timezone: Asia/Shanghai
 ---

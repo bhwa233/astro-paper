@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-03-love-trapped.webp"
+ogImage: "/images/podcast/2026-07-09-03-love-trapped.webp"
 description: "洛拉刑事案与欧恩斯夫妇破产案的最新进展、法律博弈及案件背后的"
 timezone: Asia/Shanghai
 ---

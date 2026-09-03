@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "Anthropic发布Claude 5.1系列模型，Dan "
 timezone: Asia/Shanghai
 ---

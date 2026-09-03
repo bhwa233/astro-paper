@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-11-06-the-mel-robbins-podcast.webp"
+ogImage: "/images/podcast/2026-07-11-06-the-mel-robbins-podcast.webp"
 description: "本期播客 Mel Robbins 对话 Seth Godin"
 timezone: Asia/Shanghai
 ---

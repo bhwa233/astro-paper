@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-12-06-the-bill-simmons-podcast.webp"
+ogImage: "/images/podcast/2026-07-12-06-the-bill-simmons-podcast.webp"
 description: "比尔·西蒙斯播客：解析小卡交易风波、杰伦·布朗数据争议及恩比"
 timezone: Asia/Shanghai
 ---

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-11-05-the-rest-is-history.webp"
+ogImage: "/images/podcast/2026-07-11-05-the-rest-is-history.webp"
 description: "本期播客深入探讨了本杰明·富兰克林从大英帝国的忠实臣民，转变"
 timezone: Asia/Shanghai
 ---

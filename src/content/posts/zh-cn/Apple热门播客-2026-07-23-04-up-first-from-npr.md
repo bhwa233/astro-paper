@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-23-04-up-first-from-npr.webp"
+ogImage: "/images/podcast/2026-07-23-04-up-first-from-npr.webp"
 description: "川普悼念遇袭美军，防长出席国会听证会，亚利桑那州初选出炉。"
 timezone: Asia/Shanghai
 ---

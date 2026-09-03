@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "苹果发布 M6 与 M5 Ultra 芯片；OpenAI 自"
 timezone: Asia/Shanghai
 ---

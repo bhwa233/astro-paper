@@ -1,7 +1,7 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { APICallError, generateText, NoObjectGeneratedError, Output } from "ai";
-import { clipText, envPositiveInt, envPositiveNumber, sleep, writeStderr } from "./blog_common.ts";
+import { clipText, envBool, envPositiveInt, envPositiveNumber, sleep, writeStderr } from "./blog_common.ts";
 
 export const DEFAULT_AI_BASE_URL = "https://rightapi.ai/codex/v1";
 export const DEFAULT_AI_MODEL = "gpt-5.6-luna";
@@ -45,13 +45,6 @@ export type AiCallResult = {
   // Populated when the primary target failed (whether or not a fallback then succeeded).
   primaryError?: string;
 };
-
-function envBool(name: string, fallback: boolean): boolean {
-  const value = (process.env[name] || "").trim().toLowerCase();
-  if (["1", "true", "yes", "on"].includes(value)) return true;
-  if (["0", "false", "no", "off"].includes(value)) return false;
-  return fallback;
-}
 
 // Transient = worth retrying the same target: dropped connections, resets, timeouts, 5xx, 429.
 // Permanent (4xx other than 429, empty/invalid content) is not retried.

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "今日焦点集中在 AI 工具的可靠性、成本与控制权，以及基础设"
 timezone: Asia/Shanghai
 ---

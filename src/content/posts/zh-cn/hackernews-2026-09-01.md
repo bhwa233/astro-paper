@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "苹果突遭企业级本地AI硬件抢购，经典拖延症论文曝造假，工控与"
 timezone: Asia/Shanghai
 ---

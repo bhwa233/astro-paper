@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-17-09-the-shawn-ryan-show.webp"
+ogImage: "/images/podcast/2026-07-17-09-the-shawn-ryan-show.webp"
 description: "艾琳·布罗克维奇揭露AI数据中心对水资源的隐秘消耗与环境风险"
 timezone: Asia/Shanghai
 ---

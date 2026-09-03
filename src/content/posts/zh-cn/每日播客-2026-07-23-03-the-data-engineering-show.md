@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-23-03-the-data-engineering-show.webp"
+ogImage: "/images/podcast/2026-07-23-03-the-data-engineering-show.webp"
 description: "AI 时代下 BI 与语义层的重构"
 timezone: Asia/Shanghai
 ---

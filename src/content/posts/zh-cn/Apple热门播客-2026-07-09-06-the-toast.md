@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-06-the-toast.webp"
+ogImage: "/images/podcast/2026-07-09-06-the-toast.webp"
 description: "泰勒·斯威夫特婚礼邀请函防泄密机制与明星社交风波。"
 timezone: Asia/Shanghai
 ---

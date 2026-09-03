@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "分布式 AI、开发工具自举，与 GPU 基建融资风险升温"
 timezone: Asia/Shanghai
 ---

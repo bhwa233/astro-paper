@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-08-02-software-engineering-daily.webp"
+ogImage: "/images/podcast/2026-07-08-02-software-engineering-daily.webp"
 description: "解析AI模型管控地缘风险、IDE生态锁合与开发者工具链的商业"
 timezone: Asia/Shanghai
 ---

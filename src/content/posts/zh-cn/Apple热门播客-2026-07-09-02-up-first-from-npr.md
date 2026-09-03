@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-02-up-first-from-npr.webp"
+ogImage: "/images/podcast/2026-07-09-02-up-first-from-npr.webp"
 description: "美国建国250周年庆典冲突、伊朗前最高领袖葬礼以及世界杯红牌"
 timezone: Asia/Shanghai
 ---

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-23-05-the-rest-is-history.webp"
+ogImage: "/images/podcast/2026-07-23-05-the-rest-is-history.webp"
 description: "揭秘奥匈帝国皇储鲁道夫与情人玛丽的梅耶林殉情惨案及王室掩盖真"
 timezone: Asia/Shanghai
 ---

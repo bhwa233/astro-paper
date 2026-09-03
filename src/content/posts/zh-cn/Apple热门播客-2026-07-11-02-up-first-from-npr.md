@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-11-02-up-first-from-npr.webp"
+ogImage: "/images/podcast/2026-07-11-02-up-first-from-npr.webp"
 description: "美伊局势再现停火、临时保护身份(TPS)工作许可取消的影响及"
 timezone: Asia/Shanghai
 ---

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "苹果起诉OpenAI窃密、星链申请十万卫星、“工具应无形”设"
 timezone: Asia/Shanghai
 ---

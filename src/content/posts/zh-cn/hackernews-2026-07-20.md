@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AI工具重写与降本、开源改造旧系统、平台底层迁移成主线"
 timezone: Asia/Shanghai
 ---

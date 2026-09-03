@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-15-01-software-engineering-daily.webp"
+ogImage: "/images/podcast/2026-07-15-01-software-engineering-daily.webp"
 description: "介绍声明式SRE Agent框架AURA的设计理念与实践。"
 timezone: Asia/Shanghai
 ---

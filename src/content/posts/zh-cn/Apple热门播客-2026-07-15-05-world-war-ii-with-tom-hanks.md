@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-15-05-world-war-ii-with-tom-hanks.webp"
+ogImage: "/images/podcast/2026-07-15-05-world-war-ii-with-tom-hanks.webp"
 description: "二战德日大后方动员策略、生存危机及极权统治演变。"
 timezone: Asia/Shanghai
 ---

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-15-03-pod-save-america.webp"
+ogImage: "/images/podcast/2026-07-15-03-pod-save-america.webp"
 description: "深入剖析特朗普政府重启对伊军事行动、阁员危机及国会权力重组背"
 timezone: Asia/Shanghai
 ---

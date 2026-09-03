@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-07-the-bill-simmons-podcast.webp"
+ogImage: "/images/podcast/2026-07-09-07-the-bill-simmons-podcast.webp"
 description: "2026年美加墨世界杯，比利时 4-1 大胜美国队，从战术到"
 timezone: Asia/Shanghai
 ---

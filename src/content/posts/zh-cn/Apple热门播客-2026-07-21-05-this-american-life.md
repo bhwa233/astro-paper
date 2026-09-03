@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-21-05-this-american-life.webp"
+ogImage: "/images/podcast/2026-07-21-05-this-american-life.webp"
 description: "本期播客讲述了五个关于违背意愿、被迫踏上未知旅程的真实故事。"
 timezone: Asia/Shanghai
 ---

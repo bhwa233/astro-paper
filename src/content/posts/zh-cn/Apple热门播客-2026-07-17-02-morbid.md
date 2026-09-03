@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-17-02-morbid.webp"
+ogImage: "/images/podcast/2026-07-17-02-morbid.webp"
 description: "森本杀手 Gary Ridgway 的最终落网、审判与救赎"
 timezone: Asia/Shanghai
 ---

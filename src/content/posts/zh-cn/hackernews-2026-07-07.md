@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "开源替代正逼近AI与终端软件，隐私、本地化和可控性成共同主线"
 timezone: Asia/Shanghai
 ---

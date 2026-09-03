@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-10-08-the-mel-robbins-podcast.webp"
+ogImage: "/images/podcast/2026-07-10-08-the-mel-robbins-podcast.webp"
 description: "克服环境转变与人际困境的四大心态转换法，重塑掌控感以寻回快乐"
 timezone: Asia/Shanghai
 ---

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "Apple 语音 API 超越 Whisper、Git hi"
 timezone: Asia/Shanghai
 ---

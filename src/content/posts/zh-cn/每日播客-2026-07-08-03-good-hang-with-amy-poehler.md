@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-08-03-good-hang-with-amy-poehler.webp"
+ogImage: "/images/podcast/2026-07-08-03-good-hang-with-amy-poehler.webp"
 description: "麦特·戴蒙与诺兰深度剖析新片《奥德赛》、创作伙伴关系与中年身"
 timezone: Asia/Shanghai
 ---

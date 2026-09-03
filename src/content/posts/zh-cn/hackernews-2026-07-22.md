@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "今日焦点集中在 AI 安全、商业化、版权与隐私边界。"
 timezone: Asia/Shanghai
 ---

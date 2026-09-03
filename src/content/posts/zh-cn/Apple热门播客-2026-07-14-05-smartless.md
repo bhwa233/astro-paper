@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-14-05-smartless.webp"
+ogImage: "/images/podcast/2026-07-14-05-smartless.webp"
 description: "对话导演、演员Olivia Wilde，探讨其名字由来、片场"
 timezone: Asia/Shanghai
 ---

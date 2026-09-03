@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-01-the-joe-rogan-experience.webp"
+ogImage: "/images/podcast/2026-07-09-01-the-joe-rogan-experience.webp"
 description: "英国国会议员Rupert Lowe做客JRE播客，揭露英国“"
 timezone: Asia/Shanghai
 ---

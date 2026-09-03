@@ -106,11 +106,8 @@ export function renderRedditLifeNewspicMarkdown(selection: RedditLifeNewspicSele
     description: question,
     tags: [REDDIT_LIFE_NEWSPIC_TAG],
     ogImage: redditLifeNewspicCardFile(0),
-    wechatEnabled: true,
-  }).replace(
-    "wechat:\n  enabled: true",
-    ["wechat:", "  enabled: true", `  syncId: \"${redditLifeNewspicSyncId(archiveDate, issueNumber)}\"`, '  articleType: "newspic"'].join("\n"),
-  );
+    wechat: { enabled: true, syncId: redditLifeNewspicSyncId(archiveDate, issueNumber), articleType: "newspic" },
+  });
   const images = Array.from({ length: cards.length + 1 }, (_, index) => `![](${redditLifeNewspicCardFile(index)})`);
   return `${metadata}${question}\n\n${images.join("\n\n")}\n`;
 }

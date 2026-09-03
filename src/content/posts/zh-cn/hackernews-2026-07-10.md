@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AI模型迭代、本地推理与开源重写占据焦点"
 timezone: Asia/Shanghai
 ---

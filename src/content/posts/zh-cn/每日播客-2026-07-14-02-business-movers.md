@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-14-02-business-movers.webp"
+ogImage: "/images/podcast/2026-07-14-02-business-movers.webp"
 description: "探讨宣言的本质与力量，解析如何将这一表达形式从极端暴力中夺回"
 timezone: Asia/Shanghai
 ---

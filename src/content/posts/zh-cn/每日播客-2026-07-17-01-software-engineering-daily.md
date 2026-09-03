@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-17-01-software-engineering-daily.webp"
+ogImage: "/images/podcast/2026-07-17-01-software-engineering-daily.webp"
 description: "本期播客探讨了 AWS 倡导的 Agentic DevOps"
 timezone: Asia/Shanghai
 ---

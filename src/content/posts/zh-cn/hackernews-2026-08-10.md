@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AI代理安全与学习方法、设备可修复性和数字隐私成为焦点"
 timezone: Asia/Shanghai
 ---

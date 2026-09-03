@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-17-04-mick-unplugged.webp"
+ogImage: "/images/podcast/2026-07-17-04-mick-unplugged.webp"
 description: "Mick Hunt 对话 ANI 首席执行官 Kwame C"
 timezone: Asia/Shanghai
 ---

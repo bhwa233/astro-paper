@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-16-01-software-engineering-radio.webp"
+ogImage: "/images/podcast/2026-07-16-01-software-engineering-radio.webp"
 description: "播客深度解析AI软件供应链安全面临的非确定性挑战、潜在攻击向"
 timezone: Asia/Shanghai
 ---

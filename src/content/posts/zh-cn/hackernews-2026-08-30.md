@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "EVE迁移Python 3、Linux版 Continuit"
 timezone: Asia/Shanghai
 ---

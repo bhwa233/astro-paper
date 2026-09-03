@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-15-02-the-joe-rogan-experience.webp"
+ogImage: "/images/podcast/2026-07-15-02-the-joe-rogan-experience.webp"
 description: "《The Joe Rogan Experience》第252"
 timezone: Asia/Shanghai
 ---

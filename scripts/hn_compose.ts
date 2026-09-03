@@ -8,7 +8,7 @@ import {
   hasChinese,
   isCompactProperNameOrModelTitle,
   looksLowSignal,
-  stripJsonFence,
+  parseModelJsonObject,
 } from "./compose_common.ts";
 
 // 模型必须产出的语义字段。
@@ -53,12 +53,7 @@ export function parseSourceFacts(source: string): HnSourceFact[] {
 
 // 解析并校验模型 JSON。失败抛出可读 error，交给重试循环反馈给模型。
 export function parseHnModelJson(raw: string, expectedCount?: number): HnModelItem[] {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(stripJsonFence(raw));
-  } catch (error) {
-    throw new Error(`HN model output is not valid JSON: ${error instanceof Error ? error.message : String(error)}`);
-  }
+  const parsed: unknown = parseModelJsonObject(raw, "HN");
   const rawItems = (parsed as { items?: unknown }).items;
   if (!Array.isArray(rawItems) || rawItems.length === 0) throw new Error("HN model JSON must contain a non-empty items array");
   if (typeof expectedCount === "number" && rawItems.length !== expectedCount) {

@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-02-mick-unplugged.webp"
+ogImage: "/images/podcast/2026-07-09-02-mick-unplugged.webp"
 description: "Tim Rexius分享以“DAD”哲学驱动的创业与家庭融合"
 timezone: Asia/Shanghai
 ---

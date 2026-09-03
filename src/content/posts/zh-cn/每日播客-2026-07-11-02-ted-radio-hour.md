@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-11-02-ted-radio-hour.webp"
+ogImage: "/images/podcast/2026-07-11-02-ted-radio-hour.webp"
 description: "探索通过先进技术与日常习惯追踪和理解身体需求，从多维视角定义"
 timezone: Asia/Shanghai
 ---

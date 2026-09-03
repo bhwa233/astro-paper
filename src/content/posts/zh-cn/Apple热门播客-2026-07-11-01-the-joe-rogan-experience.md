@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-11-01-the-joe-rogan-experience.webp"
+ogImage: "/images/podcast/2026-07-11-01-the-joe-rogan-experience.webp"
 description: "Ali Siddiq 与 Joe Rogan 探讨竞技体育公"
 timezone: Asia/Shanghai
 ---

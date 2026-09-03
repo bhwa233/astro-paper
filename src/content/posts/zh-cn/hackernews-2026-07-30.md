@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AI 基础设施、智能体安全与本地推理，折射软件边界向现实资源"
 timezone: Asia/Shanghai
 ---

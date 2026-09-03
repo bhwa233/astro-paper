@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AI 进入安全、教育与学术知识库，平台控制权和软硬件可持续性"
 timezone: Asia/Shanghai
 ---

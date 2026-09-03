@@ -52,6 +52,13 @@ export default defineConfig({
           return false;
         }
 
+        if (
+          config.features?.showAbout === false &&
+          pathname.endsWith("/about/")
+        ) {
+          return false;
+        }
+
         return true;
       },
       serialize: item => ({
@@ -83,6 +90,9 @@ export default defineConfig({
   // 其余标签一律没改名，不需要在这里登记。
   // 目标带尾斜杠，和 sitemap 里登记的规范地址一致，省掉托管层的一跳 301。
   redirects: {
+    // 曾经手写过一份 /sitemap.xml 索引，和 @astrojs/sitemap 的 sitemap-index.xml 内容重复；
+    // 站内、robots.txt 都只指 sitemap-index.xml，但搜索引擎可能登记过旧地址，留一跳。
+    "/sitemap.xml": "/sitemap-index.xml",
     "/tags/杂志": "/tags/阅读/",
     "/tags/海外长文": "/tags/阅读/",
     "/tags/海外长文/2": "/tags/阅读/",

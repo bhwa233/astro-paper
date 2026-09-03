@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-16-06-the-rest-is-history.webp"
+ogImage: "/images/podcast/2026-07-16-06-the-rest-is-history.webp"
 description: "播客深度解析荷马史诗《奥德赛》中奥德修斯重返家邦的跌宕历程与"
 timezone: Asia/Shanghai
 ---

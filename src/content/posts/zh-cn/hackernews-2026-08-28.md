@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "移动端体验恶化引反思，美法院裁定封禁Anthropic违法，"
 timezone: Asia/Shanghai
 ---

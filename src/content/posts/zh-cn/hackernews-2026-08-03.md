@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "今日讨论集中在 AI 能力与可信协作，也延伸到软件质量和开源"
 timezone: Asia/Shanghai
 ---

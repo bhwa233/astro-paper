@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "开放权重模型、AI代理安全与软件工程实践成为讨论焦点，传统网"
 timezone: Asia/Shanghai
 ---

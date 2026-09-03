@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-21-04-pod-save-america.webp"
+ogImage: "/images/podcast/2026-07-21-04-pod-save-america.webp"
 description: "本期播客深入剖析了民主党在2026年中期选举前面临的党内路线"
 timezone: Asia/Shanghai
 ---

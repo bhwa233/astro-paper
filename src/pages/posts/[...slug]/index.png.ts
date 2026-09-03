@@ -1,12 +1,11 @@
 import type { APIRoute } from "astro";
-import satori from "satori";
-import sharp from "sharp";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { getPostOgPaths } from "@/utils/localeStaticPaths";
 import config from "@/config";
 import { loadOgFonts, OG_FONT_FAMILY } from "@/utils/ogFonts";
 import { getLocalizedSiteTitle } from "@/utils/siteMeta";
 import { withOgCache } from "@/utils/ogImageCache";
+import { renderSatoriPng } from "@/utils/renderPng";
 import {
   platformCard,
   resolvePlatformKey,
@@ -33,7 +32,7 @@ export const GET: APIRoute = async ({ props, url, currentLocale }) => {
     async () => {
       const fonts = await loadOgFonts(url);
 
-      const svg = await satori(
+      return renderSatoriPng(
         platformCard(PLATFORM_THEMES[themeKey], OG_FONT_FAMILY, {
           type: "div",
           props: {
@@ -112,16 +111,9 @@ export const GET: APIRoute = async ({ props, url, currentLocale }) => {
               },
             ],
           },
-        }) as Parameters<typeof satori>[0], // 对象树而不是 JSX；理由见 platformTheme.ts 的 SatoriNode
-        {
-          width: 1200,
-          height: 630,
-          embedFont: true,
-          fonts,
-        }
+        }) as Parameters<typeof renderSatoriPng>[0], // 对象树而不是 JSX；理由见 platformTheme.ts 的 SatoriNode
+        { width: 1200, height: 630, fonts }
       );
-
-      return sharp(Buffer.from(svg)).png().toBuffer();
     }
   );
 

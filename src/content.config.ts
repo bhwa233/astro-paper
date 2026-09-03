@@ -7,7 +7,7 @@ export const BLOG_PATH = "src/content/posts";
 
 const posts = defineCollection({
   loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: `./${BLOG_PATH}` }),
-  schema: ({ image }) =>
+  schema: () =>
     z.object({
       author: z.string().default(config.site.author),
       pubDatetime: z.date(),
@@ -19,7 +19,9 @@ const posts = defineCollection({
         .array(z.string())
         .nullish()
         .transform(v => v ?? ["others"]),
-      ogImage: image().or(z.string()).optional(),
+      // 只收字符串：站点根路径（/images/…）或远程 URL。以前经 image() 处理，
+      // 197 篇指向 public/ 的封面会被再优化一份进 dist/_astro，和 public/ 原件双份发布。
+      ogImage: z.string().optional(),
       description: z.string(),
       canonicalURL: z.string().optional(),
       hideEditPost: z.boolean().optional(),

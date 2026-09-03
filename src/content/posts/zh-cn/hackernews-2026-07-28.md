@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "开放模型的治理与经济性、AI 编程可靠性，以及软硬件自主控制"
 timezone: Asia/Shanghai
 ---

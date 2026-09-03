@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - 海外播客榜
-ogImage: "../../../../public/images/podcast/2026-07-18-01-waveform-the-mkbhd-podcast.webp"
+ogImage: "/images/podcast/2026-07-18-01-waveform-the-mkbhd-podcast.webp"
 description: "详细拆解OnePlus退出美欧市场背后的原因，以及Pixel"
 timezone: Asia/Shanghai
 ---

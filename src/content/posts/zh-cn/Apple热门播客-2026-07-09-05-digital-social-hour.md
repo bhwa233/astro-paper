@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-09-05-digital-social-hour.webp"
+ogImage: "/images/podcast/2026-07-09-05-digital-social-hour.webp"
 description: "前NBA球星莫布里谈自律、多运动预防伤病、现代NBA问题与男"
 timezone: Asia/Shanghai
 ---

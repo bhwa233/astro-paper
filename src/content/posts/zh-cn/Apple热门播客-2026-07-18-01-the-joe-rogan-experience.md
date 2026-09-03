@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-18-01-the-joe-rogan-experience.webp"
+ogImage: "/images/podcast/2026-07-18-01-the-joe-rogan-experience.webp"
 description: "MrBeast与乔·罗根对话：解密超极限内容工业的制片控制、"
 timezone: Asia/Shanghai
 ---

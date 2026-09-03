@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "AI代理安全、隐私监管与本地AI工具成焦点"
 timezone: Asia/Shanghai
 ---

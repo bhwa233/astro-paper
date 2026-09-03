@@ -12,24 +12,54 @@ import {
   getStaticPathCacheKey,
 } from "@/utils/staticPathCache";
 
-export async function getPostsForLocale(
-  locale: SiteLocale,
-  options?: { includeDrafts?: boolean }
-) {
-  const { includeDrafts = true } = options ?? {};
-  const posts = await getCollection("posts", ({ data }) =>
-    includeDrafts ? true : !data.draft
-  );
+// 构建期同一个 locale 的文章集合会被十来个路由模块各取一遍（分页、标签、详情、OG、RSS、首页…），
+// 每次都是全量 getCollection + 按路径分 locale + 排序。构建是一个进程，缓存一次就够；
+// dev 下不缓存，否则新建的文章要重启才看得到。
+let allPosts: Promise<CollectionEntry<"posts">[]> | undefined;
+const postsByLocale = new Map<string, Promise<CollectionEntry<"posts">[]>>();
+const sortedByLocale = new Map<string, Promise<CollectionEntry<"posts">[]>>();
 
-  return filterCollectionByLocale(posts, locale);
+/** 两个 locale 的全部文章（含草稿）。语言切换器每页都要它做互译查找，逐页 getCollection 太浪费。 */
+export function getAllPosts(): Promise<CollectionEntry<"posts">[]> {
+  if (allPosts && import.meta.env.PROD) return allPosts;
+  allPosts = getCollection("posts");
+  return allPosts;
+}
+
+export function getPostsForLocale(
+  locale: string,
+  options?: { includeDrafts?: boolean }
+): Promise<CollectionEntry<"posts">[]> {
+  const { includeDrafts = true } = options ?? {};
+  const key = `${locale}:${includeDrafts}`;
+  const cached = postsByLocale.get(key);
+  if (cached && import.meta.env.PROD) return cached;
+  const pending = getAllPosts().then(posts =>
+    filterCollectionByLocale(
+      includeDrafts ? posts : posts.filter(({ data }) => !data.draft),
+      locale
+    )
+  );
+  postsByLocale.set(key, pending);
+  return pending;
+}
+
+/** 按更新时间倒序、去掉草稿与未到时间的文章；结果按 locale 缓存，和 getPostsForLocale 同一规则。 */
+export function getSortedPostsForLocale(
+  locale: string
+): Promise<CollectionEntry<"posts">[]> {
+  const cached = sortedByLocale.get(locale);
+  if (cached && import.meta.env.PROD) return cached;
+  const pending = getPostsForLocale(locale).then(getSortedPosts);
+  sortedByLocale.set(locale, pending);
+  return pending;
 }
 
 export async function getPaginatedPostPaths(
   locale: SiteLocale,
   { paginate }: GetStaticPathsOptions
 ) {
-  const posts = await getPostsForLocale(locale, { includeDrafts: false });
-  return paginate(getSortedPosts(posts), {
+  return paginate(await getSortedPostsForLocale(locale), {
     pageSize: config.posts.perPage,
   }).map(path => ({
     ...path,
@@ -41,13 +71,15 @@ export async function getTagPaginatedPaths(
   locale: SiteLocale,
   { paginate }: GetStaticPathsOptions
 ) {
-  const posts = await getPostsForLocale(locale, { includeDrafts: false });
+  const posts = await getSortedPostsForLocale(locale);
   const tags = getUniqueTags(posts);
+  // 每篇的标签 slug 只算一次；原来每个标签都对全部文章重新 slugify，39 个标签 × 560 篇约两万次。
+  const tagSlugs = new Map(
+    posts.map(post => [post, slugifyAll(post.data.tags)])
+  );
 
   return tags.flatMap(({ tag, tagName }) => {
-    const tagPosts = getSortedPosts(
-      posts.filter(({ data }) => slugifyAll(data.tags).includes(tag))
-    );
+    const tagPosts = posts.filter(post => tagSlugs.get(post)!.includes(tag));
 
     return paginate(tagPosts, {
       params: { tag },
@@ -68,7 +100,7 @@ type AdjacentPost = {
 
 export async function getPostDetailPaths(locale: SiteLocale) {
   const posts = await getPostsForLocale(locale);
-  const sortedPosts = getSortedPosts(posts);
+  const sortedPosts = await getSortedPostsForLocale(locale);
 
   return sortedPosts.map((post, index) => ({
     params: { slug: getPostSlug(post.id, post.filePath) },

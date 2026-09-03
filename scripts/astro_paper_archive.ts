@@ -6,7 +6,7 @@ import { REDDIT_TRENDING_MIN_TOPICS, type Task, isTask, taskInfo, taskPostRelPat
 import { ARCHIVE_PAYLOAD_MARKER } from "./compose_common.ts";
 import { bulletValue, extractBullets, hasChinese, isCompactProperNameOrModelTitle, looksLowSignal, normalizeMarkdownBlock } from "./markdown_text.ts";
 
-const HN_DEFAULT_OG_IMAGE = "../../../../public/images/hn-cover.svg";
+const HN_DEFAULT_OG_IMAGE = "/images/hn-cover.svg";
 
 type HnPayloadItem = {
   rank?: number;
@@ -460,8 +460,7 @@ export function archivePost({
       description,
       tags: taskTags(task),
       ogImage: formatted.ogImage || ogImage,
-      wechatEnabled: Boolean(info.wechatEnabled),
-      wechatTitle,
+      wechat: { enabled: Boolean(info.wechatEnabled), title: wechatTitle },
     })}${formatted.markdown.trim()}\n`,
     "utf8",
   );

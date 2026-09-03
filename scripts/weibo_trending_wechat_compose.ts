@@ -132,16 +132,19 @@ export function renderWeiboTrendingWechatMarkdown({
   title = validateWeiboTrendingWechatTitle(title, "Weibo trending WeChat article title");
   description = validateWeiboTrendingWechatDescription(description, "Weibo trending WeChat article description");
   if (!articleUrl) throw new Error("Weibo trending WeChat article needs the upstream article URL");
-  const wechatFields = [`  syncId: "${weiboTrendingWechatSyncId(archiveDate)}"`, '  articleType: "newspic"'];
-  if (showSourceUrl) wechatFields.push(`  sourceURL: "${articleUrl}"`);
   const metadata = frontmatter({
     title,
     date: archiveDate,
     description,
     tags: [WEIBO_TRENDING_WECHAT_TAG],
     ogImage: weiboTrendingWechatCardFile(0),
-    wechatEnabled: true,
-  }).replace("wechat:\n  enabled: true", ["wechat:", "  enabled: true", ...wechatFields].join("\n"));
+    wechat: {
+      enabled: true,
+      syncId: weiboTrendingWechatSyncId(archiveDate),
+      articleType: "newspic",
+      sourceURL: showSourceUrl ? articleUrl : undefined,
+    },
+  });
   const images = Array.from({ length: itemCount + 1 }, (_, index) => `![](${weiboTrendingWechatCardFile(index)})`);
   return `${metadata}${description}\n\n${images.join("\n\n")}\n`;
 }

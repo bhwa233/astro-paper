@@ -8,7 +8,7 @@ draft: false
 tags:
   - 技术
   - HackerNews
-ogImage: "../../../../public/images/hn-cover.svg"
+ogImage: "/images/hn-cover.svg"
 description: "每日 Hacker News 热门文章 Top 10 中文整理，按当天归档并覆盖更新。"
 timezone: Asia/Shanghai
 ---

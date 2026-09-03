@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-23-10-pod-save-america.webp"
+ogImage: "/images/podcast/2026-07-23-10-pod-save-america.webp"
 description: "2026年美伊局势、ICE暴力争议、以及民主党党内初选的政治"
 timezone: Asia/Shanghai
 ---

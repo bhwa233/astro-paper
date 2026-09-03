@@ -8,7 +8,7 @@ draft: false
 tags:
   - 播客
   - Apple播客榜
-ogImage: "../../../../public/images/podcast/2026-07-10-03-up-first-from-npr.webp"
+ogImage: "/images/podcast/2026-07-10-03-up-first-from-npr.webp"
 description: "2026年7月9日美伊冲突升级与特朗普的外交政策演变。"
 timezone: Asia/Shanghai
 ---

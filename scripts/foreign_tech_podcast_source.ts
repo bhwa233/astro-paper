@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { bjtDateString, clipText, compact, ensureDir, envPositiveNumber, fetchText, parseArgs, repoRoot, sleep, stringArg, stripHtml, writeStderr, writeStdout } from "./blog_common.ts";
+import { bjtDateString, clipText, compact, ensureDir, envBool, envPositiveNumber, fetchText, parseArgs, repoRoot, sleep, stringArg, stripHtml, writeStderr, writeStdout } from "./blog_common.ts";
 import { podcastFingerprints } from "./foreign_tech_podcast_dedupe.ts";
 import { isEpisodeSummarized, loadSummarizedFingerprints } from "./podcast_ledger.ts";
 import { renderPrompt } from "./ai_blog_writer.ts";
@@ -250,11 +250,11 @@ function hasUsableTranscript(episode: Episode): boolean {
 }
 
 function rssDisabled(): boolean {
-  return ["1", "true", "yes"].includes((process.env.PODCAST_DISABLE_RSS || "").toLowerCase());
+  return envBool("PODCAST_DISABLE_RSS", false);
 }
 
 function audioTranscribeEnabled(): boolean {
-  return !["0", "false", "no"].includes((process.env.PODCAST_AUDIO_TRANSCRIBE || "true").toLowerCase());
+  return envBool("PODCAST_AUDIO_TRANSCRIBE", true);
 }
 
 function promptTranscriptChars(): number {
@@ -669,6 +669,74 @@ function retryableGeminiStatus(status: number): boolean {
 
 class NonRetryableGeminiError extends Error {}
 
+type GeminiResponse = { candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[]; error?: { message?: string } };
+
+/**
+ * 一次 Gemini generateContent 调用加重试。转写与成文以前各抄一份同样的循环，只差标签、payload
+ * 和怎么从响应里取文本；那三样都是参数。可重试的只有网络错误、超时和 retryableGeminiStatus 里的状态码；
+ * 4xx 其它状态和「响应里没有文本」都是 NonRetryableGeminiError，原样抛出。
+ */
+async function geminiGenerateContent({
+  label,
+  endpoint,
+  apiKey,
+  payload,
+  timeoutMs,
+  extract,
+}: {
+  label: string;
+  endpoint: string;
+  apiKey: string;
+  payload: unknown;
+  timeoutMs: number;
+  extract: (json: GeminiResponse) => string;
+}): Promise<string> {
+  let lastError = "";
+  for (let attempt = 1; attempt <= geminiRetryAttempts(); attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-goog-api-key": apiKey,
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      const text = await response.text();
+      if (!response.ok) {
+        lastError = `Gemini ${label} HTTP ${response.status}: ${text.slice(0, 1000)}`;
+        if (attempt < geminiRetryAttempts() && retryableGeminiStatus(response.status)) {
+          const delayMs = retryAfterMs(response.headers.get("retry-after")) ?? geminiRetryDelayMs(attempt);
+          writeStderr(`WARN: Gemini ${label} attempt ${attempt}/${geminiRetryAttempts()} failed; retrying after ${Math.round(delayMs / 1000)}s: ${lastError}`);
+          await sleep(delayMs);
+          continue;
+        }
+        throw new NonRetryableGeminiError(lastError);
+      }
+      const json = JSON.parse(text) as GeminiResponse;
+      const output = extract(json);
+      if (!output && json.error?.message) throw new NonRetryableGeminiError(json.error.message);
+      return output;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+      if (error instanceof NonRetryableGeminiError) throw error;
+      if (attempt < geminiRetryAttempts()) {
+        const delayMs = geminiRetryDelayMs(attempt);
+        writeStderr(`WARN: Gemini ${label} attempt ${attempt}/${geminiRetryAttempts()} failed; retrying after ${Math.round(delayMs / 1000)}s: ${lastError}`);
+        await sleep(delayMs);
+        continue;
+      }
+      throw new Error(lastError);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw new Error(lastError || `Gemini ${label} failed`);
+}
+
 function geminiTranscriptionPrompt(index: number, total: number): string {
   const position = total > 1 ? ` This is chunk ${index + 1} of ${total}; transcribe only this chunk.` : "";
   return `Transcribe the speech in this podcast audio exactly. Preserve paragraph breaks when natural, omit timestamps unless spoken, and return only the transcript text.${position}`;
@@ -698,50 +766,14 @@ async function transcribeGeminiChunk(chunkFile: string, index: number, total: nu
       maxOutputTokens: envPositiveNumber("PODCAST_GEMINI_MAX_OUTPUT_TOKENS", 8192),
     },
   };
-  let lastError = "";
-  for (let attempt = 1; attempt <= geminiRetryAttempts(); attempt += 1) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-goog-api-key": key,
-        },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
-      const text = await response.text();
-      if (!response.ok) {
-        lastError = `Gemini transcription HTTP ${response.status}: ${text.slice(0, 1000)}`;
-        if (attempt < geminiRetryAttempts() && retryableGeminiStatus(response.status)) {
-          const delayMs = retryAfterMs(response.headers.get("retry-after")) ?? geminiRetryDelayMs(attempt);
-          writeStderr(`WARN: Gemini transcription attempt ${attempt}/${geminiRetryAttempts()} failed; retrying after ${Math.round(delayMs / 1000)}s: ${lastError}`);
-          await sleep(delayMs);
-          continue;
-        }
-        throw new NonRetryableGeminiError(lastError);
-      }
-      const json = JSON.parse(text) as { candidates?: { content?: { parts?: { text?: string }[] } }[]; error?: { message?: string } };
-      const transcript = compact((json.candidates || []).flatMap(candidate => candidate.content?.parts?.map(part => part.text || "") || []).join("\n"));
-      if (!transcript && json.error?.message) throw new NonRetryableGeminiError(json.error.message);
-      return transcript;
-    } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-      if (error instanceof NonRetryableGeminiError) throw error;
-      if (attempt < geminiRetryAttempts()) {
-        const delayMs = geminiRetryDelayMs(attempt);
-        writeStderr(`WARN: Gemini transcription attempt ${attempt}/${geminiRetryAttempts()} failed; retrying after ${Math.round(delayMs / 1000)}s: ${lastError}`);
-        await sleep(delayMs);
-        continue;
-      }
-      throw new Error(lastError);
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-  throw new Error(lastError || "Gemini transcription failed");
+  return geminiGenerateContent({
+    label: "transcription",
+    endpoint,
+    apiKey: key,
+    payload,
+    timeoutMs,
+    extract: json => compact((json.candidates || []).flatMap(candidate => candidate.content?.parts?.map(part => part.text || "") || []).join("\n")),
+  });
 }
 
 async function runGeminiTranscription(audioFile: string, outDir: string): Promise<string> {
@@ -1023,56 +1055,22 @@ async function generateGeminiArticle(prompt: string, audioParts: GeminiAudioPart
       thinkingConfig: { thinkingBudget: envPositiveNumber("PODCAST_GEMINI_ARTICLE_THINKING_BUDGET", 0) },
     },
   };
-  let lastError = "";
-  for (let attempt = 1; attempt <= geminiRetryAttempts(); attempt += 1) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-goog-api-key": key,
-        },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
-      const text = await response.text();
-      if (!response.ok) {
-        lastError = `Gemini article HTTP ${response.status}: ${text.slice(0, 1000)}`;
-        if (attempt < geminiRetryAttempts() && retryableGeminiStatus(response.status)) {
-          const delayMs = retryAfterMs(response.headers.get("retry-after")) ?? geminiRetryDelayMs(attempt);
-          writeStderr(`WARN: Gemini article attempt ${attempt}/${geminiRetryAttempts()} failed; retrying after ${Math.round(delayMs / 1000)}s: ${lastError}`);
-          await sleep(delayMs);
-          continue;
-        }
-        throw new NonRetryableGeminiError(lastError);
-      }
-      const json = JSON.parse(text) as { candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[]; error?: { message?: string } };
-      const article = (json.candidates || [])
+  const article = await geminiGenerateContent({
+    label: "article",
+    endpoint,
+    apiKey: key,
+    payload,
+    timeoutMs,
+    extract: json =>
+      (json.candidates || [])
         .flatMap(candidate => candidate.content?.parts || [])
         .filter(part => part?.thought !== true)
         .map(part => part.text || "")
         .join("")
-        .trim();
-      if (!article && json.error?.message) throw new NonRetryableGeminiError(json.error.message);
-      if (!article) throw new NonRetryableGeminiError("Gemini article response contained no text");
-      return article;
-    } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-      if (error instanceof NonRetryableGeminiError) throw error;
-      if (attempt < geminiRetryAttempts()) {
-        const delayMs = geminiRetryDelayMs(attempt);
-        writeStderr(`WARN: Gemini article attempt ${attempt}/${geminiRetryAttempts()} failed; retrying after ${Math.round(delayMs / 1000)}s: ${lastError}`);
-        await sleep(delayMs);
-        continue;
-      }
-      throw new Error(lastError);
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-  throw new Error(lastError || "Gemini article generation failed");
+        .trim(),
+  });
+  if (!article) throw new NonRetryableGeminiError("Gemini article response contained no text");
+  return article;
 }
 
 // 合并池里每个 episode 各出一篇（多模态：音频→文章），由编排层循环调用。

@@ -91,7 +91,7 @@ function coverTree(date: string, titles: string[]): SatoriNode {
         },
       })),
     ]),
-    SQUARE_CARD_SIZE,
+    SQUARE_CARD_SIZE
   );
 }
 
@@ -154,12 +154,21 @@ function topicTree(item: WeiboTrendingWechatItem, index: number, total: number):
       {
         type: "div",
         props: {
-          style: { display: "flex", flexShrink: 0, justifyContent: "flex-end", width: "100%", height: "29px", marginTop: "18px", fontSize: 24, color: "#9A9A9A" },
+          style: {
+            display: "flex",
+            flexShrink: 0,
+            justifyContent: "flex-end",
+            width: "100%",
+            height: "29px",
+            marginTop: "18px",
+            fontSize: 24,
+            color: "#9A9A9A",
+          },
           children: `${String(index).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
         },
       },
     ]),
-    SQUARE_CARD_SIZE,
+    SQUARE_CARD_SIZE
   );
 }
 
@@ -175,7 +184,15 @@ export async function renderWeiboTrendingWechatCards(date: string, items: WeiboT
 
   const summaries = items.map(item => compact(item.summary));
   const fonts = await loadSubsetFonts(`${BRAND}${date}${items.map(item => item.title).join("")}${summaries.join("")}0123456789/`);
-  const cards: Buffer[] = [await renderCard(coverTree(date, items.map(item => item.title)), fonts)];
+  const cards: Buffer[] = [
+    await renderCard(
+      coverTree(
+        date,
+        items.map(item => item.title)
+      ),
+      fonts
+    ),
+  ];
   for (const [index, item] of items.entries()) {
     cards.push(await renderCard(topicTree(item, index + 1, items.length), fonts));
   }

@@ -1,13 +1,6 @@
-import {
-  newsletterPublicationSchema,
-  type NewsletterPublication,
-  type PatternConfig,
-} from "./substack_contracts.ts";
+import { newsletterPublicationSchema, type NewsletterPublication, type PatternConfig } from "./substack_contracts.ts";
 
-const SUBSTACK_IMAGE_HOSTS = [
-  "substackcdn.com",
-  "substack-post-media.s3.amazonaws.com",
-];
+const SUBSTACK_IMAGE_HOSTS = ["substackcdn.com", "substack-post-media.s3.amazonaws.com"];
 
 const rawPublications = {
   "curiosity-chronicle": {
@@ -28,15 +21,10 @@ const rawPublications = {
       enabled: true,
       cover: "default",
     },
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row"],
     cutBeforePatterns: [
       {
-        source:
-          "^Forwarded this email\\? Join [\\d,.]+(?:[KMB])?\\+ (?:other )?readers here\\.$",
+        source: "^Forwarded this email\\? Join [\\d,.]+(?:[KMB])?\\+ (?:other )?readers here\\.$",
         flags: "i",
       },
     ],
@@ -56,12 +44,7 @@ const rawPublications = {
     enabled: true,
     startAt: "2026-08-11",
     imagePolicy: "mirror",
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-      ".button-wrapper",
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row", ".button-wrapper"],
   },
   "honest-broker": {
     key: "honest-broker",
@@ -78,12 +61,7 @@ const rawPublications = {
     enabled: true,
     startAt: "2026-08-19",
     imagePolicy: "mirror",
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-      ".button-wrapper",
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row", ".button-wrapper"],
     // 订阅 CTA 插在正文中间（`<div><hr></div>` 夹着一个无 class 的 h3/h4 加一个 .button-wrapper 按钮），
     // 截断类规则一动就会砍掉后半篇，只能逐块删。按钮走 removeSelectors，标题只能按文本删。
     dropPatterns: [{ source: "^Please support my work\\b", flags: "i" }],
@@ -103,12 +81,7 @@ const rawPublications = {
     enabled: true,
     startAt: "2026-07-23",
     imagePolicy: "mirror",
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-      ".button-wrapper",
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row", ".button-wrapper"],
   },
   "wheres-your-ed-at": {
     key: "wheres-your-ed-at",
@@ -134,8 +107,7 @@ const rawPublications = {
     ],
     cutAfterPatterns: [
       {
-        source:
-          "^If you liked this piece, you should subscribe to my premium newsletter\\. It(?:'|’)s",
+        source: "^If you liked this piece, you should subscribe to my premium newsletter\\. It(?:'|’)s",
         flags: "i",
       },
     ],
@@ -158,8 +130,7 @@ const rawPublications = {
     removeSelectors: [".sharedaddy", ".jp-relatedposts", ".post-end"],
     excludeTitlePatterns: [
       {
-        source:
-          "(?:career exploration|summer program|program (?:has )?(?:started|launched)|applications? (?:are )?open)",
+        source: "(?:career exploration|summer program|program (?:has )?(?:started|launched)|applications? (?:are )?open)",
         flags: "i",
       },
     ],
@@ -178,10 +149,7 @@ const rawPublications = {
     feedUrl: "https://www.experimental-history.com/feed",
     siteUrl: "https://www.experimental-history.com/",
     feedHosts: ["www.experimental-history.com", "experimental-history.com"],
-    articleHosts: [
-      "www.experimental-history.com",
-      "experimental-history.com",
-    ],
+    articleHosts: ["www.experimental-history.com", "experimental-history.com"],
     imageHosts: SUBSTACK_IMAGE_HOSTS,
     tag: "Experimental History",
     priority: "high",
@@ -189,12 +157,7 @@ const rawPublications = {
     enabled: true,
     startAt: "2026-08-18",
     imagePolicy: "mirror",
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-      ".button-wrapper",
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row", ".button-wrapper"],
   },
   noahpinion: {
     key: "noahpinion",
@@ -210,21 +173,14 @@ const rawPublications = {
     priority: "high",
     topics: ["人口", "经济", "技术变迁", "产业", "城市"],
     selectionMode: "manual",
-    selectionRule:
-      "避开美国选举与即时政治；数据结论必须补充独立来源",
+    selectionRule: "避开美国选举与即时政治；数据结论必须补充独立来源",
     enabled: true,
     startAt: "2026-08-19",
     imagePolicy: "mirror",
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-      ".button-wrapper",
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row", ".button-wrapper"],
     excludeTitlePatterns: [
       {
-        source:
-          "(?:^|\\b)(?:Trump|Biden|Democrats?|Republicans?|U\\.S\\. election|presidential election)(?:\\b|$)",
+        source: "(?:^|\\b)(?:Trump|Biden|Democrats?|Republicans?|U\\.S\\. election|presidential election)(?:\\b|$)",
         flags: "i",
       },
     ],
@@ -246,12 +202,7 @@ const rawPublications = {
     enabled: true,
     startAt: "2026-07-30",
     imagePolicy: "mirror",
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-      ".button-wrapper",
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row", ".button-wrapper"],
     excludeTitlePatterns: [
       { source: "^Reading List\\b", flags: "i" },
       { source: "ROAD to Housing Act", flags: "i" },
@@ -295,14 +246,8 @@ const rawPublications = {
     author: "Erik Hoel",
     feedUrl: "https://www.theintrinsicperspective.com/feed",
     siteUrl: "https://www.theintrinsicperspective.com/",
-    feedHosts: [
-      "www.theintrinsicperspective.com",
-      "theintrinsicperspective.com",
-    ],
-    articleHosts: [
-      "www.theintrinsicperspective.com",
-      "theintrinsicperspective.com",
-    ],
+    feedHosts: ["www.theintrinsicperspective.com", "theintrinsicperspective.com"],
+    articleHosts: ["www.theintrinsicperspective.com", "theintrinsicperspective.com"],
     imageHosts: SUBSTACK_IMAGE_HOSTS,
     tag: "The Intrinsic Perspective",
     priority: "low",
@@ -312,15 +257,8 @@ const rawPublications = {
     enabled: true,
     startAt: "2026-07-13",
     imagePolicy: "mirror",
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-      ".button-wrapper",
-    ],
-    excludeTitlePatterns: [
-      { source: "^Goodbye Slopstack!", flags: "i" },
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row", ".button-wrapper"],
+    excludeTitlePatterns: [{ source: "^Goodbye Slopstack!", flags: "i" }],
   },
   "astral-codex-ten": {
     key: "astral-codex-ten",
@@ -340,16 +278,10 @@ const rawPublications = {
     enabled: true,
     startAt: "2026-08-04",
     imagePolicy: "mirror",
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-      ".button-wrapper",
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row", ".button-wrapper"],
     excludeTitlePatterns: [
       {
-        source:
-          "(?:Open Thread|Meetups?|House Party|Religion Debate|^Your Book Review)",
+        source: "(?:Open Thread|Meetups?|House Party|Religion Debate|^Your Book Review)",
         flags: "i",
       },
     ],
@@ -368,11 +300,7 @@ const rawPublications = {
     enabled: true,
     startAt: "2026-08-20",
     imagePolicy: "mirror",
-    removeSelectors: [
-      ".subscription-widget-wrap",
-      ".post-footer",
-      ".social-share-row",
-    ],
+    removeSelectors: [".subscription-widget-wrap", ".post-footer", ".social-share-row"],
   },
   marginalian: {
     key: "marginalian",
@@ -381,19 +309,9 @@ const rawPublications = {
     author: "Maria Popova",
     feedUrl: "https://feeds.feedburner.com/brainpickings/rss",
     siteUrl: "https://www.themarginalian.org/",
-    feedHosts: [
-      "feeds.feedburner.com",
-      "www.themarginalian.org",
-      "themarginalian.org",
-    ],
+    feedHosts: ["feeds.feedburner.com", "www.themarginalian.org", "themarginalian.org"],
     articleHosts: ["www.themarginalian.org", "themarginalian.org"],
-    imageHosts: [
-      "www.themarginalian.org",
-      "themarginalian.org",
-      "i0.wp.com",
-      "i1.wp.com",
-      "i2.wp.com",
-    ],
+    imageHosts: ["www.themarginalian.org", "themarginalian.org", "i0.wp.com", "i1.wp.com", "i2.wp.com"],
     tag: "The Marginalian",
     enabled: true,
     startAt: "2026-08-21",
@@ -409,13 +327,9 @@ const rawPublications = {
   },
 } as const;
 
-export const NEWSLETTER_PUBLICATIONS: Record<string, NewsletterPublication> =
-  Object.fromEntries(
-    Object.entries(rawPublications).map(([key, value]) => [
-      key,
-      newsletterPublicationSchema.parse(value),
-    ])
-  );
+export const NEWSLETTER_PUBLICATIONS: Record<string, NewsletterPublication> = Object.fromEntries(
+  Object.entries(rawPublications).map(([key, value]) => [key, newsletterPublicationSchema.parse(value)])
+);
 
 export function publicationByKey(key: string): NewsletterPublication {
   const publication = NEWSLETTER_PUBLICATIONS[key];
@@ -429,25 +343,15 @@ const PRIORITY_ORDER: Record<NewsletterPublication["priority"], number> = {
   low: 2,
 };
 
-export function orderPublicationsByPriority(
-  publications: readonly NewsletterPublication[]
-): NewsletterPublication[] {
-  return [...publications].sort(
-    (left, right) =>
-      PRIORITY_ORDER[left.priority] - PRIORITY_ORDER[right.priority]
-  );
+export function orderPublicationsByPriority(publications: readonly NewsletterPublication[]): NewsletterPublication[] {
+  return [...publications].sort((left, right) => PRIORITY_ORDER[left.priority] - PRIORITY_ORDER[right.priority]);
 }
 
 export function publicationsForInput(input: string): NewsletterPublication[] {
   if (input === "all")
-    return orderPublicationsByPriority(
-      Object.values(NEWSLETTER_PUBLICATIONS).filter(
-        item => item.enabled && item.selectionMode === "automatic"
-      )
-    );
+    return orderPublicationsByPriority(Object.values(NEWSLETTER_PUBLICATIONS).filter(item => item.enabled && item.selectionMode === "automatic"));
   const publication = publicationByKey(input);
-  if (!publication.enabled)
-    throw new Error(`publication is disabled: ${input}`);
+  if (!publication.enabled) throw new Error(`publication is disabled: ${input}`);
   return [publication];
 }
 

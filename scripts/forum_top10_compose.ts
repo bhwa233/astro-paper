@@ -1,5 +1,12 @@
 import { ARCHIVE_PAYLOAD_MARKER, hasChinese, normalizeMarkdownBlock, parseModelJsonObject } from "./compose_common.ts";
-import { FORUM_TOP10_CONTRACT_VERSION, FORUM_TOP10_LIMIT, type ForumPlatform, type ForumTop10Item, type ForumTop10Payload, renderForumTop10Source } from "./forum_top10_source.ts";
+import {
+  FORUM_TOP10_CONTRACT_VERSION,
+  FORUM_TOP10_LIMIT,
+  type ForumPlatform,
+  type ForumTop10Item,
+  type ForumTop10Payload,
+  renderForumTop10Source,
+} from "./forum_top10_source.ts";
 
 const SUMMARY_MIN_CHARS = 80;
 
@@ -54,7 +61,9 @@ export function parseForumTop10Payload(source: string): ForumTop10Payload {
 export function parseForumItemSummary(raw: string, expectedItemId: number, allowEmptySummary = false): ForumItemSummary {
   const payload = parseModelJsonObject(raw, `forum Top 10 item ${expectedItemId}`);
   const itemId = Number(payload.item_id);
-  const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
+  const titleZh = String(payload.title_zh || "")
+    .replace(/\s+/g, " ")
+    .trim();
   const summary = normalizeMarkdownBlock(String(payload.summary || ""));
   if (itemId !== expectedItemId) throw new Error(`forum Top 10 item ID mismatch: ${itemId} vs ${expectedItemId}`);
   if (!titleZh || !hasChinese(titleZh)) throw new Error(`forum Top 10 item ${expectedItemId} needs a Chinese title`);
@@ -95,11 +104,7 @@ function markdownInlineText(value: string): string {
 }
 
 function articleItem(item: ForumTop10Item): string {
-  const lines = [
-    `### ${item.rank}. ${markdownInlineText(item.titleZh || item.title)}`,
-    "",
-    `- **原始标题**：${markdownInlineText(item.title)}`,
-  ];
+  const lines = [`### ${item.rank}. ${markdownInlineText(item.titleZh || item.title)}`, "", `- **原始标题**：${markdownInlineText(item.title)}`];
   if (item.platform === "5ch") {
     lines.push(`- **板块**：${markdownInlineText(item.board || "未标明")}`);
     if (item.commentCount !== null) lines.push(`- **回复**：${item.commentCount}`);
@@ -108,7 +113,9 @@ function articleItem(item: ForumTop10Item): string {
       item.views !== null ? `${item.views} 浏览` : "",
       item.recommendations !== null ? `${item.recommendations} 推荐` : "",
       item.commentCount !== null ? `${item.commentCount} 评论` : "",
-    ].filter(Boolean).join(" · ");
+    ]
+      .filter(Boolean)
+      .join(" · ");
     if (item.board) lines.push(`- **来源板块**：${markdownInlineText(item.board)}`);
     if (heat) lines.push(`- **热度**：${heat}`);
   }

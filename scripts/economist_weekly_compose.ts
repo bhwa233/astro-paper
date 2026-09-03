@@ -39,25 +39,16 @@ function economistWeeklyDescription(articles: EconomistArticleSummary[]): string
 
 // The per-article summaries are already fully generated upstream; the issue post is a
 // deterministic aggregation of them — no issue-level model call, no overview/reading-route.
-export function economistWeeklyMarkdown(source: string, { requireImages = false }: { requireImages?: boolean } = {}): { markdown: string; description: string } {
+export function economistWeeklyMarkdown(
+  source: string,
+  { requireImages = false }: { requireImages?: boolean } = {}
+): { markdown: string; description: string } {
   const articles = parseEconomistArticleSummaries(source, { requireImages });
   if (articles.length < 3) throw new Error(`economist weekly source needs at least three articles, got ${articles.length}`);
   const renderedArticles = articles.map(article => {
     const lines = [`## ${article.titleZh}`, ""];
     if (article.image) lines.push(`![${article.titleZh.replaceAll("]", "\\]")}](${article.image})`, "");
-    lines.push(
-      "### 一句话摘要",
-      "",
-      article.oneSentenceSummary,
-      "",
-      "### 核心观点",
-      "",
-      article.corePoint,
-      "",
-      "### 内容总结",
-      "",
-      article.contentSummary,
-    );
+    lines.push("### 一句话摘要", "", article.oneSentenceSummary, "", "### 核心观点", "", article.corePoint, "", "### 内容总结", "", article.contentSummary);
     return lines.join("\n");
   });
   return { markdown: `${renderedArticles.join("\n\n")}\n`, description: economistWeeklyDescription(articles) };

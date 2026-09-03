@@ -38,10 +38,7 @@ test("Reddit life taxonomy requires two primary tags", () => {
 });
 
 test("Reddit life taxonomy keeps primary tags when trimming past the five-tag ceiling", () => {
-  const result = resolveRedditLifeVideoTaxonomy(
-    { tags: ["医护视角", "反常识", "亲身经历", "冷知识", "身心健康", "人性观察"], summary: SUMMARY },
-    TITLE,
-  );
+  const result = resolveRedditLifeVideoTaxonomy({ tags: ["医护视角", "反常识", "亲身经历", "冷知识", "身心健康", "人性观察"], summary: SUMMARY }, TITLE);
 
   // 主题域排在前面，截断才不会把它们截没——栏目名固定之后它们是唯一的区分信号。
   assert.equal(result.status, "processed");

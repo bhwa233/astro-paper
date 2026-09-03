@@ -10,12 +10,7 @@ export function hasChinese(text: string): boolean {
 // HN 标题原则上必须翻译；只有紧凑的产品/模型专名可保留英文，例如 Pixel Watch 5、Qwen3.8-2.4T。
 export function isCompactProperNameOrModelTitle(title: string): boolean {
   const parts = title.trim().split(/\s+/);
-  return (
-    parts.length >= 1 &&
-    parts.length <= 4 &&
-    parts.some(part => /\d/.test(part)) &&
-    parts.every(part => /^[A-Z0-9][A-Za-z0-9.-]*$/.test(part))
-  );
+  return parts.length >= 1 && parts.length <= 4 && parts.some(part => /\d/.test(part)) && parts.every(part => /^[A-Z0-9][A-Za-z0-9.-]*$/.test(part));
 }
 
 export function looksLowSignal(text = ""): boolean {
@@ -33,7 +28,14 @@ export function extractBullets(block: string): string[] {
 }
 
 export function bulletValue(bullets: string[], label: string): string {
-  return bullets.find(bullet => bullet.startsWith(label))?.split("：").slice(1).join("：").trim() || "";
+  return (
+    bullets
+      .find(bullet => bullet.startsWith(label))
+      ?.split("：")
+      .slice(1)
+      .join("：")
+      .trim() || ""
+  );
 }
 
 // source 与中间契约 Markdown 都以 `## N. 标题` / `### N. 标题` 编号块承载证据。
@@ -70,9 +72,7 @@ const EMPHASIS_BOUNDARY_RE = new RegExp(
 );
 
 export function fixEmphasisPunctuationBoundary(text: string): string {
-  return text.replace(EMPHASIS_BOUNDARY_RE, (match, code, open, inner, punct) =>
-    code !== undefined ? code : `${open}${inner}${open}${punct}`
-  );
+  return text.replace(EMPHASIS_BOUNDARY_RE, (match, code, open, inner, punct) => (code !== undefined ? code : `${open}${inner}${open}${punct}`));
 }
 
 // Markdown 正文块：保留段落与列表结构，只压掉多余空白。

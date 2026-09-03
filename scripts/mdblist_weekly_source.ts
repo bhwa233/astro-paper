@@ -113,14 +113,15 @@ function listItemsPath(list: string): string {
 export function rollingMdblistReleaseWindows(
   date: string,
   windowDays: readonly number[] = RELEASE_WINDOW_DAYS,
-  maturityDays = RATING_MATURITY_DAYS,
+  maturityDays = RATING_MATURITY_DAYS
 ): MdblistReleaseWindow[] {
   const archiveDate = new Date(`${date}T00:00:00Z`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(archiveDate.getTime()) || archiveDate.toISOString().slice(0, 10) !== date) {
     throw new Error(`invalid MDBList archive date: ${date}`);
   }
   if (!Number.isInteger(maturityDays) || maturityDays < 0) throw new Error(`invalid MDBList maturity days: ${maturityDays}`);
-  if (!windowDays.length || windowDays.some(days => !Number.isInteger(days) || days < 1)) throw new Error("MDBList release windows need positive integer day counts");
+  if (!windowDays.length || windowDays.some(days => !Number.isInteger(days) || days < 1))
+    throw new Error("MDBList release windows need positive integer day counts");
 
   const to = new Date(archiveDate);
   to.setUTCDate(to.getUTCDate() - maturityDays);
@@ -237,7 +238,7 @@ export function selectUnrecommendedMdblistCandidates(
   candidates: EnrichedItem[],
   mediaType: MdblistMediaType,
   recommendedKeys: Set<string>,
-  count: number,
+  count: number
 ): SelectedMdblistCandidate[] {
   const blocked = new Set(recommendedKeys);
   const selected: SelectedMdblistCandidate[] = [];
@@ -256,7 +257,7 @@ export function planMdblistWeeklySelection<T extends EnrichedItem>(
   shows: T[],
   windows: MdblistReleaseWindow[],
   targetCount = DEFAULT_LIMIT,
-  minimumCount = Math.min(MIN_WEEKLY_ITEMS, targetCount),
+  minimumCount = Math.min(MIN_WEEKLY_ITEMS, targetCount)
 ): { window: MdblistReleaseWindow; movies: T[]; shows: T[]; eligibleCounts: Array<{ days: number; movies: number; shows: number; total: number }> } {
   if (!windows.length) throw new Error("MDBList selection needs at least one release window");
   if (!Number.isInteger(targetCount) || targetCount < 1) throw new Error(`invalid MDBList target count: ${targetCount}`);
@@ -326,12 +327,7 @@ function formatFilterDiagnostics(spec: ListSpec, diagnostics: MdblistFilterDiagn
   return `- ${spec.mediaLabel}：榜单候选 ${diagnostics.listed}，60 天日期候选 ${diagnostics.serverDateCandidates}，日期淘汰 ${diagnostics.rejectedDate}，IMDb 淘汰 ${diagnostics.rejectedImdb}，剧季淘汰 ${diagnostics.rejectedSeason}，账本淘汰 ${diagnostics.rejectedHistory}，无有效 TMDB ID ${diagnostics.invalidTmdbId}，60 天内通过全部规则 ${diagnostics.eligible}，最终入选 ${diagnostics.selected}`;
 }
 
-function rejectedCandidate(
-  item: MdblistItem,
-  info: MdblistMediaInfo | null,
-  tmdbId: number | null,
-  reason: string,
-): MdblistRejectedCandidate {
+function rejectedCandidate(item: MdblistItem, info: MdblistMediaInfo | null, tmdbId: number | null, reason: string): MdblistRejectedCandidate {
   const imdbRating = ratingValue(info, "imdb");
   return {
     title: compact(item.title || "") || "未命名作品",
@@ -348,7 +344,10 @@ function formatRejectedCandidateDiagnostics(spec: ListSpec, diagnostics: Mdblist
   return [
     heading,
     "",
-    ...diagnostics.rejectedCandidates.map(candidate => `- ${candidate.title}｜TMDB ID：${candidate.tmdbId}｜上映日期：${candidate.releaseDate}｜IMDb：${candidate.imdbRating}｜淘汰原因：${candidate.reason}`),
+    ...diagnostics.rejectedCandidates.map(
+      candidate =>
+        `- ${candidate.title}｜TMDB ID：${candidate.tmdbId}｜上映日期：${candidate.releaseDate}｜IMDb：${candidate.imdbRating}｜淘汰原因：${candidate.reason}`
+    ),
     "",
   ];
 }
@@ -358,13 +357,10 @@ async function buildSection(
   key: string,
   candidatesToFetch: number,
   recommendedKeys: Set<string>,
-  releaseWindow: MdblistReleaseWindow,
+  releaseWindow: MdblistReleaseWindow
 ): Promise<{ candidates: SelectedMdblistCandidate[]; diagnostics: MdblistFilterDiagnostics }> {
   // 日期条件继续由 MDBList 服务端执行；同时读取同一榜单的未过滤计数，供只读诊断产物解释日期层淘汰量。
-  const [allItems, items] = await Promise.all([
-    fetchListItems(spec, key, candidatesToFetch),
-    fetchListItems(spec, key, candidatesToFetch, releaseWindow),
-  ]);
+  const [allItems, items] = await Promise.all([fetchListItems(spec, key, candidatesToFetch), fetchListItems(spec, key, candidatesToFetch, releaseWindow)]);
   const diagnostics: MdblistFilterDiagnostics = {
     listed: allItems.length,
     serverDateCandidates: items.length,
@@ -395,7 +391,9 @@ async function buildSection(
     const imdbRating = ratingValue(candidate.info, "imdb");
     if (imdbRating === null || imdbRating < MIN_IMDB_RATING) {
       diagnostics.rejectedImdb += 1;
-      diagnostics.rejectedCandidates.push(rejectedCandidate(item, candidate.info, tmdbId, imdbRating === null ? "IMDb 评分缺失" : `IMDb ${imdbRating.toFixed(1)} < ${MIN_IMDB_RATING.toFixed(1)}`));
+      diagnostics.rejectedCandidates.push(
+        rejectedCandidate(item, candidate.info, tmdbId, imdbRating === null ? "IMDb 评分缺失" : `IMDb ${imdbRating.toFixed(1)} < ${MIN_IMDB_RATING.toFixed(1)}`)
+      );
       continue;
     }
     if (spec.mediaType === "show" && latestStartedSeasonNumber(candidate.info?.seasons) === null) {
@@ -435,7 +433,7 @@ export async function buildMdblistWeeklySource(
     candidatesToFetch = candidateLimit(),
     ledgerFile = mdblistLedgerPath(),
     excludePostPath = "",
-  }: { candidatesToFetch?: number; ledgerFile?: string; excludePostPath?: string } = {},
+  }: { candidatesToFetch?: number; ledgerFile?: string; excludePostPath?: string } = {}
 ): Promise<string> {
   const key = apiKey();
   const specs = listSpecs();
@@ -452,7 +450,7 @@ export async function buildMdblistWeeklySource(
     section.diagnostics.selected = selectedBySection[index].length;
   });
   const sourceSections = selectedBySection.map((selected, index) =>
-    selected.length ? [`# ${specs[index].mediaLabel}候选`, "", ...selected.map((entry, rank) => sourceBlock(entry, rank, specs[index])), ""] : [],
+    selected.length ? [`# ${specs[index].mediaLabel}候选`, "", ...selected.map((entry, rank) => sourceBlock(entry, rank, specs[index])), ""] : []
   );
   return [
     `# 每周影视推荐候选源｜${date}`,
@@ -488,7 +486,7 @@ async function main(): Promise<void> {
       candidatesToFetch: Number.isInteger(candidatesToFetch) && candidatesToFetch > 0 ? candidatesToFetch : candidateLimit(),
       ledgerFile: stringArg(args, "ledger-file", mdblistLedgerPath()),
       excludePostPath: stringArg(args, "exclude-post-path"),
-    }),
+    })
   );
 }
 

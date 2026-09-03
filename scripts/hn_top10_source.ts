@@ -179,9 +179,7 @@ export function selectTopCommented(items: HnItem[]): HnItem[] {
 export async function buildHnSource(): Promise<string> {
   // Phase 1: fetch top 30 metadata in parallel, sort by comment count, keep top 10
   const topIds = await fetchTopIds(HN_CANDIDATE_COUNT);
-  const rawItems = await Promise.all(
-    topIds.map(id => fetchJson<HnItem>(hnApiItem(id), { timeoutMs: 12_000 }).catch(() => null))
-  );
+  const rawItems = await Promise.all(topIds.map(id => fetchJson<HnItem>(hnApiItem(id), { timeoutMs: 12_000 }).catch(() => null)));
   const sorted = selectTopCommented(rawItems.filter((item): item is HnItem => item !== null));
 
   // Phase 2: fetch original excerpts + comments for top 10
@@ -203,12 +201,13 @@ export async function buildHnSource(): Promise<string> {
       `- HN 讨论：${payload.hn_link}`,
       `- 原文正文：${originalExcerpt || payload.source_text || "未抓取到可读正文；只能依据标题、链接和 HN 讨论保守处理。"}`,
       `- HN 评论样本：${commentExcerpt || "暂无足够长的可读评论样本；评论总结必须保守。"}`,
-      "",
+      ""
     );
   }
   const body = lines.join("\n");
   const counts = evidenceCounts(body);
-  if (counts.original < HN_MIN_ORIGINAL_EVIDENCE_COUNT) throw new Error(`low-signal HN source output: original=${counts.original}, comments=${counts.comments}`);
+  if (counts.original < HN_MIN_ORIGINAL_EVIDENCE_COUNT)
+    throw new Error(`low-signal HN source output: original=${counts.original}, comments=${counts.comments}`);
   lines.push("===ARCHIVE_PAYLOAD===", JSON.stringify({ items }, null, 2));
   return `${lines.join("\n").trim()}\n`;
 }

@@ -64,7 +64,11 @@ function main(): void {
     };
   });
 
-  fs.writeFileSync(path.join(assetDir, outFile), `${JSON.stringify({ version: METADATA_VERSION, archiveDate: result.date, series: REDDIT_LIFE_VIDEO_SERIES, videos }, null, 2)}\n`, "utf8");
+  fs.writeFileSync(
+    path.join(assetDir, outFile),
+    `${JSON.stringify({ version: METADATA_VERSION, archiveDate: result.date, series: REDDIT_LIFE_VIDEO_SERIES, videos }, null, 2)}\n`,
+    "utf8"
+  );
   fs.writeFileSync(path.join(assetDir, assetsFile), `${videos.map(video => video.videoAsset).join("\n")}\n`, "utf8");
 
   const withMetadata = videos.filter(video => "tags" in video).length;

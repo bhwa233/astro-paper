@@ -17,26 +17,18 @@ function yamlString(value: string): string {
 
 function sourceSlug(canonicalUrl: string, sourceTitle: string): string {
   const pathname = new URL(canonicalUrl).pathname.replace(/\/$/, "");
-  const last = decodeURIComponent(
-    pathname.split("/").filter(Boolean).at(-1) || ""
-  );
+  const last = decodeURIComponent(pathname.split("/").filter(Boolean).at(-1) || "");
   const slug = slugify(last || sourceTitle, {
     lower: true,
     strict: true,
     trim: true,
   });
-  return (
-    slug || createHash("sha256").update(canonicalUrl).digest("hex").slice(0, 12)
-  );
+  return slug || createHash("sha256").update(canonicalUrl).digest("hex").slice(0, 12);
 }
 
 function sourceDate(canonicalUrl: string, publishedAt: string): string {
-  const pathDate = new URL(canonicalUrl).pathname.match(
-    /\/(20\d{2})\/(0[1-9]|1[0-2])\/([0-2]\d|3[01])(?:\/|$)/
-  );
-  return pathDate
-    ? `${pathDate[1]}-${pathDate[2]}-${pathDate[3]}`
-    : publishedAt.slice(0, 10);
+  const pathDate = new URL(canonicalUrl).pathname.match(/\/(20\d{2})\/(0[1-9]|1[0-2])\/([0-2]\d|3[01])(?:\/|$)/);
+  return pathDate ? `${pathDate[1]}-${pathDate[2]}-${pathDate[3]}` : publishedAt.slice(0, 10);
 }
 
 export function archiveSubstackTranslation(params: {
@@ -59,38 +51,20 @@ export function archiveSubstackTranslation(params: {
   let filename = `${prefix}.md`;
   let relative = path.join("src", "content", "posts", "zh-cn", filename);
   let absolute = path.join(params.repo, relative);
-  if (
-    fs.existsSync(absolute) &&
-    !fs
-      .readFileSync(absolute, "utf8")
-      .includes(`  url: ${yamlString(params.canonicalUrl)}`)
-  ) {
-    const identity = createHash("sha256")
-      .update(params.canonicalUrl)
-      .digest("hex")
-      .slice(0, 8);
+  if (fs.existsSync(absolute) && !fs.readFileSync(absolute, "utf8").includes(`  url: ${yamlString(params.canonicalUrl)}`)) {
+    const identity = createHash("sha256").update(params.canonicalUrl).digest("hex").slice(0, 8);
     filename = `${prefix}-${identity}.md`;
     relative = path.join("src", "content", "posts", "zh-cn", filename);
     absolute = path.join(params.repo, relative);
   }
   const title = params.translatedTitle;
-  const authorization = params.publication.authorizedTranslation
-    ? "经授权翻译"
-    : "中文翻译";
+  const authorization = params.publication.authorizedTranslation ? "经授权翻译" : "中文翻译";
   const wechat = params.publication.wechat;
   if (wechat.enabled && wechat.cover === "first-image" && !params.firstImage) {
-    throw new Error(
-      `${params.publication.key} requires a first article image for its WeChat cover`
-    );
+    throw new Error(`${params.publication.key} requires a first article image for its WeChat cover`);
   }
   const wechatLines = wechat.enabled
-    ? [
-        "wechat:",
-        "  enabled: true",
-        ...(wechat.cover === "first-image"
-          ? [`  cover: ${yamlString(params.firstImage!)}`]
-          : []),
-      ]
+    ? ["wechat:", "  enabled: true", ...(wechat.cover === "first-image" ? [`  cover: ${yamlString(params.firstImage!)}`] : [])]
     : [];
   const lines = [
     "---",

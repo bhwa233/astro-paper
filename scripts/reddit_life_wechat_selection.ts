@@ -33,7 +33,8 @@ export type RedditLifeWechatSelection = {
 
 function validRank(value: unknown, candidateCount: number, label: string): number {
   const rank = Number(value);
-  if (!Number.isInteger(rank) || rank < 1 || rank > candidateCount) throw new Error(`${label} refers to candidate ${String(value)}, which is not in the article`);
+  if (!Number.isInteger(rank) || rank < 1 || rank > candidateCount)
+    throw new Error(`${label} refers to candidate ${String(value)}, which is not in the article`);
   return rank;
 }
 
@@ -53,7 +54,8 @@ export function validateRedditLifeWechatSelection(raw: unknown, candidateCount: 
   if (!Number.isInteger(candidateCount) || candidateCount < 1) throw new Error(`invalid Reddit life WeChat candidate count: ${candidateCount}`);
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life WeChat selection must be a JSON object");
   const value = raw as Record<string, unknown>;
-  if (!Array.isArray(value.selected) || !Array.isArray(value.rejected)) throw new Error("Reddit life WeChat selection must contain selected and rejected arrays");
+  if (!Array.isArray(value.selected) || !Array.isArray(value.rejected))
+    throw new Error("Reddit life WeChat selection must contain selected and rejected arrays");
   if (value.selected.length > REDDIT_LIFE_WECHAT_TOTAL_POSTS) {
     throw new Error(`Reddit life WeChat selection picked ${value.selected.length} posts, at most ${REDDIT_LIFE_WECHAT_TOTAL_POSTS} are allowed`);
   }
@@ -62,7 +64,12 @@ export function validateRedditLifeWechatSelection(raw: unknown, candidateCount: 
     if (!rawEntry || typeof rawEntry !== "object" || Array.isArray(rawEntry)) throw new Error(`Reddit life WeChat selected entry ${index + 1} is invalid`);
     const entry = rawEntry as Record<string, unknown>;
     const rank = validRank(entry.rank, candidateCount, `Reddit life WeChat selected entry ${index + 1}`);
-    return { rank, longTail: score(entry.longTail, "longTail", rank), resonance: score(entry.resonance, "resonance", rank), reason: reason(entry.reason, rank) };
+    return {
+      rank,
+      longTail: score(entry.longTail, "longTail", rank),
+      resonance: score(entry.resonance, "resonance", rank),
+      reason: reason(entry.reason, rank),
+    };
   });
   const categories = new Set<string>(REDDIT_LIFE_WECHAT_REJECTION_CATEGORIES);
   const rejected = value.rejected.map((rawEntry, index): RedditLifeWechatRejectedPost => {
@@ -103,10 +110,7 @@ export function splitRedditLifeWechatCandidates(candidates: RedditLifeCandidate[
     throw new Error(`Reddit life WeChat can split at most ${REDDIT_LIFE_WECHAT_TOTAL_POSTS} selected posts`);
   }
   if (candidates.length < REDDIT_LIFE_WECHAT_TOTAL_POSTS) return candidates.length ? [candidates] : [];
-  return [
-    candidates.filter((_, index) => index % 2 === 0),
-    candidates.filter((_, index) => index % 2 === 1),
-  ];
+  return [candidates.filter((_, index) => index % 2 === 0), candidates.filter((_, index) => index % 2 === 1)];
 }
 
 function storyExcerpts(body: string): string[] {
@@ -119,8 +123,17 @@ function storyExcerpts(body: string): string[] {
 function candidateEvidence(candidates: RedditLifeCandidate[]): string {
   return candidates
     .map(candidate => {
-      const stories = storyExcerpts(candidate.body).map((story, index) => `${index + 1}. ${story}`).join("\n");
-      return [`## 候选 ${candidate.rank}`, `标题：${candidate.title}`, `社区：r/${candidate.subreddit}`, `热度：${candidate.points}`, "代表回答：", stories].join("\n");
+      const stories = storyExcerpts(candidate.body)
+        .map((story, index) => `${index + 1}. ${story}`)
+        .join("\n");
+      return [
+        `## 候选 ${candidate.rank}`,
+        `标题：${candidate.title}`,
+        `社区：r/${candidate.subreddit}`,
+        `热度：${candidate.points}`,
+        "代表回答：",
+        stories,
+      ].join("\n");
     })
     .join("\n\n");
 }

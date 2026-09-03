@@ -128,9 +128,11 @@ export function parseRedditLifeCandidates(markdown: string, limit = Number.POSIT
     const source = block.match(/^- (?:\*\*)?来源(?:\*\*)?：\[r\/([^\]]+)\]\([^\n]+\)$/m);
     const url = block.match(/^- (?:\*\*)?帖子(?:\*\*)?：\s*(https:\/\/[^\s]+)\s*$/m)?.[1] || "";
     const heat = block.match(/^- \*\*热度\*\*：\s*([^\n]+)$/m)?.[1] || block.match(/^- ⭐\s*(.+)$/m)?.[1] || "";
-    if (!heading || Number(heading[1]) !== index + 1 || !source || !url) throw new Error(`Reddit life article block ${index + 1} violates the handoff contract`);
+    if (!heading || Number(heading[1]) !== index + 1 || !source || !url)
+      throw new Error(`Reddit life article block ${index + 1} violates the handoff contract`);
     const subreddit = source[1];
-    if (!REDDIT_LIFE_SUBREDDITS.some(item => item.toLowerCase() === subreddit.toLowerCase())) throw new Error(`Reddit life article has an unsupported subreddit: ${subreddit}`);
+    if (!REDDIT_LIFE_SUBREDDITS.some(item => item.toLowerCase() === subreddit.toLowerCase()))
+      throw new Error(`Reddit life article has an unsupported subreddit: ${subreddit}`);
     const commentMatch = heat.match(/(?:·|\s)([\d,]+)\s*评论/i);
     const numComments = Number((commentMatch?.[1] || "0").replaceAll(",", ""));
     if (!Number.isInteger(numComments) || numComments < 0) throw new Error(`Reddit life article has an invalid comment count for rank ${index + 1}`);
@@ -230,7 +232,10 @@ export function dropTrailingStories(markdown: string, drop: number): string {
     kept.unshift(block);
   }
   const keptFirstHeading = kept.findIndex(block => HEADING_BLOCK.test(block));
-  const keptTitles = kept.slice(keptFirstHeading).filter(block => HEADING_BLOCK.test(block)).map(block => block.replace(/^##\s+/, ""));
+  const keptTitles = kept
+    .slice(keptFirstHeading)
+    .filter(block => HEADING_BLOCK.test(block))
+    .map(block => block.replace(/^##\s+/, ""));
   kept.splice(0, keptFirstHeading, redditLifeWechatOpening(keptTitles));
   return `${front}\n${[kept.join("\n\n"), footer].filter(Boolean).join("\n\n")}\n`;
 }

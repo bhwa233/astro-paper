@@ -22,7 +22,9 @@ export async function callAi(prompt: string, model: string, jsonMode = false): P
     jsonMode,
   });
   if (result.usedFallback) {
-    writeStderr(`WARN: primary AI request failed; using fallback model ${result.config.model} via ${result.config.baseUrl}${result.primaryError ? ` | primary failure: ${result.primaryError}` : ""}`);
+    writeStderr(
+      `WARN: primary AI request failed; using fallback model ${result.config.model} via ${result.config.baseUrl}${result.primaryError ? ` | primary failure: ${result.primaryError}` : ""}`
+    );
   }
   return result;
 }

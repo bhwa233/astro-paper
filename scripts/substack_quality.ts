@@ -1,14 +1,7 @@
 import { compact } from "./blog_common.ts";
 
 export type SubstackQualityViolation = {
-  code:
-    | "body-h1"
-    | "description"
-    | "malformed-emphasis"
-    | "missing-mention"
-    | "orphan-markup"
-    | "promo"
-    | "title-suffix";
+  code: "body-h1" | "description" | "malformed-emphasis" | "missing-mention" | "orphan-markup" | "promo" | "title-suffix";
   file: string;
   message: string;
 };
@@ -41,18 +34,10 @@ function frontmatterString(frontmatter: string, field: string): string {
 
 export function validSubstackDescription(value: string): boolean {
   const description = compact(value);
-  return (
-    [...description].length >= 4 &&
-    [...description].length <= 20 &&
-    !/^本文/.test(description) &&
-    !/[。！？!?；;，,：:]$/.test(description)
-  );
+  return [...description].length >= 4 && [...description].length <= 20 && !/^本文/.test(description) && !/[。！？!?；;，,：:]$/.test(description);
 }
 
-export function substackPostQualityViolations(
-  text: string,
-  file: string
-): SubstackQualityViolation[] {
+export function substackPostQualityViolations(text: string, file: string): SubstackQualityViolation[] {
   const { frontmatter, body } = splitPost(text);
   const violations: SubstackQualityViolation[] = [];
   const description = frontmatterString(frontmatter, "description");
@@ -61,8 +46,7 @@ export function substackPostQualityViolations(
     violations.push({
       code: "description",
       file,
-      message:
-        "description 必须为 4-20 个码点的完整短语，不以「本文」开头或标点结尾",
+      message: "description 必须为 4-20 个码点的完整短语，不以「本文」开头或标点结尾",
     });
   }
   if (/^#\s+/m.test(body)) {
@@ -115,7 +99,5 @@ export function substackPostQualityViolations(
 export function assertSubstackPostQuality(text: string, file: string): void {
   const violations = substackPostQualityViolations(text, file);
   if (!violations.length) return;
-  throw new Error(
-    `${file} failed newsletter content quality: ${violations.map(item => `${item.code}: ${item.message}`).join("; ")}`
-  );
+  throw new Error(`${file} failed newsletter content quality: ${violations.map(item => `${item.code}: ${item.message}`).join("; ")}`);
 }

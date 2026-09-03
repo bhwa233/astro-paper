@@ -46,7 +46,7 @@ export function loadRecommendationKeys<T extends Recommendation>(spec: Recommend
   return new Set(
     readLedger(spec, file)
       .recommendations.filter(entry => !excludePostPath || entry.postPath !== excludePostPath)
-      .map(entry => entry.key),
+      .map(entry => entry.key)
   );
 }
 
@@ -54,7 +54,7 @@ export function appendRecommendations<T extends Recommendation>(
   spec: RecommendationLedgerSpec<T>,
   recommendations: T[],
   meta: { archivedAt: string; postPath: string },
-  file: string,
+  file: string
 ): void {
   if (!recommendations.length) throw new Error(`cannot archive an empty ${spec.label} recommendation selection`);
   const unique = new Map<string, T>();
@@ -75,7 +75,7 @@ export function appendRecommendations<T extends Recommendation>(
       ...recommendation,
       archivedAt: meta.archivedAt,
       postPath: meta.postPath,
-    })),
+    }))
   );
   writeJsonLedger(file, ledger);
 }

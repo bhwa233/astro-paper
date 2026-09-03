@@ -70,7 +70,11 @@ function parseRedditSourcePolicy(value: unknown, sha256: unknown): ParsedRedditS
     "max_comment_chars",
   ] as const;
   for (const field of integerFields) {
-    if (typeof record[field] !== "number" || !Number.isInteger(record[field]) || record[field] < (field === "min_score" || field === "direct_reply_limit" ? 0 : 1)) {
+    if (
+      typeof record[field] !== "number" ||
+      !Number.isInteger(record[field]) ||
+      record[field] < (field === "min_score" || field === "direct_reply_limit" ? 0 : 1)
+    ) {
       throw new Error(`Reddit source API policy has invalid ${field}: ${String(record[field])}`);
     }
   }
@@ -111,9 +115,7 @@ function parseRedditSourcePolicy(value: unknown, sha256: unknown): ParsedRedditS
 
 function parseRedditSubredditStats(value: unknown, policy: RedditSourcePolicy, category: RedditCategory): RedditSubredditStats[] {
   if (!Array.isArray(value)) throw new Error("Reddit source API returned invalid subreddit_stats");
-  const expected = new Map(
-    category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const),
-  );
+  const expected = new Map(category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const));
   const seen = new Set<string>();
   const stats = value.map((raw, index) => {
     if (!raw || typeof raw !== "object") throw new Error(`Reddit source API subreddit_stats[${index}] is invalid`);
@@ -166,8 +168,9 @@ function parseRedditSubredditStats(value: unknown, policy: RedditSourcePolicy, c
 }
 
 export function redditSubredditStatsLogLines(value: unknown, policy: RedditSourcePolicy, category: RedditCategory): string[] {
-  return parseRedditSubredditStats(value, policy, category).map(stat =>
-    `[reddit-source] r/${stat.subreddit} category=${stat.category} listing=${stat.listing} min_score=${stat.min_score} score_pass=${stat.score_pass} shortlisted=${stat.shortlisted} detail_ok=${stat.detail_ok} final=${stat.final}${stat.error_code ? ` error_code=${stat.error_code}` : ""}`,
+  return parseRedditSubredditStats(value, policy, category).map(
+    stat =>
+      `[reddit-source] r/${stat.subreddit} category=${stat.category} listing=${stat.listing} min_score=${stat.min_score} score_pass=${stat.score_pass} shortlisted=${stat.shortlisted} detail_ok=${stat.detail_ok} final=${stat.final}${stat.error_code ? ` error_code=${stat.error_code}` : ""}`
   );
 }
 
@@ -197,13 +200,18 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
       policy.detailCommentLimit !== requestedLimits.detailCommentLimit)
   ) {
     throw new Error(
-      `Reddit source API did not apply requested comment limits: ` +
-      `${policy.topLevelCommentLimit}/${policy.directReplyLimit}/${policy.detailCommentLimit}`,
+      `Reddit source API did not apply requested comment limits: ` + `${policy.topLevelCommentLimit}/${policy.directReplyLimit}/${policy.detailCommentLimit}`
     );
   }
   const facts = parseRedditSourceFacts(payload.source);
   const maxItems = category.subreddits.length * policy.listingLimit;
-  if (typeof payload.item_count !== "number" || !Number.isInteger(payload.item_count) || payload.item_count !== facts.length || facts.length < 1 || facts.length > maxItems) {
+  if (
+    typeof payload.item_count !== "number" ||
+    !Number.isInteger(payload.item_count) ||
+    payload.item_count !== facts.length ||
+    facts.length < 1 ||
+    facts.length > maxItems
+  ) {
     throw new Error(`Reddit source API expected 1-${maxItems} ranked items, received ${String(payload.item_count)}`);
   }
   const expectedSubreddits = new Set(category.subreddits.map(subreddit => subreddit.toLowerCase()));
@@ -238,25 +246,21 @@ function parseRedditSourceJobResponse(payload: RedditSourceJobApiResponse, date:
   if (payload.state !== "queued" && payload.state !== "running" && payload.state !== "ready" && payload.state !== "failed") {
     throw new Error(`Reddit source job returned an unsupported state: ${String(payload.state)}`);
   }
-  const result = payload.result && typeof payload.result === "object" && !Array.isArray(payload.result)
-    ? payload.result as RedditSourceApiResponse
-    : null;
+  const result = payload.result && typeof payload.result === "object" && !Array.isArray(payload.result) ? (payload.result as RedditSourceApiResponse) : null;
   const code = typeof payload.error_code === "string" && payload.error_code.trim() ? payload.error_code.trim() : "REDDIT_SOURCE_JOB_FAILED";
-  const message = typeof payload.error_message === "string" && payload.error_message.trim() ? payload.error_message.trim() : "Reddit source job failed without details";
+  const message =
+    typeof payload.error_message === "string" && payload.error_message.trim() ? payload.error_message.trim() : "Reddit source job failed without details";
   const deadlineAt = typeof payload.deadline_at === "string" && !Number.isNaN(Date.parse(payload.deadline_at)) ? payload.deadline_at : "";
-  const progress = payload.progress && typeof payload.progress === "object" && !Array.isArray(payload.progress)
-    ? payload.progress as Record<string, unknown>
-    : null;
+  const progress =
+    payload.progress && typeof payload.progress === "object" && !Array.isArray(payload.progress) ? (payload.progress as Record<string, unknown>) : null;
   const phase = progress?.phase === "listing" || progress?.phase === "details" ? progress.phase : "";
-  const completed = typeof progress?.details_completed === "number" && Number.isInteger(progress.details_completed)
-    ? progress.details_completed
-    : null;
-  const total = typeof progress?.details_total === "number" && Number.isInteger(progress.details_total)
-    ? progress.details_total
-    : null;
+  const completed = typeof progress?.details_completed === "number" && Number.isInteger(progress.details_completed) ? progress.details_completed : null;
+  const total = typeof progress?.details_total === "number" && Number.isInteger(progress.details_total) ? progress.details_total : null;
   const progressSummary = phase
     ? ` phase=${phase}${completed !== null && total !== null ? ` details=${completed}/${total}` : ""}${deadlineAt ? ` deadline=${deadlineAt}` : ""}`
-    : deadlineAt ? ` deadline=${deadlineAt}` : "";
+    : deadlineAt
+      ? ` deadline=${deadlineAt}`
+      : "";
   return { id: payload.id, state: payload.state, result, error: `${code}: ${message}`, progress: progressSummary };
 }
 

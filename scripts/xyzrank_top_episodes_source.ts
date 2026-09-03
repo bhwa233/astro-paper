@@ -66,7 +66,11 @@ async function fetchText(url: string): Promise<string> {
 }
 
 function decodeHtmlAttr(value = ""): string {
-  return value.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").trim();
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .trim();
 }
 
 function extractAudioUrl(html: string): string {
@@ -230,7 +234,7 @@ export async function buildXyzRankTopEpisodesSource(date: string, limit = episod
         episode.genres?.length ? `- 分类：${episode.genres.join(" / ")}` : "",
       ]
         .filter(Boolean)
-        .join("\n"),
+        .join("\n")
     ),
     "",
   ].join("\n");

@@ -70,7 +70,8 @@ export function validateRedditLifeVideoTitle(value: unknown, question: string): 
   if ([...title].length > REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS) {
     throw new Error(`Reddit life video title is ${[...title].length} characters, at most ${REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS} are allowed: ${title}`);
   }
-  if (/^(?:Reddit\s*)?(?:精选|高赞)?问答$/i.test(title)) throw new Error(`Reddit life video title must describe this issue instead of using the column name: ${title}`);
+  if (/^(?:Reddit\s*)?(?:精选|高赞)?问答$/i.test(title))
+    throw new Error(`Reddit life video title must describe this issue instead of using the column name: ${title}`);
   if (title === compact(question)) throw new Error("Reddit life video title must condense the question instead of copying it verbatim");
   return title;
 }
@@ -95,7 +96,9 @@ export function parseRedditLifeVideoQuestions(markdowns: string[]): RedditLifeVi
   let answerIndex = 0;
 
   for (const markdown of markdowns) {
-    for (const section of articleBody(markdown).split(/\r?\n## /).slice(1)) {
+    for (const section of articleBody(markdown)
+      .split(/\r?\n## /)
+      .slice(1)) {
       const newline = section.indexOf("\n");
       if (newline < 0) continue;
       const question = stripLatinGloss(section.slice(0, newline));

@@ -30,10 +30,7 @@ export function validateWeiboTrendingTitleSuffix(value: unknown, label = "Weibo 
 }
 
 /** 校验模型写的核心事件短语，也就是固定前缀后面的那半句。 */
-export function validateWeiboTrendingWechatTitleCore(
-  value: unknown,
-  label = "Weibo trending WeChat title core",
-): string {
+export function validateWeiboTrendingWechatTitleCore(value: unknown, label = "Weibo trending WeChat title core"): string {
   const raw = typeof value === "string" ? value : "";
   const core = compact(raw);
   if (!core || !hasChinese(core)) throw new Error(`${label} must contain Chinese text`);
@@ -65,22 +62,14 @@ export function validateWeiboTrendingWechatTitle(value: unknown, label = "Weibo 
   return title;
 }
 
-export function validateWeiboTrendingWechatDescription(
-  value: unknown,
-  label = "Weibo trending WeChat description",
-): string {
+export function validateWeiboTrendingWechatDescription(value: unknown, label = "Weibo trending WeChat description"): string {
   const raw = typeof value === "string" ? value : "";
   const description = compact(raw);
   if (!description || !hasChinese(description)) throw new Error(`${label} must contain Chinese text`);
   if (/\r|\n/.test(raw)) throw new Error(`${label} must stay on one line`);
   const length = [...description].length;
-  if (
-    length < WEIBO_TRENDING_WECHAT_DESCRIPTION_MIN_LENGTH ||
-    length > WEIBO_TRENDING_WECHAT_DESCRIPTION_MAX_LENGTH
-  ) {
-    throw new Error(
-      `${label} must contain ${WEIBO_TRENDING_WECHAT_DESCRIPTION_MIN_LENGTH}-${WEIBO_TRENDING_WECHAT_DESCRIPTION_MAX_LENGTH} characters`,
-    );
+  if (length < WEIBO_TRENDING_WECHAT_DESCRIPTION_MIN_LENGTH || length > WEIBO_TRENDING_WECHAT_DESCRIPTION_MAX_LENGTH) {
+    throw new Error(`${label} must contain ${WEIBO_TRENDING_WECHAT_DESCRIPTION_MIN_LENGTH}-${WEIBO_TRENDING_WECHAT_DESCRIPTION_MAX_LENGTH} characters`);
   }
   if (/^[#>*-]\s|```|\[[^\]]+\]\([^)]+\)/.test(description)) throw new Error(`${label} must be plain text`);
   if (/…{1,2}等\s*\d+\s*个话题/.test(description)) throw new Error(`${label} must summarize topics instead of listing titles`);

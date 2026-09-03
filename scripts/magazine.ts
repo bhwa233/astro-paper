@@ -5,12 +5,7 @@ import AdmZip from "adm-zip";
 import { XMLParser } from "fast-xml-parser";
 import { parseHtml } from "./html_dom.ts";
 import { bjtTimestamp, compact, ensureDir } from "./blog_common.ts";
-import {
-  hasArchivedMagazineIssue,
-  magazineIssueKey,
-  magazineLedgerPath,
-  type MagazineIssue,
-} from "./magazine_ledger.ts";
+import { hasArchivedMagazineIssue, magazineIssueKey, magazineLedgerPath, type MagazineIssue } from "./magazine_ledger.ts";
 
 const REPOSITORY = "hehonghui/awesome-english-ebooks";
 const MAX_EPUB_BYTES = 64 * 1024 * 1024;
@@ -71,14 +66,7 @@ function normalizedText(value = ""): string {
 }
 
 function extractArticleTitle(document: Document): string {
-  const selectors = [
-    '[itemprop="headline"]',
-    ".article__headline",
-    ".ny_article_h1_title",
-    ".te_title",
-    "h1",
-    "h2",
-  ];
+  const selectors = ['[itemprop="headline"]', ".article__headline", ".ny_article_h1_title", ".te_title", "h1", "h2"];
   for (const selector of selectors) {
     const title = [...document.querySelectorAll(selector)]
       .filter(node => !node.closest("nav, header, footer, [class*=navbar]"))
@@ -104,7 +92,12 @@ function economistExtract(html: string): ArticleExtraction {
     .filter(node => !node.closest(".link_navbar, nav, header, footer") && !/downloaded by|subscribers only/i.test(node.textContent || ""))
     .map(node => normalizedText(node.textContent || ""))
     .filter(text => text.length > 30);
-  return { originalTitle: extractArticleTitle(document), text: paragraphs.join("\n\n"), imageHrefs, drop: ECONOMIST_NON_ARTICLE_SECTIONS.has(section.toLowerCase()) };
+  return {
+    originalTitle: extractArticleTitle(document),
+    text: paragraphs.join("\n\n"),
+    imageHrefs,
+    drop: ECONOMIST_NON_ARTICLE_SECTIONS.has(section.toLowerCase()),
+  };
 }
 
 // --- The New Yorker --------------------------------------------------------
@@ -112,9 +105,7 @@ function newYorkerExtract(html: string): ArticleExtraction {
   const document = parseHtml(html);
   const article = document.querySelector(".article");
   if (!article) return { originalTitle: "", text: "", drop: true };
-  const paragraphs = [...article.querySelectorAll("p")]
-    .map(node => normalizedText(node.textContent || ""))
-    .filter(text => text.length > 30);
+  const paragraphs = [...article.querySelectorAll("p")].map(node => normalizedText(node.textContent || "")).filter(text => text.length > 30);
   return { originalTitle: extractArticleTitle(document), text: paragraphs.join("\n\n") };
 }
 
@@ -219,7 +210,10 @@ export function parseMagazineEpub(buffer: Buffer, config: MagazineConfig): Magaz
   const packageNode = opf?.package;
   const title = compact(packageNode?.metadata?.title || config.defaultEpubTitle);
   const manifest = new Map(
-    asArray<Record<string, string>>(packageNode?.manifest?.item).map(item => [item.id, { id: item.id, href: item.href, mediaType: item["media-type"] } satisfies ManifestItem]),
+    asArray<Record<string, string>>(packageNode?.manifest?.item).map(item => [
+      item.id,
+      { id: item.id, href: item.href, mediaType: item["media-type"] } satisfies ManifestItem,
+    ])
   );
   const spine = asArray<Record<string, string>>(packageNode?.spine?.itemref);
   const articles: Omit<MagazineArticle, "rank">[] = [];
@@ -251,12 +245,7 @@ export function parseMagazineEpub(buffer: Buffer, config: MagazineConfig): Magaz
   return { title, articles: articles.map((article, index) => ({ ...article, rank: index + 1 })) };
 }
 
-export function writeMagazineArticleImages(
-  config: MagazineConfig,
-  issueDate: string,
-  parsed: MagazineParsedIssue,
-  outputRoot: string,
-): Map<number, string> {
+export function writeMagazineArticleImages(config: MagazineConfig, issueDate: string, parsed: MagazineParsedIssue, outputRoot: string): Map<number, string> {
   const imageDirectory = config.imageDirectory;
   if (!imageDirectory) return new Map();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(issueDate)) throw new Error(`invalid magazine image issue date: ${issueDate}`);
@@ -273,7 +262,9 @@ export function writeMagazineArticleImages(
 }
 
 async function githubJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, { headers: { Accept: "application/vnd.github+json", ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) } });
+  const response = await fetch(url, {
+    headers: { Accept: "application/vnd.github+json", ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) },
+  });
   if (!response.ok) throw new MagazineIssueUnavailableError(`GitHub API HTTP ${response.status}: ${url}`);
   return (await response.json()) as T;
 }
@@ -284,7 +275,8 @@ async function downloadEpub(url: string, config: MagazineConfig): Promise<Buffer
   const length = Number(response.headers.get("content-length") || "0");
   if (length > MAX_EPUB_BYTES) throw new Error(`${config.name} EPUB content-length exceeds ${MAX_EPUB_BYTES} byte safety limit`);
   const bytes = Buffer.from(await response.arrayBuffer());
-  if (!bytes.length || bytes.length > MAX_EPUB_BYTES || bytes.subarray(0, 2).toString() !== "PK") throw new Error(`${config.name} source is not a valid EPUB ZIP payload`);
+  if (!bytes.length || bytes.length > MAX_EPUB_BYTES || bytes.subarray(0, 2).toString() !== "PK")
+    throw new Error(`${config.name} source is not a valid EPUB ZIP payload`);
   return bytes;
 }
 
@@ -293,7 +285,7 @@ export function renderMagazineSource(
   issue: MagazineIssue,
   parsed: MagazineParsedIssue,
   issueUrl: string,
-  articleImages: ReadonlyMap<number, string> = new Map(),
+  articleImages: ReadonlyMap<number, string> = new Map()
 ): string {
   return [
     `# 《${config.name}》本期候选｜${issue.issueDate}`,
@@ -333,12 +325,10 @@ export async function buildMagazineWeeklySource(
     excludePostPath?: string;
     excludePostPathForIssueDate?: (issueDate: string) => string;
     imageOutputRoot?: string;
-  } = {},
+  } = {}
 ): Promise<string> {
   const root = await githubJson<GithubEntry[]>(`https://api.github.com/repos/${REPOSITORY}/contents/${config.dir}`);
-  const dirs = root
-    .filter(entry => entry.type === "dir" && config.dirRe.test(entry.name))
-    .sort((a, b) => b.name.localeCompare(a.name));
+  const dirs = root.filter(entry => entry.type === "dir" && config.dirRe.test(entry.name)).sort((a, b) => b.name.localeCompare(a.name));
   if (!dirs.length) throw new MagazineIssueUnavailableError(`${config.name} source has no dated issue directories`);
   // Newest issue directories can exist as placeholders before their EPUB is uploaded; pick the
   // latest non-future directory that actually contains an EPUB (scan a bounded number of them).
@@ -364,7 +354,8 @@ export async function buildMagazineWeeklySource(
   const epubSha256 = crypto.createHash("sha256").update(epubBytes).digest("hex");
   const issue: MagazineIssue = { key: magazineIssueKey(config.keyPrefix, issueDate, epubSha256), issueDate, sourceCommit, epubSha256 };
   const excludedPostPath = excludePostPathForIssueDate?.(issueDate) || excludePostPath;
-  if (hasArchivedMagazineIssue(issue, config.keyPrefix, ledgerFile, excludedPostPath)) throw new MagazineIssueAlreadyArchivedError(`${config.name} issue ${issueDate} is already archived`);
+  if (hasArchivedMagazineIssue(issue, config.keyPrefix, ledgerFile, excludedPostPath))
+    throw new MagazineIssueAlreadyArchivedError(`${config.name} issue ${issueDate} is already archived`);
   const parsed = parseMagazineEpub(epubBytes, config);
   if (config.imageDirectory && !imageOutputRoot) throw new Error(`${config.name} image output root is required`);
   const articleImages = imageOutputRoot ? writeMagazineArticleImages(config, issueDate, parsed, imageOutputRoot) : new Map<number, string>();

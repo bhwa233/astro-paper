@@ -1,7 +1,16 @@
 // Reddit 分类精选规则层：模型只返回语义 JSON（中文标题 + Markdown 综合摘要），
 // 事实字段（热度/来源/帖子链接）一律取自脚本抓取的 source，
 // 由这里确定性地组装成 archive 层可消费的中间契约 Markdown。
-import { ARCHIVE_PAYLOAD_MARKER, bulletValue, decodeMarkdownBlock, extractBullets, hasChinese, looksLowSignal, normalizeMarkdownBlock, parseModelJsonObject } from "./compose_common.ts";
+import {
+  ARCHIVE_PAYLOAD_MARKER,
+  bulletValue,
+  decodeMarkdownBlock,
+  extractBullets,
+  hasChinese,
+  looksLowSignal,
+  normalizeMarkdownBlock,
+  parseModelJsonObject,
+} from "./compose_common.ts";
 
 // 单帖摘要下限；去掉空白后计长，避免模型退回一两句抽象概括。栏目可以各自覆盖：
 // 讨论体量差得很远，一个数字压不住四个栏目。
@@ -62,7 +71,7 @@ export type RedditSummaryFormat = RedditCategory["summaryFormat"];
 
 const CATEGORY_BY_KEY = new Map<RedditCategoryKey, RedditCategory>(REDDIT_CATEGORIES.map(category => [category.key, category]));
 const CATEGORY_BY_SUBREDDIT = new Map<string, RedditCategoryKey>(
-  REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const)),
+  REDDIT_CATEGORIES.flatMap(category => category.subreddits.map(subreddit => [subreddit.toLowerCase(), category.key] as const))
 );
 
 // description 只喂 frontmatter，不进正文；正文首段因此不必再兼任摘要句。
@@ -126,7 +135,11 @@ export function parseSourceFacts(source: string): RedditSourceFact[] {
       rank: index + 1,
       category: redditCategory(bulletValue(bullets, "栏目"), subreddit),
       subreddit,
-      points: bullets.find(b => b.startsWith("⭐"))?.replace(/^⭐\s*/, "").trim() ?? "",
+      points:
+        bullets
+          .find(b => b.startsWith("⭐"))
+          ?.replace(/^⭐\s*/, "")
+          .trim() ?? "",
       publishedAt: bulletValue(bullets, "发布时间"),
       url: bulletValue(bullets, "帖子链接"),
     };
@@ -139,7 +152,7 @@ export function parseRedditItemOutcome(
   raw: string,
   expectedRank: number,
   minChars = SUMMARY_MIN_CHARS,
-  summaryFormat: RedditSummaryFormat = "numbered",
+  summaryFormat: RedditSummaryFormat = "numbered"
 ): RedditModelItem | null {
   const payload = parseModelJsonObject(raw, "Reddit item summary");
   if (payload.skip === true) {
@@ -154,12 +167,16 @@ export function parseRedditItemSummary(
   raw: string,
   expectedRank: number,
   minChars = SUMMARY_MIN_CHARS,
-  summaryFormat: RedditSummaryFormat = "numbered",
+  summaryFormat: RedditSummaryFormat = "numbered"
 ): RedditModelItem {
   const payload = parseModelJsonObject(raw, "Reddit item summary");
   const rank = Number(payload.rank);
-  const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
-  const description = String(payload.description || "").replace(/\s+/g, " ").trim();
+  const titleZh = String(payload.title_zh || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const description = String(payload.description || "")
+    .replace(/\s+/g, " ")
+    .trim();
   const summary = normalizeMarkdownBlock(payload.summary);
   if (rank !== expectedRank) throw new Error(`Reddit item summary rank mismatch: ${rank} vs ${expectedRank}`);
   if (!titleZh || !hasChinese(titleZh)) throw new Error(`Reddit item ${expectedRank} needs a Chinese title`);
@@ -185,7 +202,9 @@ export function parseRedditItemSummary(
 export function parseRedditTitleTranslation(raw: string, expectedRank: number): RedditTitleTranslation {
   const payload = parseModelJsonObject(raw, "Reddit title translation");
   const rank = Number(payload.rank);
-  const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
+  const titleZh = String(payload.title_zh || "")
+    .replace(/\s+/g, " ")
+    .trim();
   if (rank !== expectedRank) throw new Error(`Reddit title translation rank mismatch: ${rank} vs ${expectedRank}`);
   if (!titleZh || !hasChinese(titleZh)) throw new Error(`Reddit title translation ${expectedRank} needs a Chinese title`);
   if ([...titleZh].length > TITLE_MAX_CHARS) {
@@ -203,11 +222,7 @@ function sourceBlocks(source: string): string[] {
     .filter(block => /^\d+\.\s*\[r\//.test(block));
 }
 
-export function parseRedditItemSummaries(
-  source: string,
-  minChars = SUMMARY_MIN_CHARS,
-  summaryFormat: RedditSummaryFormat = "numbered",
-): RedditModelItem[] {
+export function parseRedditItemSummaries(source: string, minChars = SUMMARY_MIN_CHARS, summaryFormat: RedditSummaryFormat = "numbered"): RedditModelItem[] {
   const blocks = sourceBlocks(source);
   if (!blocks.length) throw new Error("Reddit combined source has no item blocks");
   return blocks.map((block, index) => {
@@ -223,7 +238,7 @@ export function parseRedditItemSummaries(
       }),
       rank,
       minChars,
-      summaryFormat,
+      summaryFormat
     );
   });
 }

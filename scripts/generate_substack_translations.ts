@@ -2,21 +2,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import {
-  booleanArg,
-  ensureDir,
-  parseArgs,
-  repoRoot,
-  envBool,
-  stringArg,
-  writeStderr,
-  writeStdout,
-} from "./blog_common.ts";
-import {
-  callBlogAiWithFailover,
-  envAiConfig,
-  envFallbackAiConfig,
-} from "./blog_ai_client.ts";
+import { booleanArg, ensureDir, parseArgs, repoRoot, envBool, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { callBlogAiWithFailover, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
 import { archiveSubstackTranslation } from "./substack_archive.ts";
 import {
   buildTranslationPrompt,
@@ -26,27 +13,11 @@ import {
   SUBSTACK_PROMPT_VERSION,
   restoreTranslation,
 } from "./substack_content.ts";
-import {
-  fetchNewsletterFeed,
-  type SubstackFeedItem,
-} from "./substack_feed.ts";
+import { fetchNewsletterFeed, type SubstackFeedItem } from "./substack_feed.ts";
 import { processArticleImages } from "./substack_image.ts";
-import {
-  findSubstackIssue,
-  readSubstackLedger,
-  substackLedgerRelPath,
-  upsertSubstackIssue,
-} from "./substack_ledger.ts";
-import {
-  compilePatterns,
-  publicationsForInput,
-} from "./substack_publications.ts";
-import {
-  SUBSTACK_LIMITS,
-  type NewsletterPublication,
-  type TokenUsage,
-  type TranslationResponse,
-} from "./substack_contracts.ts";
+import { findSubstackIssue, readSubstackLedger, substackLedgerRelPath, upsertSubstackIssue } from "./substack_ledger.ts";
+import { compilePatterns, publicationsForInput } from "./substack_publications.ts";
+import { SUBSTACK_LIMITS, type NewsletterPublication, type TokenUsage, type TranslationResponse } from "./substack_contracts.ts";
 
 type ItemResult = {
   publication: string;
@@ -75,31 +46,22 @@ type CachedTranslation = {
 
 function positiveInt(raw: string, label: string): number {
   const value = Number(raw);
-  if (!Number.isInteger(value) || value <= 0)
-    throw new Error(`${label} must be a positive integer`);
+  if (!Number.isInteger(value) || value <= 0) throw new Error(`${label} must be a positive integer`);
   return value;
 }
 
 function validateTrustedUrl(raw: string, hosts: readonly string[]): URL {
   const url = new URL(raw);
-  if (url.protocol !== "https:" || url.username || url.password)
-    throw new Error(`untrusted article URL: ${raw}`);
-  if (
-    !hosts.map(host => host.toLowerCase()).includes(url.hostname.toLowerCase())
-  )
-    throw new Error(`article host is not allowed: ${url.hostname}`);
+  if (url.protocol !== "https:" || url.username || url.password) throw new Error(`untrusted article URL: ${raw}`);
+  if (!hosts.map(host => host.toLowerCase()).includes(url.hostname.toLowerCase())) throw new Error(`article host is not allowed: ${url.hostname}`);
   return url;
 }
 
 // 去重主键靠这一步归一。Substack 的 <link> 常带 ?r=<推荐码>、?showWelcome，feedburner 侧几乎必带
 // utm_*；同一篇文章两次抓到的参数不同，按原样比对就会漏判成新文章，重新翻译并再发一篇。
-const TRACKING_PARAMS =
-  /^(?:utm_.+|r|ref|referrer|share|si|fbclid|gclid|mc_cid|mc_eid|triedRedirect|showWelcome|isFreemail|post_id|publication_id|_bhlid)$/i;
+const TRACKING_PARAMS = /^(?:utm_.+|r|ref|referrer|share|si|fbclid|gclid|mc_cid|mc_eid|triedRedirect|showWelcome|isFreemail|post_id|publication_id|_bhlid)$/i;
 
-export function normalizeCanonicalUrl(
-  raw: string,
-  hosts: readonly string[]
-): string {
+export function normalizeCanonicalUrl(raw: string, hosts: readonly string[]): string {
   const url = validateTrustedUrl(raw, hosts);
   url.hash = "";
   for (const key of [...url.searchParams.keys()]) {
@@ -121,57 +83,29 @@ export function selectItems(
   const normalized = items
     .map(item => ({
       ...item,
-      canonicalUrl: normalizeCanonicalUrl(
-        item.canonicalUrl,
-        publication.articleHosts
-      ),
+      canonicalUrl: normalizeCanonicalUrl(item.canonicalUrl, publication.articleHosts),
     }))
     .filter(item => !excludes.some(pattern => pattern.test(item.title)))
-    .filter(
-      item =>
-        options.backfill !== undefined ||
-        item.publishedAt.slice(0, 10) >= publication.startAt
-    )
+    .filter(item => options.backfill !== undefined || item.publishedAt.slice(0, 10) >= publication.startAt)
     .sort((left, right) => left.publishedAt.localeCompare(right.publishedAt));
-  const windowed =
-    options.backfill === undefined
-      ? normalized
-      : normalized.slice(-options.backfill);
-  const unpublished = windowed.filter(
-    item => options.force || !findSubstackIssue(ledger, item.canonicalUrl)
-  );
+  const windowed = options.backfill === undefined ? normalized : normalized.slice(-options.backfill);
+  const unpublished = windowed.filter(item => options.force || !findSubstackIssue(ledger, item.canonicalUrl));
   return unpublished;
 }
 
 function cachePath(repo: string, publication: string, key: string): string {
-  return path.join(
-    repo,
-    ".cache",
-    "substack-translations",
-    publication,
-    `${key}.json`
-  );
+  return path.join(repo, ".cache", "substack-translations", publication, `${key}.json`);
 }
 
 function readCache(file: string): CachedTranslation | undefined {
   if (!fs.existsSync(file)) return undefined;
   try {
-    const parsed = JSON.parse(
-      fs.readFileSync(file, "utf8")
-    ) as CachedTranslation;
-    if (
-      parsed.version !== 1 ||
-      !parsed.response ||
-      !parsed.model ||
-      !parsed.finishReason
-    )
-      return undefined;
+    const parsed = JSON.parse(fs.readFileSync(file, "utf8")) as CachedTranslation;
+    if (parsed.version !== 1 || !parsed.response || !parsed.model || !parsed.finishReason) return undefined;
     return parsed;
   } catch (error) {
     // 缓存坏了只是多花一次模型调用，不值得中断；但要说出来，否则损坏的缓存会一直静默重算。
-    writeStderr(
-      `WARN: [substack-translations] ignoring corrupt cache ${file}: ${error instanceof Error ? error.message : String(error)}`
-    );
+    writeStderr(`WARN: [substack-translations] ignoring corrupt cache ${file}: ${error instanceof Error ? error.message : String(error)}`);
     return undefined;
   }
 }
@@ -181,21 +115,13 @@ function writeJson(file: string, value: unknown): void {
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
-function artifactDir(
-  repo: string,
-  root: string,
-  publication: string,
-  sourceSha256: string
-): string {
+function artifactDir(repo: string, root: string, publication: string, sourceSha256: string): string {
   const base = path.isAbsolute(root) ? root : path.join(repo, root);
   return path.join(base, "substack", publication, sourceSha256.slice(0, 16));
 }
 
 function usedTokens(usage: TokenUsage | undefined, estimate: number): number {
-  return (
-    usage?.totalTokens ??
-    ((usage?.inputTokens || 0) + (usage?.outputTokens || 0) || estimate)
-  );
+  return usage?.totalTokens ?? ((usage?.inputTokens || 0) + (usage?.outputTokens || 0) || estimate);
 }
 
 export async function processItem(params: {
@@ -218,34 +144,17 @@ export async function processItem(params: {
     canonicalUrl: item.canonicalUrl,
     wechat: { enabled: publication.wechat.enabled },
   };
-  const prepared = prepareArticle(
-    item.contentHtml,
-    item.canonicalUrl,
-    publication
-  );
-  const dir = artifactDir(
-    repo,
-    params.artifactsRoot,
-    publication.key,
-    prepared.sourceSha256
-  );
+  const prepared = prepareArticle(item.contentHtml, item.canonicalUrl, publication);
+  const dir = artifactDir(repo, params.artifactsRoot, publication.key, prepared.sourceSha256);
   writeJson(path.join(dir, "feed-item.json"), {
     ...item,
     contentHtml: undefined,
   });
   fs.writeFileSync(path.join(dir, "source.html"), item.contentHtml, "utf8");
-  fs.writeFileSync(
-    path.join(dir, "cleaned.html"),
-    prepared.cleanedHtml,
-    "utf8"
-  );
+  fs.writeFileSync(path.join(dir, "cleaned.html"), prepared.cleanedHtml, "utf8");
   fs.writeFileSync(path.join(dir, "extracted.md"), prepared.markdown, "utf8");
   writeJson(path.join(dir, "extraction-audit.json"), prepared.audit);
-  fs.writeFileSync(
-    path.join(dir, "protected.md"),
-    prepared.protectedMarkdown,
-    "utf8"
-  );
+  fs.writeFileSync(path.join(dir, "protected.md"), prepared.protectedMarkdown, "utf8");
   // 阈值已经不在栏目配置里，单独快照一份，否则事后排查看不到本次实际生效的上限。
   writeJson(path.join(dir, "effective-config.json"), {
     publication,
@@ -256,14 +165,8 @@ export async function processItem(params: {
   if (sourceTextChars < SUBSTACK_LIMITS.minSourceTextChars) {
     const reason = `below-min-source-length: source has ${sourceTextChars} visible characters, minimum ${SUBSTACK_LIMITS.minSourceTextChars}`;
     if (!params.dryRun) {
-      const ledgerFile = path.join(
-        repo,
-        substackLedgerRelPath(publication.key)
-      );
-      const existingIssue = findSubstackIssue(
-        readSubstackLedger(ledgerFile),
-        item.canonicalUrl
-      );
+      const ledgerFile = path.join(repo, substackLedgerRelPath(publication.key));
+      const existingIssue = findSubstackIssue(readSubstackLedger(ledgerFile), item.canonicalUrl);
       if (existingIssue?.status !== "published") {
         upsertSubstackIssue(ledgerFile, {
           guid: item.guid,
@@ -295,15 +198,11 @@ export async function processItem(params: {
   const estimatedTokens = estimateTranslationTokens(prepared.protectedMarkdown);
 
   if (estimatedTokens > SUBSTACK_LIMITS.maxEstimatedTokensPerArticle) {
-    throw new Error(
-      `article-token-limit: estimated ${estimatedTokens}, limit ${SUBSTACK_LIMITS.maxEstimatedTokensPerArticle}`
-    );
+    throw new Error(`article-token-limit: estimated ${estimatedTokens}, limit ${SUBSTACK_LIMITS.maxEstimatedTokensPerArticle}`);
   }
   if (params.dryRun) {
     if (estimatedTokens > params.remainingBudget) {
-      throw new Error(
-        `publication-token-budget-exhausted: needs ${estimatedTokens}, remaining ${params.remainingBudget}`
-      );
+      throw new Error(`publication-token-budget-exhausted: needs ${estimatedTokens}, remaining ${params.remainingBudget}`);
     }
     return {
       result: {
@@ -331,44 +230,24 @@ export async function processItem(params: {
   });
   fs.writeFileSync(path.join(dir, "prompt.md"), prompt, "utf8");
   const inputSha = createHash("sha256").update(prompt).digest("hex");
-  const key = createHash("sha256")
-    .update(
-      [
-        prepared.sourceSha256,
-        SUBSTACK_PROMPT_VERSION,
-        primary.model,
-        fallback.model,
-        inputSha,
-      ].join("\0")
-    )
-    .digest("hex");
+  const key = createHash("sha256").update([prepared.sourceSha256, SUBSTACK_PROMPT_VERSION, primary.model, fallback.model, inputSha].join("\0")).digest("hex");
   const articleCachePath = cachePath(repo, publication.key, key);
   let cached = params.force ? undefined : readCache(articleCachePath);
   let translated: ReturnType<typeof restoreTranslation> | undefined;
   if (cached) {
     try {
-      if (cached.finishReason !== "stop")
-        throw new Error(
-          `cached AI finishReason was ${cached.finishReason}, expected stop`
-        );
-      translated = restoreTranslation(
-        cached.response,
-        prepared,
-        publication
-      );
+      if (cached.finishReason !== "stop") throw new Error(`cached AI finishReason was ${cached.finishReason}, expected stop`);
+      translated = restoreTranslation(cached.response, prepared, publication);
     } catch {
       fs.unlinkSync(articleCachePath);
       cached = undefined;
     }
   }
   const fallbackRequested = envBool("AI_FALLBACK_ENABLED", false);
-  const fallbackEnabled =
-    fallbackRequested && estimatedTokens * 2 <= params.remainingBudget;
+  const fallbackEnabled = fallbackRequested && estimatedTokens * 2 <= params.remainingBudget;
   const reservedTokens = estimatedTokens * (fallbackEnabled ? 2 : 1);
   if (!cached && reservedTokens > params.remainingBudget) {
-    throw new Error(
-      `publication-token-budget-exhausted: needs ${reservedTokens}, remaining ${params.remainingBudget}`
-    );
+    throw new Error(`publication-token-budget-exhausted: needs ${reservedTokens}, remaining ${params.remainingBudget}`);
   }
   let cache: ItemResult["cache"] = cached ? "hit" : "miss";
   let model: string;
@@ -389,14 +268,10 @@ export async function processItem(params: {
     model = ai.config.model;
     finishReason = ai.finishReason || "unknown";
     usage = ai.usage;
-    if (finishReason !== "stop")
-      throw new Error(`AI finishReason was ${finishReason}, expected stop`);
+    if (finishReason !== "stop") throw new Error(`AI finishReason was ${finishReason}, expected stop`);
     rawResponse = parseAiJson(ai.content) as TranslationResponse;
   }
-  if (finishReason !== "stop")
-    throw new Error(
-      `cached AI finishReason was ${finishReason}, expected stop`
-    );
+  if (finishReason !== "stop") throw new Error(`cached AI finishReason was ${finishReason}, expected stop`);
   translated ||= restoreTranslation(rawResponse, prepared, publication);
   if (!cached)
     writeJson(articleCachePath, {
@@ -413,11 +288,7 @@ export async function processItem(params: {
     estimatedTokens,
     usage,
   });
-  const images = await processArticleImages(
-    translated.markdown,
-    publication,
-    repo
-  );
+  const images = await processArticleImages(translated.markdown, publication, repo);
   let archived: ReturnType<typeof archiveSubstackTranslation>;
   try {
     archived = archiveSubstackTranslation({
@@ -434,14 +305,10 @@ export async function processItem(params: {
       model,
     });
   } catch (error) {
-    for (const file of images.createdFiles)
-      fs.rmSync(path.join(repo, file), { force: true });
+    for (const file of images.createdFiles) fs.rmSync(path.join(repo, file), { force: true });
     throw error;
   }
-  fs.copyFileSync(
-    path.join(repo, archived.postPath),
-    path.join(dir, "composed.md")
-  );
+  fs.copyFileSync(path.join(repo, archived.postPath), path.join(dir, "composed.md"));
   upsertSubstackIssue(path.join(repo, substackLedgerRelPath(publication.key)), {
     guid: item.guid,
     canonicalUrl: item.canonicalUrl,
@@ -482,26 +349,13 @@ async function main(): Promise<void> {
   const maxPostsRaw = stringArg(args, "max-posts");
   const budgetRaw = stringArg(args, "token-budget");
   const publicationTokenBudget = budgetRaw
-    ? Math.min(
-        positiveInt(budgetRaw, "--token-budget"),
-        SUBSTACK_LIMITS.publicationTokenBudget
-      )
+    ? Math.min(positiveInt(budgetRaw, "--token-budget"), SUBSTACK_LIMITS.publicationTokenBudget)
     : SUBSTACK_LIMITS.publicationTokenBudget;
-  const backfill = backfillRaw
-    ? positiveInt(backfillRaw, "--backfill")
-    : undefined;
-  const maxPosts = maxPostsRaw
-    ? Math.min(
-        positiveInt(maxPostsRaw, "--max-posts"),
-        SUBSTACK_LIMITS.maxPostsPerRunCeiling
-      )
-    : undefined;
+  const backfill = backfillRaw ? positiveInt(backfillRaw, "--backfill") : undefined;
+  const maxPosts = maxPostsRaw ? Math.min(positiveInt(maxPostsRaw, "--max-posts"), SUBSTACK_LIMITS.maxPostsPerRunCeiling) : undefined;
   const artifactsRoot = stringArg(args, "artifacts-dir", "artifacts");
   const resultJson = stringArg(args, "result-json");
-  const promptInstructions = fs.readFileSync(
-    path.join(repo, "prompts", "blog", "substack-translation.md"),
-    "utf8"
-  );
+  const promptInstructions = fs.readFileSync(path.join(repo, "prompts", "blog", "substack-translation.md"), "utf8");
   const results: ItemResult[] = [];
   let chargedTokens = 0;
 
@@ -509,17 +363,9 @@ async function main(): Promise<void> {
     let publicationChargedTokens = 0;
     try {
       const parsed = await fetchNewsletterFeed(publication);
-      process.stderr.write(
-        `[substack] ${publication.key} feed transport=${parsed.transport}\n`
-      );
-      const items = selectItems(
-        parsed.items,
-        publication,
-        path.join(repo, substackLedgerRelPath(publication.key)),
-        { force, backfill }
-      );
-      const publicationPostLimit =
-        maxPosts ?? SUBSTACK_LIMITS.maxPostsPerRun;
+      process.stderr.write(`[substack] ${publication.key} feed transport=${parsed.transport}\n`);
+      const items = selectItems(parsed.items, publication, path.join(repo, substackLedgerRelPath(publication.key)), { force, backfill });
+      const publicationPostLimit = maxPosts ?? SUBSTACK_LIMITS.maxPostsPerRun;
       let consumedSlots = 0;
       for (const item of items) {
         if (consumedSlots >= publicationPostLimit) break;
@@ -573,19 +419,13 @@ async function main(): Promise<void> {
 
   const payload = {
     task: "substack-translation",
-    status: results.some(result => result.status === "failed")
-      ? "partial-failure"
-      : "ok",
+    status: results.some(result => result.status === "failed") ? "partial-failure" : "ok",
     dryRun,
     publicationTokenBudget,
     chargedTokens,
     results,
   };
-  if (resultJson)
-    writeJson(
-      path.isAbsolute(resultJson) ? resultJson : path.join(repo, resultJson),
-      payload
-    );
+  if (resultJson) writeJson(path.isAbsolute(resultJson) ? resultJson : path.join(repo, resultJson), payload);
   writeStdout(`${JSON.stringify(payload, null, 2)}\n`);
   if (payload.status !== "ok") process.exitCode = 1;
 }

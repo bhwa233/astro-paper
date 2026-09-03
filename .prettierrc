@@ -15,6 +15,12 @@
       "options": {
         "parser": "astro"
       }
+    },
+    {
+      "files": ["scripts/**/*.ts", "tests/**/*.ts"],
+      "options": {
+        "printWidth": 160
+      }
     }
   ]
 }

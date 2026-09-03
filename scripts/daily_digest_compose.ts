@@ -96,11 +96,12 @@ function differsByOneItsToken(left: string[], right: string[]): boolean {
   } else {
     return false;
   }
-  return longer.some((token, index) => (
-    token === "its" &&
-    longer.slice(0, index).every((value, valueIndex) => value === shorter[valueIndex]) &&
-    longer.slice(index + 1).every((value, valueIndex) => value === shorter[index + valueIndex])
-  ));
+  return longer.some(
+    (token, index) =>
+      token === "its" &&
+      longer.slice(0, index).every((value, valueIndex) => value === shorter[valueIndex]) &&
+      longer.slice(index + 1).every((value, valueIndex) => value === shorter[index + valueIndex])
+  );
 }
 
 // Repair only punctuation rendering changes and one optional possessive connector
@@ -122,9 +123,9 @@ function reconcileSourceLink(url: string, allowed: Map<string, string[]>): strin
   if (exact.length === 1) return exact[0];
   const normalizedMatches = allowed.get(normalized) || [];
   if (normalizedMatches.length === 1) return normalizedMatches[0];
-  const matches = [...allowed].flatMap(([sourceKey, sourceUrls]) => (
+  const matches = [...allowed].flatMap(([sourceKey, sourceUrls]) =>
     hasDuplicatedSlugPrefix(normalized, sourceKey) || hasConservativelyEquivalentSlug(normalized, sourceKey) ? sourceUrls : []
-  ));
+  );
   return matches.length === 1 ? matches[0] : undefined;
 }
 
@@ -140,7 +141,8 @@ function parseSections(rawSections: unknown): DailyDigestSection[] {
     const items = rawItems.map((itemEntry, itemIndex) => {
       const item = (itemEntry || {}) as Record<string, unknown>;
       const titleZh = String(item.title_zh || "").trim();
-      if (!titleZh || !hasChinese(titleZh)) throw new Error(`daily digest section "${title}" item ${itemIndex + 1} title_zh should use a Chinese title: ${titleZh}`);
+      if (!titleZh || !hasChinese(titleZh))
+        throw new Error(`daily digest section "${title}" item ${itemIndex + 1} title_zh should use a Chinese title: ${titleZh}`);
       const sourceUrl = String(item.source_url || "").trim();
       if (!/^https?:\/\//.test(sourceUrl)) throw new Error(`daily digest item "${titleZh}" has invalid source_url: ${sourceUrl}`);
       const body = String(item.body_markdown || "").trim();

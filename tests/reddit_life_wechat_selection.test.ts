@@ -26,14 +26,16 @@ test("Reddit life WeChat selection can promote posts beyond the original top 20"
   const selection = parseRedditLifeWechatSelection(
     JSON.stringify({
       selected: selectedRanks.map(rank => ({ rank, longTail: 5, resonance: 4, reason: "具备跨地区的长期讨论价值" })),
-      rejected: source.filter(item => !selectedRanks.includes(item.rank)).map(item => ({ rank: item.rank, category: "low_resonance", reason: "讨论角度较窄且缺少代表故事" })),
+      rejected: source
+        .filter(item => !selectedRanks.includes(item.rank))
+        .map(item => ({ rank: item.rank, category: "low_resonance", reason: "讨论角度较窄且缺少代表故事" })),
     }),
-    source.length,
+    source.length
   );
 
   assert.deepEqual(
     rankedRedditLifeCandidates(source, selection).map(item => item.rank),
-    selectedRanks,
+    selectedRanks
   );
 });
 
@@ -48,21 +50,27 @@ test("Reddit life WeChat selection rejects duplicate and omitted candidates", ()
             { rank: 3, category: "narrow_interest", reason: "受众范围较窄" },
           ],
         }),
-        3,
+        3
       ),
-    /cover all 3 candidates exactly once/,
+    /cover all 3 candidates exactly once/
   );
 });
 
 test("Reddit life WeChat splits ten AI-ranked posts across both drafts", () => {
   const volumes = splitRedditLifeWechatCandidates(candidates(10));
-  assert.deepEqual(volumes.map(volume => volume.map(item => item.rank)), [
-    [1, 3, 5, 7, 9],
-    [2, 4, 6, 8, 10],
-  ]);
+  assert.deepEqual(
+    volumes.map(volume => volume.map(item => item.rank)),
+    [
+      [1, 3, 5, 7, 9],
+      [2, 4, 6, 8, 10],
+    ]
+  );
 });
 
 test("Reddit life WeChat keeps an incomplete selection in one ordered draft", () => {
   const volumes = splitRedditLifeWechatCandidates(candidates(6));
-  assert.deepEqual(volumes.map(volume => volume.map(item => item.rank)), [[1, 2, 3, 4, 5, 6]]);
+  assert.deepEqual(
+    volumes.map(volume => volume.map(item => item.rank)),
+    [[1, 2, 3, 4, 5, 6]]
+  );
 });

@@ -50,7 +50,9 @@ function rejectFailureText(text: string): void {
 }
 
 function normalizeMarkdown(text: string): string {
-  const cleaned = stripHeaders(text).replace(/\n{3,}/g, "\n\n").trim();
+  const cleaned = stripHeaders(text)
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
   rejectFailureText(cleaned);
   return `${cleaned}\n`;
 }
@@ -168,12 +170,22 @@ function formatRedditTop20(text: string): string {
 function normalizedPodcastBlocks(markdown: string): string[] {
   return markdown
     .split(/\n{2,}/)
-    .map(block => block.replace(/^[-*]\s+/gm, "").replace(/\s+/g, " ").trim())
+    .map(block =>
+      block
+        .replace(/^[-*]\s+/gm, "")
+        .replace(/\s+/g, " ")
+        .trim()
+    )
     .filter(block => block.length >= 80 && !block.startsWith("---") && !block.startsWith("《"));
 }
 
 function rejectRepeatedPodcastContent(markdown: string): void {
-  const headings = (markdown.match(/^##\s+(.+)$/gm) || []).map(heading => heading.replace(/^##\s+/, "").trim().toLowerCase());
+  const headings = (markdown.match(/^##\s+(.+)$/gm) || []).map(heading =>
+    heading
+      .replace(/^##\s+/, "")
+      .trim()
+      .toLowerCase()
+  );
   const duplicateHeading = headings.find((heading, index) => headings.indexOf(heading) !== index);
   if (duplicateHeading) throw new Error(`foreign tech podcast contains duplicate episode heading: ${duplicateHeading}`);
   const seen = new Set<string>();
@@ -233,7 +245,13 @@ function stripLeadingTitleHeading(markdown: string): string {
 function rejectDuplicateLinksAndHeadings(markdown: string, label: string): void {
   const links = (markdown.match(/https?:\/\/\S+/g) || []).map(link => link.replace(/[)）.,，。]+$/, "").toLowerCase());
   if (new Set(links).size !== links.length) throw new Error(`${label} contains duplicate links`);
-  const headings = (markdown.match(/^###\s+(.+)$/gm) || []).map(heading => heading.replace(/^###\s+/, "").replace(/\]\(.+\)/, "]").trim().toLowerCase());
+  const headings = (markdown.match(/^###\s+(.+)$/gm) || []).map(heading =>
+    heading
+      .replace(/^###\s+/, "")
+      .replace(/\]\(.+\)/, "]")
+      .trim()
+      .toLowerCase()
+  );
   if (new Set(headings).size !== headings.length) throw new Error(`${label} contains duplicate headings`);
 }
 
@@ -388,7 +406,8 @@ function formatMagazineWeekly(text: string): { markdown: string; ogImage: string
 function formatEconomistWeekly(text: string): { markdown: string; ogImage: string } {
   const formatted = formatMagazineWeekly(text);
   const articleCount = (formatted.markdown.match(/^##\s+\S.+$/gm) || []).length;
-  const imageCount = (formatted.markdown.match(/^!\[.*\]\(\/images\/magazine\/economist\/\d{4}-\d{2}-\d{2}\/\d{2,}\.(?:avif|gif|jpe?g|png|webp)\)$/gm) || []).length;
+  const imageCount = (formatted.markdown.match(/^!\[.*\]\(\/images\/magazine\/economist\/\d{4}-\d{2}-\d{2}\/\d{2,}\.(?:avif|gif|jpe?g|png|webp)\)$/gm) || [])
+    .length;
   if (imageCount !== articleCount) throw new Error(`economist weekly needs one local image per article: ${imageCount} vs ${articleCount}`);
   return formatted;
 }
@@ -462,7 +481,7 @@ export function archivePost({
       ogImage: formatted.ogImage || ogImage,
       wechat: { enabled: Boolean(info.wechatEnabled), title: wechatTitle },
     })}${formatted.markdown.trim()}\n`,
-    "utf8",
+    "utf8"
   );
   return { task, path: relPath, title, created: !existed, skipped: false, updated_at_bjt: bjtTimestamp(), commit: "", push: "", tags: taskTags(task) };
 }

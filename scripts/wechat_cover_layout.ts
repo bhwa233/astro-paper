@@ -143,7 +143,17 @@ function entryLine(title: string, index: number, fontSize: number, accent: strin
  *
  * 不画日期。封面本身按天推送，日期是冗余信息，挤在笔圈对面还会把顶部的视觉重心拉偏。
  */
-export function wechatCoverTree({ titles, brand, theme, fontFamily }: { titles: string[]; brand: string; theme: PlatformTheme; fontFamily: string }): SatoriNode {
+export function wechatCoverTree({
+  titles,
+  brand,
+  theme,
+  fontFamily,
+}: {
+  titles: string[];
+  brand: string;
+  theme: PlatformTheme;
+  fontFamily: string;
+}): SatoriNode {
   if (!titles.length) throw new Error("WeChat cover needs at least one title");
   const fontSize = coverEntryFontSize(titles);
   return platformCard(theme, fontFamily, {

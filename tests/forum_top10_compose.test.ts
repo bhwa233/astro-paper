@@ -11,9 +11,8 @@ function item(itemId: number): ForumTop10Item {
     platform,
     rank,
     title: `${platform} 原题 [${rank}] *保持不变*`,
-    url: platform === "5ch"
-      ? `https://example.5ch.io/test/read.cgi/board/${1000 + rank}/`
-      : `https://gall.dcinside.com/board/view/?id=dcbest&no=${2000 + rank}`,
+    url:
+      platform === "5ch" ? `https://example.5ch.io/test/read.cgi/board/${1000 + rank}/` : `https://gall.dcinside.com/board/view/?id=dcbest&no=${2000 + rank}`,
     board: `board-${rank}`,
     snapshotAt: "2099-01-02T14:30:00.000Z",
     views: platform === "DC Inside" ? rank * 100 : null,

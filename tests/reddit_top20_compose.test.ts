@@ -7,10 +7,7 @@ function item(summary: string): string {
 }
 
 test("Reddit life discussion summaries reject answer lists but accept continuous narrative", () => {
-  assert.throws(
-    () => parseRedditItemSummary(item("1\\. 第一条回答仍在按问答方式罗列。"), 1, 1, "narrative"),
-    /narrative summary must not use lists/,
-  );
+  assert.throws(() => parseRedditItemSummary(item("1\\. 第一条回答仍在按问答方式罗列。"), 1, 1, "narrative"), /narrative summary must not use lists/);
 
   const narrative = "事情从一次看似能蒙混过去的选择开始，当事人很快发现后果已经超出控制。\n\n评论里的质疑没有替他下结论，而是把他一直回避的矛盾推到了眼前。";
   assert.equal(parseRedditItemSummary(item(narrative), 1, 1, "narrative").summary, narrative);

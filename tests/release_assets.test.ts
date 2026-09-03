@@ -42,13 +42,16 @@ test("restore downloads only assets whose local copy is missing or stale, and ve
   assert.equal(fs.readFileSync(path.join(repo, dayDir, "card-02.png"), "utf8"), "fresh card");
 
   // A second restore is a no-op once everything matches.
-  assert.deepEqual(restoreReleaseAssets(repo, release, () => assert.fail("must not download")), { restored: 0, reused: 3 });
+  assert.deepEqual(
+    restoreReleaseAssets(repo, release, () => assert.fail("must not download")),
+    { restored: 0, reused: 3 }
+  );
 
   // A download whose bytes do not match the manifest must fail instead of landing next to the draft.
   fs.rmSync(path.join(repo, dayDir, "card-02.png"));
   assert.throws(
     () => restoreReleaseAssets(repo, release, (_tag, names, dir) => fs.writeFileSync(path.join(dir, names[0]), Buffer.from("tampered"))),
-    /hash does not match/,
+    /hash does not match/
   );
   assert.equal(fs.existsSync(path.join(repo, dayDir, "card-02.png")), false);
 });

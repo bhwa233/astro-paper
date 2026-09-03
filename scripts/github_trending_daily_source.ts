@@ -108,7 +108,7 @@ export function sanitizeReadmeText(text: string): string {
       .replace(/&lt;/gi, "<")
       .replace(/&gt;/gi, ">")
       .replace(/^\s{0,3}#{1,6}\s*/gm, "")
-      .replace(/[`*_>]+/g, " "),
+      .replace(/[`*_>]+/g, " ")
   );
 }
 
@@ -201,14 +201,17 @@ function buildSourceMarkdown(payload: GitHubTrendingArchive, archivePath = ""): 
       `- 今日新增 Stars：${formatNumber(repo.todayStars)}`,
       `- README 状态：${repo.readmeStatus}${repo.errorMessage ? `（${repo.errorMessage}）` : ""}`,
       `- README 正文：${repo.readmeText || "未获取到可用 README 正文，本项目只能基于榜单元数据描述。"}`,
-      "",
+      ""
     );
   }
 
   return `${lines.join("\n").trim()}\n`;
 }
 
-export async function buildGitHubTrendingDailySource(date = bjtDateString(), { dataDir = "", limit = DEFAULT_LIMIT }: { dataDir?: string; limit?: number } = {}): Promise<string> {
+export async function buildGitHubTrendingDailySource(
+  date = bjtDateString(),
+  { dataDir = "", limit = DEFAULT_LIMIT }: { dataDir?: string; limit?: number } = {}
+): Promise<string> {
   const html = await fetchText(TRENDING_URL, { timeoutMs: 30_000, maxChars: 1_500_000, throwOnMaxChars: true });
   const repos = await enrichReadmes(parseGitHubTrendingHtml(html, limit));
   if (!repos.length) throw new Error("GitHub Trending source produced zero repositories");

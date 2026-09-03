@@ -2,7 +2,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import { avoidCloudflareEmailObfuscation, parseArgs, readStdin, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { DEFAULT_AI_BASE_URL, DEFAULT_AI_MODEL, DEFAULT_MAX_TOKENS, callBlogAiWithFailover, chatCompletionsUrl, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
+import {
+  DEFAULT_AI_BASE_URL,
+  DEFAULT_AI_MODEL,
+  DEFAULT_MAX_TOKENS,
+  callBlogAiWithFailover,
+  chatCompletionsUrl,
+  envAiConfig,
+  envFallbackAiConfig,
+} from "./blog_ai_client.ts";
 
 export { chatCompletionsUrl };
 
@@ -45,7 +53,11 @@ export function renderPrompt({ task, date, sourceText, promptDir }: { task: stri
 }
 
 export function stripMarkdownFence(text: string): string {
-  return `${text.trim().replace(/^```(?:markdown|md)?\s*/i, "").replace(/\s*```\s*$/i, "").trim()}\n`;
+  return `${text
+    .trim()
+    .replace(/^```(?:markdown|md)?\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .trim()}\n`;
 }
 
 export function validateMarkdown(text: string): string {

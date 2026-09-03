@@ -109,7 +109,11 @@ function parseManifest(raw: unknown, file: string): RedditLifeRunManifest {
       selection = validateRedditLifeWechatSelection(audit, audit.candidateCount);
       if (value.version === 3) {
         const expectedLeadCount = selection.selected.length === REDDIT_LIFE_WECHAT_TOTAL_POSTS ? 2 : selection.selected.length ? 1 : 0;
-        if (!Array.isArray(audit.leads) || audit.leads.length !== expectedLeadCount || audit.leads.some(item => !String(item || "").trim() || !/[一-鿿]/.test(String(item)))) {
+        if (
+          !Array.isArray(audit.leads) ||
+          audit.leads.length !== expectedLeadCount ||
+          audit.leads.some(item => !String(item || "").trim() || !/[一-鿿]/.test(String(item)))
+        ) {
           throw new Error(`Reddit life WeChat v3 selection needs ${expectedLeadCount} valid lead(s)`);
         }
       }
@@ -119,7 +123,8 @@ function parseManifest(raw: unknown, file: string): RedditLifeRunManifest {
     if (value.posts.length !== selection.selected.length) throw new Error(`invalid Reddit life WeChat selected post count: ${file}`);
   }
   for (const [index, post] of value.posts.entries()) {
-    const validRank = value.version === 1 ? post?.rank === index + 1 : post?.sourceRank === selection?.selected[index]?.rank && post?.selectionRank === index + 1;
+    const validRank =
+      value.version === 1 ? post?.rank === index + 1 : post?.sourceRank === selection?.selected[index]?.rank && post?.selectionRank === index + 1;
     if (
       !post ||
       !validRank ||
@@ -182,7 +187,9 @@ export async function fitWechatContentLimit(render: (replyLimit: number) => stri
     }
     if (fittedLimit) {
       // 静默截断会让归档看起来是完整讨论，因此把收敛到的条数写进日志。
-      writeStderr(`WARN: [reddit-life-wechat] ${label}: capped each post at ${fittedLimit} story(ies) (from ${REDDIT_LIFE_WECHAT_REPLY_LIMIT}) to fit the WeChat content limit`);
+      writeStderr(
+        `WARN: [reddit-life-wechat] ${label}: capped each post at ${fittedLimit} story(ies) (from ${REDDIT_LIFE_WECHAT_REPLY_LIMIT}) to fit the WeChat content limit`
+      );
       return render(fittedLimit);
     }
     // 每帖一条都放不下，说明单条故事本身极长。此时只剩尾删可用。
@@ -200,7 +207,9 @@ export async function fitWechatContentLimit(render: (replyLimit: number) => stri
       }
     }
     if (!fittedDrop) throw new Error(`${label}: article still exceeds the WeChat content limit even with a single story`);
-    writeStderr(`WARN: [reddit-life-wechat] ${label}: capped each post at 1 story and dropped ${fittedDrop} trailing story(ies) to fit the WeChat content limit`);
+    writeStderr(
+      `WARN: [reddit-life-wechat] ${label}: capped each post at 1 story and dropped ${fittedDrop} trailing story(ies) to fit the WeChat content limit`
+    );
     return dropTrailingStories(minimal, fittedDrop);
   } finally {
     fs.rmSync(probeFile, { force: true });
@@ -281,7 +290,14 @@ export async function generateRedditLifeWechat({
   assertCommittedPath(repo, lifeArticlePath, LABEL);
   const upstreamFile = path.join(repo, lifeArticlePath);
   if (!fs.existsSync(upstreamFile)) {
-    const manifest: RedditLifeRunManifest = { version: MANIFEST_VERSION, archiveDate: date, timeZone: "America/Los_Angeles", status: "upstream-empty", upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath }, posts: [] };
+    const manifest: RedditLifeRunManifest = {
+      version: MANIFEST_VERSION,
+      archiveDate: date,
+      timeZone: "America/Los_Angeles",
+      status: "upstream-empty",
+      upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath },
+      posts: [],
+    };
     writeJson(manifestFile, manifest);
     writeStderr(`[reddit-life-wechat] archive=${date}: upstream life article missing at ${lifeArticlePath}; wrote upstream-empty manifest`);
     return { manifestPath: manifestRel, generatedPaths: [], status: manifest.status };
@@ -305,7 +321,7 @@ export async function generateRedditLifeWechat({
   const articleUrl = redditLifeArticleUrl(lifeArticlePath);
   const footer = redditLifeWechatFooter(articleUrl);
   writeStderr(
-    `[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, candidates=${sourceCandidates.length}, selected=${candidates.length}, source_ranks=${candidates.map(item => item.rank).join(",")}`,
+    `[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, candidates=${sourceCandidates.length}, selected=${candidates.length}, source_ranks=${candidates.map(item => item.rank).join(",")}`
   );
   const dayDir = path.join(ROOT_REL, date);
   const rawSources = { upstreamLifeMarkdown: path.join(dayDir, "upstream-life.md") };
@@ -329,7 +345,10 @@ export async function generateRedditLifeWechat({
     // 封面先落盘再写稿：ogImage 只有在图确实存在时才敢写，否则 astro-wechat 解析不到文件会直接报错，
     // 那比回落到 defaultCover 糟得多。渲染失败返回 null，稿子照常出，只是没有专属封面。
     const coverFile = redditLifeWechatCoverFile(index + 1);
-    const cover = await renderRedditLifeWechatCover(slice.map(item => item.title), REDDIT_LIFE_WECHAT_TITLE_BRAND);
+    const cover = await renderRedditLifeWechatCover(
+      slice.map(item => item.title),
+      REDDIT_LIFE_WECHAT_TITLE_BRAND
+    );
     if (cover) {
       fs.writeFileSync(path.join(path.dirname(target), coverFile), cover);
       writeStderr(`[reddit-life-wechat] ${label}: rendered ${coverFile} (${cover.length} bytes)`);
@@ -341,7 +360,18 @@ export async function generateRedditLifeWechat({
       fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_QR_FILE), qr);
       writeStderr(`[reddit-life-wechat] ${label}: rendered ${REDDIT_LIFE_WECHAT_QR_FILE} (${qr.length} bytes)`);
     }
-    const markdown = await fitWithOptionalCover({ candidates: slice, digest, date, volume, articleUrl, footer, coverFile: cover ? coverFile : "", repo, label, probeDir: path.dirname(target) });
+    const markdown = await fitWithOptionalCover({
+      candidates: slice,
+      digest,
+      date,
+      volume,
+      articleUrl,
+      footer,
+      coverFile: cover ? coverFile : "",
+      repo,
+      label,
+      probeDir: path.dirname(target),
+    });
     fs.writeFileSync(target, markdown, "utf8");
     writeStderr(`[reddit-life-wechat] ${label}: generated ${relPath} (${markdown.length} chars)`);
     const contentSha256 = markdownSha256(markdown);

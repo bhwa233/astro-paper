@@ -8,8 +8,34 @@ import { archivePost } from "./astro_paper_archive.ts";
 import { readPromptTemplate, validateMarkdown, renderPrompt, resolvePromptFile } from "./ai_blog_writer.ts";
 import { callAi, generateJsonStageWithRetries, retryAttempts, retryDelayMs, writeAiArtifact as writeArtifact } from "./ai_json_stage.ts";
 import { type AiCallResult, envAiConfig } from "./blog_ai_client.ts";
-import { avoidCloudflareEmailObfuscation, bjtDateString, dateStringInTimeZone, ensureDir, envPositiveInt, fetchJson, mapWithConcurrency, parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { type Task, isEpisodeArticleTask, isTaskInput, scheduleDefaultsForTask, scheduledTaskInput, taskInfo, taskPostRelPath, taskTags, taskTitle, taskTitleWithSuffix, tasksForInput } from "./blog_tasks.ts";
+import {
+  avoidCloudflareEmailObfuscation,
+  bjtDateString,
+  dateStringInTimeZone,
+  ensureDir,
+  envPositiveInt,
+  fetchJson,
+  mapWithConcurrency,
+  parseArgs,
+  repoRoot,
+  sleep,
+  stringArg,
+  writeStderr,
+  writeStdout,
+} from "./blog_common.ts";
+import {
+  type Task,
+  isEpisodeArticleTask,
+  isTaskInput,
+  scheduleDefaultsForTask,
+  scheduledTaskInput,
+  taskInfo,
+  taskPostRelPath,
+  taskTags,
+  taskTitle,
+  taskTitleWithSuffix,
+  tasksForInput,
+} from "./blog_tasks.ts";
 import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
@@ -22,7 +48,16 @@ import {
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "./daily_digest_compose.ts";
-import { type Episode, PodcastSourceInsufficientEpisodesError, buildDailyPodcastEpisodeArticle, buildDailyPodcastSource, fetchAppleTopPodcastEpisodeList, fetchDailyPodcastEpisodes, geminiArticleBaseUrl, geminiArticleModel } from "./foreign_tech_podcast_source.ts";
+import {
+  type Episode,
+  PodcastSourceInsufficientEpisodesError,
+  buildDailyPodcastEpisodeArticle,
+  buildDailyPodcastSource,
+  fetchAppleTopPodcastEpisodeList,
+  fetchDailyPodcastEpisodes,
+  geminiArticleBaseUrl,
+  geminiArticleModel,
+} from "./foreign_tech_podcast_source.ts";
 import { appendSummarizedEpisode } from "./podcast_ledger.ts";
 import { buildDailyDigestSource } from "./daily_digest_source.ts";
 import { buildGitHubTrendingDailySource } from "./github_trending_daily_source.ts";
@@ -196,21 +231,19 @@ export function settleDailyPodcastArticleResults(results: ResultItem[], date: st
   return settlePodcastArticleResults(results, date, minEpisodes);
 }
 
-function settlePodcastArticleResults(results: ResultItem[], date: string, minEpisodes = dailyPodcastMinEpisodes(), task: Task = "daily-podcasts"): ResultItem[] {
+function settlePodcastArticleResults(
+  results: ResultItem[],
+  date: string,
+  minEpisodes = dailyPodcastMinEpisodes(),
+  task: Task = "daily-podcasts"
+): ResultItem[] {
   const usableCount = usablePodcastArticleCount(results);
   const settled = results.map(result => {
     if (!result.failed) return result;
     return skippedPodcastEpisode(result);
   });
   if (usableCount >= minEpisodes) return settled;
-  return [
-    ...settled,
-    failedTask(
-      task,
-      date,
-      new PodcastSourceInsufficientEpisodesError(task, usableCount, minEpisodes),
-    ),
-  ];
+  return [...settled, failedTask(task, date, new PodcastSourceInsufficientEpisodesError(task, usableCount, minEpisodes))];
 }
 
 function shouldSkipSourceUnavailable(error: unknown, task: Task): boolean {
@@ -351,14 +384,21 @@ function candidateMetaFromBlock(id: number, block: string): DailyCandidateMeta {
   const title = block.match(/^##\s+\d+\.\s+(.+)$/m)?.[1]?.trim() || `候选 ${id}`;
   const sourceName = block.match(/^- 来源：(.+)$/m)?.[1]?.trim() || "未知来源";
   const publishedAt = block.match(/^- 发布时间：(.+)$/m)?.[1]?.trim() || "";
-  const url = block.match(/^- 链接：(.+)$/m)?.[1]?.trim().replace(/[)）.,，。]+$/, "") || "";
+  const url =
+    block
+      .match(/^- 链接：(.+)$/m)?.[1]
+      ?.trim()
+      .replace(/[)）.,，。]+$/, "") || "";
   return { id, title, sourceName, publishedAt, url, block };
 }
 
 function parseDailyItemSummaryResponse(text: string, meta: DailyCandidateMeta): DailyItemSummary {
   const payload = parseModelJsonObject(text, `tech-daily item ${meta.id}`);
   const rawTags = Array.isArray(payload.tags) ? payload.tags : [];
-  const tags = rawTags.map(tag => truncateField(tag, 24)).filter(Boolean).slice(0, 6);
+  const tags = rawTags
+    .map(tag => truncateField(tag, 24))
+    .filter(Boolean)
+    .slice(0, 6);
   const importance = Math.max(1, Math.min(5, Number(payload.importance) || 3));
   return {
     ...meta,
@@ -431,9 +471,7 @@ function parseDailySectionPlan(text: string, summaries: DailyItemSummary[]): Dai
     const title = truncateField(row.title, 80);
     const thesis = truncateField(row.thesis, 280);
     const rawIds = Array.isArray(row.item_ids) ? row.item_ids : Array.isArray(row.itemIds) ? row.itemIds : [];
-    const itemIds = rawIds
-      .map(id => Number(id))
-      .filter(id => Number.isInteger(id) && validIds.has(id) && !used.has(id));
+    const itemIds = rawIds.map(id => Number(id)).filter(id => Number.isInteger(id) && validIds.has(id) && !used.has(id));
     for (const id of itemIds) used.add(id);
     if (title && itemIds.length) sections.push({ title, thesis, itemIds });
   }
@@ -452,11 +490,11 @@ function formatCombinedTechDailySource(date: string, summaries: DailyItemSummary
 ${failureHeader ? `${failureHeader.trim()}\n\n` : ""}## AI 动态栏目规划
 
 ${sections
-    .map(
-      (section, index) =>
-        `### 栏目 ${index + 1}：${section.title}\n- 栏目判断：${section.thesis || "按当天候选自然聚合。"}\n- 包含候选：${section.itemIds.join(", ")}`,
-    )
-    .join("\n\n")}
+  .map(
+    (section, index) =>
+      `### 栏目 ${index + 1}：${section.title}\n- 栏目判断：${section.thesis || "按当天候选自然聚合。"}\n- 包含候选：${section.itemIds.join(", ")}`
+  )
+  .join("\n\n")}
 
 ## 入选文章级摘要
 
@@ -465,12 +503,10 @@ ${formatDailyItemCards(keptSummaries)}
 ## 降权或排除候选
 
 ${
-    dropped.length
-      ? dropped
-          .map(item => `- ${item.id}. ${item.title}｜${item.include ? "未被栏目采用" : "AI 建议排除"}｜${item.concerns || item.summary}`)
-          .join("\n")
-      : "- 无"
-  }
+  dropped.length
+    ? dropped.map(item => `- ${item.id}. ${item.title}｜${item.include ? "未被栏目采用" : "AI 建议排除"}｜${item.concerns || item.summary}`).join("\n")
+    : "- 无"
+}
 `;
 }
 
@@ -497,7 +533,7 @@ async function buildCombinedTechDailySource({
   if (!metas.length) throw new Error("tech daily source has no candidate items");
   writeArtifact(artifactsDir, "tech-daily", "combined-source.raw.md", source);
   const summaries = await mapWithConcurrency(metas, dailySummaryConcurrency(), meta =>
-    summarizeDailyItem({ meta, date, repo, model, promptDir, artifactsDir }),
+    summarizeDailyItem({ meta, date, repo, model, promptDir, artifactsDir })
   );
   const kept = summaries.filter(item => item.include);
   if (!kept.length) throw new Error("tech daily item summaries kept no candidates");
@@ -573,7 +609,7 @@ function summarizeRedditItem(
   model: string,
   artifactsDir: string,
   minChars: number,
-  summaryFormat: RedditCategory["summaryFormat"],
+  summaryFormat: RedditCategory["summaryFormat"]
 ): Promise<RedditItemSummaryOutcome> {
   return generateJsonStageWithRetries<RedditItemSummaryOutcome>({
     task: "reddit-top20",
@@ -624,10 +660,12 @@ async function buildCombinedRedditSource({
   if (excluded.length || failed.length) {
     // 静默截断会让栏目数量看起来仍然完整，因此把丢弃的原始排名同时写进日志与产物。
     if (excluded.length) writeStderr(`WARN: Reddit excluded ${excluded.length}/${blocks.length} posts by topic: ranks ${excluded.join(", ")}`);
-    if (failed.length) writeStderr(`WARN: Reddit skipped ${failed.length}/${blocks.length} posts after summary retries: ranks ${failed.map(item => item.rank).join(", ")}`);
+    if (failed.length)
+      writeStderr(`WARN: Reddit skipped ${failed.length}/${blocks.length} posts after summary retries: ranks ${failed.map(item => item.rank).join(", ")}`);
     writeArtifact(artifactsDir, "reddit-top20", "dropped-items.json", JSON.stringify({ excluded, failed, total: blocks.length }, null, 2));
   }
-  if (!kept.length) throw new Error(`Reddit source has no publishable posts after excluding ${excluded.length} posts and skipping ${failed.length} failed summaries`);
+  if (!kept.length)
+    throw new Error(`Reddit source has no publishable posts after excluding ${excluded.length} posts and skipping ${failed.length} failed summaries`);
   const firstBlockOffset = source.search(/^\d+\.\s*\[r\//m);
   const header = firstBlockOffset >= 0 ? source.slice(0, firstBlockOffset).trimEnd() : "";
   const combined = [
@@ -663,24 +701,14 @@ function forumItemPromptText(item: ForumTop10Item): string {
   ].join("\n\n");
 }
 
-async function buildCombinedForumTop10Source({
-  source,
-  date,
-  repo,
-  model,
-  promptDir,
-  artifactsDir,
-}: CombineArgs): Promise<string> {
+async function buildCombinedForumTop10Source({ source, date, repo, model, promptDir, artifactsDir }: CombineArgs): Promise<string> {
   const payload = parseForumTop10Payload(source);
   writeArtifact(artifactsDir, "forum-top10", "source.raw.md", source);
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const template = readPromptTemplate(resolvedPromptDir, "forum-top10-item-summary");
   const outcomes = await mapWithConcurrency(payload.items, envPositiveInt("FORUM_TOP10_AI_CONCURRENCY", 4, 8), async item => {
     const hasTextEvidence = Boolean(item.body || item.comments.length);
-    const prompt = template
-      .replaceAll("{date}", date)
-      .replaceAll("{item_id}", String(item.itemId))
-      .replaceAll("{item_text}", forumItemPromptText(item));
+    const prompt = template.replaceAll("{date}", date).replaceAll("{item_id}", String(item.itemId)).replaceAll("{item_text}", forumItemPromptText(item));
     const outcome = await generateJsonStageWithRetries<ForumItemSummaryOutcome>({
       task: "forum-top10",
       stage: `forum Top 10 item ${item.itemId}`,
@@ -716,14 +744,21 @@ type EconomistItemSummary = {
 export function parseMagazineItemSummary(raw: string, rank: number, label = "\u6742\u5fd7"): EconomistItemSummary {
   const payload = parseModelJsonObject(raw, `${label} item summary`);
   const responseRank = Number(payload.rank);
-  const titleZh = String(payload.title_zh || "").replace(/\s+/g, " ").trim();
-  const oneSentenceSummary = String(payload.one_sentence_summary || "").replace(/\s+/g, " ").trim();
-  const corePoint = String(payload.core_point || "").replace(/\s+/g, " ").trim();
+  const titleZh = String(payload.title_zh || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const oneSentenceSummary = String(payload.one_sentence_summary || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const corePoint = String(payload.core_point || "")
+    .replace(/\s+/g, " ")
+    .trim();
   const contentSummary = normalizeMarkdownBlock(payload.content_summary);
   if (responseRank !== rank) throw new Error(`${label} item summary rank mismatch: ${responseRank} vs ${rank}`);
   if (!titleZh || !/[\u3400-\u9fff]/.test(titleZh)) throw new Error(`${label} item ${rank} needs a Chinese title`);
   if (![oneSentenceSummary, corePoint, contentSummary].every(Boolean)) throw new Error(`${label} item ${rank} summary fields must not be empty`);
-  if (![oneSentenceSummary, corePoint, contentSummary].every(value => /[\u3400-\u9fff]/.test(value))) throw new Error(`${label} item ${rank} summary must be Chinese`);
+  if (![oneSentenceSummary, corePoint, contentSummary].every(value => /[\u3400-\u9fff]/.test(value)))
+    throw new Error(`${label} item ${rank} summary must be Chinese`);
   if (/^\s{0,3}#{1,6}\s/m.test(contentSummary)) throw new Error(`${label} item ${rank} content_summary must not use Markdown headings`);
   return { rank, titleZh, oneSentenceSummary, corePoint, contentSummary };
 }
@@ -803,7 +838,6 @@ async function buildCombinedMagazineSource({
   return combined;
 }
 
-
 function normalizedHeadingTitle(title: string): string {
   return avoidCloudflareEmailObfuscation(title).replace(/\s+/g, " ").trim().toLowerCase();
 }
@@ -831,8 +865,13 @@ function normalizeMarkdownLinksFromSourceTitles(markdown: string, source: string
 function sourceLinks(source: string): Set<string> {
   return new Set(
     (source.match(/^- 链接：(.+)$/gm) || [])
-      .map(line => line.replace(/^- 链接：/, "").replace(/[)）.,，。]+$/, "").toLowerCase())
-      .filter(Boolean),
+      .map(line =>
+        line
+          .replace(/^- 链接：/, "")
+          .replace(/[)）.,，。]+$/, "")
+          .toLowerCase()
+      )
+      .filter(Boolean)
   );
 }
 
@@ -915,7 +954,7 @@ async function renderLiveAiMarkdownWithSourceValidation(
   date: string,
   artifactsDir: string,
   source: string,
-  artifactKey: string = task,
+  artifactKey: string = task
 ): Promise<{ markdown: string; description?: string; ai: AiCallResult }> {
   const attempts = retryAttempts();
   const jsonMode = usesJsonComposer(task);
@@ -1075,7 +1114,12 @@ const LEDGER_APPENDERS: Record<Task, ((source: string, meta: LedgerMeta, ctx: So
 
 function appendMagazineIssueForTask(source: string, meta: LedgerMeta, { task, repo }: SourceContext): void {
   const magazine = magazineConfig(task);
-  appendMagazineIssue(parseMagazineIssueFromSource(source, magazine.keyPrefix), magazine.keyPrefix, meta, path.join(repo, magazineLedgerRelPath(magazine.slug)));
+  appendMagazineIssue(
+    parseMagazineIssueFromSource(source, magazine.keyPrefix),
+    magazine.keyPrefix,
+    meta,
+    path.join(repo, magazineLedgerRelPath(magazine.slug))
+  );
 }
 
 export function contentDateForTask(task: Task, runDate: string, source: string): string {
@@ -1148,7 +1192,13 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   let source = await sourceForTask(task, date, sourceFixtureDir, repo, redditCategory);
   if (task === "mdblist-weekly" && !parseMdblistRecommendationsFromSource(source).length) {
     writeArtifact(artifactsDir, task, "source.md", source);
-    return [skippedLowQuality(task, date, "no MDBList candidates matched the rolling 30/45/60-day release windows, IMDb >= 6.0, and history-deduplication rules; see the source artifact for per-layer diagnostics")];
+    return [
+      skippedLowQuality(
+        task,
+        date,
+        "no MDBList candidates matched the rolling 30/45/60-day release windows, IMDb >= 6.0, and history-deduplication rules; see the source artifact for per-layer diagnostics"
+      ),
+    ];
   }
   const contentDate = contentDateForTask(task, date, source);
   if (!force && isMagazineTask(task)) {
@@ -1301,7 +1351,7 @@ async function main(): Promise<void> {
           mockResponseDir: stringArg(args, "mock-response-dir"),
           artifactsDir: stringArg(args, "artifacts-dir"),
           redditCategory,
-        })),
+        }))
       );
     } catch (error) {
       if (shouldSkipSourceUnavailable(error, task)) {

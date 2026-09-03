@@ -17,18 +17,18 @@ function buildEpub(title: string, pages: EpubPage[]): Buffer {
   const zip = new AdmZip();
   zip.addFile(
     "META-INF/container.xml",
-    Buffer.from(`<?xml version="1.0"?><container><rootfiles><rootfile full-path="EPUB/content.opf"/></rootfiles></container>`),
+    Buffer.from(`<?xml version="1.0"?><container><rootfiles><rootfile full-path="EPUB/content.opf"/></rootfiles></container>`)
   );
-  const manifest = pages
-    .map(page => `<item id="${page.id}" href="${page.id}.${page.extension || "xhtml"}" media-type="application/xhtml+xml"/>`)
-    .join("") + pages
+  const manifest =
+    pages.map(page => `<item id="${page.id}" href="${page.id}.${page.extension || "xhtml"}" media-type="application/xhtml+xml"/>`).join("") +
+    pages
       .filter(page => page.image)
       .map(page => `<item id="${page.id}-image" href="${page.image!.href}" media-type="${page.image!.mediaType}"/>`)
       .join("");
   const spine = pages.map(page => `<itemref idref="${page.id}"/>`).join("");
   zip.addFile(
     "EPUB/content.opf",
-    Buffer.from(`<?xml version="1.0"?><package><metadata><title>${title}</title></metadata><manifest>${manifest}</manifest><spine>${spine}</spine></package>`),
+    Buffer.from(`<?xml version="1.0"?><package><metadata><title>${title}</title></metadata><manifest>${manifest}</manifest><spine>${spine}</spine></package>`)
   );
   for (const page of pages) {
     zip.addFile(`EPUB/${page.id}.${page.extension || "xhtml"}`, Buffer.from(page.html));
@@ -63,7 +63,7 @@ export function epubFixture(kind: EpubKind, articleCount: number): Buffer {
           html: `<html><body><div class="te_section_title">Leaders</div><h1>Repeated title</h1><img ${rank === 2 ? "" : 'class="te_head_image"'} src="${imageHref}"/><a class="origin_link" href="https://www.economist.com/fixture/${rank}">Original</a><p>${body}</p></body></html>`,
           image: { data: Buffer.from(`ORIGINAL_ECONOMIST_IMAGE_${rank}`), href: imageHref, mediaType: "image/jpeg" },
         };
-      }),
+      })
     );
   }
 

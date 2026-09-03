@@ -5,12 +5,7 @@ import { compact } from "./blog_common.ts";
 import { parseHtml } from "./html_dom.ts";
 import { htmlNodeToMarkdown } from "./html_to_markdown.ts";
 import { compilePatterns } from "./substack_publications.ts";
-import {
-  SUBSTACK_LIMITS,
-  translationResponseSchema,
-  type NewsletterPublication,
-  type TranslationResponse,
-} from "./substack_contracts.ts";
+import { SUBSTACK_LIMITS, translationResponseSchema, type NewsletterPublication, type TranslationResponse } from "./substack_contracts.ts";
 import { validSubstackDescription } from "./substack_quality.ts";
 
 export const SUBSTACK_PROMPT_VERSION = "substack-translation-v3";
@@ -67,8 +62,7 @@ function markdownMetrics(markdown: string): {
     listItems: 0,
   };
   walk(tree, node => {
-    if (node.type === "heading" && node.depth)
-      metrics.headingLevels.push(node.depth);
+    if (node.type === "heading" && node.depth) metrics.headingLevels.push(node.depth);
     if (node.type === "link") {
       metrics.links += 1;
       if (node.url) metrics.linkUrls.push(node.url);
@@ -90,9 +84,7 @@ function htmlMetrics(root: ParentNode): {
   const links = [...root.querySelectorAll("a[href]")];
   return {
     text: compact(root.textContent || ""),
-    headingLevels: [...root.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(node =>
-      Number(node.tagName.slice(1))
-    ),
+    headingLevels: [...root.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(node => Number(node.tagName.slice(1))),
     links: links.length,
     linkUrls: links.map(node => node.getAttribute("href") || ""),
     images: root.querySelectorAll("img[src]").length,
@@ -100,22 +92,15 @@ function htmlMetrics(root: ParentNode): {
   };
 }
 
-function applyCuts(
-  body: HTMLElement,
-  publication: NewsletterPublication
-): void {
+function applyCuts(body: HTMLElement, publication: NewsletterPublication): void {
   const before = compilePatterns(publication.cutBeforePatterns);
   const after = compilePatterns(publication.cutAfterPatterns);
   const children = [...body.children];
-  const beforeIndex = children.findIndex(child =>
-    before.some(pattern => pattern.test(compact(child.textContent || "")))
-  );
+  const beforeIndex = children.findIndex(child => before.some(pattern => pattern.test(compact(child.textContent || ""))));
   const start = beforeIndex >= 0 ? beforeIndex + 1 : 0;
   // A feed can repeat the same promotion before and after the article. The
   // closing marker must be searched from the retained content onward.
-  const afterOffset = children.slice(start).findIndex(child =>
-    after.some(pattern => pattern.test(compact(child.textContent || "")))
-  );
+  const afterOffset = children.slice(start).findIndex(child => after.some(pattern => pattern.test(compact(child.textContent || ""))));
   const end = afterOffset >= 0 ? start + afterOffset : children.length;
   children.forEach((child, index) => {
     if (index < start || index >= end) child.remove();
@@ -124,8 +109,7 @@ function applyCuts(
   const drop = compilePatterns(publication.dropPatterns);
   if (drop.length) {
     [...body.children].forEach(child => {
-      if (drop.some(pattern => pattern.test(compact(child.textContent || ""))))
-        child.remove();
+      if (drop.some(pattern => pattern.test(compact(child.textContent || "")))) child.remove();
     });
   }
   collapseThematicBreaks(body);
@@ -143,11 +127,7 @@ const GENERIC_PROMO_DROP_PATTERNS = [
 function dropGenericPromoBlocks(body: HTMLElement): void {
   [...body.children].forEach(child => {
     const text = compact(child.textContent || "");
-    if (
-      text.length <= 500 &&
-      GENERIC_PROMO_DROP_PATTERNS.some(pattern => pattern.test(text))
-    )
-      child.remove();
+    if (text.length <= 500 && GENERIC_PROMO_DROP_PATTERNS.some(pattern => pattern.test(text))) child.remove();
   });
   collapseThematicBreaks(body);
 }
@@ -155,9 +135,7 @@ function dropGenericPromoBlocks(body: HTMLElement): void {
 /** 删块之后常留下连排的分隔线。相邻的只保留一条，首尾的直接去掉。 */
 function collapseThematicBreaks(body: HTMLElement): void {
   const children = [...body.children];
-  const isRule = (node: Element): boolean =>
-    !compact(node.textContent || "") &&
-    (node.tagName === "HR" || Boolean(node.querySelector("hr")));
+  const isRule = (node: Element): boolean => !compact(node.textContent || "") && (node.tagName === "HR" || Boolean(node.querySelector("hr")));
   let seenContent = false;
   let previousKeptIsRule = false;
   children.forEach((child, index) => {
@@ -166,9 +144,7 @@ function collapseThematicBreaks(body: HTMLElement): void {
       previousKeptIsRule = false;
       return;
     }
-    const contentFollows = children
-      .slice(index + 1)
-      .some(node => !isRule(node) && Boolean(compact(node.textContent || "")));
+    const contentFollows = children.slice(index + 1).some(node => !isRule(node) && Boolean(compact(node.textContent || "")));
     if (!seenContent || !contentFollows || previousKeptIsRule) {
       child.remove();
       return;
@@ -182,33 +158,23 @@ function collapseThematicBreaks(body: HTMLElement): void {
  * 不还原就会留下「参见 的《……》」这种缺主语的残句，而且译文里看不出少了东西。
  */
 function restoreMentions(body: HTMLElement): void {
-  body
-    .querySelectorAll('span[data-component-name="MentionToDOM"]')
-    .forEach(node => {
-      if (compact(node.textContent || "")) return;
-      const raw = node.getAttribute("data-attrs") || "";
-      if (!raw) return;
-      try {
-        const name = compact(String(JSON.parse(raw)?.name || ""));
-        if (name) node.textContent = name;
-      } catch {
-        // data-attrs 不是合法 JSON 就当没有提及，交给下一步按空节点处理。
-      }
-    });
+  body.querySelectorAll('span[data-component-name="MentionToDOM"]').forEach(node => {
+    if (compact(node.textContent || "")) return;
+    const raw = node.getAttribute("data-attrs") || "";
+    if (!raw) return;
+    try {
+      const name = compact(String(JSON.parse(raw)?.name || ""));
+      if (name) node.textContent = name;
+    } catch {
+      // data-attrs 不是合法 JSON 就当没有提及，交给下一步按空节点处理。
+    }
+  });
 }
 
-function cleanHtml(
-  html: string,
-  canonicalUrl: string,
-  publication: NewsletterPublication
-): HTMLElement {
+function cleanHtml(html: string, canonicalUrl: string, publication: NewsletterPublication): HTMLElement {
   const document = parseHtml(`<body>${html}</body>`, canonicalUrl);
   const body = document.body;
-  body
-    .querySelectorAll(
-      "script,style,noscript,iframe,object,embed,form,input,button,template,svg"
-    )
-    .forEach(node => node.remove());
+  body.querySelectorAll("script,style,noscript,iframe,object,embed,form,input,button,template,svg").forEach(node => node.remove());
   // WordPress 的 emoji 脚本把正文里的 ™ ☺ 等字符换成 s.w.org 上的图片。它们是文字而不是插图，
   // 留着会让镜像流程去抓一个不在 imageHosts 里的域名，然后整个 publication 失败。还原 alt 原字符。
   body.querySelectorAll("img.wp-smiley").forEach(node => {
@@ -220,9 +186,7 @@ function cleanHtml(
     try {
       body.querySelectorAll(selector).forEach(node => node.remove());
     } catch (error) {
-      throw new Error(
-        `invalid removeSelector for ${publication.key}: ${selector}: ${String(error)}`
-      );
+      throw new Error(`invalid removeSelector for ${publication.key}: ${selector}: ${String(error)}`);
     }
   }
   restoreMentions(body);
@@ -249,20 +213,16 @@ function cleanHtml(
   // Ghost bookmark cards put block-level divs and decorative images inside an
   // anchor. Markdown cannot represent that structure, so retain its title link.
   body.querySelectorAll("a.kg-bookmark-container[href]").forEach(node => {
-    const title = compact(
-      node.querySelector(".kg-bookmark-title")?.textContent || node.textContent || ""
-    );
+    const title = compact(node.querySelector(".kg-bookmark-title")?.textContent || node.textContent || "");
     if (title) node.replaceChildren(node.ownerDocument.createTextNode(title));
   });
   // Turndown inserts blank lines for block wrappers inside anchors, producing
   // invalid Markdown links. Flatten image-only anchors while preserving both URLs.
   body.querySelectorAll("a[href]").forEach(node => {
     const images = node.querySelectorAll("img[src]");
-    if (images.length === 1 && !compact(node.textContent || ""))
-      node.replaceChildren(images[0]);
+    if (images.length === 1 && !compact(node.textContent || "")) node.replaceChildren(images[0]);
   });
-  if (publication.imagePolicy === "none")
-    body.querySelectorAll("img,picture,figure").forEach(node => node.remove());
+  if (publication.imagePolicy === "none") body.querySelectorAll("img,picture,figure").forEach(node => node.remove());
   return body;
 }
 
@@ -289,52 +249,27 @@ function protectUrls(markdown: string): {
 
 const PLACEHOLDER_TOKEN = /URL_\d{4}_\d{3,}/g;
 
-export function prepareArticle(
-  html: string,
-  canonicalUrl: string,
-  publication: NewsletterPublication
-): PreparedArticle {
-  if (
-    /<(?:div|section|aside)\b[^>]*(?:class|data-component-name)=["'][^"']*(?:paywall|subscription-required)[^"']*["']/i.test(
-      html
-    )
-  ) {
-    throw new Error(
-      "article contains a paywall marker; refusing partial subscriber content"
-    );
+export function prepareArticle(html: string, canonicalUrl: string, publication: NewsletterPublication): PreparedArticle {
+  if (/<(?:div|section|aside)\b[^>]*(?:class|data-component-name)=["'][^"']*(?:paywall|subscription-required)[^"']*["']/i.test(html)) {
+    throw new Error("article contains a paywall marker; refusing partial subscriber content");
   }
   const body = cleanHtml(html, canonicalUrl, publication);
   const sourceMetrics = htmlMetrics(body);
   const markdown = htmlNodeToMarkdown(body).trim();
   const convertedMetrics = markdownMetrics(markdown);
-  const sourceTextChars = [
-    ...convertedMetrics.text.replace(/\s/gu, ""),
-  ].length;
-  const textRatio =
-    convertedMetrics.text.length / Math.max(sourceMetrics.text.length, 1);
+  const sourceTextChars = [...convertedMetrics.text.replace(/\s/gu, "")].length;
+  const textRatio = convertedMetrics.text.length / Math.max(sourceMetrics.text.length, 1);
   for (const field of ["links", "images", "listItems"] as const) {
     if (sourceMetrics[field] !== convertedMetrics[field]) {
-      const detail =
-        field === "links"
-          ? `; source=${JSON.stringify(sourceMetrics.linkUrls)} converted=${JSON.stringify(convertedMetrics.linkUrls)}`
-          : "";
-      throw new Error(
-        `HTML to Markdown ${field} mismatch: ${sourceMetrics[field]} != ${convertedMetrics[field]}${detail}`
-      );
+      const detail = field === "links" ? `; source=${JSON.stringify(sourceMetrics.linkUrls)} converted=${JSON.stringify(convertedMetrics.linkUrls)}` : "";
+      throw new Error(`HTML to Markdown ${field} mismatch: ${sourceMetrics[field]} != ${convertedMetrics[field]}${detail}`);
     }
   }
-  if (
-    sourceMetrics.headingLevels.join(",") !==
-    convertedMetrics.headingLevels.join(",")
-  ) {
-    throw new Error(
-      `HTML to Markdown heading levels mismatch: ${sourceMetrics.headingLevels.join(",")} != ${convertedMetrics.headingLevels.join(",")}`
-    );
+  if (sourceMetrics.headingLevels.join(",") !== convertedMetrics.headingLevels.join(",")) {
+    throw new Error(`HTML to Markdown heading levels mismatch: ${sourceMetrics.headingLevels.join(",")} != ${convertedMetrics.headingLevels.join(",")}`);
   }
   if (textRatio < publication.extractionAudit.minTextRatio) {
-    throw new Error(
-      `HTML to Markdown text ratio ${textRatio.toFixed(3)} is below ${publication.extractionAudit.minTextRatio}`
-    );
+    throw new Error(`HTML to Markdown text ratio ${textRatio.toFixed(3)} is below ${publication.extractionAudit.minTextRatio}`);
   }
   if (!markdown) throw new Error("article produced no Markdown");
   const protectedArticle = protectUrls(markdown);
@@ -387,14 +322,8 @@ export function buildTranslationPrompt(params: {
 // 图片外层链接只用于 Substack 的点击放大，归档站有自己的 lightbox，因此只解开这一层。
 const URL_PLACEHOLDER = String.raw`URL_\d{4}_\d{3}`;
 // Substack 常把图片包在链接里做点击放大，折叠后要留下裸图片而不是把图片一起吃掉。
-const LINKED_IMAGE = new RegExp(
-  String.raw`\[(!\[[^\]]*\]\(${URL_PLACEHOLDER}\))\]\(${URL_PLACEHOLDER}\)`,
-  "g"
-);
-export function unwrapLinkedImages(
-  markdown: string,
-  _placeholders: readonly string[] = []
-): string {
+const LINKED_IMAGE = new RegExp(String.raw`\[(!\[[^\]]*\]\(${URL_PLACEHOLDER}\))\]\(${URL_PLACEHOLDER}\)`, "g");
+export function unwrapLinkedImages(markdown: string, _placeholders: readonly string[] = []): string {
   return markdown.replace(LINKED_IMAGE, "$1");
 }
 
@@ -432,20 +361,11 @@ function topLevelBlocks(markdown: string): TopLevelBlock[] {
  * 站点自己渲染标题，正文里再来一个同名 h1 就是重复；标题层级整体下沉一级，
  * 让文内小标题从 h2 起步。首尾和连排的分隔线在删掉推广段之后很常见，一并收掉。
  */
-function normalizeTranslatedMarkdown(
-  markdown: string,
-  translatedTitle: string
-): string {
+function normalizeTranslatedMarkdown(markdown: string, translatedTitle: string): string {
   const content = topLevelBlocks(markdown);
   const firstContent = content.findIndex(block => block.kind !== "thematicBreak");
-  if (
-    firstContent >= 0 &&
-    content[firstContent].kind === "heading" &&
-    content[firstContent].depth === 1
-  ) {
-    const headingText = compact(
-      toString(fromMarkdown(content[firstContent].markdown))
-    );
+  if (firstContent >= 0 && content[firstContent].kind === "heading" && content[firstContent].depth === 1) {
+    const headingText = compact(toString(fromMarkdown(content[firstContent].markdown)));
     if (headingText === compact(translatedTitle)) content.splice(firstContent, 1);
   }
   const withoutRules = content.filter((block, index, values) => {
@@ -480,32 +400,23 @@ export function restoreTranslation(
   let markdown = unwrapLinkedImages(stripCodeFence(response.markdown));
   for (const entry of prepared.placeholders) {
     const splitAt = entry.indexOf("=");
-    markdown = markdown.replaceAll(
-      entry.slice(0, splitAt),
-      entry.slice(splitAt + 1)
-    );
+    markdown = markdown.replaceAll(entry.slice(0, splitAt), entry.slice(splitAt + 1));
   }
   // 模型偶尔会写出一个原文里没有的占位符。留着就是正文里一串 URL_0001_007，
   // 抹掉至多是少一个链接。
   markdown = markdown.replace(PLACEHOLDER_TOKEN, "");
   markdown = normalizeTranslatedMarkdown(markdown, response.title);
-  const sourceChars = compact(
-    toString(fromMarkdown(prepared.markdown))
-  ).length;
+  const sourceChars = compact(toString(fromMarkdown(prepared.markdown))).length;
   const translatedChars = compact(toString(fromMarkdown(markdown))).length;
   const lengthRatio = translatedChars / Math.max(sourceChars, 1);
   const limits = publication.translationLengthRatio;
-  const description = validSubstackDescription(response.description)
-    ? compact(response.description)
-    : descriptionFromTitle(response.title);
+  const description = validSubstackDescription(response.description) ? compact(response.description) : descriptionFromTitle(response.title);
   const replacedDescription = description !== compact(response.description);
   const warnings = [
     lengthRatio < limits.warnMin || lengthRatio > limits.warnMax
       ? `translation length ratio ${lengthRatio.toFixed(3)} outside warning range ${limits.warnMin}-${limits.warnMax}`
       : "",
-    replacedDescription
-      ? `description replaced because generated value violated the ${SUBSTACK_LIMITS.descriptionMaxChars}-character card contract`
-      : "",
+    replacedDescription ? `description replaced because generated value violated the ${SUBSTACK_LIMITS.descriptionMaxChars}-character card contract` : "",
   ].filter(Boolean);
   return {
     ...response,

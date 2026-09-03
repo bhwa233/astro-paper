@@ -42,7 +42,7 @@ export function redditTrendingMarkdownFromTitleTranslations(source: string): str
         rank: index + 1,
         title_zh: bulletValue(bullets, "**中文标题**"),
       }),
-      index + 1,
+      index + 1
     );
   });
   const byRank = new Map(translations.map(translation => [translation.rank, translation]));

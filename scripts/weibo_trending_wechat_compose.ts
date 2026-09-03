@@ -2,10 +2,7 @@
 import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
 import { bulletValue, extractBullets, numberedBlocks } from "./compose_common.ts";
-import {
-  validateWeiboTrendingWechatDescription,
-  validateWeiboTrendingWechatTitle,
-} from "./weibo_trending_title.ts";
+import { validateWeiboTrendingWechatDescription, validateWeiboTrendingWechatTitle } from "./weibo_trending_title.ts";
 
 export const WEIBO_TRENDING_WECHAT_IMAGE_LIMIT = 20;
 export const WEIBO_TRENDING_WECHAT_ITEM_LIMIT = 10;

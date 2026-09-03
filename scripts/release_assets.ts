@@ -47,11 +47,11 @@ export function isReleaseManifest(value: unknown): value is ReleaseManifest {
   const release = value as Partial<ReleaseManifest> | null;
   return Boolean(
     release &&
-      typeof release.tag === "string" &&
-      release.tag &&
-      Array.isArray(release.assets) &&
-      release.assets.length > 0 &&
-      release.assets.every(asset => isArchivedFile(asset) && typeof (asset as ReleaseAsset).asset === "string" && ASSET_NAME.test((asset as ReleaseAsset).asset)),
+    typeof release.tag === "string" &&
+    release.tag &&
+    Array.isArray(release.assets) &&
+    release.assets.length > 0 &&
+    release.assets.every(asset => isArchivedFile(asset) && typeof (asset as ReleaseAsset).asset === "string" && ASSET_NAME.test((asset as ReleaseAsset).asset))
   );
 }
 
@@ -116,7 +116,7 @@ export function restoreReleaseAssets(repo: string, release: ReleaseManifest, dow
     download(
       release.tag,
       missing.map(asset => asset.asset),
-      staging,
+      staging
     );
     for (const asset of missing) {
       const downloaded = path.join(staging, asset.asset);

@@ -85,12 +85,7 @@ function composeWork(model: NytBookModelItem, fact: NytBookFact): string {
   const hardBreak = "\\";
   const lines = [`### ${title}（${fact.original_title}）`, ""];
   if (fact.cover && fact.cover !== "-") lines.push(`![${title}](${fact.cover})`, "");
-  lines.push(
-    `作者：${fact.author || "未标明"}${hardBreak}`,
-    `类型：${model.genre_zh}${hardBreak}`,
-    `内容简介：${hardBreak}`,
-    model.summary,
-  );
+  lines.push(`作者：${fact.author || "未标明"}${hardBreak}`, `类型：${model.genre_zh}${hardBreak}`, `内容简介：${hardBreak}`, model.summary);
   if (model.honors) lines.push("", `荣誉：${hardBreak}`, model.honors);
   if (model.praise) lines.push("", `书评：${hardBreak}`, model.praise);
   return lines.join("\n");

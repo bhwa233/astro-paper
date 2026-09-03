@@ -113,7 +113,11 @@ function stripCdata(text: string): string {
 }
 
 function stripHtml(text: string): string {
-  return compact(stripCdata(text).replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " "));
+  return compact(
+    stripCdata(text)
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+  );
 }
 
 function parseFeedItems(xml: string, source: FeedSource): DailyDigestItem[] {
@@ -158,7 +162,12 @@ function scoreItem(item: DailyDigestItem): number {
   if (["ai", "security", "business"].includes(item.category)) score += 4;
   if (["tech", "infra", "data", "release"].includes(item.category)) score += 3;
   for (const pattern of SIGNAL_PATTERNS) if (pattern.test(text)) score += 2;
-  if (/breaking|security|vulnerab|CVE|performance|benchmark|runtime|database|agent|model|scale|regulation|lawsuit|chip|GPU|datacenter|enterprise|open source/i.test(text)) score += 3;
+  if (
+    /breaking|security|vulnerab|CVE|performance|benchmark|runtime|database|agent|model|scale|regulation|lawsuit|chip|GPU|datacenter|enterprise|open source/i.test(
+      text
+    )
+  )
+    score += 3;
   if (LOW_SIGNAL_PATTERNS.some(pattern => pattern.test(text))) score -= 10;
   const date = new Date(item.publishedAt).getTime();
   if (!Number.isNaN(date)) score += Math.max(0, 4 - Math.floor((Date.now() - date) / (24 * 60 * 60 * 1000)));
@@ -239,7 +248,7 @@ export async function buildDailyDigestSource(date: string, { lookbackHours = 24,
       .filter(item => isWithinWindow(item, date, lookbackHours))
       .filter(hasDailySignal)
       .sort((a, b) => scoreItem(b) - scoreItem(a)),
-    limit,
+    limit
   );
 
   if (filtered.length < 1) throw new Error("daily digest source has no publishable items");
@@ -263,7 +272,7 @@ export async function buildDailyDigestSource(date: string, { lookbackHours = 24,
       `- 发布时间：${item.publishedAt || "未知"}`,
       `- 链接：${item.url}`,
       `- 摘要证据：${compact(item.summary || item.title)}`,
-      "",
+      ""
     );
   });
 

@@ -66,7 +66,11 @@ function validateModelItems(rawItems: unknown, label: string): MdblistModelItem[
     const recommendation = String(item.recommendation || "").trim();
     const review = String(item.review || "").trim();
     if (!genresZh) throw new Error(`mdblist ${label} rank ${rank} is missing genres_zh`);
-    for (const [field, value] of [["plot", plot], ["recommendation", recommendation], ["review", review]] as const) {
+    for (const [field, value] of [
+      ["plot", plot],
+      ["recommendation", recommendation],
+      ["review", review],
+    ] as const) {
       if (!value || looksLowSignal(value)) throw new Error(`mdblist ${label} rank ${rank} has empty or low-signal ${field}`);
     }
     return { rank, title_zh: titleZh, genres_zh: genresZh, plot, recommendation, review };
@@ -101,7 +105,7 @@ function composeWork(model: MdblistModelItem, fact: MdblistFact): string {
     "",
     "#### 评论总结",
     "",
-    model.review,
+    model.review
   );
   return lines.join("\n");
 }
@@ -121,16 +125,10 @@ function composeSection(heading: string, models: MdblistModelItem[], facts: Mdbl
   return [`## ${heading}`, "", works.join("\n\n")].join("\n");
 }
 
-export function composeMdblistBody(
-  model: { movies: MdblistModelItem[]; series: MdblistModelItem[] },
-  facts: MdblistFacts,
-): string {
+export function composeMdblistBody(model: { movies: MdblistModelItem[]; series: MdblistModelItem[] }, facts: MdblistFacts): string {
   const movies = composeSection("电影推荐", model.movies, facts.movies);
   const series = composeSection("剧集推荐", model.series, facts.series);
-  const sections = [
-    facts.movies.length ? movies : "",
-    facts.series.length ? series : "",
-  ].filter(Boolean);
+  const sections = [facts.movies.length ? movies : "", facts.series.length ? series : ""].filter(Boolean);
   if (!sections.length) throw new Error("mdblist source has no eligible works");
   return `${sections.join("\n\n")}\n`;
 }

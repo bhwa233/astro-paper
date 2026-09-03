@@ -48,9 +48,7 @@ function listFiles(dir: string, extension: string): string[] {
 // scripts 规则之外，规则就只管本仓自己写的脚本。
 function ownScriptFiles(repo: string): string[] {
   const wechat = path.join(repo, "scripts", "wechat") + path.sep;
-  return listFiles(path.join(repo, "scripts"), ".ts").filter(
-    file => !file.startsWith(wechat)
-  );
+  return listFiles(path.join(repo, "scripts"), ".ts").filter(file => !file.startsWith(wechat));
 }
 
 function checkDependencyOwners(repo: string): Violation[] {
@@ -126,7 +124,8 @@ function checkScheduledPublish(repo: string): Violation[] {
     if (!expected) violations.push({ file: rel, message: `cron "${cron}" 在 blog_tasks.ts 的 SCHEDULED_TASK_INPUTS 里没有条目` });
     for (const [where, table] of Object.entries(tables)) {
       const actual = table.get(cron);
-      if (actual !== expected) violations.push({ file: rel, message: `cron "${cron}" 在 ${where} 里映射到 ${actual ?? "空"}，SCHEDULED_TASK_INPUTS 说是 ${expected ?? "空"}` });
+      if (actual !== expected)
+        violations.push({ file: rel, message: `cron "${cron}" 在 ${where} 里映射到 ${actual ?? "空"}，SCHEDULED_TASK_INPUTS 说是 ${expected ?? "空"}` });
     }
   }
   for (const [where, table] of Object.entries(tables)) {
@@ -138,12 +137,7 @@ function checkScheduledPublish(repo: string): Violation[] {
 }
 
 export function checkConventions(repo = repoRoot()): Violation[] {
-  return [
-    ...checkDependencyOwners(repo),
-    ...checkPromptsAreReferenced(repo),
-    ...checkSubstackPostQuality(repo),
-    ...checkScheduledPublish(repo),
-  ];
+  return [...checkDependencyOwners(repo), ...checkPromptsAreReferenced(repo), ...checkSubstackPostQuality(repo), ...checkScheduledPublish(repo)];
 }
 
 function main(): void {

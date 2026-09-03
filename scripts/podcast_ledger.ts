@@ -39,7 +39,11 @@ export function isEpisodeSummarized(set: Set<string>, episode: PodcastFingerprin
 
 // 归档成功后调用：按指纹（或同一 postPath）命中则 upsert 更新那条记录，否则追加。
 // force 重生时只刷新对应记录，不清空当天，也不产生重复条目。
-export function appendSummarizedEpisode(episode: PodcastFingerprintInput, meta: { archivedAt: string; postPath?: string }, file = summarizedLedgerPath()): void {
+export function appendSummarizedEpisode(
+  episode: PodcastFingerprintInput,
+  meta: { archivedAt: string; postPath?: string },
+  file = summarizedLedgerPath()
+): void {
   const ledger = readLedger(file);
   const fingerprints = new Set(podcastFingerprints(episode));
   const entry: SummarizedEpisodeEntry = {
@@ -54,7 +58,7 @@ export function appendSummarizedEpisode(episode: PodcastFingerprintInput, meta: 
     postPath: meta.postPath,
   };
   const existingIndex = ledger.episodes.findIndex(
-    candidate => (meta.postPath && candidate.postPath === meta.postPath) || podcastFingerprints(candidate).some(fingerprint => fingerprints.has(fingerprint)),
+    candidate => (meta.postPath && candidate.postPath === meta.postPath) || podcastFingerprints(candidate).some(fingerprint => fingerprints.has(fingerprint))
   );
   if (existingIndex >= 0) ledger.episodes[existingIndex] = entry;
   else ledger.episodes.push(entry);

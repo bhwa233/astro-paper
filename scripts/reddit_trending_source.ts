@@ -14,12 +14,7 @@ import { REDDIT_TRENDING_MIN_TOPICS } from "./blog_tasks.ts";
 import { readPromptTemplate, resolvePromptFile } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
 import { parseModelJsonObject } from "./compose_common.ts";
-import {
-  REDDIT_TRENDING_MAX_DETAIL_POSTS,
-  fetchRedditTrendingBoard,
-  type RedditTrendingBoard,
-  type RedditTrendingItem,
-} from "./reddit_trending_api.ts";
+import { REDDIT_TRENDING_MAX_DETAIL_POSTS, fetchRedditTrendingBoard, type RedditTrendingBoard, type RedditTrendingItem } from "./reddit_trending_api.ts";
 import { parseRedditTitleTranslation, type RedditTitleTranslation } from "./reddit_top20_compose.ts";
 
 const SELECTION_PROMPT_TASK = "reddit-trending-selection";
@@ -46,14 +41,16 @@ export function discussionDensity(item: { score: number; numComments: number }):
 
 export function selectRedditTrendingCandidates(
   items: RedditTrendingItem[],
-  { minComments = REDDIT_TRENDING_MIN_COMMENTS, limit = REDDIT_TRENDING_CANDIDATE_LIMIT } = {},
+  { minComments = REDDIT_TRENDING_MIN_COMMENTS, limit = REDDIT_TRENDING_CANDIDATE_LIMIT } = {}
 ): RedditTrendingCandidate[] {
-  return items
-    .filter(item => item.numComments >= minComments)
-    .map(item => ({ ...item, density: discussionDensity(item) }))
-    // 密度相同时按评论数兜底排序，保证同一份榜单每次筛出同一批候选。
-    .sort((left, right) => right.density - left.density || right.numComments - left.numComments)
-    .slice(0, limit);
+  return (
+    items
+      .filter(item => item.numComments >= minComments)
+      .map(item => ({ ...item, density: discussionDensity(item) }))
+      // 密度相同时按评论数兜底排序，保证同一份榜单每次筛出同一批候选。
+      .sort((left, right) => right.density - left.density || right.numComments - left.numComments)
+      .slice(0, limit)
+  );
 }
 
 function candidateBlock(candidate: RedditTrendingCandidate, position: number): string {
@@ -87,7 +84,7 @@ export async function buildRedditTrendingSource(date: string): Promise<string> {
   const candidates = selectRedditTrendingCandidates(board.items);
   writeStdout(
     `[reddit-trending] candidates=${candidates.length}/${board.items.length} min_comments=${REDDIT_TRENDING_MIN_COMMENTS}` +
-      `${candidates.length ? ` density=${candidates[candidates.length - 1].density.toFixed(3)}..${candidates[0].density.toFixed(3)}` : ""}\n`,
+      `${candidates.length ? ` density=${candidates[candidates.length - 1].density.toFixed(3)}..${candidates[0].density.toFixed(3)}` : ""}\n`
   );
   return renderRedditTrendingCandidates(date, board, candidates);
 }
@@ -253,14 +250,14 @@ export async function buildCombinedRedditTrendingSource({
     else failed.push({ rank, error: outcome.error || "title translation failed" });
   }
   if (failed.length) {
-    writeStderr(`WARN: [reddit-trending] skipped ${failed.length}/${picked.length} posts after title translation retries: ranks ${failed.map(item => item.rank).join(", ")}`);
+    writeStderr(
+      `WARN: [reddit-trending] skipped ${failed.length}/${picked.length} posts after title translation retries: ranks ${failed.map(item => item.rank).join(", ")}`
+    );
     writeAiArtifact(artifactsDir, "reddit-trending", "dropped-items.json", JSON.stringify({ failed, total: picked.length }, null, 2));
   }
-  const summary = [
-    header,
-    "",
-    `- 选题：从 ${candidates.length} 条候选中选出 ${selections.length} 条长尾选题，${translated.length} 条标题翻译成功。`,
-  ].join("\n");
+  const summary = [header, "", `- 选题：从 ${candidates.length} 条候选中选出 ${selections.length} 条长尾选题，${translated.length} 条标题翻译成功。`].join(
+    "\n"
+  );
   if (translated.length < REDDIT_TRENDING_MIN_TOPICS) {
     writeStderr(`WARN: [reddit-trending] only ${translated.length} titles translated, below the ${REDDIT_TRENDING_MIN_TOPICS} needed to publish`);
     return `${summary}\n`;
@@ -270,16 +267,18 @@ export async function buildCombinedRedditTrendingSource({
     "",
     "每帖仅由独立模型调用翻译原始标题；热度、来源、帖子链接与文章层级均由代码从榜单事实组装。",
     "",
-    ...translated.map(({ selection, candidate, translation }, index) => [
-      `## ${index + 1}. ${candidate.title}`,
-      "",
-      `- **入选理由**：${selection.reason}`,
-      `- **热度**：${candidate.score} points · ${candidate.numComments} 评论 · 讨论密度 ${candidate.density.toFixed(3)} · 榜内第 ${candidate.rank} 位`,
-      `- **来源**：[r/${candidate.subreddit}](https://www.reddit.com/r/${candidate.subreddit}/)`,
-      `- **帖子**：${candidate.url}`,
-      `- **发布时间**：${candidate.publishedAt}`,
-      `- **中文标题**：${translation.title_zh}`,
-    ].join("\n")),
+    ...translated.map(({ selection, candidate, translation }, index) =>
+      [
+        `## ${index + 1}. ${candidate.title}`,
+        "",
+        `- **入选理由**：${selection.reason}`,
+        `- **热度**：${candidate.score} points · ${candidate.numComments} 评论 · 讨论密度 ${candidate.density.toFixed(3)} · 榜内第 ${candidate.rank} 位`,
+        `- **来源**：[r/${candidate.subreddit}](https://www.reddit.com/r/${candidate.subreddit}/)`,
+        `- **帖子**：${candidate.url}`,
+        `- **发布时间**：${candidate.publishedAt}`,
+        `- **中文标题**：${translation.title_zh}`,
+      ].join("\n")
+    ),
   ].join("\n");
   writeAiArtifact(artifactsDir, "reddit-trending", "source.dynamic.md", combined);
   return `${combined}\n`;

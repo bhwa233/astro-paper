@@ -64,7 +64,9 @@ function isEnglish(volume: GoogleVolumeInfo): boolean {
 const DERIVATIVE_TITLE = /\b(summary|analysis|study guide|workbook|sidekick|conversation starters|in \d+ minutes)\b/i;
 
 function normalizeTitle(text: string): string {
-  return compact(text).toLowerCase().replace(/[^a-z0-9]+/g, "");
+  return compact(text)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
 }
 
 function bestDescription(volumes: GoogleVolumeInfo[], author = "", wantedTitle = ""): GoogleBookInfo | null {
@@ -104,9 +106,7 @@ export async function fetchGoogleBookInfo(isbn: string, title = "", author = "")
   if (id) {
     // ISBN 唯一确定一个版本，只认真正登记了该 ISBN 的条目。
     // 否则同一次查询里的改写本、导读本会被当成同书（实测 Outliers 会命中一本 30 分钟速读指南）。
-    const exact = (await search(`isbn:${id}`, key)).filter(volume =>
-      (volume.industryIdentifiers || []).some(entry => compact(entry.identifier || "") === id),
-    );
+    const exact = (await search(`isbn:${id}`, key)).filter(volume => (volume.industryIdentifiers || []).some(entry => compact(entry.identifier || "") === id));
     const byIsbn = bestDescription(exact);
     if (byIsbn) return byIsbn;
   }

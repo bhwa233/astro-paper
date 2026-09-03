@@ -41,7 +41,7 @@ export function loadNytBookRecommendationKeys(file = nytBooksLedgerPath(), exclu
 export function appendNytBookRecommendations(
   recommendations: NytBookRecommendation[],
   meta: { archivedAt: string; postPath: string },
-  file = nytBooksLedgerPath(),
+  file = nytBooksLedgerPath()
 ): void {
   appendRecommendations(SPEC, recommendations, meta, file);
 }

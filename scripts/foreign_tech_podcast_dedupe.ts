@@ -11,13 +11,7 @@ export type PodcastFingerprintInput = {
 };
 
 function normalizeText(value = ""): string {
-  return compact(value)
-    .toLowerCase()
-    .normalize("NFKC")
-    .replace(/[“”]/g, '"')
-    .replace(/[‘’]/g, "'")
-    .replace(/\s+/g, " ")
-    .trim();
+  return compact(value).toLowerCase().normalize("NFKC").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\s+/g, " ").trim();
 }
 
 function normalizeTitle(value = ""): string {

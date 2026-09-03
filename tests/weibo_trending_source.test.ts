@@ -16,18 +16,8 @@ import {
 
 test("Weibo trending AI summaries reject output beyond the card limit", () => {
   const summary = "热".repeat(WEIBO_TRENDING_SUMMARY_LIMIT);
-  assert.equal(
-    parseWeiboTrendingItemSummary(JSON.stringify({ rank: 1, summary }), 1).summary,
-    summary,
-  );
-  assert.throws(
-    () =>
-      parseWeiboTrendingItemSummary(
-        JSON.stringify({ rank: 1, summary: `${summary}点` }),
-        1,
-      ),
-    /exceeds 250 Unicode characters/,
-  );
+  assert.equal(parseWeiboTrendingItemSummary(JSON.stringify({ rank: 1, summary }), 1).summary, summary);
+  assert.throws(() => parseWeiboTrendingItemSummary(JSON.stringify({ rank: 1, summary: `${summary}点` }), 1), /exceeds 250 Unicode characters/);
 });
 
 test("Weibo trending dedupe keeps the highest-ranked item in each semantic duplicate group", () => {
@@ -46,11 +36,20 @@ test("Weibo trending dedupe keeps the highest-ranked item in each semantic dupli
         { ranks: [5, 3], reason: "同一传闻的不同说法" },
       ],
     }),
-    candidates.map(item => item.rank),
+    candidates.map(item => item.rank)
   );
 
-  assert.deepEqual(groups.map(group => group.ranks), [[2, 4], [3, 5]]);
-  assert.deepEqual(removeWeiboTrendingDuplicates(candidates, groups).kept.map(item => item.rank), [1, 2, 3]);
+  assert.deepEqual(
+    groups.map(group => group.ranks),
+    [
+      [2, 4],
+      [3, 5],
+    ]
+  );
+  assert.deepEqual(
+    removeWeiboTrendingDuplicates(candidates, groups).kept.map(item => item.rank),
+    [1, 2, 3]
+  );
   assert.throws(
     () =>
       parseWeiboTrendingDedupeResponse(
@@ -60,21 +59,20 @@ test("Weibo trending dedupe keeps the highest-ranked item in each semantic dupli
             { ranks: [2, 3], reason: "另一事件" },
           ],
         }),
-        candidates.map(item => item.rank),
+        candidates.map(item => item.rank)
       ),
-    /appears in more than one group/,
+    /appears in more than one group/
   );
 });
 
 test("Weibo trending AI returns a bounded WeChat title and topic summary", () => {
   const core = "赴韩女生遇害";
-  const description = "西藏吉隆口岸泥石流救援持续推进，刘翔退役安置争议引发体育保障讨论，中国女留学生在韩遇害案披露更多调查细节，其余热点涉及外交安全、消费争议与文娱动态。";
+  const description =
+    "西藏吉隆口岸泥石流救援持续推进，刘翔退役安置争议引发体育保障讨论，中国女留学生在韩遇害案披露更多调查细节，其余热点涉及外交安全、消费争议与文娱动态。";
   assert.deepEqual(
-    parseWeiboTrendingTitleResponse(
-      JSON.stringify({ title_suffix: "三件事看懂今天", wechat_title: core, wechat_description: description }),
-    ),
+    parseWeiboTrendingTitleResponse(JSON.stringify({ title_suffix: "三件事看懂今天", wechat_title: core, wechat_description: description })),
     // The model writes the core event only; the fixed prefix is added here.
-    { titleSuffix: "三件事看懂今天", wechatTitle: `今日热点：${core}`, wechatDescription: description },
+    { titleSuffix: "三件事看懂今天", wechatTitle: `今日热点：${core}`, wechatDescription: description }
   );
   assert.throws(
     () =>
@@ -83,9 +81,9 @@ test("Weibo trending AI returns a bounded WeChat title and topic summary", () =>
           title_suffix: "三件事看懂今天",
           wechat_title: "今".repeat(WEIBO_TRENDING_WECHAT_TITLE_CORE_MAX_LENGTH + 1),
           wechat_description: description,
-        }),
+        })
       ),
-    /exceeds 19 characters/,
+    /exceeds 19 characters/
   );
   assert.throws(
     () =>
@@ -94,9 +92,9 @@ test("Weibo trending AI returns a bounded WeChat title and topic summary", () =>
           title_suffix: "三件事看懂今天",
           wechat_title: `${core}等十条热搜`,
           wechat_description: description,
-        }),
+        })
       ),
-    /must not repeat the fixed title prefix/,
+    /must not repeat the fixed title prefix/
   );
   assert.throws(
     () =>
@@ -105,8 +103,8 @@ test("Weibo trending AI returns a bounded WeChat title and topic summary", () =>
           title_suffix: "三件事看懂今天",
           wechat_title: core,
           wechat_description: "热".repeat(WEIBO_TRENDING_WECHAT_DESCRIPTION_MAX_LENGTH + 1),
-        }),
+        })
       ),
-    /must contain 60-120 characters/,
+    /must contain 60-120 characters/
   );
 });

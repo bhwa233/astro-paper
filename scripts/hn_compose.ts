@@ -42,7 +42,11 @@ export function parseSourceFacts(source: string): HnSourceFact[] {
     const bullets = extractBullets(block);
     facts.push({
       rank: index + 1,
-      points: bullets.find(bullet => bullet.startsWith("⭐"))?.replace(/^⭐\s*/, "").trim() || "",
+      points:
+        bullets
+          .find(bullet => bullet.startsWith("⭐"))
+          ?.replace(/^⭐\s*/, "")
+          .trim() || "",
       topic: bulletValue(bullets, "主题") || "技术 / 观察",
       url: bulletValue(bullets, "原文"),
       hn_link: bulletValue(bullets, "HN 讨论"),

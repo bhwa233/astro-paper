@@ -33,12 +33,26 @@ export function renderRedditLifeNewspicCards(selection: RedditLifeNewspicSelecti
       `${JSON.stringify({
         manifest,
       })}\n`,
-      "utf8",
+      "utf8"
     );
     const result = spawnSync(
       "pnpm",
-      ["run", "render:stills", "--", "--composition", COMPOSITION_ID, "--props", propsFile, "--out-dir", outputDir, "--prefix", "card", "--count", String(selection.cards.length + 1)],
-      { cwd: rendererPackageRoot, encoding: "utf8" },
+      [
+        "run",
+        "render:stills",
+        "--",
+        "--composition",
+        COMPOSITION_ID,
+        "--props",
+        propsFile,
+        "--out-dir",
+        outputDir,
+        "--prefix",
+        "card",
+        "--count",
+        String(selection.cards.length + 1),
+      ],
+      { cwd: rendererPackageRoot, encoding: "utf8" }
     );
     if (result.status !== 0) throw renderFailure(result);
 

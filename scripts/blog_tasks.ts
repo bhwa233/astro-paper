@@ -307,9 +307,7 @@ function isoWeekLabel(date: string): string {
 }
 
 export function taskPostRelPath(task: Task, date: string): string {
-  const fileName = taskInfo(task)
-    .fileName.replace("{date}", date)
-    .replace("{compactDate}", date.replaceAll("-", ""));
+  const fileName = taskInfo(task).fileName.replace("{date}", date).replace("{compactDate}", date.replaceAll("-", ""));
   return path.join("src/content/posts/zh-cn", fileName);
 }
 

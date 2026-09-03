@@ -5,6 +5,9 @@
 !/src
 !/public
 !/.github
+!/scripts
+!/tests
+!AGENTS.md
 !tsconfig.json
 !astro.config.ts
 !package.json
@@ -12,6 +15,9 @@
 !eslint.config.js
 !README.md
 !.vscode
+
+# scripts/wechat 是整棵搬进来的发布器，自带风格（单引号、无分号），不套本仓格式。
+/scripts/wechat
 
 # Ignore MDX files
 *.mdx

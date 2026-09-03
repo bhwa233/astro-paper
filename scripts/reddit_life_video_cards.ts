@@ -72,7 +72,9 @@ function validateIssue(raw: unknown, position: number, questions: RedditLifeVide
     const sourceIndex = Number(card.sourceIndex);
     const source = answersByIndex.get(sourceIndex);
     if (source === undefined) {
-      throw new Error(`Reddit life video card ${position + 1} refers to answer ${String(card.sourceIndex)}, which does not belong to question ${questionIndex}`);
+      throw new Error(
+        `Reddit life video card ${position + 1} refers to answer ${String(card.sourceIndex)}, which does not belong to question ${questionIndex}`
+      );
     }
     if (used.has(sourceIndex)) throw new Error(`Reddit life video card ${position + 1} reuses answer ${sourceIndex}`);
     used.add(sourceIndex);

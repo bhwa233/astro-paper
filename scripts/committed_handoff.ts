@@ -89,7 +89,12 @@ export function writeTextArtifact(dir: string, name: string, content: string): v
  * 解析失败必须抛，不能把损坏的 manifest 当成「还没归档」——那会让当天重复渲染、重复建草稿。
  * 各管线的 parse 抛出的错误以 `invalid ${label}` 开头时原样透传，其余包成同一前缀。
  */
-export function loadRunManifest<T>(file: string, label: string, parse: (raw: unknown, file: string) => T, accept: (raw: unknown) => boolean = () => true): T | null {
+export function loadRunManifest<T>(
+  file: string,
+  label: string,
+  parse: (raw: unknown, file: string) => T,
+  accept: (raw: unknown) => boolean = () => true
+): T | null {
   if (!fs.existsSync(file)) return null;
   try {
     const raw = JSON.parse(fs.readFileSync(file, "utf8")) as unknown;

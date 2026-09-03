@@ -3,7 +3,22 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { bjtDateString, clipText, compact, ensureDir, envBool, envPositiveNumber, fetchText, parseArgs, repoRoot, sleep, stringArg, stripHtml, writeStderr, writeStdout } from "./blog_common.ts";
+import {
+  bjtDateString,
+  clipText,
+  compact,
+  ensureDir,
+  envBool,
+  envPositiveNumber,
+  fetchText,
+  parseArgs,
+  repoRoot,
+  sleep,
+  stringArg,
+  stripHtml,
+  writeStderr,
+  writeStdout,
+} from "./blog_common.ts";
 import { podcastFingerprints } from "./foreign_tech_podcast_dedupe.ts";
 import { isEpisodeSummarized, loadSummarizedFingerprints } from "./podcast_ledger.ts";
 import { renderPrompt } from "./ai_blog_writer.ts";
@@ -108,7 +123,7 @@ export class PodcastSourceInsufficientEpisodesError extends Error {
     readonly sourceName: string,
     readonly usableEpisodes: number,
     readonly requiredEpisodes: number,
-    detail = "",
+    detail = ""
   ) {
     super(`${sourceName} podcast source found only ${usableEpisodes} usable episodes; need ${requiredEpisodes}${detail ? ` (${detail})` : ""}`);
     this.name = "PodcastSourceInsufficientEpisodesError";
@@ -194,7 +209,6 @@ function parseDate(date: string): Date {
 function daysBetween(a: string, b: string): number {
   return Math.round((parseDate(a).getTime() - parseDate(b).getTime()) / 86_400_000);
 }
-
 
 function maxEpisodes(): number {
   return envPositiveNumber("PODCAST_MAX_EPISODES", 3);
@@ -329,7 +343,7 @@ async function fetchRssEpisodes(date: string): Promise<Episode[]> {
     FEEDS.map(async feed => {
       const xml = await fetchText(feed.url, { timeoutMs: 25_000, maxChars: 2_500_000, throwOnMaxChars: true });
       return parseFeed(feed, xml);
-    }),
+    })
   );
   const episodes = settled.flatMap(result => (result.status === "fulfilled" ? result.value : []));
   const inWindow = episodes.filter(episode => {
@@ -338,7 +352,6 @@ async function fetchRssEpisodes(date: string): Promise<Episode[]> {
   });
   return inWindow.toSorted((a, b) => b.date.localeCompare(a.date));
 }
-
 
 function appleTopPodcastsCount(): number {
   return envPositiveNumber("APPLE_TOP_PODCASTS_COUNT", 20);
@@ -359,9 +372,7 @@ const APPLE_DEFAULT_STOREFRONTS: AppleStorefront[] = [
   { code: "tw", region: "台湾" },
 ];
 
-const APPLE_REGION_NAMES: Record<string, string> = Object.fromEntries(
-  APPLE_DEFAULT_STOREFRONTS.map(storefront => [storefront.code, storefront.region]),
-);
+const APPLE_REGION_NAMES: Record<string, string> = Object.fromEntries(APPLE_DEFAULT_STOREFRONTS.map(storefront => [storefront.code, storefront.region]));
 
 function appleRegionName(code: string): string {
   return APPLE_REGION_NAMES[code] || code.toUpperCase();
@@ -371,7 +382,14 @@ function appleRegionName(code: string): string {
 function appleStorefronts(): AppleStorefront[] {
   const raw = (process.env.APPLE_PODCASTS_STOREFRONTS || process.env.APPLE_PODCASTS_STOREFRONT || "").trim();
   if (!raw) return APPLE_DEFAULT_STOREFRONTS;
-  const codes = [...new Set(raw.split(",").map(code => code.trim().toLowerCase()).filter(Boolean))];
+  const codes = [
+    ...new Set(
+      raw
+        .split(",")
+        .map(code => code.trim().toLowerCase())
+        .filter(Boolean)
+    ),
+  ];
   return codes.length ? codes.map(code => ({ code, region: appleRegionName(code) })) : APPLE_DEFAULT_STOREFRONTS;
 }
 
@@ -575,7 +593,7 @@ function downloadAudioWithCurl(url: string, file: string, timeoutMs: number, max
       file,
       url,
     ],
-    { encoding: "utf8", timeout: timeoutMs, maxBuffer: 5 * 1024 * 1024 },
+    { encoding: "utf8", timeout: timeoutMs, maxBuffer: 5 * 1024 * 1024 }
   );
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(`audio download HTTP 403`);
@@ -622,7 +640,6 @@ function runFfmpeg(args: string[], timeoutMs: number): void {
   if (result.status !== 0) throw new Error(`${bin} exited ${result.status}: ${(result.stderr || result.stdout || "").slice(0, 2000)}`);
 }
 
-
 function retryAfterMs(value: string | null): number | null {
   if (!value) return null;
   const seconds = Number(value);
@@ -632,13 +649,33 @@ function retryAfterMs(value: string | null): number | null {
   return null;
 }
 
-
 function prepareGeminiAudioChunks(audioFile: string, outDir: string): string[] {
   ensureDir(outDir);
   const segmentSeconds = envPositiveNumber("PODCAST_GEMINI_SEGMENT_SECONDS", 20 * 60);
   const bitrate = process.env.PODCAST_GEMINI_AUDIO_BITRATE || "64k";
   const timeoutMs = envPositiveNumber("PODCAST_FFMPEG_TIMEOUT_MS", 20 * 60 * 1000);
-  runFfmpeg(["-y", "-i", audioFile, "-vn", "-ac", "1", "-ar", "16000", "-b:a", bitrate, "-f", "segment", "-segment_time", String(segmentSeconds), "-reset_timestamps", "1", path.join(outDir, "chunk-%03d.mp3")], timeoutMs);
+  runFfmpeg(
+    [
+      "-y",
+      "-i",
+      audioFile,
+      "-vn",
+      "-ac",
+      "1",
+      "-ar",
+      "16000",
+      "-b:a",
+      bitrate,
+      "-f",
+      "segment",
+      "-segment_time",
+      String(segmentSeconds),
+      "-reset_timestamps",
+      "1",
+      path.join(outDir, "chunk-%03d.mp3"),
+    ],
+    timeoutMs
+  );
   const maxBytes = envPositiveNumber("PODCAST_GEMINI_MAX_INLINE_CHUNK_MB", 14) * 1024 * 1024;
   const chunks = fs
     .readdirSync(outDir)
@@ -861,14 +898,7 @@ async function enrichWithTranscripts(episodes: Episode[], options: { tolerateFai
 }
 
 function podcastSourceMarkdown(episodes: Episode[], sourceIntro: string, writingBoundaries: string[]): string {
-  const lines = [
-    "## 来源说明",
-    "",
-    sourceIntro,
-    "",
-    "## 候选播客清单",
-    "",
-  ];
+  const lines = ["## 来源说明", "", sourceIntro, "", "## 候选播客清单", ""];
   for (const [index, episode] of episodes.entries()) {
     const metadata = [
       episode.chartRank ? `- Apple Top Shows${episode.region ? ` · ${episode.region}` : ""} 排名：#${episode.chartRank}` : "",
@@ -887,16 +917,7 @@ function podcastSourceMarkdown(episodes: Episode[], sourceIntro: string, writing
       episode.transcriptUrl ? `- Transcript：${episode.transcriptUrl}` : "",
       `- Show notes：${episode.description}`,
     ].filter(Boolean);
-    lines.push(
-      `### ${index + 1}. ${episode.title}`,
-      "",
-      ...metadata,
-      "",
-      "#### Transcript",
-      "",
-      transcriptForPrompt(episode),
-      "",
-    );
+    lines.push(`### ${index + 1}. ${episode.title}`, "", ...metadata, "", "#### Transcript", "", transcriptForPrompt(episode), "");
   }
   lines.push("## 写作边界", "", ...writingBoundaries);
   return `${lines.join("\n").trim()}\n`;
@@ -943,7 +964,7 @@ export async function buildDailyPodcastSource(date = bjtDateString()): Promise<s
       "- 若 transcript 或元数据没有明确嘉宾姓名，嘉宾字段写“未标明”，不要猜。",
       "- 每条分析必须能回到 transcript 证据；不得仅凭标题、链接、图片或简短简介扩写。",
       "- 不要生成金融建议、产品购买建议或夸张标题。",
-    ],
+    ]
   );
 }
 
@@ -959,7 +980,7 @@ export async function buildForeignTechPodcastSource(date = bjtDateString()): Pro
       "- 若 transcript 或元数据没有明确嘉宾姓名，嘉宾字段写“未标明”，不要猜。",
       "- 每条分析必须能回到 transcript 证据；不得仅凭标题、链接、图片或简短简介扩写。",
       "- 不要生成金融建议、产品购买建议或夸张标题。",
-    ],
+    ]
   );
 }
 
@@ -992,8 +1013,30 @@ function prepareGeminiArticleAudioChunks(audioFile: string, outDir: string): { f
   const timeoutMs = envPositiveNumber("PODCAST_FFMPEG_TIMEOUT_MS", 20 * 60 * 1000);
   const { codec, ext, mime } = geminiArticleAudioCodec();
   runFfmpeg(
-    ["-y", "-i", audioFile, "-vn", "-ac", "1", "-ar", "16000", "-filter:a", `atempo=${speed}`, "-c:a", codec, "-b:a", bitrate, "-f", "segment", "-segment_time", String(segmentSeconds), "-reset_timestamps", "1", path.join(outDir, `chunk-%03d.${ext}`)],
-    timeoutMs,
+    [
+      "-y",
+      "-i",
+      audioFile,
+      "-vn",
+      "-ac",
+      "1",
+      "-ar",
+      "16000",
+      "-filter:a",
+      `atempo=${speed}`,
+      "-c:a",
+      codec,
+      "-b:a",
+      bitrate,
+      "-f",
+      "segment",
+      "-segment_time",
+      String(segmentSeconds),
+      "-reset_timestamps",
+      "1",
+      path.join(outDir, `chunk-%03d.${ext}`),
+    ],
+    timeoutMs
   );
   const maxBytes = envPositiveNumber("PODCAST_GEMINI_MAX_INLINE_CHUNK_MB", 14) * 1024 * 1024;
   const chunks = fs
@@ -1016,9 +1059,7 @@ async function prepareEpisodeAudioParts(episode: Episode, tmpDir: string, index:
 }
 
 function episodeAudioMetadataBlock(episode: Episode, index: number): string {
-  const rankLabel = episode.source.includes("XYZ Rank")
-    ? "XYZ Rank 热门单集排名"
-    : `Apple Top Shows${episode.region ? ` · ${episode.region}` : ""} 排名`;
+  const rankLabel = episode.source.includes("XYZ Rank") ? "XYZ Rank 热门单集排名" : `Apple Top Shows${episode.region ? ` · ${episode.region}` : ""} 排名`;
   const metadata = [
     episode.chartRank ? `- ${rankLabel}：#${episode.chartRank}` : "",
     `- 节目：${episode.show}`,

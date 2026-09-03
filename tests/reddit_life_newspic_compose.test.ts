@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  parseRedditLifeNewspicSelections,
-  renderRedditLifeNewspicMarkdown,
-} from "../scripts/reddit_life_newspic_compose.ts";
+import { parseRedditLifeNewspicSelections, renderRedditLifeNewspicMarkdown } from "../scripts/reddit_life_newspic_compose.ts";
 import { VIDEO_MANIFEST_VERSION } from "../video/src/contract.ts";
 
 test("Reddit image messages preserve both AI titles and selected questions", () => {
@@ -26,7 +23,7 @@ test("Reddit image messages preserve both AI titles and selected questions", () 
         },
       ],
     },
-    "2099-01-02",
+    "2099-01-02"
   );
 
   assert.equal(selections.length, 2);
@@ -61,9 +58,9 @@ test("Reddit image message refuses a selection that mixes duplicate source answe
             },
           ],
         },
-        "2099-01-02",
+        "2099-01-02"
       ),
-    /duplicate source index/,
+    /duplicate source index/
   );
 });
 
@@ -85,8 +82,8 @@ test("Reddit image messages require two different questions", () => {
             },
           ],
         },
-        "2099-01-02",
+        "2099-01-02"
       ),
-    /different questions/,
+    /different questions/
   );
 });

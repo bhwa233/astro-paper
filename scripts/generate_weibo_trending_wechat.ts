@@ -112,7 +112,13 @@ function parseManifest(raw: unknown, file: string): WeiboTrendingWechatRunManife
       }
     } else if (draft.cover || draft.itemCount > WEIBO_TRENDING_WECHAT_ITEM_LIMIT || draft.cards?.length !== draft.itemCount + 1) {
       throw new Error(`invalid image ${LABEL} draft: ${file}`);
-    } else if (value.version === COMMITTED_CARDS_VERSION ? value.release !== undefined : !isReleaseManifest(value.release) || value.release.tag !== weiboTrendingWechatReleaseTag(value.archiveDate!) || value.release.assets.length !== draft.cards!.length) {
+    } else if (
+      value.version === COMMITTED_CARDS_VERSION
+        ? value.release !== undefined
+        : !isReleaseManifest(value.release) ||
+          value.release.tag !== weiboTrendingWechatReleaseTag(value.archiveDate!) ||
+          value.release.assets.length !== draft.cards!.length
+    ) {
       throw new Error(`invalid ${LABEL} release section: ${file}`);
     }
   }
@@ -127,7 +133,7 @@ export function shouldRebuildWeiboTrendingWechatManifest(
   existing: Pick<WeiboTrendingWechatRunManifest, "status" | "upstream">,
   upstreamSha: string,
   upstreamArticleAvailable: boolean,
-  force = false,
+  force = false
 ): boolean {
   if (force) return true;
   if (existing.status === "upstream-empty") return upstreamArticleAvailable;
@@ -172,7 +178,8 @@ export async function generateWeiboTrendingWechat({
           existing.rawSources!.upstreamMarkdown.path !== path.join(expectedDayDir, "upstream.md") ||
           existing.draft!.path !== path.join(expectedDayDir, "01.md") ||
           (existing.version === LEGACY_MANIFEST_VERSION && existing.draft!.cover && existing.draft!.cover!.path !== path.join(expectedDayDir, "cover.png")) ||
-          (existing.version !== LEGACY_MANIFEST_VERSION && existing.draft!.cards!.some((card, index) => card.path !== path.join(expectedDayDir, weiboTrendingWechatCardFile(index))))
+          (existing.version !== LEGACY_MANIFEST_VERSION &&
+            existing.draft!.cards!.some((card, index) => card.path !== path.join(expectedDayDir, weiboTrendingWechatCardFile(index))))
         ) {
           throw new Error(`invalid Weibo trending WeChat archive paths or counts: ${manifestRel}`);
         }
@@ -242,7 +249,7 @@ export async function generateWeiboTrendingWechat({
   untrackPaths(
     repo,
     archivedCards.map(card => card.path),
-    LABEL,
+    LABEL
   );
   const markdown = renderWeiboTrendingWechatMarkdown({
     itemCount: selectedItems.length,
@@ -274,7 +281,7 @@ export async function generateWeiboTrendingWechat({
   };
   writeJson(manifestFile, manifest);
   writeStderr(
-    `[weibo-trending-wechat] archive=${date}: complete items=${draft.itemCount}/${selectedItems.length} truncated=${draft.truncatedItemCount} draft=${draftRel}`,
+    `[weibo-trending-wechat] archive=${date}: complete items=${draft.itemCount}/${selectedItems.length} truncated=${draft.truncatedItemCount} draft=${draftRel}`
   );
   return { manifestPath: manifestRel, generatedPaths: [draftRel], status: manifest.status, rendered: true };
 }

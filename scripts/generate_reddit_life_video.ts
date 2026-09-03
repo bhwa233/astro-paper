@@ -89,14 +89,14 @@ async function main(): Promise<void> {
     if (existing.version === MANIFEST_VERSION && existing.selectionCount === REDDIT_LIFE_DAILY_SELECTION_COUNT) {
       writeStderr(`[reddit-life-video] reusing existing manifest for ${date}; pass --force to reselect\n`);
       writeStdout(
-        `${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), videoCount: REDDIT_LIFE_DAILY_VIDEO_COUNT, cardCount: REDDIT_LIFE_DAILY_VIDEO_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`,
+        `${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), videoCount: REDDIT_LIFE_DAILY_VIDEO_COUNT, cardCount: REDDIT_LIFE_DAILY_VIDEO_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`
       );
       return;
     }
     // 旧版缺少当前契约，或发布数量已经变化；两种情况都必须重选，不能让下游拿到
     // 一份看似有效但数量不足的 video.json。
     writeStderr(
-      `WARN: [reddit-life-video] manifest for ${date} is version ${existing.version}, selectionCount ${String(existing.selectionCount)}; reselecting for version ${MANIFEST_VERSION}, selectionCount ${REDDIT_LIFE_DAILY_SELECTION_COUNT}\n`,
+      `WARN: [reddit-life-video] manifest for ${date} is version ${existing.version}, selectionCount ${String(existing.selectionCount)}; reselecting for version ${MANIFEST_VERSION}, selectionCount ${REDDIT_LIFE_DAILY_SELECTION_COUNT}\n`
     );
   }
 
@@ -129,7 +129,7 @@ async function main(): Promise<void> {
     ensureDir(outDir);
     fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
     writeStdout(
-      `${JSON.stringify({ date, status: manifest.status, videoPath: manifest.status === "processed" ? path.relative(repo, videoPath) : "", videoCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_VIDEO_COUNT : 0, cardCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_VIDEO_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT : 0, reused: false })}\n`,
+      `${JSON.stringify({ date, status: manifest.status, videoPath: manifest.status === "processed" ? path.relative(repo, videoPath) : "", videoCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_VIDEO_COUNT : 0, cardCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_VIDEO_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT : 0, reused: false })}\n`
     );
   };
 
@@ -149,7 +149,7 @@ async function main(): Promise<void> {
   if (eligible.length < REDDIT_LIFE_DAILY_SELECTION_COUNT) {
     manifest.status = "insufficient-candidates";
     writeStderr(
-      `[reddit-life-video] only ${eligible.length} of ${questions.length} questions for ${date} have ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} answers; need ${REDDIT_LIFE_DAILY_SELECTION_COUNT}\n`,
+      `[reddit-life-video] only ${eligible.length} of ${questions.length} questions for ${date} have ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} answers; need ${REDDIT_LIFE_DAILY_SELECTION_COUNT}\n`
     );
     finish();
     return;
@@ -171,7 +171,9 @@ async function main(): Promise<void> {
   manifest.titles = selection.issues.map(issue => issue.title);
   manifest.questions = selection.issues.map(issue => issue.question);
   manifest.verbatimCounts = selection.issues.map(issue => issue.cards.filter(card => card.verbatim).length);
-  writeStderr(`[reddit-life-video] ${date}: questions ${manifest.selectedQuestionIndexes.join(", ")} of ${eligible.length} eligible; verbatim answers ${manifest.verbatimCounts.join(", ")}\n`);
+  writeStderr(
+    `[reddit-life-video] ${date}: questions ${manifest.selectedQuestionIndexes.join(", ")} of ${eligible.length} eligible; verbatim answers ${manifest.verbatimCounts.join(", ")}\n`
+  );
 
   ensureDir(outDir);
   // taxonomy 刻意不写进这里。下游图文用 video.json 的整份字节做缓存键，
@@ -186,7 +188,7 @@ async function main(): Promise<void> {
       additionalIssues: additionalIssues.map(issue => ({ title: issue.title, question: issue.question, cards: issue.cards })),
     },
     null,
-    2,
+    2
   )}\n`;
   fs.writeFileSync(videoPath, videoJson, "utf8");
 
@@ -205,12 +207,14 @@ async function main(): Promise<void> {
   fs.writeFileSync(
     publishPath,
     `${JSON.stringify({ version: PUBLISH_VERSION, archiveDate: date, model, sourceSha: sha256(videoJson), issues: publishIssues }, null, 2)}\n`,
-    "utf8",
+    "utf8"
   );
 
   const degraded = publishIssues.filter(issue => issue.status !== "processed");
   if (degraded.length) {
-    writeStderr(`WARN: [reddit-life-video] ${date}: ${degraded.length} of ${publishIssues.length} issues have no publish metadata: ${degraded.map(issue => issue.problems.join("; ")).join(" | ")}\n`);
+    writeStderr(
+      `WARN: [reddit-life-video] ${date}: ${degraded.length} of ${publishIssues.length} issues have no publish metadata: ${degraded.map(issue => issue.problems.join("; ")).join(" | ")}\n`
+    );
   }
   const dropped = [...new Set(publishIssues.flatMap(issue => issue.droppedTags))];
   if (dropped.length) writeStderr(`[reddit-life-video] ${date}: tags outside the vocabulary were dropped: ${dropped.join(", ")}\n`);

@@ -31,7 +31,9 @@ export async function renderRedditLifeWechatCover(titles: string[], brand: strin
     const svg = await satori(tree as Parameters<typeof satori>[0], { width: WECHAT_COVER_WIDTH, height: WECHAT_COVER_HEIGHT, fonts });
     return await svgToPng(svg);
   } catch (error) {
-    writeStderr(`WARN: [reddit-life-wechat] cover rendering failed, falling back to the configured defaultCover: ${error instanceof Error ? error.message : String(error)}`);
+    writeStderr(
+      `WARN: [reddit-life-wechat] cover rendering failed, falling back to the configured defaultCover: ${error instanceof Error ? error.message : String(error)}`
+    );
     return null;
   }
 }

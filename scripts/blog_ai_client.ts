@@ -150,11 +150,12 @@ async function callBlogAiOnce({
   if (!model) throw new Error("AI_MODEL is required for live AI blog generation");
   try {
     const googleBaseUrl = baseUrl.replace(/\/+$/, "").replace(/\/v1beta$/, "") + "/v1beta";
-    const languageModel = apiStyle === "gemini"
-      ? createGoogleGenerativeAI({ apiKey, baseURL: googleBaseUrl })(model)
-      : apiStyle === "responses"
-        ? createOpenAI({ apiKey, baseURL: baseUrl })(model)
-        : createOpenAI({ apiKey, baseURL: baseUrl }).chat(model);
+    const languageModel =
+      apiStyle === "gemini"
+        ? createGoogleGenerativeAI({ apiKey, baseURL: googleBaseUrl })(model)
+        : apiStyle === "responses"
+          ? createOpenAI({ apiKey, baseURL: baseUrl })(model)
+          : createOpenAI({ apiKey, baseURL: baseUrl }).chat(model);
     const supportsTemperature = !/^gpt-5(?:[.-]|$)/.test(model);
     const result = await generateText({
       model: languageModel,
@@ -191,9 +192,7 @@ async function callBlogAiOnce({
       // jsonMode 下 SDK 只说 "could not parse the response"，看不出是被安全策略拦下、
       // 截断在半截 JSON，还是模型直接写了散文。带上 finishReason 和原始输出才能定位。
       const finishReason = error.finishReason || "unknown";
-      throw new Error(
-        `AI request failed: ${error.message} finishReason=${finishReason} text=${clipText(error.text, 1200) || "<empty>"}`
-      );
+      throw new Error(`AI request failed: ${error.message} finishReason=${finishReason} text=${clipText(error.text, 1200) || "<empty>"}`);
     }
     if (error instanceof Error) throw new Error(`AI request failed: ${error.message}`);
     throw new Error(`AI request failed: ${String(error)}`);
@@ -248,17 +247,18 @@ function missingConfigField(config: AiConfig): keyof AiConfig | "" {
 function configErrorMessage(config: AiConfig, label: "primary" | "fallback"): string {
   const field = missingConfigField(config);
   if (!field) return "";
-  const name = label === "fallback"
-    ? field === "apiKey"
-      ? "AI_FALLBACK_API_KEY"
-      : field === "baseUrl"
-        ? "AI_FALLBACK_BASE_URL"
-        : "AI_FALLBACK_MODEL"
-    : field === "apiKey"
-      ? "AI_API_KEY"
-      : field === "baseUrl"
-        ? "AI_BASE_URL"
-        : "AI_MODEL";
+  const name =
+    label === "fallback"
+      ? field === "apiKey"
+        ? "AI_FALLBACK_API_KEY"
+        : field === "baseUrl"
+          ? "AI_FALLBACK_BASE_URL"
+          : "AI_FALLBACK_MODEL"
+      : field === "apiKey"
+        ? "AI_API_KEY"
+        : field === "baseUrl"
+          ? "AI_BASE_URL"
+          : "AI_MODEL";
   return `${label} AI config missing ${name}`;
 }
 

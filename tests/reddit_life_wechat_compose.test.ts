@@ -1,11 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  dropTrailingStories,
-  renderRedditLifeWechatMarkdown,
-  type RedditLifeCandidate,
-} from "../scripts/reddit_life_wechat_compose.ts";
+import { dropTrailingStories, renderRedditLifeWechatMarkdown, type RedditLifeCandidate } from "../scripts/reddit_life_wechat_compose.ts";
 
 const candidate: RedditLifeCandidate = {
   rank: 1,

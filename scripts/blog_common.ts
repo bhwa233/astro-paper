@@ -197,7 +197,7 @@ export async function fetchText(
     retryDelayMs = 1_000,
     method = "GET",
     body,
-  }: FetchTextOptions = {},
+  }: FetchTextOptions = {}
 ): Promise<string> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -252,11 +252,7 @@ export async function sleep(ms: number): Promise<void> {
   if (ms > 0) await new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function mapWithConcurrency<T, R>(
-  items: readonly T[],
-  concurrency: number,
-  mapper: (item: T, index: number) => Promise<R>,
-): Promise<R[]> {
+export async function mapWithConcurrency<T, R>(items: readonly T[], concurrency: number, mapper: (item: T, index: number) => Promise<R>): Promise<R[]> {
   const results = new Array<R>(items.length);
   let next = 0;
   async function worker(): Promise<void> {
@@ -303,7 +299,10 @@ export async function fetchJson<T = unknown>(url: string, options: FetchTextOpti
 export function clipText(text = "", limit = 1600): string {
   const cleaned = compact(text);
   if (cleaned.length <= limit) return cleaned;
-  const cut = cleaned.slice(0, limit).replace(/\s+\S*$/, "").trim();
+  const cut = cleaned
+    .slice(0, limit)
+    .replace(/\s+\S*$/, "")
+    .trim();
   return cut || cleaned.slice(0, limit).trim();
 }
 

@@ -12,12 +12,7 @@ import { buildMdblistWeeklySource } from "../scripts/mdblist_weekly_source.ts";
 import { appendMdblistRecommendations } from "../scripts/mdblist_weekly_ledger.ts";
 import { buildXyzRankTopEpisodesSource } from "../scripts/xyzrank_top_episodes_source.ts";
 import { redditCategoryByKey } from "../scripts/reddit_top20_compose.ts";
-import {
-  type RedditSourcePolicy,
-  fetchRedditSourceFromApi,
-  parseRedditSourceApiResponse,
-  redditSubredditStatsLogLines,
-} from "../scripts/reddit_source_api.ts";
+import { type RedditSourcePolicy, fetchRedditSourceFromApi, parseRedditSourceApiResponse, redditSubredditStatsLogLines } from "../scripts/reddit_source_api.ts";
 import { fetchRedditPostDetail, fetchRedditTrendingBoard, parseRedditPostDetailResult } from "../scripts/reddit_trending_api.ts";
 import { fixture, tempDir, tempFile, withMocks } from "./helpers/mocks.ts";
 
@@ -41,7 +36,7 @@ test("GitHub trending source overwrites an existing daily archive", async () => 
         return new Response("", { status: 404 });
       },
     },
-    () => buildGitHubTrendingDailySource("2099-01-06", { dataDir, limit: 1 }),
+    () => buildGitHubTrendingDailySource("2099-01-06", { dataDir, limit: 1 })
   );
 
   const payload = JSON.parse(fs.readFileSync(archiveFile, "utf8")) as { stale?: boolean; date?: string; repos?: unknown[] };
@@ -83,13 +78,19 @@ test("foreign tech podcast source trims oversized transcripts for prompt stabili
         PODCAST_MAX_EPISODES: "1",
         PODCAST_AUDIO_TRANSCRIBE: "false",
         PODCAST_TEST_EPISODES_FILE: curatedEpisodesFile([
-          curatedEpisode({ title: "Operating AI Platforms Under Load", show: "Latent Space", guest: "Platform Lead", link: "https://example.com/podcast/platform-load", transcript }),
+          curatedEpisode({
+            title: "Operating AI Platforms Under Load",
+            show: "Latent Space",
+            guest: "Platform Lead",
+            link: "https://example.com/podcast/platform-load",
+            transcript,
+          }),
         ]),
         PODCAST_MIN_TRANSCRIPT_CHARS: "120",
         PODCAST_PROMPT_TRANSCRIPT_CHARS: "4000",
       },
     },
-    () => buildForeignTechPodcastSource("2026-06-23"),
+    () => buildForeignTechPodcastSource("2026-06-23")
   );
   // Head and tail both survive the clip so the model still sees where the episode starts and ends.
   assert.match(source, /HEAD_SENTINEL/);
@@ -103,14 +104,30 @@ test("foreign tech podcast source trims oversized transcripts for prompt stabili
 const UNUSABLE_EPISODE_CASES = [
   {
     name: "blocked audio download",
-    extraEpisodes: [curatedEpisode({ title: "Blocked Audio Episode", show: "Blocked Show", source: "Blocked Feed", link: "https://example.com/podcast/blocked", audioUrl: "https://example.com/audio/blocked.mp3" })],
+    extraEpisodes: [
+      curatedEpisode({
+        title: "Blocked Audio Episode",
+        show: "Blocked Show",
+        source: "Blocked Feed",
+        link: "https://example.com/podcast/blocked",
+        audioUrl: "https://example.com/audio/blocked.mp3",
+      }),
+    ],
     env: { PODCAST_AUDIO_TRANSCRIBE: "true", PODCAST_MAX_EPISODES: "2" },
     fetch: async () => new Response("forbidden", { status: 403 }),
     dropped: /Blocked Audio Episode/,
   },
   {
     name: "audio download past the per-episode timeout",
-    extraEpisodes: [curatedEpisode({ title: "Never Ending Audio Episode", show: "Slow Show", source: "Slow Feed", link: "https://example.com/podcast/slow", audioUrl: "https://example.com/audio/slow.mp3" })],
+    extraEpisodes: [
+      curatedEpisode({
+        title: "Never Ending Audio Episode",
+        show: "Slow Show",
+        source: "Slow Feed",
+        link: "https://example.com/podcast/slow",
+        audioUrl: "https://example.com/audio/slow.mp3",
+      }),
+    ],
     env: { PODCAST_AUDIO_TRANSCRIBE: "true", PODCAST_MAX_EPISODES: "2", PODCAST_AUDIO_DOWNLOAD_TIMEOUT_MS: "10" },
     fetch: (async (_url: unknown, init?: RequestInit) =>
       new Promise<Response>((_resolve, reject) => {
@@ -126,7 +143,7 @@ const UNUSABLE_EPISODE_CASES = [
             error.name = "AbortError";
             reject(error);
           },
-          { once: true },
+          { once: true }
         );
       })) as (input: string | URL | Request, init?: RequestInit) => Promise<Response>,
     dropped: /Never Ending Audio Episode/,
@@ -149,7 +166,7 @@ test("foreign tech podcast source drops episodes without usable transcript evide
           ...testCase.env,
         },
       },
-      () => buildForeignTechPodcastSource("2026-06-23"),
+      () => buildForeignTechPodcastSource("2026-06-23")
     );
     assert.match(source, /Reliable Agent Review Loops/, testCase.name);
     assert.doesNotMatch(source, testCase.dropped, testCase.name);
@@ -170,12 +187,13 @@ test("foreign tech podcast source drops episodes without usable transcript evide
             source: "YouTube",
             guest: "Ganesh Krishnan",
             link: "https://www.youtube.com/watch?v=H8M47RYi024",
-            description: "Only title, guest, link, thumbnail, and a short curated boundary note are available. No transcript or original show notes are stored.",
+            description:
+              "Only title, guest, link, thumbnail, and a short curated boundary note are available. No transcript or original show notes are stored.",
           }),
         ]),
       },
     },
-    () => assert.rejects(() => buildForeignTechPodcastSource("2026-06-23"), /found only 0 usable episodes/),
+    () => assert.rejects(() => buildForeignTechPodcastSource("2026-06-23"), /found only 0 usable episodes/)
   );
 });
 
@@ -195,7 +213,7 @@ test("daily podcasts fetch skips episodes already in the summarized ledger", asy
           archivedAt: "2026-06-22",
         },
       ],
-    })}\n`,
+    })}\n`
   );
 
   const source = await withMocks(
@@ -217,13 +235,15 @@ test("daily podcasts fetch skips episodes already in the summarized ledger", asy
             link: "https://podcasts.apple.com/us/podcast/the-co-founders-of-claude-ai-tell-oprah-about/id1782960381?i=1000768533274&uo=4",
             transcript: USABLE_TRANSCRIPT,
           }),
-          ...["How Anthropic Uses Claude Fable 5 With Mike Krieger", "Most of the Web Will Never Get APIs for AI Agents | Dhruv Batra", "Building Reliable AI Developer Platforms"].map((title, index) =>
-            curatedEpisode({ title, link: `https://example.com/podcast/${index}`, transcript: USABLE_TRANSCRIPT }),
-          ),
+          ...[
+            "How Anthropic Uses Claude Fable 5 With Mike Krieger",
+            "Most of the Web Will Never Get APIs for AI Agents | Dhruv Batra",
+            "Building Reliable AI Developer Platforms",
+          ].map((title, index) => curatedEpisode({ title, link: `https://example.com/podcast/${index}`, transcript: USABLE_TRANSCRIPT })),
         ]),
       },
     },
-    () => buildForeignTechPodcastSource("2026-06-23"),
+    () => buildForeignTechPodcastSource("2026-06-23")
   );
 
   assert.doesNotMatch(source, /The Oprah Podcast/);
@@ -253,13 +273,13 @@ test("XYZ Rank top episodes source extracts Xiaoyuzhou audio links", async () =>
         const match = url.match(/test-(\d+)/);
         if (match) {
           return new Response(
-            `<html><head><meta property="og:audio" content="https://media.xyzcdn.net/test/audio-${match[1]}.m4a"/><script name="schema:podcast-show" type="application/ld+json">{"description":"这一期节目讨论沟通边界和关系协商。"}</script></head></html>`,
+            `<html><head><meta property="og:audio" content="https://media.xyzcdn.net/test/audio-${match[1]}.m4a"/><script name="schema:podcast-show" type="application/ld+json">{"description":"这一期节目讨论沟通边界和关系协商。"}</script></head></html>`
           );
         }
         return new Response("not found", { status: 404 });
       },
     },
-    () => buildXyzRankTopEpisodesSource("2099-01-06", 5),
+    () => buildXyzRankTopEpisodesSource("2099-01-06", 5)
   );
   assert.match(source, /XYZ Rank 热门播客单集候选源/);
   assert.equal((source.match(/^##\s+\d+\.\s+/gm) || []).length, 5);
@@ -281,19 +301,19 @@ test("XYZ Rank top episodes source falls back to reader links when API is blocke
               "Markdown Content:",
               "1[![Image 1](https://image.example.com/one.jpg)](https://www.xiaoyuzhoufm.com/episode/fallback-1)123 4 0.1%5.0%42′1天前 科技",
               "2[![Image 2](https://image.example.com/two.jpg)](https://www.xiaoyuzhoufm.com/episode/fallback-2)99 3 0.1%4.0%38′2天前 商务",
-            ].join("\n"),
+            ].join("\n")
           );
         }
         const match = url.match(/fallback-(\d+)/);
         if (match) {
           return new Response(
-            `<html><head><meta property="og:audio" content="https://media.xyzcdn.net/fallback/audio-${match[1]}.m4a"/><script name="schema:podcast-show" type="application/ld+json">{"name":"兜底单集 ${match[1]}","datePublished":"2099-01-05T00:00:00.000Z","timeRequired":"PT42M","description":"兜底详情页描述","associatedMedia":{"contentUrl":"https://media.xyzcdn.net/fallback/jsonld-${match[1]}.m4a"},"partOfSeries":{"name":"兜底节目 ${match[1]}"}}</script></head></html>`,
+            `<html><head><meta property="og:audio" content="https://media.xyzcdn.net/fallback/audio-${match[1]}.m4a"/><script name="schema:podcast-show" type="application/ld+json">{"name":"兜底单集 ${match[1]}","datePublished":"2099-01-05T00:00:00.000Z","timeRequired":"PT42M","description":"兜底详情页描述","associatedMedia":{"contentUrl":"https://media.xyzcdn.net/fallback/jsonld-${match[1]}.m4a"},"partOfSeries":{"name":"兜底节目 ${match[1]}"}}</script></head></html>`
           );
         }
         return new Response("not found", { status: 404 });
       },
     },
-    () => buildXyzRankTopEpisodesSource("2099-01-06", 2),
+    () => buildXyzRankTopEpisodesSource("2099-01-06", 2)
   );
   assert.equal((source.match(/^##\s+\d+\.\s+/gm) || []).length, 2);
   assert.match(source, /## 1\. 兜底单集 1/);
@@ -311,7 +331,7 @@ test("mdblist source builder applies the widest rolling window and locally enfor
       { key: "show:11:season:1", mediaType: "show", tmdbId: 11, seasonNumber: 1, title: "Seen Show" },
     ],
     { archivedAt: "2099-01-02", postPath: "previous.md" },
-    ledgerFile,
+    ledgerFile
   );
 
   // tmdb id -> detail payload. Rejection reason is encoded in the payload itself:
@@ -365,10 +385,12 @@ test("mdblist source builder applies the widest rolling window and locally enfor
         }
         const detailMatch = url.pathname.match(/\/tmdb\/(movie|show)\/(\d+)$/);
         const detail = detailMatch ? DETAILS[`${detailMatch[1]}/${detailMatch[2]}`] : undefined;
-        return new Response(JSON.stringify(detail || { title: "Unexpected", description: "Unexpected media lookup.", ratings: [], genres: [] }), { status: 200 });
+        return new Response(JSON.stringify(detail || { title: "Unexpected", description: "Unexpected media lookup.", ratings: [], genres: [] }), {
+          status: 200,
+        });
       },
     },
-    () => buildMdblistWeeklySource("2099-01-09", 2, { candidatesToFetch: 6, ledgerFile }),
+    () => buildMdblistWeeklySource("2099-01-09", 2, { candidatesToFetch: 6, ledgerFile })
   );
 
   assert.match(source, /## 1\. Fresh Movie/);
@@ -405,10 +427,7 @@ const REDDIT_POLICY = {
   maxDetailCandidates: 30,
 } satisfies RedditSourcePolicy;
 
-function redditSourceItem(
-  rank: number,
-  { subreddit = "AskReddit", points = 101 - rank }: { subreddit?: string; points?: number } = {},
-): string {
+function redditSourceItem(rank: number, { subreddit = "AskReddit", points = 101 - rank }: { subreddit?: string; points?: number } = {}): string {
   return [
     `${rank}. [r/${subreddit}] Fixture post ${rank}`,
     `- ⭐ ${points} points · ${rank} 评论`,
@@ -428,9 +447,9 @@ function redditSourceItem(
 
 function redditStats(finalBySubreddit: Record<string, number>, category = redditCategoryByKey("life")) {
   return category.subreddits.map(subreddit => {
-      const final = finalBySubreddit[subreddit] || 0;
-      return { subreddit, listing: final, score_pass: final, min_score: 20, shortlisted: final, detail_ok: final, final, error_code: null };
-    });
+    const final = finalBySubreddit[subreddit] || 0;
+    return { subreddit, listing: final, score_pass: final, min_score: 20, shortlisted: final, detail_ok: final, final, error_code: null };
+  });
 }
 
 function redditPolicyResponse(category = redditCategoryByKey("life")) {
@@ -452,7 +471,7 @@ function redditPayload(
   itemCount: number,
   finalBySubreddit: Record<string, number>,
   category = redditCategoryByKey("life"),
-  policy = redditPolicyResponse(category),
+  policy = redditPolicyResponse(category)
 ) {
   return {
     contract_version: "reddit-top20-source.v7",
@@ -473,7 +492,10 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
   const payload = redditPayload(source, 2, { AskReddit: 2 });
 
   assert.equal(parseRedditSourceApiResponse(payload, "2099-01-02", category), source);
-  assert.match(redditSubredditStatsLogLines(payload.subreddit_stats, REDDIT_POLICY, category).find(line => line.includes("r/AskReddit")) || "", /category=life.*listing=2.*min_score=20.*final=2/);
+  assert.match(
+    redditSubredditStatsLogLines(payload.subreddit_stats, REDDIT_POLICY, category).find(line => line.includes("r/AskReddit")) || "",
+    /category=life.*listing=2.*min_score=20.*final=2/
+  );
   // fetched_at may drift past the archive date without invalidating the payload.
   assert.equal(parseRedditSourceApiResponse({ ...payload, fetched_at: "2099-01-03T08:00:00Z" }, "2099-01-02", category), source);
 
@@ -493,7 +515,10 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
     ],
     [
       "stats that undercount the source items",
-      (p: typeof payload) => ({ ...p, subreddit_stats: p.subreddit_stats.map(stat => (stat.subreddit === "AskReddit" ? { ...stat, final: 1, detail_ok: 1 } : stat)) }),
+      (p: typeof payload) => ({
+        ...p,
+        subreddit_stats: p.subreddit_stats.map(stat => (stat.subreddit === "AskReddit" ? { ...stat, final: 1, detail_ok: 1 } : stat)),
+      }),
       /final count does not match source items/,
     ],
   ] as const) {
@@ -502,7 +527,7 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
 
   // Subreddits are uncapped below the service's declared listing limit.
   const overLimitSource = `${Array.from({ length: 41 }, (_, index) =>
-    [`${index + 1}. [r/AskReddit] Fixture post ${index + 1}`, "- 来源：r/AskReddit", "- 发布时间：2099-01-02T07:00:00Z"].join("\n"),
+    [`${index + 1}. [r/AskReddit] Fixture post ${index + 1}`, "- 来源：r/AskReddit", "- 发布时间：2099-01-02T07:00:00Z"].join("\n")
   ).join("\n\n")}\n\n===ARCHIVE_PAYLOAD===\n{"items": []}\n`;
   assert.equal(parseRedditSourceApiResponse(redditPayload(overLimitSource, 41, { AskReddit: 41 }), "2099-01-02", category), overLimitSource);
 
@@ -510,7 +535,7 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
   const amaSource = `${redditSourceItem(1, { subreddit: "IAmA", points: 20 })}\n===ARCHIVE_PAYLOAD===\n${JSON.stringify({ items: [] })}\n`;
   assert.throws(
     () => parseRedditSourceApiResponse(redditPayload(amaSource, 1, { IAmA: 1 }, amaCategory, REDDIT_POLICY_RESPONSE), "2099-01-02", amaCategory),
-    /did not apply requested comment limits/,
+    /did not apply requested comment limits/
   );
 });
 
@@ -531,7 +556,7 @@ test("Reddit source fetch sends one subreddit-list request to the v7 service", a
         return new Response(JSON.stringify(job), { status: submitting ? 202 : 200 });
       },
     },
-    () => fetchRedditSourceFromApi("2099-01-02", category),
+    () => fetchRedditSourceFromApi("2099-01-02", category)
   );
 
   assert.equal(fetched, source);
@@ -579,9 +604,8 @@ function trendingBoardPayload(overrides: Record<string, unknown> = {}): Record<s
 }
 
 test("Reddit trending board rejects responses that lost items in transit", async () => {
-  const board = await withMocks(
-    { env: REDDIT_TRENDING_ENV, fetch: async () => new Response(JSON.stringify(trendingBoardPayload()), { status: 200 }) },
-    () => fetchRedditTrendingBoard({ limit: 100 }),
+  const board = await withMocks({ env: REDDIT_TRENDING_ENV, fetch: async () => new Response(JSON.stringify(trendingBoardPayload()), { status: 200 }) }, () =>
+    fetchRedditTrendingBoard({ limit: 100 })
   );
   assert.equal(board.items.length, 1);
   assert.equal(board.items[0].numComments, 4_504);
@@ -590,11 +614,10 @@ test("Reddit trending board rejects responses that lost items in transit", async
   // item_count 是服务端自己数的；和数组对不上说明响应被截断过，宁可拒收也不能少一条就少一条地用。
   await assert.rejects(
     () =>
-      withMocks(
-        { env: REDDIT_TRENDING_ENV, fetch: async () => new Response(JSON.stringify(trendingBoardPayload({ item_count: 9 })), { status: 200 }) },
-        () => fetchRedditTrendingBoard({ limit: 100 }),
+      withMocks({ env: REDDIT_TRENDING_ENV, fetch: async () => new Response(JSON.stringify(trendingBoardPayload({ item_count: 9 })), { status: 200 }) }, () =>
+        fetchRedditTrendingBoard({ limit: 100 })
       ),
-    /item_count 9 does not match 1 items/,
+    /item_count 9 does not match 1 items/
   );
 });
 
@@ -654,7 +677,7 @@ test("Reddit post detail submits once, polls once, and keeps per-post failures",
         return new Response(JSON.stringify(job), { status: submitting ? 202 : 200 });
       },
     },
-    () => fetchRedditPostDetail("2099-01-02", ["https://www.reddit.com/r/nextfuckinglevel/comments/abc123/how_did_people/"]),
+    () => fetchRedditPostDetail("2099-01-02", ["https://www.reddit.com/r/nextfuckinglevel/comments/abc123/how_did_people/"])
   );
 
   assert.equal(evidence.length, 2);

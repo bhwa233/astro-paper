@@ -44,7 +44,7 @@ export function loadMdblistRecommendationKeys(file = mdblistLedgerPath(), exclud
 export function appendMdblistRecommendations(
   recommendations: MdblistRecommendation[],
   meta: { archivedAt: string; postPath: string },
-  file = mdblistLedgerPath(),
+  file = mdblistLedgerPath()
 ): void {
   appendRecommendations(SPEC, recommendations, meta, file);
 }
@@ -53,9 +53,14 @@ export function parseMdblistRecommendationsFromSource(source: string): MdblistRe
   return numberedBlocks(source).map(block => {
     const bullets = extractBullets(block);
     const mediaLabel = bulletValue(bullets, "媒体类型");
-    const mediaType: MdblistMediaType = mediaLabel === "电影" ? "movie" : mediaLabel === "剧集" ? "show" : (() => {
-      throw new Error(`MDBList source has unsupported media type: ${mediaLabel || "missing"}`);
-    })();
+    const mediaType: MdblistMediaType =
+      mediaLabel === "电影"
+        ? "movie"
+        : mediaLabel === "剧集"
+          ? "show"
+          : (() => {
+              throw new Error(`MDBList source has unsupported media type: ${mediaLabel || "missing"}`);
+            })();
     const tmdbId = Number(bulletValue(bullets, "TMDB ID"));
     const seasonText = bulletValue(bullets, "推荐季度");
     const seasonNumber = mediaType === "show" ? Number(seasonText) : undefined;

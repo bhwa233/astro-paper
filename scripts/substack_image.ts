@@ -6,18 +6,9 @@ import { createHash } from "node:crypto";
 import { ensureDir } from "./blog_common.ts";
 import { inspectRaster } from "./image_raster.ts";
 import { restrictedFetch } from "./restricted_fetch.ts";
-import {
-  SUBSTACK_LIMITS,
-  type NewsletterPublication,
-} from "./substack_contracts.ts";
+import { SUBSTACK_LIMITS, type NewsletterPublication } from "./substack_contracts.ts";
 
-const ALLOWED_MIME = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "image/avif",
-]);
+const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]);
 
 export async function validateRemoteImage(
   url: string,
@@ -34,18 +25,13 @@ export async function validateRemoteImage(
     headers: { Accept: "image/avif,image/webp,image/png,image/jpeg,image/gif" },
   });
   const detected = await fileTypeFromBuffer(response.bytes);
-  if (!detected || !ALLOWED_MIME.has(detected.mime))
-    throw new Error(`unsupported image bytes from ${url}`);
+  if (!detected || !ALLOWED_MIME.has(detected.mime)) throw new Error(`unsupported image bytes from ${url}`);
   if (response.contentType && response.contentType !== detected.mime) {
-    throw new Error(
-      `image MIME mismatch for ${url}: declared ${response.contentType}, detected ${detected.mime}`
-    );
+    throw new Error(`image MIME mismatch for ${url}: declared ${response.contentType}, detected ${detected.mime}`);
   }
   const metadata = await inspectRaster(response.bytes);
   if (metadata.width * metadata.height > SUBSTACK_LIMITS.maxImagePixels) {
-    throw new Error(
-      `image exceeds ${SUBSTACK_LIMITS.maxImagePixels} pixels: ${url}`
-    );
+    throw new Error(`image exceeds ${SUBSTACK_LIMITS.maxImagePixels} pixels: ${url}`);
   }
   return {
     bytes: response.bytes,
@@ -72,9 +58,7 @@ export async function processArticleImages(
       createdFiles: [],
       firstImage: undefined,
     };
-  const urls = [
-    ...markdown.matchAll(/!\[[^\]]*\]\((https:\/\/[^\s)]+)(?:\s+"[^"]*")?\)/g),
-  ].map(match => match[1]);
+  const urls = [...markdown.matchAll(/!\[[^\]]*\]\((https:\/\/[^\s)]+)(?:\s+"[^"]*")?\)/g)].map(match => match[1]);
   const replacements = new Map<string, string>();
   const files: string[] = [];
   const createdFiles: string[] = [];
@@ -84,32 +68,19 @@ export async function processArticleImages(
       replacements.set(url, image.finalUrl);
       continue;
     }
-    const hash = createHash("sha256")
-      .update(image.bytes)
-      .digest("hex")
-      .slice(0, 20);
-    const relative = path.join(
-      "public",
-      "images",
-      "substack",
-      publication.key,
-      `${hash}.${image.extension}`
-    );
+    const hash = createHash("sha256").update(image.bytes).digest("hex").slice(0, 20);
+    const relative = path.join("public", "images", "substack", publication.key, `${hash}.${image.extension}`);
     const absolute = path.join(repo, relative);
     ensureDir(path.dirname(absolute));
     if (!fs.existsSync(absolute)) {
       fs.writeFileSync(absolute, image.bytes);
       createdFiles.push(relative.split(path.sep).join("/"));
     }
-    replacements.set(
-      url,
-      `/${path.relative(path.join(repo, "public"), absolute).split(path.sep).join("/")}`
-    );
+    replacements.set(url, `/${path.relative(path.join(repo, "public"), absolute).split(path.sep).join("/")}`);
     files.push(relative.split(path.sep).join("/"));
   }
   let output = markdown;
-  for (const [source, replacement] of replacements)
-    output = output.replaceAll(source, replacement);
+  for (const [source, replacement] of replacements) output = output.replaceAll(source, replacement);
   return {
     markdown: output,
     files,

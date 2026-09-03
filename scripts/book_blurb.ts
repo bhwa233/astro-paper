@@ -17,8 +17,28 @@ const CONNECTORS = new Set(["of", "the", "and", "for", "to", "in", "on", "a", "a
 
 // 正文常见的起句词。出现在串的中后段时，说明荣誉/署名已经结束、剧情简介开始了。
 const SENTENCE_STARTERS = new Set([
-  "From", "In", "When", "After", "Before", "With", "Now", "Set", "Born", "Told",
-  "It", "She", "He", "They", "But", "And", "As", "By", "Here", "There", "A", "An",
+  "From",
+  "In",
+  "When",
+  "After",
+  "Before",
+  "With",
+  "Now",
+  "Set",
+  "Born",
+  "Told",
+  "It",
+  "She",
+  "He",
+  "They",
+  "But",
+  "And",
+  "As",
+  "By",
+  "Here",
+  "There",
+  "A",
+  "An",
 ]);
 
 // 起句词要出现在第 4 个 token 之后才当作边界，否则 "A Good Morning America ... Pick!"
@@ -156,7 +176,7 @@ export function splitBookBlurb(description = ""): BookBlurb {
     text
       .split("")
       .map((char, index) => (masked[index] ? " " : char))
-      .join(""),
+      .join("")
   );
   return { synopsis, honors: dedupe(honors), praise: dedupe(praise) };
 }

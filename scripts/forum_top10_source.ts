@@ -50,7 +50,10 @@ type DcCommentResponse = {
 };
 
 function normalizedText(value = ""): string {
-  return value.replace(/[\u200b\ufeff]/g, "").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/[\u200b\ufeff]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function markdownWithoutImages(element: Element | null): { markdown: string; imageCount: number } {
@@ -157,7 +160,10 @@ async function fetchFiveChDetail(item: ForumTop10Item): Promise<ForumTop10Item> 
     if (!posts.length) throw new Error("thread returned no readable posts");
     const evidence = posts.map(post => markdownWithoutImages(post.querySelector(".post-content")));
     const body = clipText(evidence[0]?.markdown || "", 8_000);
-    const comments = evidence.slice(1).map((entry, index) => `${index + 2}. ${clipText(entry.markdown, 1_200)}`).filter(line => !/^\d+\.\s*$/.test(line));
+    const comments = evidence
+      .slice(1)
+      .map((entry, index) => `${index + 2}. ${clipText(entry.markdown, 1_200)}`)
+      .filter(line => !/^\d+\.\s*$/.test(line));
     const totalComments = numericText(document.querySelector(".pagestats .metastats")?.textContent || "");
     return {
       ...item,
@@ -205,7 +211,7 @@ async function fetchDcInsideComments(item: ForumTop10Item, detailHtml: string): 
       "X-Requested-With": "XMLHttpRequest",
     },
   });
-  const rawComments = Array.isArray(payload.comments) ? payload.comments as DcComment[] : [];
+  const rawComments = Array.isArray(payload.comments) ? (payload.comments as DcComment[]) : [];
   const comments = rawComments
     .slice(0, DC_INSIDE_COMMENT_LIMIT)
     .filter(comment => comment.del_yn !== "Y")
@@ -254,7 +260,15 @@ function renderItemEvidence(item: ForumTop10Item): string {
   if (item.commentCount !== null) lines.push(`- 评论数：${item.commentCount}`);
   lines.push(`- 忽略图片：${item.imagesIgnored}`);
   if (item.detailError) lines.push(`- 取证异常：${item.detailError}`);
-  lines.push("", "### 正文证据", "", item.body || "（无可读取的文本正文；图片内容未识别）", "", `### 评论证据（最多 ${item.platform === "5ch" ? FIVE_CH_REPLY_LIMIT : DC_INSIDE_COMMENT_LIMIT} 条）`, "");
+  lines.push(
+    "",
+    "### 正文证据",
+    "",
+    item.body || "（无可读取的文本正文；图片内容未识别）",
+    "",
+    `### 评论证据（最多 ${item.platform === "5ch" ? FIVE_CH_REPLY_LIMIT : DC_INSIDE_COMMENT_LIMIT} 条）`,
+    ""
+  );
   lines.push(item.comments.length ? item.comments.join("\n\n") : "（无可读取的文本评论）");
   if (item.titleZh !== undefined || item.summary !== undefined || item.summaryError) {
     lines.push("", `- 中文标题：${JSON.stringify(item.titleZh || "")}`, `- 中文摘要：${JSON.stringify(item.summary || "")}`);

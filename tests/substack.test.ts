@@ -1,17 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  processItem,
-  selectItems,
-} from "../scripts/generate_substack_translations.ts";
+import { processItem, selectItems } from "../scripts/generate_substack_translations.ts";
 import { prepareArticle } from "../scripts/substack_content.ts";
 import { substackPostQualityViolations } from "../scripts/substack_quality.ts";
-import {
-  readSubstackLedger,
-  substackLedgerRelPath,
-  upsertSubstackIssue,
-} from "../scripts/substack_ledger.ts";
+import { readSubstackLedger, substackLedgerRelPath, upsertSubstackIssue } from "../scripts/substack_ledger.ts";
 import { publicationByKey } from "../scripts/substack_publications.ts";
 import { tempDir } from "./helpers/mocks.ts";
 
@@ -144,17 +137,13 @@ test("Substack restores WordPress emoji images to their source characters", () =
 
 // Regression: The Marginalian preserves Markdown thematic breaks as `***`.
 test("Substack quality accepts thematic breaks but rejects incomplete emphasis", () => {
-  const prefix = "---\ndescription: \"有效摘要\"\ntitle: \"标题\"\n---\n";
+  const prefix = '---\ndescription: "有效摘要"\ntitle: "标题"\n---\n';
   assert.equal(
-    substackPostQualityViolations(`${prefix}\n***\n`, "post.md").some(
-      violation => violation.code === "orphan-markup"
-    ),
+    substackPostQualityViolations(`${prefix}\n***\n`, "post.md").some(violation => violation.code === "orphan-markup"),
     false
   );
   assert.equal(
-    substackPostQualityViolations(`${prefix}\n**\n`, "post.md").some(
-      violation => violation.code === "orphan-markup"
-    ),
+    substackPostQualityViolations(`${prefix}\n**\n`, "post.md").some(violation => violation.code === "orphan-markup"),
     true
   );
 });

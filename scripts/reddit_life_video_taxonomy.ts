@@ -65,7 +65,10 @@ export const REDDIT_LIFE_VIDEO_SUMMARY_HARD_MAX_CHARS = 60;
 
 /** 词表按组渲染进提示词。分组只影响可读性，校验只认扁平集合。 */
 export function redditLifeVideoTagVocabularyPrompt(): string {
-  return [`主题域（至少选 ${REDDIT_LIFE_VIDEO_PRIMARY_TAG_MIN} 个）：${REDDIT_LIFE_VIDEO_PRIMARY_TAGS.join(" / ")}`, `其他维度：${REDDIT_LIFE_VIDEO_SECONDARY_TAGS.join(" / ")}`].join("\n");
+  return [
+    `主题域（至少选 ${REDDIT_LIFE_VIDEO_PRIMARY_TAG_MIN} 个）：${REDDIT_LIFE_VIDEO_PRIMARY_TAGS.join(" / ")}`,
+    `其他维度：${REDDIT_LIFE_VIDEO_SECONDARY_TAGS.join(" / ")}`,
+  ].join("\n");
 }
 
 export type RedditLifeVideoTaxonomy = {

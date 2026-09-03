@@ -22,10 +22,18 @@ function commitFixtureRepo(repo: string): string {
 }
 
 test("podcast fingerprints ignore tracking parameters and upsert by episode identity", () => {
-  assert.equal(normalizePodcastUrl("https://example.com/podcast/dev-platforms?utm_medium=social&uo=4&b=2&a=1#section"), "https://example.com/podcast/dev-platforms?a=1&b=2");
+  assert.equal(
+    normalizePodcastUrl("https://example.com/podcast/dev-platforms?utm_medium=social&uo=4&b=2&a=1#section"),
+    "https://example.com/podcast/dev-platforms?a=1&b=2"
+  );
 
   const ledgerFile = tempFile("podcast-ledger-unit", "summarized.json");
-  const episode = { title: "Building Reliable AI Developer Platforms", show: "Latent Space", link: "https://example.com/podcast/dev-platforms?utm_medium=social", date: "2099-01-02" };
+  const episode = {
+    title: "Building Reliable AI Developer Platforms",
+    show: "Latent Space",
+    link: "https://example.com/podcast/dev-platforms?utm_medium=social",
+    date: "2099-01-02",
+  };
   appendSummarizedEpisode(episode, { archivedAt: "2099-01-02", postPath: "src/content/posts/zh-cn/每日播客-2099-01-02-01-latent-space.md" }, ledgerFile);
   // Re-running the same episode (force regeneration) upserts instead of appending a second row.
   appendSummarizedEpisode(episode, { archivedAt: "2099-01-03", postPath: "src/content/posts/zh-cn/每日播客-2099-01-03-01-latent-space.md" }, ledgerFile);
@@ -55,7 +63,7 @@ test("mdblist ledger persists successful selections and replaces same-post rerun
       { key: "show:20:season:2", mediaType: "show", tmdbId: 20, seasonNumber: 2, title: "Show A" },
     ],
     post,
-    file,
+    file
   );
   assert.deepEqual(loadMdblistRecommendationKeys(file), new Set(["movie:10", "show:20:season:2"]));
 
@@ -80,10 +88,7 @@ test("Reddit life generator reuses a normal rerun but force rebuilds a backfill"
   execFileSync("git", ["-C", repo, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--quiet", "-m", "archive"]);
   const archiveSha = execFileSync("git", ["-C", repo, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 
-  await assert.rejects(
-    generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "234567890" }),
-    /does not match --upstream-sha/,
-  );
+  await assert.rejects(generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "234567890" }), /does not match --upstream-sha/);
 
   await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: archiveSha, workflowRun: "234567890" });
   assert.equal(loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`)?.upstream.workflowRun, "123456789");
@@ -143,7 +148,7 @@ test("Weibo image manifest accepts truncated source topics beyond the legacy art
         truncatedItemCount: 32,
         cards: Array.from({ length: 11 }, (_, index) => archivedFile(`data/weibo-trending-wechat/2026-08-26/card-${String(index).padStart(2, "0")}.png`)),
       },
-    }),
+    })
   );
 
   const manifest = loadWeiboTrendingWechatRunManifest(manifestFile);

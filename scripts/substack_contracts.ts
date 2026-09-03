@@ -45,16 +45,9 @@ export const translationLengthRatioSchema = z
     failMin: z.number().positive(),
     failMax: z.number().positive(),
   })
-  .refine(
-    value =>
-      value.failMin <= value.warnMin &&
-      value.warnMin < value.warnMax &&
-      value.warnMax <= value.failMax,
-    {
-      message:
-        "translation ratio limits must satisfy failMin <= warnMin < warnMax <= failMax",
-    }
-  );
+  .refine(value => value.failMin <= value.warnMin && value.warnMin < value.warnMax && value.warnMax <= value.failMax, {
+    message: "translation ratio limits must satisfy failMin <= warnMin < warnMax <= failMax",
+  });
 
 export const newsletterWechatSchema = z.object({
   enabled: z.boolean().default(false),

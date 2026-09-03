@@ -3,12 +3,7 @@ import { bjtTimestamp, clipText, compact, fetchJson, parseArgs, stringArg, write
 import { splitBookBlurb } from "./book_blurb.ts";
 import { fetchGoogleBookInfo } from "./google_books.ts";
 import { NYT_BOOK_SECTIONS, type NytBookSection } from "./nyt_books_sections.ts";
-import {
-  type NytBookRecommendation,
-  loadNytBookRecommendationKeys,
-  nytBookRecommendationKey,
-  nytBooksLedgerPath,
-} from "./nyt_books_ledger.ts";
+import { type NytBookRecommendation, loadNytBookRecommendationKeys, nytBookRecommendationKey, nytBooksLedgerPath } from "./nyt_books_ledger.ts";
 
 const NYT_BOOKS_API = "https://api.nytimes.com/svc/books/v3";
 // 只推「本周首次上榜」的真·新书：weeks_on_list==1 排除回榜老书。
@@ -134,7 +129,7 @@ function selectSection(
   section: NytBookSection,
   overview: Map<string, NytBook[]>,
   blockedKeys: Set<string>,
-  blockedTitleAuthor: Set<string>,
+  blockedTitleAuthor: Set<string>
 ): NytBookCandidate[] {
   const selected: NytBookCandidate[] = [];
   for (const list of section.lists) {
@@ -167,7 +162,7 @@ function renderSection(section: NytBookSection, selected: NytBookCandidate[]): {
 
 export async function buildNytBooksWeeklySource(
   date: string,
-  { ledgerFile = nytBooksLedgerPath(), excludePostPath = "" }: { ledgerFile?: string; excludePostPath?: string } = {},
+  { ledgerFile = nytBooksLedgerPath(), excludePostPath = "" }: { ledgerFile?: string; excludePostPath?: string } = {}
 ): Promise<string> {
   const overview = await fetchOverview(apiKey());
   const blockedKeys = loadNytBookRecommendationKeys(ledgerFile, excludePostPath);
@@ -205,7 +200,7 @@ async function main(): Promise<void> {
     await buildNytBooksWeeklySource(date, {
       ledgerFile: stringArg(args, "ledger-file", nytBooksLedgerPath()),
       excludePostPath: stringArg(args, "exclude-post-path"),
-    }),
+    })
   );
 }
 

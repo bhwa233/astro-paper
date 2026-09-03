@@ -19,11 +19,7 @@ import {
   type ArchivedFile,
 } from "./committed_handoff.ts";
 import { buildReleaseManifest, isReleaseManifest, type ReleaseManifest } from "./release_assets.ts";
-import {
-  parseRedditLifeNewspicSelections,
-  redditLifeNewspicCardFile,
-  renderRedditLifeNewspicMarkdown,
-} from "./reddit_life_newspic_compose.ts";
+import { parseRedditLifeNewspicSelections, redditLifeNewspicCardFile, renderRedditLifeNewspicMarkdown } from "./reddit_life_newspic_compose.ts";
 import { renderRedditLifeNewspicCards } from "./reddit_life_newspic_cards.ts";
 import { REDDIT_LIFE_DAILY_NEWSPIC_COUNT } from "../src/utils/redditLifePublishing.ts";
 
@@ -86,7 +82,7 @@ function parseManifest(raw: unknown, file: string): RedditLifeNewspicRunManifest
         draft.answerCount <= 10 &&
         Array.isArray(draft.cards) &&
         draft.cards.length === draft.answerCount + 1 &&
-        draft.cards.every(isArchivedFile),
+        draft.cards.every(isArchivedFile)
     ) ||
     !isReleaseManifest(value.release) ||
     value.release.tag !== redditLifeNewspicReleaseTag(value.archiveDate!) ||
@@ -109,7 +105,7 @@ export function shouldRebuildRedditLifeNewspicManifest(
   upstreamSha: string,
   upstreamAvailable: boolean,
   force = false,
-  selectionSha = "",
+  selectionSha = ""
 ): boolean {
   if (force) return true;
   if (existing.status === "upstream-empty") return upstreamAvailable;
@@ -216,7 +212,7 @@ export async function generateRedditLifeNewspic({
   untrackPaths(
     repo,
     drafts.flatMap(draft => draft.cards.map(card => card.path)),
-    LABEL,
+    LABEL
   );
   fs.writeFileSync(path.join(repo, snapshotRel), upstreamSelection, "utf8");
   if (artifactsDir) {
@@ -236,7 +232,7 @@ export async function generateRedditLifeNewspic({
     release: buildReleaseManifest(
       redditLifeNewspicReleaseTag(date),
       dayDir,
-      drafts.flatMap(draft => draft.cards),
+      drafts.flatMap(draft => draft.cards)
     ),
   };
   writeJson(manifestFile, manifest);

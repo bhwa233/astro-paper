@@ -34,7 +34,7 @@ test("AI client fails over to the fallback provider only when the primary is exh
         primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model" },
         fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash" },
         timeoutMs: 25,
-      }),
+      })
   );
   assert.equal(result.usedFallback, true);
   assert.equal(result.config.model, "deepseek-v4-flash");
@@ -60,8 +60,8 @@ test("AI client fails over to the fallback provider only when the primary is exh
             primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model", apiStyle: "chat" },
             fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash", apiStyle: "chat" },
           }),
-        /AI provider HTTP 503/,
-      ),
+        /AI provider HTTP 503/
+      )
   );
   assert.deepEqual(disabledCalls, ["https://primary.example.com/v1/chat/completions"]);
 
@@ -81,7 +81,7 @@ test("AI client fails over to the fallback provider only when the primary is exh
         prompt: "hello",
         primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model", apiStyle: "chat" },
         fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash", apiStyle: "chat" },
-      }),
+      })
   );
   assert.equal(retried.usedFallback, false);
   assert.equal(retried.config.model, "primary-model");
@@ -110,7 +110,7 @@ test("AI client fails over to the fallback provider only when the primary is exh
         prompt: "hello",
         primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model", apiStyle: "chat" },
         fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash", apiStyle: "chat" },
-      }),
+      })
   );
   assert.equal(recovered.usedFallback, false);
   assert.deepEqual(timeoutCalls, ["https://primary.example.com/v1/chat/completions", "https://primary.example.com/v1/chat/completions"]);
@@ -134,16 +134,16 @@ test("AI client sends Gemini through its native provider and fails over to OpenA
         prompt: "hello",
         primaryConfig: { apiKey: "primary-key", baseUrl: "https://rightapi.ai/gemini", model: "gemini-3.7-flash", apiStyle: "gemini" },
         fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://rightapi.ai/codex/v1", model: "gpt-5.6-luna", apiStyle: "chat" },
-      }),
+      })
   );
 
   assert.equal(result.usedFallback, true);
   assert.equal(result.config.model, "gpt-5.6-luna");
   assert.match(result.content, /^## 标题/);
-  assert.deepEqual(calls.map(call => call.url), [
-    "https://rightapi.ai/gemini/v1beta/models/gemini-3.7-flash:generateContent",
-    "https://rightapi.ai/codex/v1/chat/completions",
-  ]);
+  assert.deepEqual(
+    calls.map(call => call.url),
+    ["https://rightapi.ai/gemini/v1beta/models/gemini-3.7-flash:generateContent", "https://rightapi.ai/codex/v1/chat/completions"]
+  );
   assert.equal(new Headers(calls[0].headers).get("x-goog-api-key"), "primary-key");
 });
 
@@ -178,12 +178,15 @@ test("JSON generation stages retry malformed output with JSON mode and retain di
         model: "test-model",
         artifactsDir,
         parse: (content: string) => JSON.parse(content) as { summary: string },
-      }),
+      })
   );
 
   assert.deepEqual(result, { summary: "valid" });
   assert.equal(calls, 2);
-  assert.deepEqual(requestBodies.map(body => body.response_format), [{ type: "json_object" }, { type: "json_object" }]);
+  assert.deepEqual(
+    requestBodies.map(body => body.response_format),
+    [{ type: "json_object" }, { type: "json_object" }]
+  );
   assert.match(String((requestBodies[1].messages as { content: string }[])[1].content), /无法通过 JSON 解析/);
   const artifact = (name: string) => fs.readFileSync(path.join(artifactsDir, `tech-daily-item-007-summary-${name}`), "utf8");
   assert.equal(artifact("response-attempt-1.json").trim(), '{"summary":"unterminated}');

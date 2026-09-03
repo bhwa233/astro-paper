@@ -1,0 +1,10 @@
+# Cloudflare Pages 原生跳转：真正的 301，而不是 astro.config.ts 的 redirects 生成的 meta refresh 页。
+# 两处并存：这里让爬虫拿到 301，那边让本地 preview 和不经 Cloudflare 的环境也能跳。
+# 路径按 URL 编码写，Cloudflare 按请求里的编码路径匹配。
+/sitemap.xml /sitemap-index.xml 301
+/tags/%E6%9D%82%E5%BF%97 /tags/%E9%98%85%E8%AF%BB/ 301
+/tags/%E6%9D%82%E5%BF%97/ /tags/%E9%98%85%E8%AF%BB/ 301
+/tags/%E6%B5%B7%E5%A4%96%E9%95%BF%E6%96%87 /tags/%E9%98%85%E8%AF%BB/ 301
+/tags/%E6%B5%B7%E5%A4%96%E9%95%BF%E6%96%87/ /tags/%E9%98%85%E8%AF%BB/ 301
+/tags/%E6%B5%B7%E5%A4%96%E9%95%BF%E6%96%87/2 /tags/%E9%98%85%E8%AF%BB/ 301
+/tags/%E6%B5%B7%E5%A4%96%E9%95%BF%E6%96%87/2/ /tags/%E9%98%85%E8%AF%BB/ 301

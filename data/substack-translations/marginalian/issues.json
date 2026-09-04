@@ -244,6 +244,15 @@
         "outputTokens": 4814,
         "totalTokens": 9998
       }
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=64460",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/29/olivia-laing-to-the-river",
+      "sourcePublishedAt": "2026-08-29T21:13:58.000Z",
+      "status": "failed",
+      "reason": "HTML to Markdown listItems mismatch: 0 != 2",
+      "attempts": 1,
+      "lastAttemptAt": "2026-09-04T07:56:39.782Z"
     }
   ]
 }

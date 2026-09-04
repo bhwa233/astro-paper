@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-04",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "62588b56f64990842827bece623a02e472d85e16fd3459bdbfa3eaf22d40b487",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 4,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "社会变迁",
+        "反常识",
+        "冷知识"
+      ],
+      "summary": "曾经象征体面与未来的大件设备和潮流消费，大多已被智能手机与技术迭代彻底取代。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 7,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "避坑指南",
+        "相处之道"
+      ],
+      "summary": "停止无谓解释并管住拖延与脾气，学会把耐心留给自己、把界限留给外界。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

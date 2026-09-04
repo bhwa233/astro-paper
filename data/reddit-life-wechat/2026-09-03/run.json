@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-03",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "4dd3b35bdb84719cdd073e4b234def225f7ec3a9",
+    "workflowRun": "33830102148",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-03-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-03/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 4,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "包含倾听留白、自我疗愈与生活自律等极具操作性且跨越文化的人生经验，能引发深层共鸣与求知欲。"
+      },
+      {
+        "rank": 16,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "敏锐捕捉到现代人心理崩溃与情绪麻木的隐蔽信号，提供细致观察与走出阴霾的经验，极易唤起普遍共情。"
+      },
+      {
+        "rank": 11,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "生动刻画从青年到成年在生活工具、自然观察与学习审美上的心态转变，精准击中跨年龄群体的成长感悟。"
+      },
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从真实作息、高压环境与亲密关系消耗深入剖析各类职业的恋爱痛点，具备很高的现实讨论价值与生活代入感。"
+      },
+      {
+        "rank": 20,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "深刻直击当代职场人即使收入增加也依然深陷时间牢笼与精神内耗的困境，引发强烈的现实反思。"
+      },
+      {
+        "rank": 13,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "提供具体且门槛极低的个人清洁与生活习惯建议，兼具高度实用性与可迁移价值。"
+      },
+      {
+        "rank": 25,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "精准唤醒许多人童年时期在车窗外脑补跑酷小人等共通的无手机时代回忆，趣味性与怀旧共鸣极强。"
+      },
+      {
+        "rank": 10,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "通过笨重瓷器柜、多碟车载CD与旧式大电视等物件，折射出二十年间家庭观念与科技消费习惯的深刻变迁。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 3,
+        "reason": "围绕费米悖论与动物园假说展开科普探讨，用清晰视角解释人类与宇宙文明的关系，能有效激发读者的求知欲。"
+      },
+      {
+        "rank": 29,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "针对当下网络用平台规避黑话消解严肃生死与创伤事件的现象展开锐利反思，引发对语言退化的广泛探讨。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 1,
+        "category": "narrow_interest",
+        "reason": "内容高度依赖特定美剧的具体剧情细节与制作背景，属于小众影视圈层盘点。"
+      },
+      {
+        "rank": 2,
+        "category": "narrow_interest",
+        "reason": "回答全为欧美脱口秀圈内具体艺人的负面轶事与人品八卦，受众较为狭窄。"
+      },
+      {
+        "rank": 5,
+        "category": "narrow_interest",
+        "reason": "依赖具体虚构作品和影视剧的结尾剧情吐槽，圈层属性明显且缺乏普适生活启发。"
+      },
+      {
+        "rank": 7,
+        "category": "narrow_interest",
+        "reason": "内容依赖英语文字双关与特定背景笑话，受语言和文化语境限制较大。"
+      },
+      {
+        "rank": 8,
+        "category": "region_specific",
+        "reason": "核心案例高度绑定美国医疗保险网络、特定票务巨头等本地制度痛点，跨地区普适性弱。"
+      },
+      {
+        "rank": 9,
+        "category": "low_resonance",
+        "reason": "主要是个体极端患病或突发药物过敏休克的经历罗列，缺乏可迁移的生活经验或普适讨论空间。"
+      },
+      {
+        "rank": 12,
+        "category": "narrow_interest",
+        "reason": "围绕单一动画作品的台词盘点，高度依赖对特定剧集的了解。"
+      },
+      {
+        "rank": 14,
+        "category": "narrow_interest",
+        "reason": "主要基于英语发音谐音与文字游戏给宠物起名，缺乏深层讨论价值。"
+      },
+      {
+        "rank": 15,
+        "category": "region_specific",
+        "reason": "具体讨论集中在北美特定超市品牌、美元单价与特定时期的局部通胀痛点。"
+      },
+      {
+        "rank": 17,
+        "category": "region_specific",
+        "reason": "依赖特定地区大麻合法化背景下的老年生活样本，且在国内公序良俗中不具推广价值。"
+      },
+      {
+        "rank": 18,
+        "category": "region_specific",
+        "reason": "主要讨论北美超市特定品牌的冷冻披萨口味与本地校园回忆，具有强烈的地域消费依赖。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "单纯罗列常见餐饮搭配清单，缺少深入的生活故事或观点碰撞。"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "属于简单主观喜好的气味罗列，回答篇幅短且讨论维度较为单一。"
+      },
+      {
+        "rank": 22,
+        "category": "narrow_interest",
+        "reason": "集中于特定几部主流大片的观影催眠吐槽，深度依赖对具体影片时长的感受。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "关于个人身材局部展示的零散碎片化讨论，启发性与长尾共鸣有限。"
+      },
+      {
+        "rank": 24,
+        "category": "region_specific",
+        "reason": "核心回答围绕美国信托设立、有限责任公司与律师避税等本地法律制度流程展开。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "关于理想居住城市的常规畅想，内容大多为常见城市印象，缺乏深度生活洞察。"
+      },
+      {
+        "rank": 27,
+        "category": "narrow_interest",
+        "reason": "针对特定网络游戏在线时长的个人记录盘点，受众局限于核心玩家圈层。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "零散的名言警句摘抄清单，缺少延伸讨论与具体故事支撑。"
+      },
+      {
+        "rank": 30,
+        "category": "narrow_interest",
+        "reason": "聚焦欧美娱乐圈特定名人的负面八卦与外貌变迁，受众范围狭窄。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w6cz01",
+      "title": "你在生活中掌握过哪些真正改变人生的「作弊码」？",
+      "subreddit": "AskReddit",
+      "points": "1389 points · 790 评论",
+      "numComments": 790,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6cz01/whats_a_cheatcode_you_learned_that_changed_youre/",
+      "sourceRank": 4,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/01-1w6cz01.md",
+      "contentSha256": "9155f0c09c304b38097daa56eb5c47622676444f153ee26d751453a98247b1da",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w6kjfn",
+      "title": "有哪些不起眼的细微迹象，说明一个人的生活正在悄悄崩溃？",
+      "subreddit": "AskReddit",
+      "points": "374 points · 118 评论",
+      "numComments": 118,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6kjfn/whats_a_subtle_sign_that_someones_life_is_quietly/",
+      "sourceRank": 16,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/02-1w6kjfn.md",
+      "contentSha256": "a58f5824b4cd8aadeb7ead506e2771bd4237707bece143caba8a23fb8b7b461f",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w6joee",
+      "title": "18岁时觉得蠢透了，为什么到了30岁反而觉得真香？",
+      "subreddit": "AskReddit",
+      "points": "731 points · 541 评论",
+      "numComments": 541,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6joee/what_sounded_dumb_at_18_but_is_actually_really/",
+      "sourceRank": 11,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/01-1w6cz01.md",
+      "contentSha256": "9155f0c09c304b38097daa56eb5c47622676444f153ee26d751453a98247b1da",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w6avt8",
+      "title": "绝对不会考虑和哪种职业的人谈恋爱？",
+      "subreddit": "AskReddit",
+      "points": "1671 points · 2872 评论",
+      "numComments": 2872,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6avt8/what_profession_wouldnt_you_date/",
+      "sourceRank": 3,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/02-1w6kjfn.md",
+      "contentSha256": "a58f5824b4cd8aadeb7ead506e2771bd4237707bece143caba8a23fb8b7b461f",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w5wc3w",
+      "title": "手头宽裕却依然对生活感到不满，究竟是什么在拖垮你？",
+      "subreddit": "AskReddit",
+      "points": "281 points · 407 评论",
+      "numComments": 407,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w5wc3w/people_who_are_financially_comfortable_but/",
+      "sourceRank": 20,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/01-1w6cz01.md",
+      "contentSha256": "9155f0c09c304b38097daa56eb5c47622676444f153ee26d751453a98247b1da",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w6frh6",
+      "title": "有哪些彻底改变你生活的卫生习惯或建议？",
+      "subreddit": "AskReddit",
+      "points": "606 points · 425 评论",
+      "numComments": 425,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6frh6/whats_a_piece_of_hygiene_advice_that_changed_your/",
+      "sourceRank": 13,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/02-1w6kjfn.md",
+      "contentSha256": "a58f5824b4cd8aadeb7ead506e2771bd4237707bece143caba8a23fb8b7b461f",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w684di",
+      "title": "没有智能手机的年代，长途自驾路上都有哪些脑洞大开的消磨时间小游戏？",
+      "subreddit": "AskReddit",
+      "points": "169 points · 537 评论",
+      "numComments": 537,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w684di/before_smartphones_what_were_some_actually/",
+      "sourceRank": 25,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/01-1w6cz01.md",
+      "contentSha256": "9155f0c09c304b38097daa56eb5c47622676444f153ee26d751453a98247b1da",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w6jyys",
+      "title": "2000年代曾是顶级奢华象征的物件，有哪些放到今天已经一文不值？",
+      "subreddit": "AskReddit",
+      "points": "770 points · 952 评论",
+      "numComments": 952,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6jyys/what_is_a_luxury_item_from_2000s_that_is_worth/",
+      "sourceRank": 10,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/02-1w6kjfn.md",
+      "contentSha256": "a58f5824b4cd8aadeb7ead506e2771bd4237707bece143caba8a23fb8b7b461f",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w61pbq",
+      "title": "如果地球只是银河系里的「未接触部落」，全宇宙都在故意对我们保持沉默？",
+      "subreddit": "AskReddit",
+      "points": "1293 points · 365 评论",
+      "numComments": 365,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w61pbq/what_if_earth_is_like_one_of_those_uncontacted/",
+      "sourceRank": 6,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/01-1w6cz01.md",
+      "contentSha256": "9155f0c09c304b38097daa56eb5c47622676444f153ee26d751453a98247b1da",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w6nz0a",
+      "title": "如果能在互联网上永久封禁一个现代词汇，大家最想抹掉哪一个？",
+      "subreddit": "AskReddit",
+      "points": "104 points · 472 评论",
+      "numComments": 472,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6nz0a/if_you_could_ban_just_one_modern_word_or_phrase/",
+      "sourceRank": 29,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-03/02-1w6kjfn.md",
+      "contentSha256": "a58f5824b4cd8aadeb7ead506e2771bd4237707bece143caba8a23fb8b7b461f",
+      "volume": "v2"
+    }
+  ]
+}

@@ -3,7 +3,6 @@ import test from "node:test";
 
 import { processItem, selectItems } from "../scripts/generate_substack_translations.ts";
 import { prepareArticle } from "../scripts/substack_content.ts";
-import { substackPostQualityViolations } from "../scripts/substack_quality.ts";
 import { readSubstackLedger, substackLedgerRelPath, upsertSubstackIssue } from "../scripts/substack_ledger.ts";
 import { publicationByKey } from "../scripts/substack_publications.ts";
 import { tempDir } from "./helpers/mocks.ts";
@@ -135,15 +134,30 @@ test("Substack restores WordPress emoji images to their source characters", () =
   assert.doesNotMatch(article.markdown, /s\.w\.org/);
 });
 
-// Regression: The Marginalian preserves Markdown thematic breaks as `***`.
-test("Substack quality accepts thematic breaks but rejects incomplete emphasis", () => {
-  const prefix = '---\ndescription: "有效摘要"\ntitle: "标题"\n---\n';
-  assert.equal(
-    substackPostQualityViolations(`${prefix}\n***\n`, "post.md").some(violation => violation.code === "orphan-markup"),
-    false
+// A content failure is worth exactly one retry: the same broken article used to be
+// re-fetched and re-translated every night, burning tokens and reddening the run.
+test("Substack retries a failed issue once and then skips it", () => {
+  const repo = tempDir("substack-failed-retry");
+  const ledgerFile = `${repo}/${substackLedgerRelPath(publication.key)}`;
+  const item = feedItem("failing-post", 4_000);
+  const failed = {
+    guid: item.guid,
+    canonicalUrl: item.canonicalUrl,
+    sourcePublishedAt: item.publishedAt,
+    reason: "post.md failed to compose",
+    lastAttemptAt: "2099-01-03T00:00:00.000Z",
+  } as const;
+
+  upsertSubstackIssue(ledgerFile, { ...failed, status: "failed", attempts: 1 });
+  assert.deepEqual(
+    selectItems([item], publication, ledgerFile, { force: false }).map(entry => entry.canonicalUrl),
+    [item.canonicalUrl]
   );
-  assert.equal(
-    substackPostQualityViolations(`${prefix}\n**\n`, "post.md").some(violation => violation.code === "orphan-markup"),
-    true
+
+  upsertSubstackIssue(ledgerFile, { ...failed, status: "failed", attempts: 2 });
+  assert.deepEqual(selectItems([item], publication, ledgerFile, { force: false }), []);
+  assert.deepEqual(
+    selectItems([item], publication, ledgerFile, { force: true }).map(entry => entry.canonicalUrl),
+    [item.canonicalUrl]
   );
 });

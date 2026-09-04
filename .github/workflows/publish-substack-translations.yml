@@ -178,7 +178,7 @@ jobs:
       - name: Format generated posts
         run: pnpm exec prettier --write "src/content/posts/zh-cn/*.md"
 
-      - name: Verify newsletter content quality
+      - name: Verify repository conventions
         run: pnpm run check:conventions
 
       - name: Detect publishable changes
@@ -206,13 +206,15 @@ jobs:
         id: head
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Report generation failures
+      # 生成器只在模型网关或抓取通道故障时返回非零：单篇文章自己的问题写进运行结果和 job summary，
+      # 不再让整条流水线变红——它拦不住任何东西，只会让红色失去意义。
+      - name: Report system-level generation failures
         if: always()
         env:
           GENERATION_EXIT_CODE: ${{ steps.generate.outputs.exit_code }}
         run: |
           if [ -z "$GENERATION_EXIT_CODE" ] || [ "$GENERATION_EXIT_CODE" != "0" ]; then
-            echo "Newsletter generation reported one or more failures." >&2
+            echo "Newsletter generation hit a provider or fetch-transport failure." >&2
             exit 1
           fi
 

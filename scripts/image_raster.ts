@@ -11,16 +11,3 @@ export function resizeToWebp(input: Buffer, size: number, quality: number): Prom
 export function svgToPng(svg: string): Promise<Buffer> {
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
-
-export type RasterMetadata = {
-  width: number;
-  height: number;
-  format: string;
-};
-
-/** Decode enough of an image to verify that it is a supported raster and report its dimensions. */
-export async function inspectRaster(input: Buffer): Promise<RasterMetadata> {
-  const metadata = await sharp(input, { failOn: "error" }).metadata();
-  if (!metadata.width || !metadata.height || !metadata.format) throw new Error("image has no decodable raster dimensions");
-  return { width: metadata.width, height: metadata.height, format: metadata.format };
-}

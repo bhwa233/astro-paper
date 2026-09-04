@@ -6,7 +6,6 @@ import { parseHtml } from "./html_dom.ts";
 import { htmlNodeToMarkdown } from "./html_to_markdown.ts";
 import { compilePatterns } from "./substack_publications.ts";
 import { SUBSTACK_LIMITS, translationResponseSchema, type NewsletterPublication, type TranslationResponse } from "./substack_contracts.ts";
-import { validSubstackDescription } from "./substack_quality.ts";
 
 export const SUBSTACK_PROMPT_VERSION = "substack-translation-v3";
 
@@ -325,6 +324,12 @@ const URL_PLACEHOLDER = String.raw`URL_\d{4}_\d{3}`;
 const LINKED_IMAGE = new RegExp(String.raw`\[(!\[[^\]]*\]\(${URL_PLACEHOLDER}\))\]\(${URL_PLACEHOLDER}\)`, "g");
 export function unwrapLinkedImages(markdown: string, _placeholders: readonly string[] = []): string {
   return markdown.replace(LINKED_IMAGE, "$1");
+}
+
+/** 卡片摘要的形状约定：4-20 个码点的完整短语。只用于兜底选词，不再阻断发布。 */
+export function validSubstackDescription(value: string): boolean {
+  const description = compact(value);
+  return [...description].length >= 4 && [...description].length <= 20 && !/^本文/.test(description) && !/[。！？!?；;，,：:]$/.test(description);
 }
 
 function descriptionFromTitle(title: string): string {

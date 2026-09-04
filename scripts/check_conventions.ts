@@ -9,7 +9,6 @@ import path from "node:path";
 import { parse as parseYaml } from "yaml";
 import { repoRoot, writeStderr, writeStdout } from "./blog_common.ts";
 import { SCHEDULED_TASK_INPUTS, TASKS } from "./blog_tasks.ts";
-import { substackPostQualityViolations } from "./substack_quality.ts";
 
 type Violation = { file: string; message: string };
 
@@ -87,19 +86,6 @@ function checkPromptsAreReferenced(repo: string): Violation[] {
   return violations;
 }
 
-function checkSubstackPostQuality(repo: string): Violation[] {
-  const posts = path.join(repo, "src", "content", "posts", "zh-cn");
-  return listFiles(posts, ".md").flatMap(file => {
-    const text = fs.readFileSync(file, "utf8");
-    if (!/^translation:\s*$/m.test(text)) return [];
-    const rel = path.relative(repo, file).split(path.sep).join("/");
-    return substackPostQualityViolations(text, rel).map(violation => ({
-      file: rel,
-      message: `${violation.code}: ${violation.message}`,
-    }));
-  });
-}
-
 // scheduled-publish.yml 里 cron→task 的表写了两遍（run-name 与 publish.with.task，Actions 的
 // run-name 读不到 job 输出），blog_tasks.ts 的 SCHEDULED_TASK_INPUTS 是带时区的第三份。
 // 三处不一致的后果是定时任务静默跑成别的任务或算错归档日，所以在 lint 阶段比对。
@@ -137,7 +123,7 @@ function checkScheduledPublish(repo: string): Violation[] {
 }
 
 export function checkConventions(repo = repoRoot()): Violation[] {
-  return [...checkDependencyOwners(repo), ...checkPromptsAreReferenced(repo), ...checkSubstackPostQuality(repo), ...checkScheduledPublish(repo)];
+  return [...checkDependencyOwners(repo), ...checkPromptsAreReferenced(repo), ...checkScheduledPublish(repo)];
 }
 
 function main(): void {

@@ -210,8 +210,6 @@ const rawPublications = {
     translationLengthRatio: {
       warnMin: 0.3,
       warnMax: 0.6,
-      failMin: 0.25,
-      failMax: 0.75,
     },
   },
   commoncog: {

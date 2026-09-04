@@ -9,16 +9,17 @@ export const SUBSTACK_LIMITS = {
   minSourceTextChars: 4_000,
   /** RSS 响应体上限。SatPost 实测 3.4 MB，这里留足余量，只作内存边界。 */
   maxFeedBytes: 16_000_000,
-  /** 单张图片的响应体上限。 */
-  maxImageBytes: 12_000_000,
-  /** 解码后像素上限，防解压炸弹：字节小不代表像素少。 */
-  maxImagePixels: 40_000_000,
   /** 一次运行每个栏目最多处理几篇。定时任务按它跑，手动运行可用 --max-posts 放大。 */
   maxPostsPerRun: 1,
   /** 手动运行时 --max-posts 的硬顶。 */
   maxPostsPerRunCeiling: 5,
   /** 单篇预估 token 上限，只作跑飞护栏；模型上下文远大于它。 */
   maxEstimatedTokensPerArticle: 200_000,
+  /**
+   * 同一篇因内容原因失败几次后不再重试。第一次失败留一次重试机会，之后写死在 ledger 里跳过，
+   * 否则同一篇坏文章每天重跑一次，白烧 token 也把流水线一直染红。
+   */
+  maxFailedAttempts: 2,
   /**
    * 每个栏目每次运行的 token 预算，各栏目独立计。
    * 必须 >= 2 倍单篇上限：开 fallback 时按估算量的两倍预留。
@@ -38,15 +39,15 @@ export const extractionAuditConfigSchema = z.object({
   minTextRatio: z.number().min(0).max(1).default(0.95),
 });
 
+// 只剩告警区间。之前还有 failMin/failMax，配了却没有任何地方读，译文缩水到四分之一照样发布；
+// 与其留一条看着像门禁的死配置，不如让长度比只做报告。
 export const translationLengthRatioSchema = z
   .object({
     warnMin: z.number().positive(),
     warnMax: z.number().positive(),
-    failMin: z.number().positive(),
-    failMax: z.number().positive(),
   })
-  .refine(value => value.failMin <= value.warnMin && value.warnMin < value.warnMax && value.warnMax <= value.failMax, {
-    message: "translation ratio limits must satisfy failMin <= warnMin < warnMax <= failMax",
+  .refine(value => value.warnMin < value.warnMax, {
+    message: "translation ratio limits must satisfy warnMin < warnMax",
   });
 
 export const newsletterWechatSchema = z.object({
@@ -83,8 +84,6 @@ export const newsletterPublicationSchema = z.object({
   translationLengthRatio: translationLengthRatioSchema.default({
     warnMin: 0.4,
     warnMax: 0.6,
-    failMin: 0.3,
-    failMax: 0.75,
   }),
   authorizedTranslation: z.boolean().default(false),
   wechat: newsletterWechatSchema.default({
@@ -128,6 +127,20 @@ export const substackLedgerIssueSchema = z.discriminatedUnion("status", [
     translatedAt: z.string().datetime(),
     model: z.string().min(1),
     usage: tokenUsageSchema.optional(),
+  }),
+  // 内容原因失败的篇目也记账：sourceSha256 可能在抽正文之前就失败了，所以是可选的。
+  z.object({
+    guid: z.string(),
+    canonicalUrl: z.string().url(),
+    sourcePublishedAt: z.string().datetime(),
+    sourceSha256: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .optional(),
+    status: z.literal("failed"),
+    reason: z.string().min(1),
+    attempts: z.number().int().positive(),
+    lastAttemptAt: z.string().datetime(),
   }),
   substackLedgerIssueBaseSchema.extend({
     status: z.literal("skipped"),

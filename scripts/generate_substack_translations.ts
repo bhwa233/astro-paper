@@ -24,6 +24,7 @@ type ItemResult = {
   canonicalUrl: string;
   wechat: { enabled: boolean };
   status: "published" | "dry-run" | "skipped" | "failed";
+  failureKind?: FailureKind;
   reason?: string;
   postPath?: string;
   sourceSha256?: string;
@@ -43,6 +44,41 @@ type CachedTranslation = {
   finishReason: string;
   usage?: TokenUsage;
 };
+
+type FailureKind = "system" | "content";
+
+// 只有模型网关和抓取通道的故障算系统错。它们与具体文章无关、重试有意义，也是唯一值得把整条
+// 流水线判红的一类；其余都是这一篇自己的问题，红一条流水线既拦不住也提示不了什么。
+const SYSTEM_FAILURE_PATTERNS = [
+  /^AI (?:provider|request) /,
+  /^AI_(?:API_KEY|BASE_URL|MODEL) /,
+  /^SUBSTACK_FETCH_PROXY_/,
+  /^HTTP \d{3} for /,
+  /timed out after /,
+  /^fetch failed/i,
+];
+
+function failureKind(error: unknown): FailureKind {
+  const message = error instanceof Error ? error.message : String(error);
+  return SYSTEM_FAILURE_PATTERNS.some(pattern => pattern.test(message)) ? "system" : "content";
+}
+
+// 只有内容原因记账。系统错也写的话，网关 401 会把那天的文章集体拉黑，key 换好后它们再也选不中。
+function recordFailedIssue(repo: string, publication: NewsletterPublication, item: SubstackFeedItem, reason: string): void {
+  const ledgerFile = path.join(repo, substackLedgerRelPath(publication.key));
+  const existing = findSubstackIssue(readSubstackLedger(ledgerFile), item.canonicalUrl);
+  // published / skipped 都是终态，不被一次失败覆盖。
+  if (existing && existing.status !== "failed") return;
+  upsertSubstackIssue(ledgerFile, {
+    guid: item.guid,
+    canonicalUrl: item.canonicalUrl,
+    sourcePublishedAt: item.publishedAt,
+    status: "failed",
+    reason,
+    attempts: (existing?.attempts || 0) + 1,
+    lastAttemptAt: new Date().toISOString(),
+  });
+}
 
 function positiveInt(raw: string, label: string): number {
   const value = Number(raw);
@@ -89,7 +125,13 @@ export function selectItems(
     .filter(item => options.backfill !== undefined || item.publishedAt.slice(0, 10) >= publication.startAt)
     .sort((left, right) => left.publishedAt.localeCompare(right.publishedAt));
   const windowed = options.backfill === undefined ? normalized : normalized.slice(-options.backfill);
-  const unpublished = windowed.filter(item => options.force || !findSubstackIssue(ledger, item.canonicalUrl));
+  const unpublished = windowed.filter(item => {
+    if (options.force) return true;
+    const issue = findSubstackIssue(ledger, item.canonicalUrl);
+    if (!issue) return true;
+    // 失败过的还给机会，到上限才彻底跳过；published 和 skipped 仍然是一次性的终态。
+    return issue.status === "failed" && issue.attempts < SUBSTACK_LIMITS.maxFailedAttempts;
+  });
   return unpublished;
 }
 
@@ -332,7 +374,7 @@ export async function processItem(params: {
       estimatedTokens,
       sourceTextChars,
       usage,
-      warning: translated.warning,
+      warning: [translated.warning, ...images.warnings].filter(Boolean).join("; ") || undefined,
     },
     chargedTokens: cached ? 0 : usedTokens(usage, estimatedTokens),
     consumesSlot: true,
@@ -389,12 +431,16 @@ async function main(): Promise<void> {
           );
         } catch (error) {
           consumedSlots += 1;
+          const reason = error instanceof Error ? error.message : String(error);
+          const kind = failureKind(error);
+          if (!dryRun && kind === "content") recordFailedIssue(repo, publication, item, reason);
           results.push({
             publication: publication.key,
             canonicalUrl: item.canonicalUrl,
             wechat: { enabled: publication.wechat.enabled },
             status: "failed",
-            reason: error instanceof Error ? error.message : String(error),
+            failureKind: kind,
+            reason,
           });
         }
       }
@@ -412,22 +458,27 @@ async function main(): Promise<void> {
         canonicalUrl: publication.siteUrl,
         wechat: { enabled: publication.wechat.enabled },
         status: "failed",
+        failureKind: failureKind(error),
         reason: error instanceof Error ? error.message : String(error),
       });
     }
   }
 
+  const systemFailures = results.filter(result => result.status === "failed" && result.failureKind === "system").length;
   const payload = {
     task: "substack-translation",
     status: results.some(result => result.status === "failed") ? "partial-failure" : "ok",
     dryRun,
     publicationTokenBudget,
     chargedTokens,
+    systemFailures,
     results,
   };
   if (resultJson) writeJson(path.isAbsolute(resultJson) ? resultJson : path.join(repo, resultJson), payload);
   writeStdout(`${JSON.stringify(payload, null, 2)}\n`);
-  if (payload.status !== "ok") process.exitCode = 1;
+  // 单篇内容问题不判红：它拦不住任何东西，只会让每天的定时任务默认是红的，真正的网关故障
+  // 反而看不出来。运行结果里的 partial-failure 仍然记录了每一篇的失败原因。
+  if (systemFailures) process.exitCode = 1;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) await main();

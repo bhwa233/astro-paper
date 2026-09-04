@@ -86,7 +86,7 @@ workflow input: publication=<key|all>
 
 - `scripts/html_dom.ts`：`content:encoded` 的 HTML DOM 清洗；业务模块不直接 import jsdom
 - `scripts/blog_common.ts`：日志、通用文本处理，以及 `readJsonLedger` / `writeJsonLedger`
-- `scripts/restricted_fetch.ts`：原生 fetch 的逐跳 HTTPS/host 校验、流式响应上限和超时；Feed 代理响应与图片共用
+- `scripts/restricted_fetch.ts`：原生 fetch 的逐跳 HTTPS/host 校验、流式响应上限和超时；正文图片不再经过它，直接 fetch
 - `scripts/blog_ai_client.ts`：主模型、fallback、冷却和超时处理
 - `scripts/magazine_ledger.ts`：账本模块的形状模板（key 构造、路径解析、环境变量覆盖）
 - `blog-publish.yml`：复用其 Node/pnpm、artifact、构建、提交与有限 push 重试方式，不把新任务塞进既有封闭 task union
@@ -102,8 +102,8 @@ workflow input: publication=<key|all>
 | RSS / Atom 解析  | `feedsmith@^2.9.6`      | 固定稳定版 2.x，不使用仍在 beta 的 3.x；只解析已受限抓取的字符串，不让库自行请求 URL |
 | HTML 转 Markdown | `turndown@^7.2.4`       | JSDOM 完成栏目级删除后再转换；不承担 HTML 安全或正文发现                             |
 | 运行时数据合同   | `zod@^4.4.3`            | 校验栏目配置、模型 JSON、ledger 与 result；作为脚本的直接依赖声明                    |
-| 图片类型嗅探     | `file-type@^22.0.2`     | 只提供 magic-byte MIME/扩展名提示，必须再经过响应上限和 sharp 解码                   |
-| 图片元数据与解码 | 已有 `sharp`            | 校验格式、宽高、像素总数，并实际解码；不新增第二个图像处理器                         |
+| 图片类型嗅探     | `file-type@^22.0.2`     | 只用来给镜像下来的图片定扩展名，不判定图片能不能用                   |
+| 图片元数据与解码 | 已有 `sharp`            | 封面缩放与 SVG 栅格化；不再解码校验正文图片                         |
 | 模型调用与用量   | 已有 AI SDK             | 保留 `usage`、`totalUsage`、`finishReason`；模型 JSON 再由 Zod 做本地校验            |
 | 跨运行缓存       | 已有 `actions/cache@v4` | 缓存内容寻址的完整文章响应，不引入本地缓存框架                                       |
 
@@ -153,8 +153,6 @@ type NewsletterPublication = {
   translationLengthRatio?: {
     warnMin: number;
     warnMax: number;
-    failMin: number;
-    failMax: number;
   };
   authorizedTranslation?: boolean;
 };
@@ -247,14 +245,13 @@ export const NEWSLETTER_PUBLICATIONS = {
 | --- | ---: | --- |
 | `maxFeedBytes` | 16_000_000 | RSS 响应体上限，纯内存边界 |
 | `minSourceTextChars` | 4_000 | 清洗后原文的最低可见字符数，不含标记、URL 和空白 |
-| `maxImageBytes` | 12_000_000 | 单图响应体上限 |
-| `maxImagePixels` | 40_000_000 | 解码后像素上限，防解压炸弹 |
 | `maxPostsPerRun` | 1 | 每次运行每个栏目处理几篇 |
 | `maxPostsPerRunCeiling` | 5 | 手动 `--max-posts` 的硬顶 |
 | `maxEstimatedTokensPerArticle` | 200_000 | 单篇预估上限，只作跑飞护栏 |
 | `publicationTokenBudget` | 400_000 | 每个栏目每次运行的 token 预算 |
+| `maxFailedAttempts` | 2 | 同一篇因内容原因连续失败几次后不再重试 |
 
-除 `minSourceTextChars` 外，其余限制用于拦截 OOM、解压炸弹、paywall 残稿和上下文超限，所以取值按最宽松的安全边界。`minSourceTextChars` 是产品选稿门槛：只统计 DOM 清洗和 Markdown 转换后留下的可见正文字符，保留正文标点，排除 Markdown 标记、链接地址和空白；低于门槛的文章不进入模型、图片和归档阶段。
+除 `minSourceTextChars` 和 `maxFailedAttempts` 外，其余限制用于拦截 OOM、paywall 残稿和上下文超限，所以取值按最宽松的安全边界。`minSourceTextChars` 是产品选稿门槛：只统计 DOM 清洗和 Markdown 转换后留下的可见正文字符，保留正文标点，排除 Markdown 标记、链接地址和空白；低于门槛的文章不进入模型、图片和归档阶段。
 
 `publicationTokenBudget` 必须 ≥ 2 × `maxEstimatedTokensPerArticle`——开 fallback 时按估算量的两倍预留，否则长文永远预留失败。
 
@@ -507,20 +504,19 @@ sourceSha256 + promptVersion + model + normalizedInputSha256
 栏目配置必须显式选择：
 
 - `none`：不保留原文图片；默认值
-- `remote`：保留经过 host 和 MIME 校验的远程图片 URL，不下载
+- `remote`：原样保留远程图片 URL，不下载
 - `mirror`：按内容 SHA-256 下载到 `public/images/substack/<publication>/<hash>.<ext>`；栏目发布者负责确认并遵守原图许可条件
 
 `remote` 会受到源站防盗链、URL 过期和历史文章失效影响；`mirror` 会增加仓库体积和图片授权责任。未选择同步原图的栏目使用 `none`，并由站内封面渲染器生成只包含中文标题、栏目名和作者名的原创文字封面。
 
-`remote` 与 `mirror` 必须共用同一个受限图片获取器，不能因为最终不落盘或需要落盘而跳过校验：
+图片不再经过受限获取器：`imageHosts` 白名单、响应体上限、MIME 与 magic bytes 核对、像素上限都已移除。
+`remote` 直接留下原地址不发请求；`mirror` 用普通 fetch 下载，扩展名优先取 magic bytes、取不到就用 URL 后缀，
+落盘前按内容算 SHA-256，重复图片复用已有文件。
 
-1. 只允许 HTTPS；初始 URL、每次重定向及最终 URL 的 host 都必须在 `imageHosts`
-2. 使用有响应体上限的流式 GET，超过 `maxImageBytes` 立即中止；不能只信任 `Content-Length` 或 HEAD
-3. `Content-Type` 必须在允许的图片 MIME 列表中，并与文件 magic bytes 一致
-4. 解码后像素尺寸必须合法且不超过 `maxImagePixels`，拒绝 SVG、HTML、脚本及伪装成图片的任意字节
-5. `mirror` 的扩展名从实际 MIME 推导，不沿用远程路径后缀；落盘前计算 SHA-256，重复图片复用已有文件
+这样做的代价要写明：图片地址来自远端 Feed，等于允许 CI 向任意主机发出站请求，也没有解码规模上限。
+换来的是图片不再牵连文章——某张图抓不到或读不出，只把这张图从正文里删掉，译文照常发布，运行结果留一条 warning。
 
-`remote` 校验通过后才把最终 URL 写入文章；`mirror` 校验通过后才写入内容寻址路径。无论哪种策略，模型都不能生成或修改图片 URL。图片 caption 可以翻译，但图片地址走占位符，模型碰不到。
+模型仍然不能生成或修改图片 URL：图片 caption 可以翻译，地址走占位符，模型碰不到。
 
 ## 12. 文章归档格式
 
@@ -587,11 +583,10 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 - 中文标题非空，正文中文占比达到最低阈值
 - 原始链接占位符全部恢复，没有新增模型链接；事实来源和脚注链接保留，图片外层远程跳转解开以使用站内 lightbox
 - provider `finishReason` 明确表示正常完成，响应是完整且唯一的 JSON 对象
-- 以去除 URL、占位符、代码和空白后的可见字符计算中英长度比：默认 0.40–0.60 之外警告，0.30–0.75 之外硬失败；栏目可按实测收紧或调整
+- 以去除 URL、占位符、代码和空白后的可见字符计算中英长度比：默认 0.40–0.60 之外记 warning，只报告不阻断
 - 署名块包含配置作者、栏目和 canonical URL
 - frontmatter `author` 为站点发布者，`source.author` 为原作者，schema 加载后两个来源字段仍存在
 - Markdown 不包含脚本、表单、订阅组件、模型解释或 JSON 残片
-- 最终内容质量检查拒绝超长/残缺摘要、正文 H1、推广 CTA、孤立强调标记和缺失姓名的提及
 - 生成文件通过 Astro content schema 和站点 build
 
 失败分级：
@@ -609,7 +604,9 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 | 栏目剩余预算不足                   | 停止该栏目后续模型调用；其他栏目不受影响，已成功文章仍可归档，job 最终标记部分失败 |
 | 整篇模型超时、截断或结构失败       | 累计本次 token 后重试一次；仍失败则整篇失败                  |
 | fallback 模型成功                  | 允许发布，在 ledger 和 artifact 记录模型                     |
-| 某篇失败、其他篇成功               | 先归档成功项，最终 job 标记部分失败                          |
+| 某篇失败、其他篇成功               | 先归档成功项；job 只在系统错（模型网关、抓取通道）时判红，单篇内容失败写进运行结果并在账本记一次 |
+| 单张图片抓不到或读不出 | 从正文删掉这张图，译文照常发布，运行结果留一条 warning |
+| 同一篇连续内容失败达到 `maxFailedAttempts` | 账本记成 failed，之后不再选中；`--force` 仍可强跑 |
 | ledger 损坏                        | 整体失败，禁止以空账本继续运行                               |
 | push non-fast-forward              | fetch/rebase 后有限次数重试，禁止 force push                 |
 
@@ -662,12 +659,12 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 11. 整篇请求包含全文；响应不是完整 JSON 或 finishReason 异常时失败
 12. token 预留、实际 usage 冲销、无 usage 时按预留计费，以及 200,000 单篇 / 400,000 每栏目硬顶均可复现；一个栏目耗尽预算不影响后续栏目
 13. 文章缓存命中不调用模型；source、promptVersion、model 或输入 hash 变化时缓存失效
-14. 图片下载对 host、重定向、响应大小、MIME、magic bytes、像素和真实扩展名执行校验
+14. 镜像图片抓取失败时只删掉这一张图，译文仍然归档并留下 warning
 15. 动态文件名在同日多篇和同标题场景下不冲突
 16. partial success 只给成功项写各自栏目 ledger
 17. `force` 更新原路径，不创建重复文章
 18. Astro content loader 保留 `source` / `translation`，frontmatter 为本站作者且正文署名包含原作者与原文链接
-19. 最终归档质量 gate 能拦截长摘要、重复 H1、推广 CTA、孤立 `**` 与「参见 的」残句
+19. 内容原因失败的篇目在账本累计次数：重试一次后不再选中，系统错不写账本
 20. 开启 Newsletter 微信策略时，归档 frontmatter 保留 opt-in 与封面；要求首图但无有效图片时拒绝归档
 
 Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三方长文提交为测试数据。网络可用性不放进单元测试；CI smoke test 只请求 Feed 元数据并限制响应体，不调用模型。

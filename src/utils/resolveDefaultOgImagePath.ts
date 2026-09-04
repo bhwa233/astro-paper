@@ -1,7 +1,12 @@
 import type { ResolvedAstroPaperConfig } from "@/types/config";
 import { getAssetPath } from "./withBase";
 
-const publicFiles = import.meta.glob("/public/*", { eager: false });
+// Images only: a bare `/public/*` also matches extensionless files such as `_redirects`,
+// and Rolldown parses every globbed entry as JavaScript, which fails the build.
+const publicFiles = import.meta.glob(
+  "/public/*.{png,jpg,jpeg,webp,avif,gif,svg,ico}",
+  { eager: false }
+);
 
 function existsInPublic(filename: string): boolean {
   return `/public/${filename}` in publicFiles;

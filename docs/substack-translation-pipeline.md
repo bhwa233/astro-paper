@@ -245,6 +245,7 @@ export const NEWSLETTER_PUBLICATIONS = {
 | --- | ---: | --- |
 | `maxFeedBytes` | 16_000_000 | RSS 响应体上限，纯内存边界 |
 | `minSourceTextChars` | 4_000 | 清洗后原文的最低可见字符数，不含标记、URL 和空白 |
+| `maxImageBytes` | 20_000_000 | 单图响应体上限；超限只丢这张图，不失败 |
 | `maxPostsPerRun` | 1 | 每次运行每个栏目处理几篇 |
 | `maxPostsPerRunCeiling` | 5 | 手动 `--max-posts` 的硬顶 |
 | `maxEstimatedTokensPerArticle` | 200_000 | 单篇预估上限，只作跑飞护栏 |
@@ -509,7 +510,8 @@ sourceSha256 + promptVersion + model + normalizedInputSha256
 
 `remote` 会受到源站防盗链、URL 过期和历史文章失效影响；`mirror` 会增加仓库体积和图片授权责任。未选择同步原图的栏目使用 `none`，并由站内封面渲染器生成只包含中文标题、栏目名和作者名的原创文字封面。
 
-图片不再经过受限获取器：`imageHosts` 白名单、响应体上限、MIME 与 magic bytes 核对、像素上限都已移除。
+图片不再经过受限获取器：`imageHosts` 白名单、MIME 与 magic bytes 核对、像素上限都已移除，只留 `maxImageBytes` 一条内存边界——
+`Content-Length` 与实收字节都要判，超限就不下这张图。
 `remote` 直接留下原地址不发请求；`mirror` 用普通 fetch 下载，扩展名优先取 magic bytes、取不到就用 URL 后缀，
 落盘前按内容算 SHA-256，重复图片复用已有文件。
 
@@ -605,7 +607,7 @@ frontmatter 的 `author` 保持站点发布者 `bhwa233`，不能写原作者。
 | 整篇模型超时、截断或结构失败       | 累计本次 token 后重试一次；仍失败则整篇失败                  |
 | fallback 模型成功                  | 允许发布，在 ledger 和 artifact 记录模型                     |
 | 某篇失败、其他篇成功               | 先归档成功项；job 只在系统错（模型网关、抓取通道）时判红，单篇内容失败写进运行结果并在账本记一次 |
-| 单张图片抓不到或读不出 | 从正文删掉这张图，译文照常发布，运行结果留一条 warning |
+| 单张图片抓不到、读不出或超过 `maxImageBytes` | 从正文删掉这张图，译文照常发布，运行结果留一条 warning |
 | 同一篇连续内容失败达到 `maxFailedAttempts` | 账本记成 failed，之后不再选中；`--force` 仍可强跑 |
 | ledger 损坏                        | 整体失败，禁止以空账本继续运行                               |
 | push non-fast-forward              | fetch/rebase 后有限次数重试，禁止 force push                 |
@@ -659,7 +661,7 @@ artifacts/substack/<publication>/<source-sha-prefix>/
 11. 整篇请求包含全文；响应不是完整 JSON 或 finishReason 异常时失败
 12. token 预留、实际 usage 冲销、无 usage 时按预留计费，以及 200,000 单篇 / 400,000 每栏目硬顶均可复现；一个栏目耗尽预算不影响后续栏目
 13. 文章缓存命中不调用模型；source、promptVersion、model 或输入 hash 变化时缓存失效
-14. 镜像图片抓取失败时只删掉这一张图，译文仍然归档并留下 warning
+14. 镜像图片抓取失败或超过 `maxImageBytes` 时只删掉这一张图，译文仍然归档并留下 warning
 15. 动态文件名在同日多篇和同标题场景下不冲突
 16. partial success 只给成功项写各自栏目 ledger
 17. `force` 更新原路径，不创建重复文章

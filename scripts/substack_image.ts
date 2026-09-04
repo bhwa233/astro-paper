@@ -1,11 +1,12 @@
 // file-type 的唯一入口。这里只拿它给镜像下来的图片定扩展名，不再判定图片能不能用：
-// 主机白名单、体积与像素上限、MIME 核对都已去掉。抓不到的图直接从正文里删掉，不牵连整篇译文。
+// 主机白名单、像素上限、MIME 核对都已去掉，只留一条 maxImageBytes 内存边界。
+// 抓不到、或超过上限的图直接从正文里删掉，不牵连整篇译文。
 import { fileTypeFromBuffer } from "file-type";
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { ensureDir } from "./blog_common.ts";
-import type { NewsletterPublication } from "./substack_contracts.ts";
+import { SUBSTACK_LIMITS, type NewsletterPublication } from "./substack_contracts.ts";
 
 const IMAGE_MARKDOWN = /!\[[^\]]*\]\((https:\/\/[^\s)]+)(?:\s+"[^"]*")?\)/g;
 
@@ -19,7 +20,20 @@ async function downloadImage(url: string): Promise<{ bytes: Buffer; extension: s
     headers: { Accept: "image/avif,image/webp,image/png,image/jpeg,image/gif" },
   });
   if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
-  const bytes = Buffer.from(await response.arrayBuffer());
+  const declaredLength = Number(response.headers.get("content-length") || "0");
+  if (Number.isFinite(declaredLength) && declaredLength > SUBSTACK_LIMITS.maxImageBytes) {
+    throw new Error(`image exceeds ${SUBSTACK_LIMITS.maxImageBytes} bytes for ${url}`);
+  }
+  if (!response.body) throw new Error(`response body missing for ${url}`);
+  // Content-Length 可以缺失也可以撒谎，所以边收边数，超了立刻停下，不把整张图读进内存。
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for await (const chunk of response.body) {
+    size += chunk.byteLength;
+    if (size > SUBSTACK_LIMITS.maxImageBytes) throw new Error(`image exceeds ${SUBSTACK_LIMITS.maxImageBytes} bytes for ${url}`);
+    chunks.push(chunk);
+  }
+  const bytes = Buffer.concat(chunks);
   const detected = await fileTypeFromBuffer(bytes);
   const extension = detected?.ext || path.extname(new URL(url).pathname).replace(/^\./, "").toLowerCase() || "jpg";
   return { bytes, extension };

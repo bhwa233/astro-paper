@@ -4,8 +4,10 @@ import test from "node:test";
 import { processItem, selectItems } from "../scripts/generate_substack_translations.ts";
 import { prepareArticle } from "../scripts/substack_content.ts";
 import { readSubstackLedger, substackLedgerRelPath, upsertSubstackIssue } from "../scripts/substack_ledger.ts";
+import { processArticleImages } from "../scripts/substack_image.ts";
 import { publicationByKey } from "../scripts/substack_publications.ts";
-import { tempDir } from "./helpers/mocks.ts";
+import { SUBSTACK_LIMITS } from "../scripts/substack_contracts.ts";
+import { tempDir, withMocks } from "./helpers/mocks.ts";
 
 const publication = publicationByKey("curiosity-chronicle");
 
@@ -132,6 +134,29 @@ test("Substack restores WordPress emoji images to their source characters", () =
 
   assert.match(article.markdown, /Moomin Characters™/);
   assert.doesNotMatch(article.markdown, /s\.w\.org/);
+});
+
+// An image is never worth an article: anything the mirror step cannot store is
+// dropped from the body, and the translation still publishes.
+test("Substack drops an oversized image instead of failing the article", async () => {
+  const repo = tempDir("substack-image-cap");
+  const markdown = "正文一段。\n\n![配图](https://example.com/huge.jpg)\n";
+  const result = await withMocks(
+    {
+      fetch: () =>
+        new Response("x", {
+          status: 200,
+          headers: { "content-length": String(SUBSTACK_LIMITS.maxImageBytes + 1) },
+        }),
+    },
+    () => processArticleImages(markdown, publicationByKey("marginalian"), repo)
+  );
+
+  assert.doesNotMatch(result.markdown, /!\[/);
+  assert.match(result.markdown, /正文一段。/);
+  assert.deepEqual(result.createdFiles, []);
+  assert.equal(result.firstImage, undefined);
+  assert.match(result.warnings.join(" "), /exceeds \d+ bytes/);
 });
 
 // A content failure is worth exactly one retry: the same broken article used to be

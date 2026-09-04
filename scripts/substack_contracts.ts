@@ -9,6 +9,8 @@ export const SUBSTACK_LIMITS = {
   minSourceTextChars: 4_000,
   /** RSS 响应体上限。SatPost 实测 3.4 MB，这里留足余量，只作内存边界。 */
   maxFeedBytes: 16_000_000,
+  /** 单张图片的响应体上限，只作内存边界；超了就不下这张图，文章照发。 */
+  maxImageBytes: 20_000_000,
   /** 一次运行每个栏目最多处理几篇。定时任务按它跑，手动运行可用 --max-posts 放大。 */
   maxPostsPerRun: 1,
   /** 手动运行时 --max-posts 的硬顶。 */

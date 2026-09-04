@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-03",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "c13f52e1553a3c77a03d57de5b4e0b0edbc28636b6d56b84eae307ee8ab7735d",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "生活妙招",
+        "反常识",
+        "相处之道"
+      ],
+      "summary": "掌握果断拒绝、倾听四秒与凡事不拖延，能帮你在社交与日常中省掉绝大部分内耗",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 8,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "健康常识",
+        "生活妙招",
+        "避坑指南"
+      ],
+      "summary": "许多顽固的体味、皮肤和口腔困扰，往往只要用对牙线、洗剂与清洁手法就能迎刃而解",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

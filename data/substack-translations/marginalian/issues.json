@@ -229,6 +229,21 @@
       "sourceTextChars": 1951,
       "minimumSourceTextChars": 4000,
       "evaluatedAt": "2026-09-03T04:38:57.392Z"
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=62588",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/29/a-life-of-ones-own-joanna-field-marion-milner",
+      "sourcePublishedAt": "2026-08-29T04:59:01.000Z",
+      "sourceSha256": "02b1236080d4b1b2572f762dc2044b3a5d1aaff9e7819ac57cfc44797358625c",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260829-a-life-of-ones-own-joanna-field-marion-milner.md",
+      "translatedAt": "2026-09-04T04:43:50.052Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 5184,
+        "outputTokens": 4814,
+        "totalTokens": 9998
+      }
     }
   ]
 }

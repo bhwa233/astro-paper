@@ -60,6 +60,21 @@
         "outputTokens": 5053,
         "totalTokens": 7210
       }
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/9-harsh-truths-nobody-told-you-about",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/9-harsh-truths-nobody-told-you-about",
+      "sourcePublishedAt": "2026-09-02T12:51:53.000Z",
+      "sourceSha256": "9f4d35f55b35ebef86fc2e19cb30e84571899588d0b524f5039637b8bc4c3b57",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260902-9-harsh-truths-nobody-told-you-about.md",
+      "translatedAt": "2026-09-04T04:43:19.213Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3159,
+        "outputTokens": 9123,
+        "totalTokens": 12282
+      }
     }
   ]
 }

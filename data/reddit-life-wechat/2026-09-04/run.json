@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-04",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "1630d8f73393be1189f10e40f66e2918d3997a93",
+    "workflowRun": "33883513554",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-04-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-04/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从个人卫生、情绪麻木到社交抽离，具体而敏锐地揭示了抑郁与生活崩溃的隐秘信号，具有极高的人文关怀与普适长尾价值。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "邮递员发现独居老人离世、助人遇难等真实故事深刻展现了生命脆弱与邻里守望，跨越时空唤起强烈的情感震撼与共鸣。"
+      },
+      {
+        "rank": 11,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "剖析成年后频繁迁徙与单向维系人际关系带来的朋友流失，精准击中当代成年人普遍面临的深层社交孤独。"
+      },
+      {
+        "rank": 4,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "提出成为童年时最需要的大人并善待自己，结合真实的亲子与自我和解案例，提供了极具启发性与迁移价值的心智模型。"
+      },
+      {
+        "rank": 28,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直面现代生活的虚无与压抑，提出从微小可控任务与真实人际连接中重获力量，具有极强的心理疗愈价值与普遍共鸣。"
+      },
+      {
+        "rank": 27,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "基于古DNA测序、免疫受体突变演化与中世纪隔离制度的严谨科学解释，解答了关于传染病与人类演化的高质量求知问题。"
+      },
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从后备箱换碟机到沉重实木瓷器柜，通过生动的家庭代际与物质变迁细节展现时代变迁，兼具趣味性与跨时代怀旧共鸣。"
+      },
+      {
+        "rank": 2,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "药物突发严重过敏进ICU和隐匿性高血压急救等亲身经历惊心动魄，兼具健康警示作用与生命求生话题的普遍关注度。"
+      },
+      {
+        "rank": 8,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "探讨大龄单身男性的独处现状，对比糟糕亲密关系的消耗与独处的踏实，对当代单身群体的生活选择具有现实讨论价值。"
+      },
+      {
+        "rank": 29,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "科普猎豹的社交焦虑、臭鼬的温顺以及蚰蜒的益虫属性，打破外形偏见，兼具生动细节与持久的科普趣味。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 5,
+        "category": "region_specific",
+        "reason": "Costco会员回本方案高度依赖北美特定的商品规格、汽车加油站差价及轮胎售后服务网络。"
+      },
+      {
+        "rank": 6,
+        "category": "narrow_interest",
+        "reason": "高性价比电子游戏推荐偏向特定玩家群体的作品盘点，受众范围相对垂直。"
+      },
+      {
+        "rank": 9,
+        "category": "low_resonance",
+        "reason": "个人卫生小贴士偏向碎片化的生活常识罗列，缺乏深入的故事展开与讨论空间。"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "讨论美剧及好莱坞过气明星的怨气与丑闻，高度依赖对特定西方娱乐圈人物的了解。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "宠物不正经起名主要依赖英语双关谐音梗与浅层幽默，缺乏更广泛的认知与共鸣价值。"
+      },
+      {
+        "rank": 13,
+        "category": "narrow_interest",
+        "reason": "特定欧美动画剧集《辛普森一家》的经典台词与烂梗盘点，受众局限于该剧粉丝。"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "超市零食与肉类涨价的吐槽主要为日常购物清单罗列，缺乏深层经验与认知增量。"
+      },
+      {
+        "rank": 15,
+        "category": "narrow_interest",
+        "reason": "冷门小众硬核游戏盘点，严重依赖特定游戏品类的背景知识。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "食物与饮品搭配属于主观口味闲聊，缺乏讨论深度与长尾价值。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "针对特定热门电影的主观无聊吐槽，偏向个体观影审美偏好，缺少普适性经验。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "初老瞬间的表述多为腰酸背痛和不认识新明星等常见段子，讨论较为浅层。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "中彩票大奖后的假设性告知对象多为老生常谈的信任遐想，缺乏实质生活指导意义。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "探讨海外社交媒体平台的审查规避黑话与英文词缀，对中文读者存在文化与语言隔阂。"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "速成显得聪明的技巧偏向社交调侃与谈话小聪明，缺乏扎实的生活与认知深度。"
+      },
+      {
+        "rank": 22,
+        "category": "region_specific",
+        "reason": "核心讨论围绕美国国会参众两院议员及最高法院大法官的年龄上限与本地政治人物表现。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "不同职业地狱周的盘点较为分散零碎，多为特定岗位的例行公事，缺乏深入的故事展开。"
+      },
+      {
+        "rank": 24,
+        "category": "region_specific",
+        "reason": "怀旧下架快餐高度依赖北美本地连锁快餐品牌（如Taco Bell、Wendy's）的历史菜单与消费背景。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "童年洗脑电视广告歌词盘点依赖海外特定年代的电视文化背景，缺乏普适性。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "网络恶搞语录与影视台词的拼贴清单，内容零散且缺乏深层个人故事沉淀。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "清晨醒来不想上班等念头多为一句式的碎片化情绪发泄，内容极为单薄。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w6kjfn",
+      "title": "有哪些不易察觉的细节，说明一个人的生活正在悄悄崩溃？",
+      "subreddit": "AskReddit",
+      "points": "1448 points · 250 评论",
+      "numComments": 250,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6kjfn/whats_a_subtle_sign_that_someones_life_is_quietly/",
+      "sourceRank": 7,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/01-1w6kjfn.md",
+      "contentSha256": "1ddcc8bb6d925a5ebd7dda010669374278046b4f59e7ffe05d350439f813286e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w6rvno",
+      "title": "你认识的人里，最令人心碎的离世方式是什么？",
+      "subreddit": "AskReddit",
+      "points": "3541 points · 3287 评论",
+      "numComments": 3287,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6rvno/what_is_the_saddest_way_someone_you_know_died/",
+      "sourceRank": 1,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/02-1w6rvno.md",
+      "contentSha256": "bff3be64052bad5706edff1b514ee391c747e775e71e07f2553116aa4bd89ba6",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w6u525",
+      "title": "到了成年阶段，你是怎么落入一个朋友都没有的处境的？",
+      "subreddit": "AskReddit",
+      "points": "894 points · 1493 评论",
+      "numComments": 1493,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6u525/how_did_you_end_up_with_no_friends_as_an_adult/",
+      "sourceRank": 11,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/01-1w6kjfn.md",
+      "contentSha256": "1ddcc8bb6d925a5ebd7dda010669374278046b4f59e7ffe05d350439f813286e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w6cz01",
+      "title": "有哪些你学到后彻底改变人生的“人生作弊码”？",
+      "subreddit": "AskReddit",
+      "points": "2137 points · 1025 评论",
+      "numComments": 1025,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6cz01/whats_a_cheatcode_you_learned_that_changed_youre/",
+      "sourceRank": 4,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/02-1w6rvno.md",
+      "contentSha256": "bff3be64052bad5706edff1b514ee391c747e775e71e07f2553116aa4bd89ba6",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w6tfnm",
+      "title": "生活暗淡压抑，大家究竟靠什么熬过当下？",
+      "subreddit": "AskReddit",
+      "points": "118 points · 338 评论",
+      "numComments": 338,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6tfnm/life_is_so_bleak_right_now_genuinely_how_are_you/",
+      "sourceRank": 28,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/01-1w6kjfn.md",
+      "contentSha256": "1ddcc8bb6d925a5ebd7dda010669374278046b4f59e7ffe05d350439f813286e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w6rt7f",
+      "title": "抛开现代医疗与生活条件，如今的人类真的比古代更难感染麻风病（Leprosy）吗？",
+      "subreddit": "askscience",
+      "points": "133 points · 12 评论",
+      "numComments": 12,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1w6rt7f/is_it_true_that_it_is_much_harder_to_get_infected/",
+      "sourceRank": 27,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/02-1w6rvno.md",
+      "contentSha256": "bff3be64052bad5706edff1b514ee391c747e775e71e07f2553116aa4bd89ba6",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w6jyys",
+      "title": "2000年代有哪些曾被当作奢侈品、如今却一文不值的东西？",
+      "subreddit": "AskReddit",
+      "points": "2609 points · 1994 评论",
+      "numComments": 1994,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6jyys/what_is_a_luxury_item_from_2000s_that_is_worth/",
+      "sourceRank": 3,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/01-1w6kjfn.md",
+      "contentSha256": "1ddcc8bb6d925a5ebd7dda010669374278046b4f59e7ffe05d350439f813286e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w6muyh",
+      "title": "你这辈子病得最严重的一次是什么经历？",
+      "subreddit": "AskReddit",
+      "points": "2648 points · 4641 评论",
+      "numComments": 4641,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6muyh/whats_the_sickest_youve_ever_been_in_your_life/",
+      "sourceRank": 2,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/02-1w6rvno.md",
+      "contentSha256": "bff3be64052bad5706edff1b514ee391c747e775e71e07f2553116aa4bd89ba6",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w6si6n",
+      "title": "30岁以上的单身男性，平时都是怎么对抗孤独感的？",
+      "subreddit": "AskReddit",
+      "points": "1356 points · 1550 评论",
+      "numComments": 1550,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w6si6n/single_men_over_30_how_are_you_staving_off/",
+      "sourceRank": 8,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/01-1w6kjfn.md",
+      "contentSha256": "1ddcc8bb6d925a5ebd7dda010669374278046b4f59e7ffe05d350439f813286e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w72n6p",
+      "title": "哪些动物看起来凶神恶煞，其实并没有想象中那么可怕？",
+      "subreddit": "AskReddit",
+      "points": "108 points · 345 评论",
+      "numComments": 345,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w72n6p/which_animals_are_not_as_scary_as_they_seem/",
+      "sourceRank": 29,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-04/02-1w6rvno.md",
+      "contentSha256": "bff3be64052bad5706edff1b514ee391c747e775e71e07f2553116aa4bd89ba6",
+      "volume": "v2"
+    }
+  ]
+}

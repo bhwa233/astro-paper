@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-05",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "c728ef098d2556a244b103751892a970d4357239",
+    "workflowRun": "33968979792",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-05-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-05/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "揭示不明消瘦与濒死感等危险医学信号，具备极高的健康警示与永久长尾科普价值"
+      },
+      {
+        "rank": 22,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "打破母乳神话并坦诚产后抑郁与身体创伤，给予新手妈妈极具共情与实操价值的真诚经验"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "讲述青年确诊帕金森后的生活重塑，展现普通人在绝境中重建生活秩序的强大精神力量"
+      },
+      {
+        "rank": 21,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深刻剖析全力以赴仍可能失败的生活本质，提供接纳无力感与世界复杂性的成熟认知视角"
+      },
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "通过具体而平实的告别细节呈现自杀预警信号，具有强烈的生命教育与心理干预长尾意义"
+      },
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "普及熊出没体味、燃气与硫化氢麻痹嗅觉等致命气味常识，具备极强的生活安全求生价值"
+      },
+      {
+        "rank": 10,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "打破学术界与非终身教职科研人员的薪资光环，真实揭示高学历群体的职业困境与行业内幕"
+      },
+      {
+        "rank": 9,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "分享下厨与力量训练等真正重塑身心健康的长期爱好，提供可迁移的积极生活方式建议"
+      },
+      {
+        "rank": 26,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "总结高智商与顶尖人才快速建模、提问深度及敢于承认未知的特质，满足读者的求知与自省欲"
+      },
+      {
+        "rank": 13,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "从硬件折旧与高功耗AI芯片梯次利用视角解析算力退役去向，解答大众对AI基建寿命的认知盲区"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 4,
+        "category": "low_resonance",
+        "reason": "属于纯假设性生活段子与日常吐槽，讨论深度浅且缺乏沉淀价值"
+      },
+      {
+        "rank": 5,
+        "category": "region_specific",
+        "reason": "严格依赖英美法系陪审团选拔制度与特定法庭免除程序，跨文化适用性低"
+      },
+      {
+        "rank": 6,
+        "category": "narrow_interest",
+        "reason": "属于泛娱乐维度的烂片与退场经历盘点，依赖特定影视作品背景"
+      },
+      {
+        "rank": 7,
+        "category": "region_specific",
+        "reason": "高度依赖北美特定快餐连锁品牌的商业模式与本地经营吐槽"
+      },
+      {
+        "rank": 8,
+        "category": "narrow_interest",
+        "reason": "聚焦特定欧美公众人物的正面清单盘点，偏向美娱圈粉丝向讨论"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "属于特定历史事件发生时的个人坐标回忆录，缺乏可迁移的生活经验或认知启发"
+      },
+      {
+        "rank": 12,
+        "category": "region_specific",
+        "reason": "围绕特定海外旅游城市的居民态度与刻板印象展开吐槽，地域属性过强"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "纯粹的 Wi-Fi 命名谐音梗与琐碎玩笑分享，缺少讨论深度"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "即时时区差异与熬夜碎碎念水帖，不具备长尾阅读价值"
+      },
+      {
+        "rank": 17,
+        "category": "low_resonance",
+        "reason": "停留在彩泥与水管等个人感官怀旧碎片，内容缺乏展开与普遍共鸣深度"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "属于即时情绪宣泄与个人负面境遇倒苦水，缺乏结构化的经验沉淀"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "偶遇惊艳路人的浅层外貌描写与生活琐事，讨论价值有限"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "围绕特定美国历史未解悬案展开八卦盘点，具有明显的作品与案件专属性"
+      },
+      {
+        "rank": 23,
+        "category": "narrow_interest",
+        "reason": "怀旧游戏开场关卡盘点，高度依赖特定主机玩家的童年游戏背景"
+      },
+      {
+        "rank": 24,
+        "category": "narrow_interest",
+        "reason": "临终个人歌单清单盘点，受众音乐偏好过于离散且缺乏深度探讨"
+      },
+      {
+        "rank": 25,
+        "category": "low_resonance",
+        "reason": "暗恋与示好信号的日常浅层调侃，内容较为单薄且流于表面套路"
+      },
+      {
+        "rank": 27,
+        "category": "narrow_interest",
+        "reason": "探讨两台空间望远镜在第二拉格朗日点的精确轨道细节，过于小众与专精"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "偏向宇宙末日与深空恐惧的科幻脑洞假设，缺乏具体事实与生活落地感"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "单一游戏在三维开放世界设计史上的专业讨论，受众局限于核心玩家群体"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "各国养胃食物清单盘点较为平淡，缺乏更深层的文化洞察或医学依据支撑"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w7msbw",
+      "title": "哪些病人总觉得无所谓的症状，反而会让医护人员后背发凉？",
+      "subreddit": "AskReddit",
+      "points": "3299 points · 2387 评论",
+      "numComments": 2387,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w7msbw/doctorsnurses_of_reddit_whats_a_symptom_patients/",
+      "sourceRank": 2,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/01-1w7msbw.md",
+      "contentSha256": "513d1b5d5987ab63eb78d31a87d8e764c5a6df4ea2d540d55ae53ccdb440766f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w7id16",
+      "title": "关于生娃与当妈，有哪些事是你巴不得有人早点告诉你的？",
+      "subreddit": "AskReddit",
+      "points": "133 points · 411 评论",
+      "numComments": 411,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w7id16/moms_of_reddit_whats_something_about_motherhood/",
+      "sourceRank": 22,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/02-1w7id16.md",
+      "contentSha256": "bbc69c3d73a5b20d73fc3f2f92d7f74102e031b0bfb13e1ccb34555f3040f324",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w7dry0",
+      "title": "有哪些让你心头一紧、觉得“这辈子彻底完了”的绝望瞬间？",
+      "subreddit": "AskReddit",
+      "points": "3444 points · 1205 评论",
+      "numComments": 1205,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w7dry0/what_was_your_gut_wrenching_my_lifes_over_moment/",
+      "sourceRank": 1,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/01-1w7msbw.md",
+      "contentSha256": "513d1b5d5987ab63eb78d31a87d8e764c5a6df4ea2d540d55ae53ccdb440766f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w7ljdt",
+      "title": "大多数人尚未意识到的极度令人难过的事实有哪些？",
+      "subreddit": "AskReddit",
+      "points": "187 points · 486 评论",
+      "numComments": 486,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w7ljdt/whats_an_extremely_sad_realization_that_majority/",
+      "sourceRank": 21,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/02-1w7id16.md",
+      "contentSha256": "bbc69c3d73a5b20d73fc3f2f92d7f74102e031b0bfb13e1ccb34555f3040f324",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w7daph",
+      "title": "身边人选择结束生命前，曾留下过哪些反常的预警信号？",
+      "subreddit": "AskReddit",
+      "points": "2759 points · 857 评论",
+      "numComments": 857,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w7daph/what_were_the_warning_signs_before_someone_you/",
+      "sourceRank": 3,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/01-1w7msbw.md",
+      "contentSha256": "513d1b5d5987ab63eb78d31a87d8e764c5a6df4ea2d540d55ae53ccdb440766f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w76dea",
+      "title": "有哪些气味一旦闻到，就该立刻意识到自身处于危险之中？",
+      "subreddit": "AskReddit",
+      "points": "489 points · 593 评论",
+      "numComments": 593,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w76dea/what_is_a_smell_that_we_shouldall_recognize_as/",
+      "sourceRank": 15,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/02-1w7id16.md",
+      "contentSha256": "bbc69c3d73a5b20d73fc3f2f92d7f74102e031b0bfb13e1ccb34555f3040f324",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w7lwcv",
+      "title": "哪些职业看似光鲜高薪，实际收入却远低于大众的想象？",
+      "subreddit": "AskReddit",
+      "points": "733 points · 954 评论",
+      "numComments": 954,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w7lwcv/what_profession_seems_highpaying_but_actually_isnt/",
+      "sourceRank": 10,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/01-1w7msbw.md",
+      "contentSha256": "513d1b5d5987ab63eb78d31a87d8e764c5a6df4ea2d540d55ae53ccdb440766f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w77pp7",
+      "title": "入坑后从未后悔过的爱好，有哪些真正改变了生活？",
+      "subreddit": "AskReddit",
+      "points": "784 points · 754 评论",
+      "numComments": 754,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w77pp7/what_is_a_hobby_you_dont_regret_getting_into/",
+      "sourceRank": 9,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/02-1w7id16.md",
+      "contentSha256": "bbc69c3d73a5b20d73fc3f2f92d7f74102e031b0bfb13e1ccb34555f3040f324",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w7jo0s",
+      "title": "那些真正聪明、高智商（IQ）或在各自领域极具天赋的人，身上有哪些共同的习惯或特质？",
+      "subreddit": "AskReddit",
+      "points": "116 points · 89 评论",
+      "numComments": 89,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w7jo0s/what_habits_or_traits_have_you_noticed_among/",
+      "sourceRank": 26,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/01-1w7msbw.md",
+      "contentSha256": "513d1b5d5987ab63eb78d31a87d8e764c5a6df4ea2d540d55ae53ccdb440766f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w76giw",
+      "title": "现在投入数百亿美元建设的算力（compute），十年后被淘汰了会去哪？",
+      "subreddit": "AskReddit",
+      "points": "533 points · 261 评论",
+      "numComments": 261,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w76giw/what_will_happen_to_billions_of_dollars_worth_of/",
+      "sourceRank": 13,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-05/02-1w7id16.md",
+      "contentSha256": "bbc69c3d73a5b20d73fc3f2f92d7f74102e031b0bfb13e1ccb34555f3040f324",
+      "volume": "v2"
+    }
+  ]
+}

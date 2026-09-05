@@ -24,6 +24,14 @@
       "epubSha256": "5d609be5463a7b7b155bd47774eab9eecdab24f424ed1e2ff4dc33ae1db589ec",
       "archivedAt": "2026-08-08",
       "postPath": "src/content/posts/zh-cn/连线-2026-08-02.md"
+    },
+    {
+      "key": "wired:2026-09-02:bce27cc500b754fe48be3eddb2882453d2a6541de84ee1b2062af471ed5a5f7f",
+      "issueDate": "2026-09-02",
+      "sourceCommit": "d727ed5c63bde3f13e0ae82992db70da7aad137c",
+      "epubSha256": "bce27cc500b754fe48be3eddb2882453d2a6541de84ee1b2062af471ed5a5f7f",
+      "archivedAt": "2026-09-05",
+      "postPath": "src/content/posts/zh-cn/连线-2026-09-02.md"
     }
   ]
 }

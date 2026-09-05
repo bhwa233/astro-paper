@@ -60,6 +60,21 @@
         "outputTokens": 18925,
         "totalTokens": 36849
       }
+    },
+    {
+      "guid": "6a9ace226fbfb500011506c3",
+      "canonicalUrl": "https://www.wheresyoured.at/premium-the-haters-guide-to-circular-financing-part-two",
+      "sourcePublishedAt": "2026-09-04T16:24:26.000Z",
+      "sourceSha256": "9bffe15b52c6b9c81ffea25c471187b550e5871099fe3aac067203473e8c29e7",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/wheres-your-ed-at-20260904-premium-the-haters-guide-to-circular-financing-part-two.md",
+      "translatedAt": "2026-09-05T04:37:02.921Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2622,
+        "outputTokens": 6594,
+        "totalTokens": 9216
+      }
     }
   ]
 }

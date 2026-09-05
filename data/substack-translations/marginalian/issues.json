@@ -253,6 +253,21 @@
       "reason": "HTML to Markdown listItems mismatch: 0 != 2",
       "attempts": 1,
       "lastAttemptAt": "2026-09-04T07:56:39.782Z"
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=70440",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/30/mary-shelley-the-last-man",
+      "sourcePublishedAt": "2026-08-30T04:19:22.000Z",
+      "sourceSha256": "92e08b19201a03e4b2518f7890cd5d6fbbd50ad14ac779f4df861845835b0296",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260830-mary-shelley-the-last-man.md",
+      "translatedAt": "2026-09-05T04:37:15.483Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2219,
+        "outputTokens": 1719,
+        "totalTokens": 3938
+      }
     }
   ]
 }

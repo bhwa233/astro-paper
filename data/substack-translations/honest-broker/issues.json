@@ -86,6 +86,17 @@
         "outputTokens": 3559,
         "totalTokens": 6764
       }
+    },
+    {
+      "guid": "https://www.honest-broker.com/p/youtube-videos-im-recommending-right",
+      "canonicalUrl": "https://www.honest-broker.com/p/youtube-videos-im-recommending-right",
+      "sourcePublishedAt": "2026-09-04T20:18:18.000Z",
+      "sourceSha256": "4e5038a727317fab98aa4928771b7455f6b4153b62ac6de13a3e335bb126955c",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 1852,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-05T04:36:42.515Z"
     }
   ]
 }

@@ -75,6 +75,17 @@
         "outputTokens": 9123,
         "totalTokens": 12282
       }
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/a-lesson-from-a-mentor-ill-never",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/a-lesson-from-a-mentor-ill-never",
+      "sourcePublishedAt": "2026-09-04T12:15:17.000Z",
+      "sourceSha256": "602056bc63c9f1bfc6a39cb3669c296fa851ccbb4417c12fb24f52455fcebf10",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3777,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-05T04:36:41.130Z"
     }
   ]
 }

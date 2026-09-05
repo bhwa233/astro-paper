@@ -1,0 +1,129 @@
+{
+  "version": 3,
+  "archiveDate": "2026-09-05",
+  "timeZone": "Asia/Shanghai",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "20d98030a53a082a97b0accd490206cba2c9a263",
+    "workflowRun": "33983871774",
+    "articlePath": "src/content/posts/zh-cn/wb-20260905.md"
+  },
+  "rawSources": {
+    "upstreamMarkdown": {
+      "path": "data/weibo-trending-wechat/2026-09-05/upstream.md",
+      "sha256": "56687c2a0591fd71a3b07f4caaac9de6e148b5acd104d8e1369171cf87392b44"
+    }
+  },
+  "draft": {
+    "path": "data/weibo-trending-wechat/2026-09-05/01.md",
+    "sha256": "9419d1aa6e6f73961004578433d935c2931840e3894749aeedf8209f003fb3c7",
+    "itemCount": 10,
+    "truncatedItemCount": 35,
+    "cards": [
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-00.png",
+        "sha256": "36227f115657f6bab12dbab7b089a09eea62fefaa08b1282d5c5cda52dfc19f9"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-01.png",
+        "sha256": "7706fe36a9d3a453af9de496eb443c78b40404ed39a2b49106334e51b5acc04f"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-02.png",
+        "sha256": "c2393c384387f70b222fbcfe4c177283f1e0de0010712b4237c25777193ca4d7"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-03.png",
+        "sha256": "7f4e097c9914db3c3811a1a4acbfd2dbeb13d064eeb53b15f048c0c0bc776a88"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-04.png",
+        "sha256": "229a98487657cbcd71b6859b55b2be6e3c09670d2efb6f14b168542a0554a5b5"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-05.png",
+        "sha256": "9e51b886f3cca3417032f5c511e34a0d2541862f8bc904f5a1cb90e9bade4575"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-06.png",
+        "sha256": "47a529c2ef74cc0b29e560bd37dc0566ac3f897e5a67b3eee72b84fa7667c3a1"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-07.png",
+        "sha256": "eaecc2ab257343eed042bda347116846e12935a1fe196fc822b9789ed97c9a0b"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-08.png",
+        "sha256": "708aa578eb2b665d9fb8ba88974fbd6aebaf0a1201ca60a21180ebc541e9128e"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-09.png",
+        "sha256": "5e08e2b59dd02435b3cb653b3ff92415d001cec2484de087358baa06e4e1d2e8"
+      },
+      {
+        "path": "data/weibo-trending-wechat/2026-09-05/card-10.png",
+        "sha256": "5980af46013fadabb859f7a733fc101616e4572fd737a411c03d866c38d1b38b"
+      }
+    ]
+  },
+  "release": {
+    "tag": "weibo-trending-wechat-2026-09-05",
+    "assets": [
+      {
+        "asset": "card-00.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-00.png",
+        "sha256": "36227f115657f6bab12dbab7b089a09eea62fefaa08b1282d5c5cda52dfc19f9"
+      },
+      {
+        "asset": "card-01.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-01.png",
+        "sha256": "7706fe36a9d3a453af9de496eb443c78b40404ed39a2b49106334e51b5acc04f"
+      },
+      {
+        "asset": "card-02.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-02.png",
+        "sha256": "c2393c384387f70b222fbcfe4c177283f1e0de0010712b4237c25777193ca4d7"
+      },
+      {
+        "asset": "card-03.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-03.png",
+        "sha256": "7f4e097c9914db3c3811a1a4acbfd2dbeb13d064eeb53b15f048c0c0bc776a88"
+      },
+      {
+        "asset": "card-04.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-04.png",
+        "sha256": "229a98487657cbcd71b6859b55b2be6e3c09670d2efb6f14b168542a0554a5b5"
+      },
+      {
+        "asset": "card-05.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-05.png",
+        "sha256": "9e51b886f3cca3417032f5c511e34a0d2541862f8bc904f5a1cb90e9bade4575"
+      },
+      {
+        "asset": "card-06.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-06.png",
+        "sha256": "47a529c2ef74cc0b29e560bd37dc0566ac3f897e5a67b3eee72b84fa7667c3a1"
+      },
+      {
+        "asset": "card-07.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-07.png",
+        "sha256": "eaecc2ab257343eed042bda347116846e12935a1fe196fc822b9789ed97c9a0b"
+      },
+      {
+        "asset": "card-08.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-08.png",
+        "sha256": "708aa578eb2b665d9fb8ba88974fbd6aebaf0a1201ca60a21180ebc541e9128e"
+      },
+      {
+        "asset": "card-09.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-09.png",
+        "sha256": "5e08e2b59dd02435b3cb653b3ff92415d001cec2484de087358baa06e4e1d2e8"
+      },
+      {
+        "asset": "card-10.png",
+        "path": "data/weibo-trending-wechat/2026-09-05/card-10.png",
+        "sha256": "5980af46013fadabb859f7a733fc101616e4572fd737a411c03d866c38d1b38b"
+      }
+    ]
+  }
+}

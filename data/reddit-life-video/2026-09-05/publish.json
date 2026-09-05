@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-05",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "b87a2bdad527a7ed4726d4be50d1dbb14b696b80777e2be4ed397f9d4dae3e8c",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "医护视角",
+        "健康常识",
+        "反常识"
+      ],
+      "summary": "突然不疼或莫名暴瘦往往不是自愈，而是阑尾穿孔与恶性肿瘤等危重症的伪装",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 8,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "避坑指南",
+        "冷知识",
+        "细思极恐"
+      ],
+      "summary": "室内鱼腥味常预示电气火灾，野外异常瓜果甜香则可能是剧毒蛇或氰化物泄露",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

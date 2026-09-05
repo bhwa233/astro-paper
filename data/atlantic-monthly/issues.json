@@ -24,6 +24,14 @@
       "epubSha256": "1ed32377f8824b22ebe88593db7ac4c70052470639e592231384ad271e9187c6",
       "archivedAt": "2026-08-08",
       "postPath": "src/content/posts/zh-cn/大西洋月刊-2026-08-02.md"
+    },
+    {
+      "key": "atlantic:2026-09-02:b977ec491a3a630ff18d8c325eb4d06ea1b42fabdde513a9fa888026d0250707",
+      "issueDate": "2026-09-02",
+      "sourceCommit": "3404d372225bc3e53af14f56a2a9f713eb7005a0",
+      "epubSha256": "b977ec491a3a630ff18d8c325eb4d06ea1b42fabdde513a9fa888026d0250707",
+      "archivedAt": "2026-09-05",
+      "postPath": "src/content/posts/zh-cn/大西洋月刊-2026-09-02.md"
     }
   ]
 }

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-06",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "c74f3425eb7887826db96f5e01dafa97aae6ec12c5eb34f843bb3cdedd1a8d6c",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "生活妙招",
+        "反常识",
+        "亲身经历"
+      ],
+      "summary": "对抗失眠的关键不是强迫入睡，而是通过反向清醒暗示与机械构建让大脑停止焦虑",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 3,
+      "status": "processed",
+      "tags": [
+        "婚姻情感",
+        "人性观察",
+        "相处之道",
+        "避坑指南",
+        "亲身经历"
+      ],
+      "summary": "摧毁关系的往往不是剧烈争吵，而是分享欲的彻底归零与深不见底的冷漠轻蔑",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-06",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-09-06",
+    "drafts": [
+      "01-1w8mo1u.md",
+      "02-1w83iy8.md"
+    ],
+    "sha256": "a1f2aa2321ee386dd519712363d75225a5c75a27513145f8c55b21173c379561"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 10,
+  "selectedQuestionIndexes": [
+    1,
+    3
+  ],
+  "titles": [
+    "失眠时亲测有效的快速入睡法",
+    "看似美满的关系走向破裂的征兆"
+  ],
+  "questions": [
+    "失眠时有哪些亲测有效的快速入睡绝招？",
+    "一段看似美满的关系走向破裂，最明显的危险信号是什么？"
+  ],
+  "verbatimCounts": [
+    4,
+    3
+  ]
+}

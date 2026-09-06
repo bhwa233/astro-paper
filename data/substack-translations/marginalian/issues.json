@@ -268,6 +268,21 @@
         "outputTokens": 1719,
         "totalTokens": 3938
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87824",
+      "canonicalUrl": "https://www.themarginalian.org/2026/08/30/matter-memory-bergson",
+      "sourcePublishedAt": "2026-08-30T20:11:39.000Z",
+      "sourceSha256": "e546bfa05b2338e083f7d95ced0d3458b96e7a18b51a32513fc9c81d88a699cb",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260830-matter-memory-bergson.md",
+      "translatedAt": "2026-09-06T04:47:11.365Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2838,
+        "outputTokens": 3027,
+        "totalTokens": 5865
+      }
     }
   ]
 }

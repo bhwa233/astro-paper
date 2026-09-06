@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-06",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "3ba4957730e495079c25f93c8974be67f69371de",
+    "workflowRun": "34036938961",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-06-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-06/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 27,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击大众普遍失眠痛点，提供了矛盾意向法与认知重组等具有心理学依据且亲测可行的实操方法，长尾实用价值极高。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "打破女性健康领域的信息盲区，详细分享了围绝经期的真实身心症状与应对经验，具有极高的科普关怀价值与长尾共鸣。"
+      },
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深刻剖析习惯性扮演受害者、职场揽权甩锅等有毒人格的言行细节，为读者提供了高度可迁移的人际防坑经验。"
+      },
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击身材管理的大众痛点，聚焦热量缺口原理与戒断隐蔽液体糖等低门槛减重策略，简单清晰且跨文化通用。"
+      },
+      {
+        "rank": 9,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "精准提炼亲密关系名存实亡前的悄然疏离与原生家庭越界等隐蔽危险信号，具备深刻的情感洞察与自省价值。"
+      },
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "涵盖基础个人卫生、冲突避险与两性健康等常识认知，切中生活盲区且具有广泛的可操作性与跨文化适用性。"
+      },
+      {
+        "rank": 25,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直面中年单身群体的真实心声，探讨高质量独处、社交障碍与情感创伤修复，展现了成熟理性的生活态度与普遍共鸣。"
+      },
+      {
+        "rank": 11,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "以极具画面感的故事展现反抗恶毒长辈偏见与坚决守护特殊孩子的经历，情绪张力饱满且具有强烈的家庭共鸣。"
+      },
+      {
+        "rank": 19,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "通过历史日记、集中营刻字与爱宠离别等深刻场景，展现人类面对至暗时刻与失去时的深沉情感，冲击力极强。"
+      },
+      {
+        "rank": 10,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "严谨生动地从矿物质沉淀、皂化反应与生物演化角度解释人体消化机制，具备高质量科普解释力，满足长尾求知欲。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 1,
+        "category": "narrow_interest",
+        "reason": "过度依赖海外特定网络博主的个人塌房八卦，受众圈层窄且缺乏普遍的讨论价值。"
+      },
+      {
+        "rank": 2,
+        "category": "low_resonance",
+        "reason": "以碎片化的个人恋爱琐事与心动瞬间为主，缺乏深入探讨空间与可迁移的认知价值。"
+      },
+      {
+        "rank": 3,
+        "category": "region_specific",
+        "reason": "核心话题围绕美国特有的城市风貌与文化生活刻板印象展开，具有明显的地区依赖性。"
+      },
+      {
+        "rank": 4,
+        "category": "narrow_interest",
+        "reason": "属于特定动漫与影视角色的虚构战力脑洞盘点，依赖特定作品设定，受众圈层有限。"
+      },
+      {
+        "rank": 12,
+        "category": "narrow_interest",
+        "reason": "偏向特定欧美名人的个人情怀盘点，依赖特定文化背景，大众代入感与长尾共鸣较弱。"
+      },
+      {
+        "rank": 13,
+        "category": "narrow_interest",
+        "reason": "属于特定英文老歌推荐清单，依赖特定作品背景知识，缺乏深度的互动与讨论空间。"
+      },
+      {
+        "rank": 14,
+        "category": "region_specific",
+        "reason": "完全依赖美国具体城市的地理气候、房价与生活成本等本地化信息。"
+      },
+      {
+        "rank": 15,
+        "category": "low_resonance",
+        "reason": "回答多为常规接私活吐槽或调侃卖课套路，缺乏深度启发与独特共鸣。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "内容偏向无厘头段子与碎片化调侃，缺乏深入探讨和长尾阅读价值。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "话题高度依赖经典美剧的角色设定演变，受限于特定影视作品的背景知识。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "内容以特定品牌饮料清单和个人口味偏好为主，缺乏可迁移的讨论深度与长尾价值。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "内容高度依赖海外特定歌手的翻唱翻车事件与原曲背景，受众面较为狭窄。"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "属于体育历史上的意外事故与惨剧盘点，缺乏可迁移的生活经验或建设性讨论深度。"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "属于常见的天降横财幻想水题，回答以碎片化日常调侃为主，缺乏深度共鸣。"
+      },
+      {
+        "rank": 23,
+        "category": "region_specific",
+        "reason": "完全依赖美国特有的执法流程、司法判例以及路边测试的法庭证据采纳规则。"
+      },
+      {
+        "rank": 24,
+        "category": "narrow_interest",
+        "reason": "话题局限于主机游戏与复古游戏通关体验，高度依赖特定玩家群体的作品阅历。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "聚焦于海外特定社交媒体平台的算法与生态吐槽，内容较为碎片化且泛化共鸣有限。"
+      },
+      {
+        "rank": 28,
+        "category": "narrow_interest",
+        "reason": "属于 90 年代特定动画电影的怀旧清单盘点，缺乏具有延展性的讨论空间。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "属于特定经典美剧的口碑盘点，依赖特定作品阅历，讨论深度相对有限。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "属于即时随聊水帖，回答高度琐碎且因人而异，缺乏长尾阅读价值与讨论深度。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w8mo1u",
+      "title": "失眠时有哪些亲测有效的快速入睡绝招？",
+      "subreddit": "AskReddit",
+      "points": "116 points · 261 评论",
+      "numComments": 261,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w8mo1u/whats_your_best_hack_for_getting_to_sleep/",
+      "sourceRank": 27,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/01-1w8mo1u.md",
+      "contentSha256": "3a212e4a56b360b7b4ce04306b44252bf0228081460f112bcf5fdb08ed0c6e86",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w83iy8",
+      "title": "经历过围绝经期（perimenopause）的女性，有哪些事希望自己在它开始前就知道？",
+      "subreddit": "AskReddit",
+      "points": "1401 points · 1332 评论",
+      "numComments": 1332,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w83iy8/women_of_reddit_who_have_been_through/",
+      "sourceRank": 6,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/02-1w83iy8.md",
+      "contentSha256": "2081a23a2db66452d7a931527f8096dc17b556ac024bcd123a78a4fd28f82826",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w8ldvq",
+      "title": "出现哪些言行细节，一眼就能断定一个人人品极差？",
+      "subreddit": "AskReddit",
+      "points": "1044 points · 1463 评论",
+      "numComments": 1463,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w8ldvq/whats_a_dead_giveaway_that_someone_is_a_bad_person/",
+      "sourceRank": 7,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/01-1w8mo1u.md",
+      "contentSha256": "3a212e4a56b360b7b4ce04306b44252bf0228081460f112bcf5fdb08ed0c6e86",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w8ea9c",
+      "title": "不健身也不锻炼，网友们都是怎么把体重减下来的？",
+      "subreddit": "AskReddit",
+      "points": "780 points · 1088 评论",
+      "numComments": 1088,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w8ea9c/for_people_who_didnt_workout_how_did_you_lose/",
+      "sourceRank": 8,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/02-1w83iy8.md",
+      "contentSha256": "2081a23a2db66452d7a931527f8096dc17b556ac024bcd123a78a4fd28f82826",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w8q2w2",
+      "title": "一段看似美满的关系走向破裂，最明显的危险信号是什么？",
+      "subreddit": "AskReddit",
+      "points": "761 points · 268 评论",
+      "numComments": 268,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w8q2w2/whats_a_dead_giveaway_that_a_seemingly_good/",
+      "sourceRank": 9,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/01-1w8mo1u.md",
+      "contentSha256": "3a212e4a56b360b7b4ce04306b44252bf0228081460f112bcf5fdb08ed0c6e86",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w89ccc",
+      "title": "有哪些每个男人都该懂、却几乎没人教过的常识与生活经验？",
+      "subreddit": "AskReddit",
+      "points": "1963 points · 1244 评论",
+      "numComments": 1244,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w89ccc/men_of_reddit_whats_something_every_guy_should/",
+      "sourceRank": 5,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/02-1w83iy8.md",
+      "contentSha256": "2081a23a2db66452d7a931527f8096dc17b556ac024bcd123a78a4fd28f82826",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w82uu0",
+      "title": "三十多岁或四十多岁依然单身的主要原因是什么？你接受现状吗？",
+      "subreddit": "AskReddit",
+      "points": "216 points · 748 评论",
+      "numComments": 748,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w82uu0/if_youre_30_or_40_and_still_single_what_do_you/",
+      "sourceRank": 25,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/01-1w8mo1u.md",
+      "contentSha256": "3a212e4a56b360b7b4ce04306b44252bf0228081460f112bcf5fdb08ed0c6e86",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w8hcav",
+      "title": "公婆或岳父母对你说过最过分的一句话是什么？",
+      "subreddit": "AskReddit",
+      "points": "691 points · 854 评论",
+      "numComments": 854,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w8hcav/what_is_the_most_fcked_up_thing_an_inlaw_has_ever/",
+      "sourceRank": 11,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/02-1w83iy8.md",
+      "contentSha256": "2081a23a2db66452d7a931527f8096dc17b556ac024bcd123a78a4fd28f82826",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w8l16p",
+      "title": "你听过最让人心碎的一句话是什么？",
+      "subreddit": "AskReddit",
+      "points": "361 points · 436 评论",
+      "numComments": 436,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w8l16p/whats_the_saddest_quote_youve_ever_heard/",
+      "sourceRank": 19,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/01-1w8mo1u.md",
+      "contentSha256": "3a212e4a56b360b7b4ce04306b44252bf0228081460f112bcf5fdb08ed0c6e86",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w8boh4",
+      "title": "如果胃进化成强碱性而非酸性环境（acidic environment），人体的消化效率会一样吗？",
+      "subreddit": "askscience",
+      "points": "692 points · 50 评论",
+      "numComments": 50,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1w8boh4/would_digestion_be_equally_efficient_if_the/",
+      "sourceRank": 10,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-06/02-1w83iy8.md",
+      "contentSha256": "2081a23a2db66452d7a931527f8096dc17b556ac024bcd123a78a4fd28f82826",
+      "volume": "v2"
+    }
+  ]
+}

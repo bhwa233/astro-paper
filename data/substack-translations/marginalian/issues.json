@@ -283,6 +283,32 @@
         "outputTokens": 3027,
         "totalTokens": 5865
       }
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=49602",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/01/milan-kundera-unbearable-lightness-of-being",
+      "sourcePublishedAt": "2026-09-01T20:21:17.000Z",
+      "sourceSha256": "7175fd1c231486367e209b627baad993a9521a28352c6d228ea972e59043ef15",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2836,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-07T04:50:06.408Z"
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=74543",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/01/thich-nhat-hanh-listening-love",
+      "sourcePublishedAt": "2026-09-01T20:21:23.000Z",
+      "sourceSha256": "e761ee20d275721527ee29fcede78b87f7d35c594da334d47052a9175efab96b",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260901-thich-nhat-hanh-listening-love.md",
+      "translatedAt": "2026-09-07T04:50:34.395Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2902,
+        "outputTokens": 9283,
+        "totalTokens": 12185
+      }
     }
   ]
 }

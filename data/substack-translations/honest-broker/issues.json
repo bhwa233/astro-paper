@@ -97,6 +97,17 @@
       "sourceTextChars": 1852,
       "minimumSourceTextChars": 4000,
       "evaluatedAt": "2026-09-05T04:36:42.515Z"
+    },
+    {
+      "guid": "https://www.honest-broker.com/p/amazon-is-polluted",
+      "canonicalUrl": "https://www.honest-broker.com/p/amazon-is-polluted",
+      "sourcePublishedAt": "2026-09-06T19:19:47.000Z",
+      "sourceSha256": "494e9e43a593061f97b7d06bed13aa0a9c51ad290d4810ca9bc6abaa37a7e5c0",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 916,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-07T04:50:00.681Z"
     }
   ]
 }

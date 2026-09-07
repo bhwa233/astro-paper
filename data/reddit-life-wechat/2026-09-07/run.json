@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-07",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "5c9faa442b5f69bfaaa86f56105ed31ff4f1da2a",
+    "workflowRun": "34140640632",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-07-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-07/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "揭示看似正常的昏睡、怪异鼾声背后致命医学危机的科普与亲历故事，兼具极高警示价值与普遍生命共鸣。"
+      },
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直面成年人独自承担风雨、脱离社交内耗与主动维系关系的残酷清醒经验，跨越年龄具有极强启发性。"
+      },
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深入剖析成人多动症、慢性焦虑等常被误诊与忽视的心身困境，医学解释透彻且具有极高长尾科普价值。"
+      },
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "提供不卷入无谓争吵、接纳旧自我以及防范情绪传染等可迁移心智模型，能引发广泛情绪共鸣。"
+      },
+      {
+        "rank": 21,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从专业搬家、独立洗烘到稳定热水澡，精准切中现代人对生活品质跃迁与底层便利的普遍体悟。"
+      },
+      {
+        "rank": 27,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "精准刻画自恋型人格、处处压人一头者等典型社交消耗源，直击日常人际交往中的共同痛点。"
+      },
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "聚焦良性冲突解决能力、情绪智力与基础人格尊重，直击亲密关系长久维系的核心基石。"
+      },
+      {
+        "rank": 29,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "阐述依凭证据修正观点、坦承未知与深入浅出沟通等真智慧特征，具有深刻的认知启迪意义。"
+      },
+      {
+        "rank": 23,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "以长赐号卡航、歌诗达协和号触礁等真实历史事件为例，生动展现个体失误引发的巨额代价与科普警示。"
+      },
+      {
+        "rank": 14,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "打破对野牛、家牛和鹿的温顺刻板印象，结合牧场亲历故事普及真实安全隐患，知识性与趣味性兼备。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 1,
+        "category": "region_specific",
+        "reason": "以纽约市长发布的具体行政禁令为由头发起讨论，依赖特定城市的教育政策背景。"
+      },
+      {
+        "rank": 4,
+        "category": "narrow_interest",
+        "reason": "特定剧集评分与清单式安利，属于主观影视偏好盘点，缺乏深度认知沉淀。"
+      },
+      {
+        "rank": 5,
+        "category": "narrow_interest",
+        "reason": "经典动画电影清单盘点，缺乏可迁移的生活经验或深入讨论。"
+      },
+      {
+        "rank": 6,
+        "category": "narrow_interest",
+        "reason": "特定动漫作品主观推荐，高度依赖二次元圈层文化背景与具体作品知识。"
+      },
+      {
+        "rank": 9,
+        "category": "narrow_interest",
+        "reason": "围绕北美棒球与橄榄球赛事的看球心碎经历，赛事背景特定且受众受限。"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "围绕特定英文流行歌曲歌词含义的杂谈，属于单一文娱冷知识盘点。"
+      },
+      {
+        "rank": 11,
+        "category": "region_specific",
+        "reason": "强依赖美国政坛特定人物动态与选举体制的政治推演，缺乏跨地区共鸣。"
+      },
+      {
+        "rank": 12,
+        "category": "narrow_interest",
+        "reason": "个别欧美乐队演出划水与现场翻车事件吐槽，属于圈内名人八卦。"
+      },
+      {
+        "rank": 13,
+        "category": "narrow_interest",
+        "reason": "喜剧电影片单分享，内容局限于特定影视台词梗与作品情节。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "关于个人大胃王食物偏好的随性闲聊，缺乏讨论深度与长尾价值。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "冷门怪诞电视剧与动画剧集盘点，受众圈层小且依赖具体剧集阅历。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "日常琐碎烦心事的情绪宣泄，内容浮于表面且缺乏延展思考与启发性。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "穿越到1876年的虚构手搓技术脑洞，属于纯娱乐性调侃，缺乏现实共鸣。"
+      },
+      {
+        "rank": 20,
+        "category": "low_resonance",
+        "reason": "初次发薪经历回忆较为零散单薄，缺乏普遍的故事张力与可迁移经验。"
+      },
+      {
+        "rank": 22,
+        "category": "narrow_interest",
+        "reason": "针对特定书籍的负面吐槽，严重依赖特定小说的文本情节与阅读背景。"
+      },
+      {
+        "rank": 24,
+        "category": "narrow_interest",
+        "reason": "经典动画与电视剧主题曲怀旧盘点，属于单一影视音乐情怀清单。"
+      },
+      {
+        "rank": 25,
+        "category": "low_resonance",
+        "reason": "通过推车归位等微小举动判断人品的讨论较为老生常谈，缺乏深入视角。"
+      },
+      {
+        "rank": 26,
+        "category": "narrow_interest",
+        "reason": "保时捷等特定梦想车型的汽车选购偏好盘点，属于小众消费话题。"
+      },
+      {
+        "rank": 28,
+        "category": "narrow_interest",
+        "reason": "大部头名著小说的安利书单，偏向个人阅读品味罗列，缺乏普适认知共鸣。"
+      },
+      {
+        "rank": 30,
+        "category": "narrow_interest",
+        "reason": "个人童年看哭的经典电影回忆，属于小众影视情怀清单。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1w9r2iu",
+      "title": "911接线员：哪些报警听起来人畜无害，却会立刻让你们毛骨悚然？",
+      "subreddit": "AskReddit",
+      "points": "1558 points · 488 评论",
+      "numComments": 488,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w9r2iu/911_dispatchers_what_situation_sounds_harmless/",
+      "sourceRank": 7,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/01-1w9r2iu.md",
+      "contentSha256": "88cb2c6a994ea37788e441b33ccf97c7b24358db44afb074870b008aba1bd34e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w99ogj",
+      "title": "年长男性的硬核人生教训：有哪些年轻人必须尽早领悟的残酷真相？",
+      "subreddit": "AskReddit",
+      "points": "2754 points · 1064 评论",
+      "numComments": 1064,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w99ogj/for_the_men_with_more_life_experience_whats_one/",
+      "sourceRank": 2,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/02-1w99ogj.md",
+      "contentSha256": "67316e517bbb304f8b546a7f9e8bfa854f34a266aeebc4b22ea284674da9bb3e",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w91nxs",
+      "title": "精神科医生与心理学家眼中的隐形困境：哪些心理疾病最容易被漏诊？",
+      "subreddit": "AskReddit",
+      "points": "2539 points · 938 评论",
+      "numComments": 938,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w91nxs/psychiatristspsychologists_of_reddit_which_do_you/",
+      "sourceRank": 3,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/01-1w9r2iu.md",
+      "contentSha256": "88cb2c6a994ea37788e441b33ccf97c7b24358db44afb074870b008aba1bd34e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w9etpp",
+      "title": "你在心理咨询（therapy）中学到了什么值得所有人知道的真相？",
+      "subreddit": "AskReddit",
+      "points": "1071 points · 440 评论",
+      "numComments": 440,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w9etpp/what_is_something_that_you_learned_in_therapy/",
+      "sourceRank": 8,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/02-1w99ogj.md",
+      "contentSha256": "67316e517bbb304f8b546a7f9e8bfa854f34a266aeebc4b22ea284674da9bb3e",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w9kfi0",
+      "title": "有哪些享受一旦体验过，就再也回不去了？",
+      "subreddit": "AskReddit",
+      "points": "208 points · 456 评论",
+      "numComments": 456,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w9kfi0/what_is_a_luxury_you_can_never_go_back_from_once/",
+      "sourceRank": 21,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/01-1w9r2iu.md",
+      "contentSha256": "88cb2c6a994ea37788e441b33ccf97c7b24358db44afb074870b008aba1bd34e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w99dvk",
+      "title": "你最讨厌和什么样的人待在一起？Reddit 网友列出让人窒息的社交典型",
+      "subreddit": "AskReddit",
+      "points": "105 points · 564 评论",
+      "numComments": 564,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w99dvk/what_kind_of_people_do_you_hate_to_be_around/",
+      "sourceRank": 27,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/02-1w99ogj.md",
+      "contentSha256": "67316e517bbb304f8b546a7f9e8bfa854f34a266aeebc4b22ea284674da9bb3e",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w98piz",
+      "title": "谈恋爱时有哪些绝对不能妥协的底线？女性网友列出择偶铁律",
+      "subreddit": "AskReddit",
+      "points": "386 points · 535 评论",
+      "numComments": 535,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w98piz/girls_what_are_your_nonnegotiables_in_a/",
+      "sourceRank": 15,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/01-1w9r2iu.md",
+      "contentSha256": "88cb2c6a994ea37788e441b33ccf97c7b24358db44afb074870b008aba1bd34e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w9dzbs",
+      "title": "一个人的哪些表现，会让你瞬间觉得他非常聪明？",
+      "subreddit": "AskReddit",
+      "points": "97 points · 198 评论",
+      "numComments": 198,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w9dzbs/whats_something_that_instantly_tells_you_a_person/",
+      "sourceRank": 29,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/02-1w99ogj.md",
+      "contentSha256": "67316e517bbb304f8b546a7f9e8bfa854f34a266aeebc4b22ea284674da9bb3e",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w9do80",
+      "title": "历史上由单个人造成的最昂贵事故是什么？",
+      "subreddit": "AskReddit",
+      "points": "180 points · 216 评论",
+      "numComments": 216,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w9do80/serious_what_was_the_most_expensive_accident/",
+      "sourceRank": 23,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/01-1w9r2iu.md",
+      "contentSha256": "88cb2c6a994ea37788e441b33ccf97c7b24358db44afb074870b008aba1bd34e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w937a9",
+      "title": "哪些动物看似呆萌无害，实际危险程度却远超人们的想象？",
+      "subreddit": "AskReddit",
+      "points": "416 points · 938 评论",
+      "numComments": 938,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w937a9/whats_an_animal_thats_way_more_dangerous_than/",
+      "sourceRank": 14,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-07/02-1w99ogj.md",
+      "contentSha256": "67316e517bbb304f8b546a7f9e8bfa854f34a266aeebc4b22ea284674da9bb3e",
+      "volume": "v2"
+    }
+  ]
+}

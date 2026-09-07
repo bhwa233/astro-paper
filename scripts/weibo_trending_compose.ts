@@ -1,4 +1,5 @@
 import { bulletValue, decodeMarkdownBlock, extractBullets, normalizeMarkdownBlock, numberedBlocks } from "./compose_common.ts";
+import { weiboAiSearchUrl } from "./weibo_trending_source.ts";
 import { extractWeiboTrendingTitleSuffix, extractWeiboTrendingWechatDescription, extractWeiboTrendingWechatTitle } from "./weibo_trending_title.ts";
 
 /** 将已固化的榜单事实和逐条 AI 摘要渲染成短条目，避免整篇二次生成。 */
@@ -23,7 +24,7 @@ export function weiboTrendingArticleFromSummaries(source: string): {
       const url = bulletValue(bullets, "**话题**");
       const summary = normalizeMarkdownBlock(decodeMarkdownBlock(bulletValue(bullets, "**智搜摘要**")));
       if (!/^https:\/\//.test(url) || !summary) throw new Error(`Weibo trending source item ${index + 1} is missing its topic URL or summary`);
-      return `## ${index + 1}. ${title}\n\n- **话题**：[在微博查看](${url})\n- **摘要**：${summary}`;
+      return `## ${index + 1}. ${title}\n\n- **话题**：[在微博查看](${weiboAiSearchUrl(title)})\n- **摘要**：${summary}`;
     })
     .join("\n\n")}\n`;
   return {

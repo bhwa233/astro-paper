@@ -6,6 +6,7 @@ import {
   parseWeiboTrendingItemSummary,
   removeWeiboTrendingDuplicates,
   WEIBO_TRENDING_SUMMARY_LIMIT,
+  weiboAiSearchUrl,
   type WeiboTrendingItem,
 } from "../scripts/weibo_trending_source.ts";
 import {
@@ -13,6 +14,16 @@ import {
   WEIBO_TRENDING_WECHAT_DESCRIPTION_MAX_LENGTH,
   WEIBO_TRENDING_WECHAT_TITLE_CORE_MAX_LENGTH,
 } from "../scripts/weibo_trending_title.ts";
+
+test("Weibo AI Search links encode topics with exactly one pair of hashes and no tracking parameters", () => {
+  for (const topic of ["中文 A+B & 50% (现场)", "#中文 A+B & 50% (现场)#", "  ##中文 A+B & 50% (现场)##  "]) {
+    const url = new URL(weiboAiSearchUrl(topic));
+    assert.equal(url.origin, "https://s.weibo.com", topic);
+    assert.equal(url.pathname, "/aisearch", topic);
+    assert.deepEqual([...url.searchParams], [["q", "#中文 A+B & 50% (现场)#"]], topic);
+    assert.equal(url.hash, "", topic);
+  }
+});
 
 test("Weibo trending AI summaries reject output beyond the card limit", () => {
   const summary = "热".repeat(WEIBO_TRENDING_SUMMARY_LIMIT);

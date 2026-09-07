@@ -169,9 +169,9 @@ function weiboSourceEndpoint(): { baseUrl: string; headers: Record<string, strin
   return { baseUrl, headers: { Authorization: `Bearer ${token}` } };
 }
 
-function aiSearchUrl(topic: string): string {
+export function weiboAiSearchUrl(topic: string): string {
   const url = new URL("https://s.weibo.com/aisearch");
-  url.searchParams.set("q", topic);
+  url.searchParams.set("q", `#${topic.trim().replace(/^#+|#+$/g, "")}#`);
   return url.toString();
 }
 
@@ -200,7 +200,7 @@ function isConfigurationOrLoginFailure(error: unknown): boolean {
 async function fetchWeiboAiSearch(topic: string): Promise<WeiboAiSearchResult> {
   const endpoint = weiboSourceEndpoint();
   const request = new URL(`${endpoint.baseUrl}/v1/weibo/aisearch`);
-  request.searchParams.set("url", aiSearchUrl(topic));
+  request.searchParams.set("url", weiboAiSearchUrl(topic));
   return parseWeiboAiSearchResponse(
     await fetchJson(request.toString(), {
       headers: endpoint.headers,

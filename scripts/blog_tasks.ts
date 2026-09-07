@@ -232,6 +232,7 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "30 1 * * *": { task: "daily-podcasts" },
   "41 6 * * *": { task: "hn-top10", dateTimeZone: "America/Los_Angeles" },
   "0 2 * * 1": { task: "xyzrank-top-episodes", dateTimeZone: "Asia/Shanghai" },
+  // 2026-09-07 暂停定时；保留日期策略，手动派发仍按洛杉矶时区归档。
   "52 23 * * *": { task: "github-trending-daily", dateTimeZone: "America/Los_Angeles" },
   "38 2 * * 5": { task: "mdblist-weekly", dateTimeZone: "Asia/Shanghai" },
   "47 2 * * 0": { task: "nyt-books-weekly", dateTimeZone: "Asia/Shanghai" },

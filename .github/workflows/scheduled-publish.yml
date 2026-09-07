@@ -1,6 +1,6 @@
 name: Scheduled Publish
 
-# 十个定时发布任务的唯一入口。以前一个任务一个 workflow 文件，除了 cron 和 task 那两行逐字相同。
+# 定时发布任务的唯一入口。以前一个任务一个 workflow 文件，除了 cron 和 task 那两行逐字相同。
 #
 # cron 到 task 的映射在本文件出现两次（run-name 和 publish.with.task）：Actions 的 run-name
 # 读不到 job 输出，只能各写一遍表达式。scripts/check_conventions.ts 会核对这两处和
@@ -11,7 +11,6 @@ name: Scheduled Publish
 run-name: >-
   Publish ${{ inputs.task
   || (github.event.schedule == '41 6 * * *' && 'hn-top10')
-  || (github.event.schedule == '52 23 * * *' && 'github-trending-daily')
   || (github.event.schedule == '37 14 * * *' && 'forum-top10')
   || (github.event.schedule == '47 2 * * 0' && 'nyt-books-weekly')
   || (github.event.schedule == '38 2 * * 5' && 'mdblist-weekly')
@@ -28,7 +27,8 @@ permissions:
 on:
   schedule:
     - cron: "41 6 * * *" # hn-top10
-    - cron: "52 23 * * *" # github-trending-daily
+    # 2026-09-07 暂停 github-trending-daily，只保留手动派发；恢复时同步补回两处 cron 映射。
+    # - cron: "52 23 * * *" # github-trending-daily
     - cron: "37 14 * * *" # forum-top10，北京 22:37 / 日韩 23:37 冻结实时榜
     - cron: "47 2 * * 0" # nyt-books-weekly
     - cron: "38 2 * * 5" # mdblist-weekly
@@ -79,7 +79,6 @@ jobs:
       task: >-
         ${{ inputs.task
         || (github.event.schedule == '41 6 * * *' && 'hn-top10')
-        || (github.event.schedule == '52 23 * * *' && 'github-trending-daily')
         || (github.event.schedule == '37 14 * * *' && 'forum-top10')
         || (github.event.schedule == '47 2 * * 0' && 'nyt-books-weekly')
         || (github.event.schedule == '38 2 * * 5' && 'mdblist-weekly')

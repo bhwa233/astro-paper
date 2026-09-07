@@ -251,7 +251,7 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "29 11 * * *": { task: "reddit-trending", dateTimeZone: "America/Los_Angeles" },
   // 北京时间次日 00:23 读取前一天完整累积榜，避免当天中午只拿到半天热搜。
   "23 16 * * *": { task: "weibo-trending", dateOffset: -1, dateTimeZone: "Asia/Shanghai" },
-  // 北京 22:37 / 日本与韩国 23:37，各站按同一时刻冻结一次实时榜单快照。
+  // 2026-09-07 暂停定时；保留日期策略，手动派发仍按北京时间归档。
   "37 14 * * *": { task: "forum-top10", dateTimeZone: "Asia/Shanghai" },
 };
 

@@ -16,6 +16,7 @@ export class MagazineIssueAlreadyArchivedError extends Error {}
 
 type GithubEntry = { type: string; name: string; sha: string; size?: number; download_url?: string | null };
 type ManifestItem = { id: string; href: string; mediaType: string };
+type NcxNavPoint = { navLabel?: { text?: string }; content?: { src?: string }; navPoint?: NcxNavPoint | NcxNavPoint[] };
 
 export type MagazineArticle = {
   rank: number;
@@ -104,7 +105,8 @@ function economistExtract(html: string): ArticleExtraction {
 function newYorkerExtract(html: string): ArticleExtraction {
   const document = parseHtml(html);
   const article = document.querySelector(".article");
-  if (!article) return { originalTitle: "", text: "", drop: true };
+  // Calibre-converted issues keep paragraphs but discard the publisher's wrapper.
+  if (!article) return document.body?.classList.contains("calibre") ? calibreExtract(html) : { originalTitle: "", text: "", drop: true };
   const paragraphs = [...article.querySelectorAll("p")].map(node => normalizedText(node.textContent || "")).filter(text => text.length > 30);
   return { originalTitle: extractArticleTitle(document), text: paragraphs.join("\n\n") };
 }
@@ -215,6 +217,20 @@ export function parseMagazineEpub(buffer: Buffer, config: MagazineConfig): Magaz
       { id: item.id, href: item.href, mediaType: item["media-type"] } satisfies ManifestItem,
     ])
   );
+  const tocTitles = new Map<string, string>();
+  const tocItem = manifest.get(packageNode?.spine?.toc);
+  if (tocItem?.mediaType === "application/x-dtbncx+xml") {
+    const tocPath = cleanPath(opfPath, tocItem.href);
+    const toc = parser.parse(read(tocPath));
+    const pending = asArray<NcxNavPoint>(toc?.ncx?.navMap?.navPoint).slice();
+    while (pending.length) {
+      const point = pending.shift()!;
+      const children = asArray(point.navPoint);
+      // Section and issue entries can target the same file as the first article.
+      if (children.length) pending.unshift(...children);
+      else if (point.content?.src && point.navLabel?.text) tocTitles.set(cleanPath(tocPath, point.content.src), normalizedText(point.navLabel.text));
+    }
+  }
   const spine = asArray<Record<string, string>>(packageNode?.spine?.itemref);
   const articles: Omit<MagazineArticle, "rank">[] = [];
   for (const ref of spine) {
@@ -226,6 +242,8 @@ export function parseMagazineEpub(buffer: Buffer, config: MagazineConfig): Magaz
     if (!entry) continue;
     const extracted = config.extractArticle(entry.getData().toString("utf8"));
     if (extracted.drop || extracted.text.length < config.minArticleChars) continue;
+    const originalTitle =
+      !extracted.originalTitle || extracted.originalTitle === title ? tocTitles.get(sourceFile) || extracted.originalTitle : extracted.originalTitle;
     let image: MagazineArticle["image"];
     for (const href of extracted.imageHrefs || []) {
       const imagePath = cleanPath(sourceFile, href);
@@ -239,7 +257,7 @@ export function parseMagazineEpub(buffer: Buffer, config: MagazineConfig): Magaz
     if (config.imageDirectory && !image) {
       throw new Error(`${config.name} EPUB article image is missing or invalid: ${extracted.originalTitle || sourceFile}`);
     }
-    articles.push({ originalTitle: extracted.originalTitle, text: extracted.text, ...(image ? { image } : {}) });
+    articles.push({ originalTitle, text: extracted.text, ...(image ? { image } : {}) });
   }
   if (articles.length < 3) throw new Error(`${config.name} EPUB produced too few complete articles: ${articles.length}`);
   return { title, articles: articles.map((article, index) => ({ ...article, rank: index + 1 })) };

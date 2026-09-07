@@ -13,7 +13,7 @@ interface EpubPage {
 }
 
 /** Builds a minimal but structurally valid EPUB: container.xml + content.opf + spine pages. */
-function buildEpub(title: string, pages: EpubPage[]): Buffer {
+export function buildEpub(title: string, pages: EpubPage[], ncx?: string): Buffer {
   const zip = new AdmZip();
   zip.addFile(
     "META-INF/container.xml",
@@ -26,9 +26,12 @@ function buildEpub(title: string, pages: EpubPage[]): Buffer {
       .map(page => `<item id="${page.id}-image" href="${page.image!.href}" media-type="${page.image!.mediaType}"/>`)
       .join("");
   const spine = pages.map(page => `<itemref idref="${page.id}"/>`).join("");
+  if (ncx) zip.addFile("EPUB/nav/toc.ncx", Buffer.from(ncx));
   zip.addFile(
     "EPUB/content.opf",
-    Buffer.from(`<?xml version="1.0"?><package><metadata><title>${title}</title></metadata><manifest>${manifest}</manifest><spine>${spine}</spine></package>`)
+    Buffer.from(
+      `<?xml version="1.0"?><package><metadata><title>${title}</title></metadata><manifest>${manifest}${ncx ? '<item id="ncx" href="nav/toc.ncx" media-type="application/x-dtbncx+xml"/>' : ""}</manifest><spine${ncx ? ' toc="ncx"' : ""}>${spine}</spine></package>`
+    )
   );
   for (const page of pages) {
     zip.addFile(`EPUB/${page.id}.${page.extension || "xhtml"}`, Buffer.from(page.html));

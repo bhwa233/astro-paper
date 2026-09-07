@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-07",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "5dd37e8e781d0b0a0e2d492fe3fe151b3e816b7669a9a96413cb6f1a95122d99",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "细思极恐",
+        "反常识",
+        "医护视角"
+      ],
+      "summary": "孩子说妈妈在玩睡觉游戏、突然不疼的胸痛与全家头晕，背后全是要命的生死危机",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 7,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "人性观察",
+        "相处之道",
+        "灵魂拷问"
+      ],
+      "summary": "伤害你的人从不反思，停止内耗并学会建立边界，才是自救的真正开始",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

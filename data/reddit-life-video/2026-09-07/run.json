@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-07",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-09-07",
+    "drafts": [
+      "01-1w9r2iu.md",
+      "02-1w99ogj.md"
+    ],
+    "sha256": "3d58b865750d3326319528da896d2a494ffa5a841993a13af84da6ea3fde9f66"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 10,
+  "selectedQuestionIndexes": [
+    1,
+    7
+  ],
+  "titles": [
+    "911接线员最怕的日常报警",
+    "心理咨询师点醒我的硬核真相"
+  ],
+  "questions": [
+    "911接线员：哪些报警听起来人畜无害，却会立刻让你们毛骨悚然？",
+    "你在心理咨询中学到了什么值得所有人知道的真相？"
+  ],
+  "verbatimCounts": [
+    8,
+    3
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-08",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "eda59fcd291940c5bb9d4474e8768fdfaf54bf6f8d211f8dce9ea47c91765bba",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "医护视角",
+        "避坑指南",
+        "冷知识"
+      ],
+      "summary": "仪表盘搭脚、穿袜下楼与随意正骨等习以为常的小动作，在急诊中往往暗藏致命创伤。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 6,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "职场生存",
+        "相处之道",
+        "反常识"
+      ],
+      "summary": "不接陌生来电、请假不编理由、拒绝背锅签字，许多社会规训其实只要拒绝就能解脱。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

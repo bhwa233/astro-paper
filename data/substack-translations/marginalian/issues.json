@@ -309,6 +309,32 @@
         "outputTokens": 9283,
         "totalTokens": 12185
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=78301",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/01/c-s-lewis-longing",
+      "sourcePublishedAt": "2026-09-02T01:50:01.000Z",
+      "sourceSha256": "9005c8911a7a9feeb02892d61a808a0193bb0d649193662083ac66ed024dac87",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2999,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-08T04:45:49.387Z"
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=59702",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/02/zero-robert-kaplan",
+      "sourcePublishedAt": "2026-09-02T04:49:27.000Z",
+      "sourceSha256": "3b08e9d14b153195ea8bd17668664df010d21a2bdce9af9aa1a8f9a1dfcf0530",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260902-zero-robert-kaplan.md",
+      "translatedAt": "2026-09-08T04:46:04.741Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 4053,
+        "outputTokens": 3641,
+        "totalTokens": 7694
+      }
     }
   ]
 }

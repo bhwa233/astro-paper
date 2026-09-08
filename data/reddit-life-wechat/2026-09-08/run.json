@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-08",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "e9c69c6e5d2f4897c06b41bbbdc7df5d2a040e83",
+    "workflowRun": "34239441972",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-08-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-08/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "涉及下楼梯姿势、乘车安全与慢性病管理的实用常识，关乎生命健康且人人适用，具备极高长尾与警示价值。"
+      },
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "打破社交惯性与家庭情感绑架的思维定式，提供自我松绑与划定边界的解脱视角，情绪共鸣极其强烈。"
+      },
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "辛辣揭露求职面试中逼人表演忠诚与虚伪热情的荒谬现象，精准直击打工人生存痛点与讨论欲。"
+      },
+      {
+        "rank": 21,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深度拆解刻薄挑剔、处处好胜背后的脆弱自卑心理，提供高价值的人际洞察与自我审视经验。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "真实剥离养宠美好滤镜，坦白无休止的照料负担与注定面临的离别心碎，具备极强的情感穿透力。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "破除短期速成幻觉并强调长期自律与底层方法论，对大众运动健身具有跨周期的普遍指导意义。"
+      },
+      {
+        "rank": 9,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "亲历者深入还原生存模式对个人精力的残酷锁死，有力打破刻板偏见，极具社会学反思深度。"
+      },
+      {
+        "rank": 25,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "真实呈现跌入人生谷底后的心境转变与心理韧性重建，故事诚挚且极富抚慰与启发力量。"
+      },
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "揭示精子尺寸与体型完全反直觉的演化生物学规律，解释生动严谨且能极大满足大众求知欲。"
+      },
+      {
+        "rank": 5,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "将日常养猫困扰与消防阻烟逃生常识巧妙结合，生活化场景丰富且兼具实用科普价值。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 4,
+        "category": "low_resonance",
+        "reason": "单纯聚焦于停车场推车不归位的公德吐槽与道德说教，讨论维度单一且缺乏深度展开。"
+      },
+      {
+        "rank": 7,
+        "category": "region_specific",
+        "reason": "讨论高度依赖北美本土历史捕杀政策、地理生态与特定法案演变，地域制度与历史背景依赖较强。"
+      },
+      {
+        "rank": 10,
+        "category": "low_resonance",
+        "reason": "属于纯粹宣泄周一上班倦怠的打工人情绪树洞，缺乏建设性见解与长期沉淀价值。"
+      },
+      {
+        "rank": 11,
+        "category": "narrow_interest",
+        "reason": "回答局限于特定竞技网游排位掉分与通宵排队经历，受众面较窄且缺乏普遍共鸣。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "属于缺乏严谨科学事实支撑的泛泛演化脑洞闲聊，讨论深度与认知价值有限。"
+      },
+      {
+        "rank": 13,
+        "category": "low_resonance",
+        "reason": "核心建议与高热度增肌帖高度重合且多为圈内调侃梗，信息增量与探讨深度不足。"
+      },
+      {
+        "rank": 14,
+        "category": "narrow_interest",
+        "reason": "内容高度依赖对特定欧美女性向喜剧和流行歌手作品的了解，属于小众影视音乐清单。"
+      },
+      {
+        "rank": 16,
+        "category": "narrow_interest",
+        "reason": "完全依赖 Reddit 站内特定经典梗与社区文化，脱离该平台生态的外部读者难以理解。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "属于分散小众的地方乡野传说与特定怪物闲聊，内容碎片化且缺少普遍启发意义。"
+      },
+      {
+        "rank": 18,
+        "category": "narrow_interest",
+        "reason": "仅针对澳大利亚特定森林物种噪音的小众生态学讨论，回答内容过于简短单薄。"
+      },
+      {
+        "rank": 19,
+        "category": "time_sensitive",
+        "reason": "盘点近期热播或刚完结的剧集推荐，具有强烈的短期时效性，极易随时间流逝而失效。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "属于对彩铃、MSN等千禧年代旧产物的单纯怀旧清单，缺乏进一步的社会学探讨深度。"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "围绕给学龄儿童准备便当的生活琐事展开，技巧零散且受众面相对局限。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "属于对大主播打赏和外卖平台溢价的日常消费牢骚，观点碎片化且讨论深度不足。"
+      },
+      {
+        "rank": 24,
+        "category": "low_resonance",
+        "reason": "针对特定年轻成瘾戒断人群的从零起步求助，情境特殊，大众代入感与共鸣面较窄。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "老套的金钱假设选择题，回答清一色为拿钱避世的模式化调侃，缺乏真实故事与讨论深度。"
+      },
+      {
+        "rank": 27,
+        "category": "narrow_interest",
+        "reason": "深度依赖特定经典电影三部曲的剧情与镜头细节对比，属于特定影迷圈层盘点。"
+      },
+      {
+        "rank": 28,
+        "category": "narrow_interest",
+        "reason": "单纯罗列特定年代的欧美经典喜剧片名与台词梗，缺乏跨文化普适共鸣。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "高度依赖对特定英文老歌歌词双关语和性暗示的文化背景知识，受众局限性强。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "仅为史前巨型节肢动物与鲨鱼的简单列举恐慌，内容单薄且缺少知识增量。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wa7wzk",
+      "title": "医护人员提醒：生活中哪些司空见惯的事物，其实隐藏着常人不知的致命危险？",
+      "subreddit": "AskReddit",
+      "points": "2911 points · 1865 评论",
+      "numComments": 1865,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wa7wzk/medical_professionals_of_reddit_what_is_something/",
+      "sourceRank": 2,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/01-1wa7wzk.md",
+      "contentSha256": "f84e63f590193dd346f79ce6b048b26ec35ad221afd814c1b33c08b1572e472f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wait5c",
+      "title": "有哪些你一直以为是人生必选项的事，直到看见别人直接拒绝才发现其实完全是自选的？",
+      "subreddit": "AskReddit",
+      "points": "2453 points · 1735 评论",
+      "numComments": 1735,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wait5c/what_did_you_not_realise_was_optional_in_life/",
+      "sourceRank": 3,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/02-1wait5c.md",
+      "contentSha256": "7b81ebb8edd6c6830ec56c05df7cd596d6c5365c4bd5104f09561b7866e6bc9c",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w9zaff",
+      "title": "求职面试里，究竟有哪些离谱提问本该被法律明令禁止？",
+      "subreddit": "AskReddit",
+      "points": "1063 points · 629 评论",
+      "numComments": 629,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w9zaff/whats_a_job_interview_question_that_should_be/",
+      "sourceRank": 8,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/01-1wa7wzk.md",
+      "contentSha256": "f84e63f590193dd346f79ce6b048b26ec35ad221afd814c1b33c08b1572e472f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1w9vsdx",
+      "title": "一个人内心极度缺乏安全感，最明显、最直接的迹象是什么？",
+      "subreddit": "AskReddit",
+      "points": "338 points · 245 评论",
+      "numComments": 245,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1w9vsdx/whats_the_most_obviousimmediate_sign_that_someone/",
+      "sourceRank": 21,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/02-1wait5c.md",
+      "contentSha256": "7b81ebb8edd6c6830ec56c05df7cd596d6c5365c4bd5104f09561b7866e6bc9c",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wa9hsu",
+      "title": "养狗有哪些不加滤镜的真实缺点？",
+      "subreddit": "AskReddit",
+      "points": "1380 points · 2166 评论",
+      "numComments": 2166,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wa9hsu/what_are_the_honest_downsides_of_owning_a_dog/",
+      "sourceRank": 6,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/01-1wa7wzk.md",
+      "contentSha256": "f84e63f590193dd346f79ce6b048b26ec35ad221afd814c1b33c08b1572e472f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wa3b2m",
+      "title": "健身房老手有哪些奉为圭臬、永远推荐给新人的增肌（Gains）秘诀？",
+      "subreddit": "AskReddit",
+      "points": "7174 points · 2634 评论",
+      "numComments": 2634,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wa3b2m/gym_bros_what_sacred_knowledge_of_getting_gains/",
+      "sourceRank": 1,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/02-1wait5c.md",
+      "contentSha256": "7b81ebb8edd6c6830ec56c05df7cd596d6c5365c4bd5104f09561b7866e6bc9c",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wagqex",
+      "title": "亲历者还原真实街头生活：关于无家可归，大众最大的误解是什么？",
+      "subreddit": "AskReddit",
+      "points": "1019 points · 262 评论",
+      "numComments": 262,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wagqex/homeless_people_of_reddit_whats_one_thing_most/",
+      "sourceRank": 9,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/01-1wa7wzk.md",
+      "contentSha256": "f84e63f590193dd346f79ce6b048b26ec35ad221afd814c1b33c08b1572e472f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wa03n0",
+      "title": "那些真正跌入过人生低谷的人，后来都经历了什么？",
+      "subreddit": "AskReddit",
+      "points": "182 points · 265 评论",
+      "numComments": 265,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wa03n0/for_those_who_have_experienced_rock_bottom_before/",
+      "sourceRank": 25,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/02-1wait5c.md",
+      "contentSha256": "7b81ebb8edd6c6830ec56c05df7cd596d6c5365c4bd5104f09561b7866e6bc9c",
+      "volume": "v2"
+    },
+    {
+      "postId": "1w9vyhr",
+      "title": "哺乳动物的精子细胞（sperm cells）大小和体型成正比吗？",
+      "subreddit": "askscience",
+      "points": "608 points · 57 评论",
+      "numComments": 57,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1w9vyhr/is_the_size_of_sperm_cells_of_mammals_correlative/",
+      "sourceRank": 15,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/01-1wa7wzk.md",
+      "contentSha256": "f84e63f590193dd346f79ce6b048b26ec35ad221afd814c1b33c08b1572e472f",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wabmcx",
+      "title": "睡觉时卧室门该开着还是关着？网友的理由基本都在防猫和防火之间反复横跳",
+      "subreddit": "AskReddit",
+      "points": "1659 points · 1542 评论",
+      "numComments": 1542,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wabmcx/do_you_sleep_with_your_bedroom_door_open_or/",
+      "sourceRank": 5,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-08/02-1wait5c.md",
+      "contentSha256": "7b81ebb8edd6c6830ec56c05df7cd596d6c5365c4bd5104f09561b7866e6bc9c",
+      "volume": "v2"
+    }
+  ]
+}

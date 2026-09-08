@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build && pagefind --site dist",
-    "search:index": "pagefind --site dist --output-path public/pagefind",
+    "build": "astro check && astro build && node --import tsx scripts/pagefind_index.ts",
+    "search:index": "node --import tsx scripts/pagefind_index.ts --output public/pagefind",
     "preview": "astro preview",
     "sync": "astro sync",
     "astro": "astro",

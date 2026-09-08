@@ -59,6 +59,8 @@ const pagefindTranslations = JSON.stringify(t.search.pagefind);
 </Layout>
 
 <script>
+  import { collapseHanSpacing, toPagefindQuery } from "@/utils/pagefindHan";
+
   function initSearch() {
     const pageFindSearch: HTMLElement | null =
       document.querySelector("#pagefind-search");
@@ -115,6 +117,8 @@ const pagefindTranslations = JSON.stringify(t.search.pagefind);
         translations,
         showImages: false,
         showSubResults: true,
+        // 摘要长度按索引词数算，中文索引一个词就是一个字，默认的 30 只够半句话。
+        excerptLength: 80,
         processTerm: function (term: string) {
           params.set("q", term); // Update the `q` parameter in the URL
           history.replaceState(history.state, "", "?" + params.toString()); // Push the new URL without reloading
@@ -123,7 +127,26 @@ const pagefindTranslations = JSON.stringify(t.search.pagefind);
             pageFindSearch?.dataset?.backurl ?? window.location.pathname;
           sessionStorage.setItem("backUrl", `${backUrl}?${params.toString()}`);
 
-          return term;
+          // 索引是按字建的，查询也要按字拆；`q` 参数里存的仍是用户原样输入。
+          return toPagefindQuery(term);
+        },
+        // 标题与摘要来自索引，带着拆字时插入的空格，展示前收回去。
+        processResult: function (result: {
+          excerpt?: string;
+          meta?: { title?: string };
+          sub_results?: { excerpt?: string; title?: string }[];
+        }) {
+          if (result.meta?.title) {
+            result.meta.title = collapseHanSpacing(result.meta.title);
+          }
+          if (result.excerpt) {
+            result.excerpt = collapseHanSpacing(result.excerpt);
+          }
+          for (const sub of result.sub_results ?? []) {
+            if (sub.title) sub.title = collapseHanSpacing(sub.title);
+            if (sub.excerpt) sub.excerpt = collapseHanSpacing(sub.excerpt);
+          }
+          return result;
         },
       });
 

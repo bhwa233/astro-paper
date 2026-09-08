@@ -16,6 +16,7 @@ type Violation = { file: string; message: string };
 // 换库、加默认值、统一错误处理时，改动面就是这一个文件；新增调用点必须走封装。
 const DEPENDENCY_OWNERS: Record<string, string> = {
   jsdom: "scripts/html_dom.ts",
+  cheerio: "scripts/html_dom.ts",
   "adm-zip": "scripts/magazine.ts",
   "fast-xml-parser": "scripts/magazine.ts",
   "@mozilla/readability": "scripts/hn_top10_source.ts",

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-09",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "cc88e7bbca7886c14167597e4957b0f225d69d301d91a51ae7f7780f980e8ca2",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "职场生存",
+        "从业者爆料",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "豪车后期维护与复杂电气系统是维修重灾区，越追求复杂科技越容易被账单榨干",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 7,
+      "status": "processed",
+      "tags": [
+        "婚姻情感",
+        "人性观察",
+        "年轻人困境",
+        "相处之道",
+        "亲身经历"
+      ],
+      "summary": "多数人靠伴侣主动迈出第一步或朋友助攻，也有人通过培养共同爱好顺其自然结合",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

@@ -4,8 +4,8 @@ permissions:
   contents: write
 
 on:
-  # 定时入口收归 publish-reddit-life.yml。四个分类打的是同一个上游服务，用 needs 串行才是
-  # 真的错开；四条各自抖动几小时的 cron 不是，而且它们共用 blog-publish.yml 的 concurrency
+  # 定时入口收归 publish-reddit-life.yml。五个分类打的是同一个上游服务，用 needs 串行才是
+  # 真的错开；五条各自抖动几小时的 cron 不是，而且它们共用 blog-publish.yml 的 concurrency
   # 组，同组里先排队的会被后到的挤掉。归档日期也由父工作流统一解析后传入。
   workflow_call:
     inputs:

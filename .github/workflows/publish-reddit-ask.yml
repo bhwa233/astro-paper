@@ -1,4 +1,4 @@
-name: Publish Reddit Markets
+name: Publish Reddit Ask
 
 permissions:
   contents: write
@@ -40,15 +40,15 @@ on:
 
 jobs:
   publish:
-    name: Publish Reddit Markets
+    name: Publish Reddit Ask
     permissions:
       contents: write
     uses: ./.github/workflows/blog-publish.yml
     with:
       task: reddit-top20
-      reddit_category: markets
+      reddit_category: ask
       date: ${{ inputs.date || '' }}
-      event_schedule: ${{ github.event.schedule || '10 10 * * *' }}
+      event_schedule: ${{ github.event.schedule || '20 10 * * *' }}
       force: ${{ inputs.force || false }}
       ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
     secrets: inherit

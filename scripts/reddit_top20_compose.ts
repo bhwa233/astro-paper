@@ -16,8 +16,9 @@ import {
 // 讨论体量差得很远，一个数字压不住四个栏目。
 const SUMMARY_MIN_CHARS = 300;
 
-// 每个栏目逐帖调用模型综合正文与评论，产出标题 + 描述 + 摘要。抓取层不分栏目：
-// 一个端点、一份 policy，只有 subreddits 不同，因此四个栏目拿到的 source block
+// mode="summary" 的栏目逐帖调用模型综合正文与评论，产出标题 + 描述 + 摘要；
+// mode="title-only" 只把原题翻成中文，条目退化为标题加事实 bullet。抓取层不分栏目：
+// 一个端点、一份 policy，只有 subreddits 不同，因此五个栏目拿到的 source block
 // 形状完全一样，差别只在各自的提示词怎么读它。
 export const REDDIT_CATEGORIES = [
   {
@@ -26,6 +27,7 @@ export const REDDIT_CATEGORIES = [
     fileNameSuffix: "life",
     subreddits: ["AskReddit", "askscience"],
     sourceLimits: null,
+    mode: "summary",
     summaryMinChars: SUMMARY_MIN_CHARS,
     summaryFormat: "numbered",
   },
@@ -35,6 +37,7 @@ export const REDDIT_CATEGORIES = [
     fileNameSuffix: "life-discussions",
     subreddits: ["confessions", "changemyview", "tifu"],
     sourceLimits: null,
+    mode: "summary",
     summaryMinChars: SUMMARY_MIN_CHARS,
     summaryFormat: "narrative",
   },
@@ -44,6 +47,7 @@ export const REDDIT_CATEGORIES = [
     fileNameSuffix: "markets",
     subreddits: ["stocks", "ValueInvesting", "investing", "wallstreetbets"],
     sourceLimits: null,
+    mode: "summary",
     // r/wallstreetbets 有大量梗图帖，评论区就是几句嘴炮。按 300 收，这些帖子会
     // 重试三次后整帖被丢，当期条目数明显缩水；它们本来就没有 300 字的料，
     // 下限该迁就内容，而不是让内容迁就下限。
@@ -60,14 +64,27 @@ export const REDDIT_CATEGORIES = [
       directReplyLimit: 30,
       detailCommentLimit: 200,
     },
+    mode: "summary",
     summaryMinChars: SUMMARY_MIN_CHARS,
     summaryFormat: "numbered",
+  },
+  {
+    key: "ask",
+    title: "深度提问",
+    fileNameSuffix: "ask",
+    subreddits: ["AskHistorians", "askphilosophy", "TrueAskReddit", "NoStupidQuestions", "AskWomen"],
+    sourceLimits: null,
+    // 先只翻译标题：五个社区的日产量合起来是现有四个栏目的一半上下，一上来就逐帖综合
+    // 会让整条链的模型开销接近翻倍。标题版先跑一段时间看各社区的实际漏斗，再决定
+    // 哪几个值得升级成摘要。
+    mode: "title-only",
   },
 ] as const;
 
 export type RedditCategoryKey = (typeof REDDIT_CATEGORIES)[number]["key"];
 export type RedditCategory = (typeof REDDIT_CATEGORIES)[number];
-export type RedditSummaryFormat = RedditCategory["summaryFormat"];
+export type RedditSummarizingCategory = Extract<RedditCategory, { mode: "summary" }>;
+export type RedditSummaryFormat = RedditSummarizingCategory["summaryFormat"];
 
 const CATEGORY_BY_KEY = new Map<RedditCategoryKey, RedditCategory>(REDDIT_CATEGORIES.map(category => [category.key, category]));
 const CATEGORY_BY_SUBREDDIT = new Map<string, RedditCategoryKey>(
@@ -199,6 +216,19 @@ export function parseRedditItemSummary(
   return { rank, title_zh: titleZh, description, summary };
 }
 
+// 标题栏目的排除通道，与摘要栏目的 parseRedditItemOutcome 对齐：整帖落在排除主题上时
+// 模型只返回 {rank, skip:true}，该帖不进文章。r/AskWomen 与 r/NoStupidQuestions 有相当
+// 比例的性话题与私人纠纷帖，标题本身就可能不适合归档，所以标题版也需要这条通道。
+export function parseRedditTitleOutcome(raw: string, expectedRank: number): RedditTitleTranslation | null {
+  const payload = parseModelJsonObject(raw, "Reddit title translation");
+  if (payload.skip === true) {
+    const rank = Number(payload.rank);
+    if (rank !== expectedRank) throw new Error(`Reddit title translation rank mismatch: ${rank} vs ${expectedRank}`);
+    return null;
+  }
+  return parseRedditTitleTranslation(raw, expectedRank);
+}
+
 export function parseRedditTitleTranslation(raw: string, expectedRank: number): RedditTitleTranslation {
   const payload = parseModelJsonObject(raw, "Reddit title translation");
   const rank = Number(payload.rank);
@@ -269,11 +299,55 @@ export function redditMarkdownFromItemSummaries(source: string): string {
   return composeRedditBody(parseRedditItemSummaries(source), parseSourceFacts(source));
 }
 
+// 标题栏目的正文：标题加事实 bullet，没有摘要段。archive 层按同一边界切回，
+// 空摘要在那里是合法形态。
+function composeRedditTitleOnlyBody(items: RedditTitleTranslation[], facts: RedditSourceFact[]): string {
+  if (!facts.length) throw new Error("Reddit source produced no items to compose");
+  const byRank = new Map(items.map(item => [item.rank, item]));
+  const blocks = facts.map(fact => {
+    const item = byRank.get(fact.rank);
+    if (!item) throw new Error(`Reddit title translation is missing rank ${fact.rank}`);
+    const lines = [`${fact.rank}. 🔴 ${item.title_zh}`];
+    if (fact.points) lines.push(`- ⭐ ${fact.points}`);
+    if (fact.subreddit) lines.push(`- 来源：r/${fact.subreddit}`);
+    if (fact.url) lines.push(`- 帖子：${fact.url}`);
+    return lines.join("\n");
+  });
+  return `${blocks.join("\n\n")}\n`;
+}
+
+function parseRedditTitleTranslations(source: string): RedditTitleTranslation[] {
+  const blocks = sourceBlocks(source);
+  if (!blocks.length) throw new Error("Reddit combined source has no item blocks");
+  return blocks.map((block, index) => {
+    const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
+    if (!Number.isInteger(rank) || rank !== index + 1) throw new Error(`Reddit combined source item ${index + 1} has invalid rank`);
+    return parseRedditTitleTranslation(JSON.stringify({ rank, title_zh: bulletValue(extractBullets(block), "中文标题") }), rank);
+  });
+}
+
 export function redditCategoryArticleFromSource(source: string, category: RedditCategory): RedditCategoryArticle | null {
   const facts = parseSourceFacts(source);
   const sourceFacts = facts.filter(fact => fact.category === category.key);
   if (!sourceFacts.length) return null;
   const articleFacts = sourceFacts.map((fact, index) => ({ ...fact, rank: index + 1 }));
+  if (category.mode === "title-only") {
+    const byRank = new Map(parseRedditTitleTranslations(source).map(translation => [translation.rank, translation]));
+    const articleItems = sourceFacts.map((fact, index) => {
+      const translation = byRank.get(fact.rank);
+      if (!translation) throw new Error(`Reddit title translation is missing rank ${fact.rank}`);
+      return { ...translation, rank: index + 1 };
+    });
+    return {
+      category: category.key,
+      title: category.title,
+      fileNameSuffix: category.fileNameSuffix,
+      itemCount: articleItems.length,
+      markdown: composeRedditTitleOnlyBody(articleItems, articleFacts),
+      // 标题栏目没有逐帖描述，frontmatter 回落到 blog_tasks.ts 的任务描述。
+      description: "",
+    };
+  }
   const modelByRank = new Map(parseRedditItemSummaries(source, category.summaryMinChars, category.summaryFormat).map(item => [item.rank, item]));
   const articleItems = sourceFacts.map((fact, index) => {
     const item = modelByRank.get(fact.rank);

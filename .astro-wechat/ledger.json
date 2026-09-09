@@ -2299,6 +2299,116 @@
       "updatedAt": "2026-09-08T15:13:42.785Z",
       "mediaId": "lAMaLd-mzPj_bm0zorBkNJM5lgfEkXHsHx1OF3Vzwt2105ZnTXLZVIpO4DpY7wPH"
     },
+    "reddit-life-newspic-2026-09-09-01": {
+      "sourceId": "reddit-life-newspic-2026-09-09-01",
+      "contentHash": "6812b2b50410a0bbf948a764568bf09f05f6ca82a22c07d1ef7523a1da8d1d71",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "imageMaterialIds": [
+        {
+          "contentHash": "c00ee13fd794e37c",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNBbKvgSk3no4z969NneGAwXb1HFyoPm-2g9K5z1viQsc"
+        },
+        {
+          "contentHash": "1dbfd1ef5d805718",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNDgYuexBr9cJpV6W_WOYbKR6GpV0Un6jcngnojz93wxN"
+        },
+        {
+          "contentHash": "b860721bfc1ebfaa",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNIIhlNaa3mFt9iM1fOaDAT6PY_qJ-p4yvfZ9TW-PbB5O"
+        },
+        {
+          "contentHash": "452b4f58908dde75",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNF_F9ltZdCoiF3FYM7iRsW5-dgznmOTslwf5832WdeDx"
+        },
+        {
+          "contentHash": "6e340c316dc6bbea",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNLaX78bSw8Hc21KtkHz-dYAF99T8IJg-EWmURq30g5Sp"
+        },
+        {
+          "contentHash": "ab997ff1ca8c59b2",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNAz1LCfenM9Jl0Oe3yz0R3EjVgO5HXmZQVx0ZrRbvNfi"
+        },
+        {
+          "contentHash": "ea27b5cbd27452df",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNE21q7u8MSw4mI1kYXp0hL3oedc-QyX62a1a_QF4m0fe"
+        },
+        {
+          "contentHash": "8c87b59e15dbbb39",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNP3jNWEmTD8Rjx0oQ5wdK_DfXUZ9YI5EEyJtPeWFJ6Cs"
+        },
+        {
+          "contentHash": "b5bd71d982d3f78c",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNFdptthZBOgrGeaBUQ_661hz8aegTszvIsVYoX9u8lIw"
+        },
+        {
+          "contentHash": "f2eca7450cc1e467",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNHSlT8VoDzG0PPKcLSFy9rL7ie_BU2M3YdNSC_ia4FcS"
+        },
+        {
+          "contentHash": "c310411ca2707851",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNNSJsQ46JVnIH3aAYTmPybiuVASEQ131Fo4D73Uoviye"
+        }
+      ],
+      "writeState": "committed",
+      "updatedAt": "2026-09-09T15:23:04.588Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNPrwP8mDFNUQcxA2Bet9ZEIbVLk6U-NugHvGEQVHTK4B"
+    },
+    "reddit-life-newspic-2026-09-09-02": {
+      "sourceId": "reddit-life-newspic-2026-09-09-02",
+      "contentHash": "a3f43a93ffef3d938f911dca6a2a87dbd0e81df9941ce1bef742ae86fcfddf82",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "imageMaterialIds": [
+        {
+          "contentHash": "22f1786f5db3a20c",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNGMcgiIqq-YuypM-HukKXS2rgKTUJtaR6ajY6dEa-BFq"
+        },
+        {
+          "contentHash": "cb7db0cb50938e25",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNM0Gs-Rantb1YwtKe8HFJAiedE2l7yHQAHg99BdUgyLq"
+        },
+        {
+          "contentHash": "a57d2ab152d92892",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNAtUcdkHNUpwrVIMfz2_4Z8UARkFGCmKuLR87_ZyYS1z"
+        },
+        {
+          "contentHash": "e83472b63be5531f",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNI82YlOVk-3OX6AzHj5of1WBlWuTCtlVHmKPAhNrhm47"
+        },
+        {
+          "contentHash": "ea58f67e8cb16a71",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNPRppmSW_qc8GwrZqBVNYD7-ksH9co4QqZVn53Tun2XJ"
+        },
+        {
+          "contentHash": "07ade775f03f77b5",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNAenLlJs4nWcgi-4sy3KBJznAccoUebP6JWPc73JwUHK"
+        },
+        {
+          "contentHash": "3c371ea99b40c241",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNKdNd2rK_Cbl6FxTnLBySx5NsER-2pi-QYtaeXbMiLzZ"
+        },
+        {
+          "contentHash": "02508a5dda05b466",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNDGjZscfOTQsegM_lN-EXo9I1WMV12JuZNqAOBtBWLbK"
+        },
+        {
+          "contentHash": "ba1600ae9e053feb",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNHsIScWS3hnEushZexGw3AawC-DcTTXqb0agqCtscnro"
+        },
+        {
+          "contentHash": "0c569497f7efe240",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNHrunAUilpofoGtQPSxwP5UzRji95iMbZXl-jsGdzTzo"
+        },
+        {
+          "contentHash": "6d089572a2d3c989",
+          "materialId": "lAMaLd-mzPj_bm0zorBkNJW4uTZ-pXi9zDAErozGK9rac9CtnoeceNhe9gukU5vk"
+        }
+      ],
+      "writeState": "committed",
+      "updatedAt": "2026-09-09T15:23:25.711Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNPED6uiK9za1ZFENtp2XV9r7uUqTkMJh2NC-6-d_Ggop"
+    },
     "weibo-trending-2026-08-25": {
       "sourceId": "weibo-trending-2026-08-25",
       "canonicalUrl": "https://blog.bhwa233.com/posts/weibo/",

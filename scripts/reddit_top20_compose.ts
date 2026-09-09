@@ -74,6 +74,7 @@ export const REDDIT_CATEGORIES = [
     fileNameSuffix: "ask",
     subreddits: ["AskHistorians", "askphilosophy", "TrueAskReddit", "NoStupidQuestions", "AskWomen"],
     sourceLimits: null,
+    maxDetailCandidates: 50,
     // 先只翻译标题：五个社区的日产量合起来是现有四个栏目的一半上下，一上来就逐帖综合
     // 会让整条链的模型开销接近翻倍。标题版先跑一段时间看各社区的实际漏斗，再决定
     // 哪几个值得升级成摘要。

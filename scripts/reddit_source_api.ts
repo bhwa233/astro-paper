@@ -192,6 +192,9 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
     throw new Error("Reddit source API source_sha256 does not match source content");
   }
   const policy = parseRedditSourcePolicy(payload.policy, payload.policy_sha256);
+  if ("maxDetailCandidates" in category && policy.maxDetailCandidates !== category.maxDetailCandidates) {
+    throw new Error(`Reddit source API did not apply requested candidate limit: ${policy.maxDetailCandidates} != ${category.maxDetailCandidates}`);
+  }
   const requestedLimits = category.sourceLimits;
   if (
     requestedLimits &&
@@ -274,6 +277,7 @@ export async function fetchRedditSourceFromApi(date: string, category: RedditCat
     body: JSON.stringify({
       archive_date: date,
       subreddits: category.subreddits,
+      ...("maxDetailCandidates" in category ? { max_detail_candidates: category.maxDetailCandidates } : {}),
       ...(limits
         ? {
             top_level_comment_limit: limits.topLevelCommentLimit,

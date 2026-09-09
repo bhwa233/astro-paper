@@ -537,6 +537,20 @@ test("Reddit source API contract accepts intact v7 server-policy sources", () =>
     () => parseRedditSourceApiResponse(redditPayload(amaSource, 1, { IAmA: 1 }, amaCategory, REDDIT_POLICY_RESPONSE), "2099-01-02", amaCategory),
     /did not apply requested comment limits/
   );
+
+  const askCategory = redditCategoryByKey("ask");
+  const askSource = `${redditSourceItem(1, { subreddit: "AskHistorians" })}\n===ARCHIVE_PAYLOAD===\n{"items": []}\n`;
+  const askPayload = redditPayload(askSource, 1, { AskHistorians: 1 }, askCategory);
+  assert.throws(() => parseRedditSourceApiResponse(askPayload, "2099-01-02", askCategory), /did not apply requested candidate limit/);
+  const askPolicy = { ...askPayload.policy, max_detail_candidates: 50 };
+  assert.equal(
+    parseRedditSourceApiResponse(
+      { ...askPayload, policy: askPolicy, policy_sha256: createHash("sha256").update(JSON.stringify(askPolicy), "utf8").digest("hex") },
+      "2099-01-02",
+      askCategory
+    ),
+    askSource
+  );
 });
 
 test("Reddit source fetch sends one subreddit-list request to the v7 service", async () => {

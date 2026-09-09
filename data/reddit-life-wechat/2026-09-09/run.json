@@ -1,0 +1,319 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-09",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "205e316eefc7374fd2efacd5056293d99e94fc16",
+    "workflowRun": "34365029041",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-09-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-09/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 29,
+    "selected": [
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "一线汽修工从机械耐久度与后期维护成本揭露多款豪车通病，兼具实用避坑价值与硬核行业洞察。"
+      },
+      {
+        "rank": 23,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击现代工业设计中的计划性报废与用料缩水问题，结合老家电耐用对比，极易引发全民共鸣。"
+      },
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "真实呈现失业后的生存恐慌、心理内耗与重建节奏，充满具体细节与真诚的心态调适建议。"
+      },
+      {
+        "rank": 8,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "内向男性的恋爱经历分享，包含照搬维基指南等温馨幽默又充满戏剧性的真实故事，感染力极强。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "汇集因股权抵薪、裁员封口费等意外暴富的离奇职场真实故事，情节跌宕起伏且充满长尾猎奇吸引力。"
+      },
+      {
+        "rank": 20,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "精神分裂症亲历者自述妄想症状与现实检验法，打破影视刻板印象，具有高价值的心理科普深度。"
+      },
+      {
+        "rank": 4,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "晚期癌症患者谵妄离世的真实照护经历极其震撼，深度触及临终关怀与亲情告别的普遍情感痛点。"
+      },
+      {
+        "rank": 10,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "深刻剖析认知障碍症家属漫长照护中的心理绝境与互相救赎，呈现了鲜为人知的人性与社会现实。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "分享生活中令人啼笑皆非的离谱常识误区，内容轻松幽默且极易唤起读者的分享欲和互动感。"
+      },
+      {
+        "rank": 13,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "通过薪水翻倍后的真实开销剖析生活方式通胀陷阱，提供了发人深省的理财与消费心理反思。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 2,
+        "category": "low_resonance",
+        "reason": "内容偏向特定历史事件的个例轶事盘点，缺乏可迁移的现实讨论深度与广泛共鸣。"
+      },
+      {
+        "rank": 3,
+        "category": "narrow_interest",
+        "reason": "集中于好莱坞娱乐圈名人的私生活八卦与行业潜规则爆料，受众兴趣相对局限。"
+      },
+      {
+        "rank": 7,
+        "category": "narrow_interest",
+        "reason": "高度聚焦硬核生存类与小众模拟类电子游戏的硬核机制，仅适合垂直玩家群体。"
+      },
+      {
+        "rank": 9,
+        "category": "narrow_interest",
+        "reason": "针对特定年代老电影文化影响力的回顾评价，属于小众影迷盘点话题。"
+      },
+      {
+        "rank": 11,
+        "category": "region_specific",
+        "reason": "讨论深度依赖北美特有的在家教育（homeschooling）法律体系与社会文化背景。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "单纯罗列男性肌肉部位审美偏好，内容扁平浅显且缺乏深度叙事。"
+      },
+      {
+        "rank": 14,
+        "category": "time_sensitive",
+        "reason": "围绕特定时期美加政治领导人言论与摩擦的短期时事讨论，时效性极强。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "仅输出饮食制造热量缺口等基础减肥常识，观点重复且缺乏讨论延展空间。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "围绕游戏捏脸动画与任务机制套路的吐槽，属于垂直游戏圈内话题。"
+      },
+      {
+        "rank": 18,
+        "category": "narrow_interest",
+        "reason": "针对男性选择妇产科专科的职业动机讨论，话题范围较为小众垂直。"
+      },
+      {
+        "rank": 19,
+        "category": "narrow_interest",
+        "reason": "属于职业体育联赛高薪低能球员合同的数据盘点，高度依赖特定球星知识。"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "以疫情初期抢购空街等琐事记忆为主的怀旧清单，缺乏深入观点的展开。"
+      },
+      {
+        "rank": 22,
+        "category": "narrow_interest",
+        "reason": "欧美知名线下博物馆打卡体验推荐，内容更偏向特定海外旅游清单指南。"
+      },
+      {
+        "rank": 24,
+        "category": "narrow_interest",
+        "reason": "早期传统电影制作特技与危险片场的冷知识盘点，受众偏向影视幕后爱好者。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "围绕拨号音、电磁干扰声等过时科技声音的怀旧盘点，讨论维度单一。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "成瘾与毒品危害等劝诫内容泛化常识化，回答缺乏独特的个人经历深度。"
+      },
+      {
+        "rank": 27,
+        "category": "narrow_interest",
+        "reason": "对特定好莱坞商业烂片观影体验的情绪化吐槽，属于娱乐作品观后感盘点。"
+      },
+      {
+        "rank": 28,
+        "category": "time_sensitive",
+        "reason": "紧跟特定机构声称破解纳维-斯托克斯方程的近期热点争议，存在短期新闻时效性。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "同窗意外早逝案例的悲伤罗列，叙事分散且缺乏可迁移的情感或认知价值。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wau4nf",
+      "title": "见识过无数工业垃圾后，汽车修理工（mechanic）打死也不会买哪些汽车品牌？",
+      "subreddit": "AskReddit",
+      "points": "2515 points · 1600 评论",
+      "numComments": 1600,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wau4nf/mechanics_whats_a_car_brand_youd_never_buy_after/",
+      "sourceRank": 5,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/01-1wau4nf.md",
+      "contentSha256": "8b7495dee11e16a6a6056b45726da30202d2a5de887c5f6f2ec04bd441a402d4",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wbip12",
+      "title": "90年代原本能「用一辈子」的物品，有哪些如今被设计成几年就坏？",
+      "subreddit": "AskReddit",
+      "points": "176 points · 276 评论",
+      "numComments": 276,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wbip12/what_product_used_to_be_buy_it_for_life_in_the/",
+      "sourceRank": 23,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/02-1wbip12.md",
+      "contentSha256": "fe01765fc42b88f1c2ffaa6681e4dded5f4995b3f1c64540c2cad643f323f4d3",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wavapg",
+      "title": "失业后没有工作，大家都是如何熬过这段日子的？",
+      "subreddit": "AskReddit",
+      "points": "574 points · 405 评论",
+      "numComments": 405,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wavapg/unemployed_people_of_reddit_how_are_you_dealing/",
+      "sourceRank": 15,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/01-1wau4nf.md",
+      "contentSha256": "8b7495dee11e16a6a6056b45726da30202d2a5de887c5f6f2ec04bd441a402d4",
+      "volume": "v1"
+    },
+    {
+      "postId": "1waz69f",
+      "title": "性格内向腼腆的男生，究竟是怎么找到女朋友的？",
+      "subreddit": "AskReddit",
+      "points": "1823 points · 508 评论",
+      "numComments": 508,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1waz69f/shy_men_of_reddit_how_yall_end_up_with_a/",
+      "sourceRank": 8,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/02-1wbip12.md",
+      "contentSha256": "fe01765fc42b88f1c2ffaa6681e4dded5f4995b3f1c64540c2cad643f323f4d3",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wat2vl",
+      "title": "你见过最离奇的一夜暴富方式是什么？",
+      "subreddit": "AskReddit",
+      "points": "5944 points · 1749 评论",
+      "numComments": 1749,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wat2vl/whats_the_craziest_way_you_saw_someone_become/",
+      "sourceRank": 1,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/01-1wau4nf.md",
+      "contentSha256": "8b7495dee11e16a6a6056b45726da30202d2a5de887c5f6f2ec04bd441a402d4",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wb46rh",
+      "title": "患精神分裂症（schizophrenia）是种什么体验？当事人讲述那些不为人知的真实日常",
+      "subreddit": "AskReddit",
+      "points": "265 points · 171 评论",
+      "numComments": 171,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wb46rh/those_with_schizophrenia_what_are_some_realistic/",
+      "sourceRank": 20,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/02-1wbip12.md",
+      "contentSha256": "fe01765fc42b88f1c2ffaa6681e4dded5f4995b3f1c64540c2cad643f323f4d3",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wb5493",
+      "title": "你所知道的人里，最惨痛可怕的离世经历是什么？",
+      "subreddit": "AskReddit",
+      "points": "3026 points · 4438 评论",
+      "numComments": 4438,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wb5493/what_is_the_worst_way_someone_you_know_has_died/",
+      "sourceRank": 4,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/01-1wau4nf.md",
+      "contentSha256": "8b7495dee11e16a6a6056b45726da30202d2a5de887c5f6f2ec04bd441a402d4",
+      "volume": "v1"
+    },
+    {
+      "postId": "1waqvgg",
+      "title": "Reddit 上最让人感到致郁和压抑的版块是哪一个？",
+      "subreddit": "AskReddit",
+      "points": "1604 points · 950 评论",
+      "numComments": 950,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1waqvgg/what_is_the_most_depressing_sub_on_reddit/",
+      "sourceRank": 10,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/02-1wbip12.md",
+      "contentSha256": "fe01765fc42b88f1c2ffaa6681e4dded5f4995b3f1c64540c2cad643f323f4d3",
+      "volume": "v2"
+    },
+    {
+      "postId": "1waygnh",
+      "title": "有哪些蠢到离谱、对方却深信不疑的话让你至今难忘？",
+      "subreddit": "AskReddit",
+      "points": "1969 points · 2382 评论",
+      "numComments": 2382,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1waygnh/what_is_the_dumbest_thing_youve_heard_someone/",
+      "sourceRank": 6,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/01-1wau4nf.md",
+      "contentSha256": "8b7495dee11e16a6a6056b45726da30202d2a5de887c5f6f2ec04bd441a402d4",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wb28oo",
+      "title": "如果明天薪水直接翻倍，你第一件要改变的生活现状是什么？",
+      "subreddit": "AskReddit",
+      "points": "731 points · 1690 评论",
+      "numComments": 1690,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wb28oo/if_your_salary_doubled_tomorrow_whats_the_first/",
+      "sourceRank": 13,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-09/02-1wbip12.md",
+      "contentSha256": "fe01765fc42b88f1c2ffaa6681e4dded5f4995b3f1c64540c2cad643f323f4d3",
+      "volume": "v2"
+    }
+  ]
+}

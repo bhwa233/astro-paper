@@ -13,3 +13,8 @@ export function getLocaleLangTag(locale: string): string {
 export function getLocalizedRssPath(locale: string): string {
   return getAssetPath(locale === ENGLISH_LOCALE ? "en/rss.xml" : "rss.xml");
 }
+
+export function getTagRssPath(locale: string, tagSlug: string): string {
+  const prefix = locale === ENGLISH_LOCALE ? "en/tags" : "tags";
+  return getAssetPath(`${prefix}/${tagSlug}/rss.xml`);
+}

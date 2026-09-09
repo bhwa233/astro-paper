@@ -92,6 +92,22 @@ export async function getTagPaginatedPaths(
   });
 }
 
+/** 每个标签一个订阅源。和 getTagPaginatedPaths 同源，只是不分页、把整批文章交给调用方。 */
+export async function getTagFeedPaths(locale: SiteLocale) {
+  const posts = await getSortedPostsForLocale(locale);
+  const tagSlugs = new Map(
+    posts.map(post => [post, slugifyAll(post.data.tags)])
+  );
+
+  return getUniqueTags(posts).map(({ tag, tagName }) => ({
+    params: { tag },
+    props: {
+      tagName,
+      posts: posts.filter(post => tagSlugs.get(post)!.includes(tag)),
+    },
+  }));
+}
+
 type AdjacentPost = {
   id: string;
   title: string;

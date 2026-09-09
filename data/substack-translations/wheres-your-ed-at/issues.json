@@ -75,6 +75,21 @@
         "outputTokens": 6594,
         "totalTokens": 9216
       }
+    },
+    {
+      "guid": "6a9ff6926fbfb50001156a37",
+      "canonicalUrl": "https://www.wheresyoured.at/concentration-risk",
+      "sourcePublishedAt": "2026-09-08T14:28:03.000Z",
+      "sourceSha256": "dd601ef5144dd487e81d63a29a97cf9f0e628ed166f78a72ffdd87a0ce4e750d",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/wheres-your-ed-at-20260908-concentration-risk.md",
+      "translatedAt": "2026-09-09T04:51:16.872Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 14525,
+        "outputTokens": 14842,
+        "totalTokens": 29367
+      }
     }
   ]
 }

@@ -335,6 +335,32 @@
         "outputTokens": 3641,
         "totalTokens": 7694
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87842",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/02/wendell-berry-protest",
+      "sourcePublishedAt": "2026-09-02T19:57:10.000Z",
+      "sourceSha256": "562b94d1b85e036f9f1f79ce5375f462547dfe97a2599d6d1b420e3a8d6c1764",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2734,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-09T04:51:23.120Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=85611",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/02/cristina-campo-unforgivable-fairy-tales",
+      "sourcePublishedAt": "2026-09-02T23:09:02.000Z",
+      "sourceSha256": "b08f5148ba1544b331ddb91bbbea5c61d11d4242cc62c4d1a0e551cf0c820537",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260902-cristina-campo-unforgivable-fairy-tales.md",
+      "translatedAt": "2026-09-09T04:51:34.451Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2876,
+        "outputTokens": 2397,
+        "totalTokens": 5273
+      }
     }
   ]
 }

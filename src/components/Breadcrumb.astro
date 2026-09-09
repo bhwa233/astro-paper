@@ -1,6 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from "astro:i18n";
 import { stripBase, stripLocale } from "@/utils/withBase";
+import { buildBreadcrumbSchema } from "@/utils/structuredData";
 import { tplStr, useTranslations } from "@/i18n";
 import config from "@/config";
 
@@ -32,6 +33,23 @@ const navLabels: Record<string, string> = {
   search: t.nav.search,
 };
 
+// 结构化数据用原始路径段，不用下面那份为了显示而合并过的 breadcrumbList：
+// 显示版把「文章 > 2」压成「文章 (2)」，拿它拼出来的地址是不存在的页面。
+const homeUrl = new URL(getRelativeLocaleUrl(locale, ""), Astro.site).href;
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: t.nav.home, url: homeUrl },
+  ...breadcrumbList.map((segment, index) => ({
+    name: navLabels[segment] ?? decodeSegment(segment),
+    url: new URL(
+      getRelativeLocaleUrl(
+        locale,
+        breadcrumbList.slice(0, index + 1).join("/")
+      ),
+      Astro.site
+    ).href,
+  })),
+]);
+
 // if breadcrumb is Home > Posts > [page] <etc>
 // replace Posts with localized "Posts (page number)"
 if (breadcrumbList[0] === "posts") {
@@ -62,6 +80,12 @@ if (breadcrumbList[0] === "tags" && !isNaN(Number(breadcrumbList[2]))) {
   elements separated only by markup whitespace, and Astro's default
   `compressHTML: 'jsx'` strips that whitespace, rendering "Home»Posts".
 -->
+<script
+  type="application/ld+json"
+  is:inline
+  set:html={JSON.stringify(breadcrumbSchema)}
+/>
+
 <nav class="app-layout mt-8 mb-1" aria-label="breadcrumb">
   <ul
     class="text-muted-foreground [&>li:not(:last-child)>a]:hover:text-foreground text-sm [&>li]:inline"

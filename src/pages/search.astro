@@ -119,6 +119,8 @@ const pagefindTranslations = JSON.stringify(t.search.pagefind);
         showSubResults: true,
         // 摘要长度按索引词数算，中文索引一个词就是一个字，默认的 30 只够半句话。
         excerptLength: 80,
+        // 只展开分类那一组：栏目有三十多项，年份和 locale 是二次收敛用的。
+        openFilters: ["分类"],
         processTerm: function (term: string) {
           params.set("q", term); // Update the `q` parameter in the URL
           history.replaceState(history.state, "", "?" + params.toString()); // Push the new URL without reloading

@@ -1,6 +1,11 @@
 ---
 import Layout from "./Layout.astro";
 import type { LocaleAlternate } from "@/utils/localeAlternates";
+import {
+  buildBreadcrumbSchema,
+  buildItemListSchema,
+  type SchemaLink,
+} from "@/utils/structuredData";
 import config from "@/config";
 
 type Props = {
@@ -11,6 +16,13 @@ type Props = {
   localeAlternates?: LocaleAlternate[];
   pubDatetime?: Date;
   modDatetime?: Date | null;
+  /** 日报正文的条目锚点。给够数量才发 ItemList，随笔类文章的两三个小标题不算清单。 */
+  sections?: SchemaLink[];
+  /**
+   * 文章页的层级。这里没有可见的面包屑（用的是返回按钮），但文章页才是搜索结果里
+   * 最会展示面包屑的页面，所以标记单独给。
+   */
+  breadcrumb?: SchemaLink[];
 };
 
 const { site } = config;
@@ -23,6 +35,8 @@ const {
   localeAlternates,
   pubDatetime,
   modDatetime,
+  sections = [],
+  breadcrumb = [],
 } = Astro.props;
 
 const structuredData = {
@@ -73,6 +87,26 @@ const structuredData = {
       is:inline
       set:html={JSON.stringify(structuredData)}
     />
+
+    {
+      breadcrumb.length > 0 && (
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify(buildBreadcrumbSchema(breadcrumb))}
+        />
+      )
+    }
+
+    {
+      sections.length >= 3 && (
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify(buildItemListSchema(sections))}
+        />
+      )
+    }
   </Fragment>
 
   <slot />

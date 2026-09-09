@@ -7,6 +7,11 @@ import Card from "@/components/Card.astro";
 import { DEFAULT_LOCALE, isSupportedLocale } from "@/i18n/locales";
 import { getSharedLocaleAlternates } from "@/utils/localeAlternates";
 import { getHomePosts, HOME_POSTS_PER_LOAD } from "@/utils/homePostFeed";
+import {
+  getLocalizedSiteDescription,
+  getLocalizedSiteTitle,
+} from "@/utils/siteMeta";
+import { buildWebSiteSchema } from "@/utils/structuredData";
 import { useTranslations } from "@/i18n";
 import config from "@/config";
 
@@ -20,9 +25,24 @@ const homepagePosts = sortedPosts.slice(0, HOME_POSTS_PER_LOAD);
 const hasMorePosts = sortedPosts.length > homepagePosts.length;
 const homePath = getRelativeLocaleUrl(locale, "");
 const feedBasePath = getRelativeLocaleUrl(locale, "post-feed/");
+
+const webSiteSchema = buildWebSiteSchema({
+  name: getLocalizedSiteTitle(locale),
+  description: getLocalizedSiteDescription(locale),
+  url: new URL(homePath, Astro.site).href,
+  searchUrl: new URL(getRelativeLocaleUrl(locale, "search/"), Astro.site).href,
+});
 ---
 
 <Layout localeAlternates={getSharedLocaleAlternates("")}>
+  <Fragment slot="head">
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(webSiteSchema)}
+    />
+  </Fragment>
+
   <Header />
   <main
     id="main-content"

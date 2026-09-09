@@ -1,5 +1,6 @@
 ---
 import { type CollectionEntry, render } from "astro:content";
+import { getRelativeLocaleUrl } from "astro:i18n";
 import PostLayout from "@/layouts/PostLayout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -7,6 +8,7 @@ import Datetime from "@/components/Datetime.astro";
 import Tag from "@/components/Tag.astro";
 import { getPostUrl } from "@/utils/getPostPaths";
 import { slugifyStr } from "@/utils/slugify";
+import { isTagCategory } from "@/utils/tagCategories";
 import { toTransitionName } from "@/utils/toTransitionName";
 import EditPost from "./_components/EditPost.astro";
 import ShareLinks from "./_components/ShareLinks.astro";
@@ -75,6 +77,45 @@ const ogImage = ogImageUrl
   ? new URL(ogImageUrl, Astro.url.origin).href
   : undefined;
 
+const postPageUrl = new URL(Astro.url.pathname, Astro.site);
+
+// 文章页没有可见面包屑（用的是返回按钮），但它才是搜索结果里最会展示面包屑的页面。
+const breadcrumb = [
+  {
+    name: t.nav.home,
+    url: new URL(getRelativeLocaleUrl(locale, ""), Astro.site).href,
+  },
+  {
+    name: t.nav.posts,
+    url: new URL(getRelativeLocaleUrl(locale, "posts/"), Astro.site).href,
+  },
+  { name: title, url: postPageUrl.href },
+];
+// 日报的每个 h2 就是一个条目，做成 ItemList 交给搜索引擎。锚点用的是正文里
+// 已有的 heading id，和站内搜索的子结果指向同一个位置。
+const sections = headings
+  .filter(heading => heading.depth === 2)
+  .map(heading => ({
+    name: heading.text,
+    url: `${postPageUrl.href}#${heading.slug}`,
+  }));
+
+// 搜索页的筛选维度。键同时是 pagefind UI 里那组筛选器的标题，所以必须全站一致，
+// 不能按 locale 翻译——翻译会让同一个维度裂成两组。分类（6 个）和栏目（32 个）
+// 分开成两组：前者用来圈范围，后者用来精确到某一份日报。
+const postYear = new Intl.DateTimeFormat("en-CA", {
+  timeZone: timezone ?? config.site.timezone,
+  year: "numeric",
+}).format(pubDatetime);
+const searchFilters = [
+  { key: "locale", value: locale },
+  ...tags.map(tag => ({
+    key: isTagCategory(tag) ? "分类" : "栏目",
+    value: tag,
+  })),
+  { key: "年份", value: postYear },
+];
+
 const showBitcoinChart = tags.includes("比特币日报");
 const showUsMarketChart = tags.includes("美股市场日报");
 const showAsiaMarketChart = tags.includes("亚洲市场日报");
@@ -88,6 +129,8 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
   localeAlternates={getPostLocaleAlternates(post, allPosts)}
   pubDatetime={pubDatetime}
   modDatetime={modDatetime}
+  {sections}
+  {breadcrumb}
 >
   <Header />
 
@@ -97,7 +140,6 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
     id="main-content"
     class:list={["app-layout", { "mt-8": !config.features.showBackButton }]}
     data-pagefind-body
-    data-pagefind-filter={`locale:${locale}`}
     data-copy-label={t.code.copy}
     data-copied-label={t.code.copied}
     data-heading-link-label={t.a11y.headingLink}
@@ -107,6 +149,21 @@ const showAsiaMarketChart = tags.includes("亚洲市场日报");
     data-image-preview-with-alt={t.lightbox.imagePreviewWithAlt}
     data-close-image-preview-label={t.lightbox.closeImagePreview}
   >
+    {
+      /*
+      每个筛选值单独一个元素：`data-pagefind-filter` 的内联 `键:值` 写法会把逗号
+      后面的内容全部吞进同一个值，一个元素只能带一个内联值。套 data-pagefind-ignore
+      是为了让这些值只作筛选、不进正文索引与摘要。
+    */
+    }
+    <div data-pagefind-ignore hidden>
+      {
+        searchFilters.map(({ key, value }) => (
+          <span data-pagefind-filter={key}>{value}</span>
+        ))
+      }
+    </div>
+
     <h1
       style={{ viewTransitionName: toTransitionName(title) }}
       class="text-foreground inline-block text-2xl font-semibold tracking-tight sm:text-3xl"

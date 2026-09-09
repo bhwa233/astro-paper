@@ -49,6 +49,8 @@ concurrency:
 
 jobs:
   generate-and-archive:
+    # 暂停微博热搜图片消息生成，定时调用和手动派发均跳过；恢复时移除此条件。
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -162,7 +164,7 @@ jobs:
 
   sync-wechat:
     needs: generate-and-archive
-    # 微博微信稿照常生成归档；仓库变量打开后才恢复推送。
+    # 恢复生成后，仍需打开仓库变量才恢复推送。
     if: ${{ needs.generate-and-archive.outputs.generated_count != '0' && vars.ENABLE_WEIBO_TRENDING_WECHAT_SYNC == 'true' }}
     permissions:
       contents: write

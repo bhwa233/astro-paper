@@ -28,9 +28,9 @@ const BGM_VOLUME = 0.144 * MASTER_GAIN;
 const TICK_VOLUME = 0.168 * MASTER_GAIN;
 const PAGE_TURN_VOLUME = 1 * MASTER_GAIN;
 const BGM_FADE_OUT_FRAMES = FPS;
-// page-turn.mp3 的有效声音在源文件第 4 至第 20 帧；前后都是静音。
-const PAGE_TURN_TRIM_BEFORE = 4;
-const PAGE_TURN_TRIM_AFTER = 20;
+// page-turn.mp3 的有效声音在 4/30 至 20/30 秒；按当前帧率换算裁剪位置，前后都是静音。
+const PAGE_TURN_TRIM_BEFORE = Math.round((4 / 30) * FPS);
+const PAGE_TURN_TRIM_AFTER = Math.round((20 / 30) * FPS);
 const PAGE_TURN_DURATION_IN_FRAMES = PAGE_TURN_TRIM_AFTER - PAGE_TURN_TRIM_BEFORE;
 
 export const RedditLifeVideo: React.FC<{ manifest: VideoManifest }> = ({ manifest }) => {

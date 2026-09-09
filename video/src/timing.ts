@@ -2,7 +2,7 @@
 // 渲染脚本也要它来预估时长——三处必须同源，否则序列会错位。
 import type { VideoCard } from "./contract.ts";
 
-export const FPS = 30;
+export const FPS = 60;
 
 // 整体节奏的唯一旋钮。下面那些秒数描述的是「读完要多久」这套配比，PACE 描述的是
 // 成片实际比它快多少。2026-08-29 试看嫌拖，统一提速到八成；配比不动，因为慢的是全片不是某一张。
@@ -51,7 +51,7 @@ export function cardFrames(card: VideoCard): number {
 export const COVER_FRAMES = Math.round(COVER_SECONDS * FPS);
 
 /** 新纸完成覆盖前，旧纸继续挂在它下面；这段时间包含在新卡原有的落位余量里。 */
-export const PAPER_OVERLAY_FRAMES = 13;
+export const PAPER_OVERLAY_FRAMES = Math.round((13 / 30) * FPS);
 
 /** 每张卡的起始帧与长度，封面在前。 */
 export function timeline(cards: VideoCard[]): { from: number; durationInFrames: number }[] {

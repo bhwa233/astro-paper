@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseRedditItemSummary, parseSourceFacts } from "../scripts/reddit_top20_compose.ts";
+import { parseRedditItemSummary, parseSourceFacts, redditCategoryArticleFromSource, redditCategoryByKey } from "../scripts/reddit_top20_compose.ts";
 
 function item(summary: string): string {
   return JSON.stringify({ rank: 1, title_zh: "一次失误如何失控", description: "当事人的选择引发了一连串后果。", summary });
@@ -23,4 +23,35 @@ test("Reddit source facts use the local subreddit split over a legacy category l
   ].join("\n");
 
   assert.equal(parseSourceFacts(source)[0]?.category, "life-discussions");
+});
+
+test("Reddit ask article keeps translated titles and source metadata without a summary", () => {
+  const source = [
+    "1. [r/AskHistorians] What was the vibe like in 1928 Germany, politically?",
+    "- ⭐ 900 points · 210 评论",
+    "- 来源：r/AskHistorians",
+    "- 栏目：ask",
+    "- 发布时间：2099-01-02T07:00:00Z",
+    "- 帖子链接：https://www.reddit.com/r/AskHistorians/comments/fixture/",
+    "- 正文：This body must not enter the article.",
+    "- 顶层高赞回答（按赞数排序，共 1 条）：",
+    "  1. [100 赞] This comment must not enter the article.",
+    "- 中文标题：1928 年的德国，政治气氛究竟是什么样的？",
+  ].join("\n");
+
+  const article = redditCategoryArticleFromSource(source, redditCategoryByKey("ask"));
+
+  assert.ok(article);
+  // 标题栏目没有逐帖描述，frontmatter 回落到任务描述。
+  assert.equal(article.description, "");
+  assert.equal(
+    article.markdown,
+    [
+      "1. 🔴 1928 年的德国，政治气氛究竟是什么样的？",
+      "- ⭐ 900 points · 210 评论",
+      "- 来源：r/AskHistorians",
+      "- 帖子：https://www.reddit.com/r/AskHistorians/comments/fixture/",
+      "",
+    ].join("\n")
+  );
 });

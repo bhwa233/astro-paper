@@ -1,6 +1,6 @@
 name: Publish Reddit Life
 
-# 整条 Reddit 链路的唯一定时入口。四个分类、视频、图文全部挂在这里按 needs 串行，
+# 整条 Reddit 链路的唯一定时入口。五个分类、视频、图文全部挂在这里按 needs 串行，
 # 各自不再带 cron，但都保留 workflow_dispatch 以便单独补跑。三个理由：
 #
 # 一、GitHub 的 schedule 调度延迟已经到小时级，且每条 cron 独立抖动（实测同一天里
@@ -8,10 +8,10 @@ name: Publish Reddit Life
 # 0/5/10/15 四条 cron 错开五分钟来避让同一个上游服务，这个前提早就不成立了。
 # 依赖图才是真的错开。
 #
-# 二、四个分类都会调到 blog-publish.yml。它的 concurrency 组以前是全仓一个
+# 二、五个分类都会调到 blog-publish.yml。它的 concurrency 组以前是全仓一个
 # scheduled-posts-<ref>，同组内只保留一个排队运行，先排队的会被后到的挤掉——discussions
 # 在 8-28、8-29 两次定时运行就是这样变成 cancelled 的，既不是失败也没有告警。串成一条链
-# 之后组内不再自相竞争；现在组已按任务拆开，但四个分类同属 reddit-top20 一个任务，链仍有必要。
+# 之后组内不再自相竞争；现在组已按任务拆开，但五个分类同属 reddit-top20 一个任务，链仍有必要。
 #
 # 三、归档日期只在 archive-date 里解析一次再往下传。原来每个 workflow 各自跑
 # TZ=America/Los_Angeles date +%F，抖动几小时就可能跨过 PT 日界，同一批任务算出
@@ -160,4 +160,19 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.video.outputs.generated_sha }}
       force: ${{ inputs.force || false }}
+    secrets: inherit
+
+  # 排在链尾，微信草稿、视频、图文的产出时刻不受这个栏目影响。needs 只用来排队，
+  # 而 newspic 会因视频跳过选卡而不产出，所以只看 archive-date 的结果。
+  ask:
+    name: Publish Reddit Ask
+    needs: [archive-date, newspic]
+    if: always() && needs.archive-date.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-reddit-ask.yml
+    with:
+      date: ${{ needs.archive-date.outputs.value }}
+      force: ${{ inputs.force || false }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
     secrets: inherit

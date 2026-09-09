@@ -1,7 +1,7 @@
 # Reddit 分类精选发布方案
 
 状态：已实现
-最后更新：2026-08-27
+最后更新：2026-09-09
 
 ## 1. 目标
 
@@ -15,6 +15,15 @@
 | `life-discussions` | Reddit 人生讨论 | `r/confessions`、`r/changemyview`、`r/tifu` | `reddit-<date>-life-discussions.md` | 仅博客 |
 | `ama` | Reddit 人物与问答 | `r/IAmA`、`r/AMA`、`r/casualiama` | `reddit-<date>-ama.md` | 仅博客 |
 | `markets` | Reddit 市场与价值投资 | `r/stocks`、`r/ValueInvesting`、`r/investing`、`r/wallstreetbets` | `reddit-<date>-markets.md` | 仅博客 |
+| `ask` | Reddit 深度提问 | `r/AskHistorians`、`r/askphilosophy`、`r/TrueAskReddit`、`r/NoStupidQuestions`、`r/AskWomen` | `reddit-<date>-ask.md` | 仅博客 |
+
+栏目分两种形态。`mode: "summary"` 的四个栏目逐帖调用模型综合正文与评论；`ask` 是 `mode: "title-only"`，只把原题翻成中文，条目退化为标题加事实 bullet，正文不使用评论也不生成摘要。抓取层对两种形态没有区别，仍是同一个端点、同一份 policy，只有 subreddit 清单不同。
+
+`ask` 先只做标题有成本上的理由：五个社区的日产量合起来接近现有四个栏目的一半，而摘要形态是每帖一次长上下文调用，一上来就综合会让整条 Reddit 链的模型开销接近翻倍。标题形态每帖只喂原题、只要一个短 JSON。先按标题版跑一段时间，看 `[reddit-source]` 的逐社区漏斗日志，再决定哪几个社区值得升级成摘要。
+
+标题栏目同样有排除通道：模型判定原题落在排除主题内时返回 `{"rank": N, "skip": true}`，该帖不进文章。除各栏目共有的中国政治议题外，`ask` 还排除以具体性行为细节为主题的提问，以及离开当事人身份就没有公共可读性的私人纠纷帖——`r/AskWomen` 与 `r/NoStupidQuestions` 有相当比例这类帖子，而标题栏目没有摘要层可以做取舍。
+
+标题栏目没有逐帖描述，文章 frontmatter 的 description 回落到 `blog_tasks.ts` 里 `reddit-top20` 的任务描述。
 
 人物与问答需要从顶层问题的直接回复中恢复当事人回答，因此 `ama` 请求来源服务时使用更深的通用证据额度：每帖最多 60 条顶层评论、30 条直接回复，详情总预算 200。其他分类不传额度覆盖，继续使用服务默认的 50 / 10 / 100。客户端会核对来源响应中的 applied policy，额度没有真正生效时拒绝归档。
 
@@ -33,6 +42,8 @@
 
 两个 workflow 有各自的定时与手动入口。问答在每天 `10:00 UTC` 运行，人生讨论在 `10:15 UTC` 独立运行，与 AMA、Markets 一样错峰使用来源服务。微信归档任务只依赖 `life` 的生成提交，并且只接受 `life` 分类声明的 `r/AskReddit` 与 `r/askscience`。`life-discussions` 没有微信 job，也不能进入微信草稿箱。
 
+`ask` 由 `publish-reddit-ask.yml` 发布，没有自己的 cron，挂在 `publish-reddit-life.yml` 链的最后一个节点（`newspic` 之后），因此微信草稿、竖版视频与图文的产出时刻不受它影响。它同样没有微信 job，也不能进入微信草稿箱。
+
 历史文章不回填。新规则只对代码上线后的归档日生效；同一日期强制重跑时，仍按对应分类的固定文件名覆盖该分类文章。
 
 ## 4. 生成契约
@@ -42,6 +53,8 @@
 问答专篇沿用问答提示词：每个有效回答独立编号，保留具体事例、数据、叙述视角和趣味，不把不同回答压成概括性结论。中文标题不再按问句 20 字、叙事 35 字做内容压缩，而是在忠于原题和事实边界的前提下突出具体对象、矛盾、反差、处境或悬念；解析层只保留 50 字的微信平台技术兜底。
 
 人生讨论专篇使用独立提示词：每帖输出若干自然段，不使用 Markdown 标题、项目符号或编号。模型只能重组输入证据，不得补造背景、因果或结论；`r/changemyview` 要保留对立论证，`r/confessions` 与 `r/tifu` 要保留事情发展的时间线、情绪变化和关键转折。
+
+深度提问专篇使用独立的标题翻译提示词：输入只有原题，不含正文与评论。译文保留提问语气与原题里的具体对象、时代、地域、身份、数字和限定条件——历史与哲学提问的限定条件常常就是问题本身——不补造事实、不预设答案、不加栏目词，长度不超过 40 字，解析层仍保留 50 字的技术兜底。
 
 ## 5. 失败与重跑
 

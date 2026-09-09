@@ -168,7 +168,7 @@ export const BLOG_TASKS = {
     titlePrefix: "Reddit 每日精选",
     category: "社区",
     tag: "Reddit热门",
-    description: "每日 Reddit 分类精选，按问答精选、人生讨论、人物与问答、市场与价值投资四个独立栏目归档通过来源服务筛选的帖子。",
+    description: "每日 Reddit 分类精选，按问答精选、人生讨论、人物与问答、市场与价值投资、深度提问五个独立栏目归档通过来源服务筛选的帖子。",
     fileName: "reddit-{date}.md",
   },
   "reddit-trending": {
@@ -240,12 +240,13 @@ export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset
   "34 5 * * 6": { task: "new-yorker-weekly", dateTimeZone: "Asia/Shanghai" },
   "19 6 * * 6": { task: "atlantic-monthly", dateTimeZone: "Asia/Shanghai" },
   "43 7 * * 6": { task: "wired-monthly", dateTimeZone: "Asia/Shanghai" },
-  // 这三条不再对应任何 cron——四个 Reddit 分类的定时入口已经收归 publish-reddit-life.yml，
-  // 由它统一解析日期后当 --date 传下来。这里只剩三个薄壳单独手动派发且不填日期时还要用，
+  // 这四条不再对应任何 cron——五个 Reddit 分类的定时入口已经收归 publish-reddit-life.yml，
+  // 由它统一解析日期后当 --date 传下来。这里只剩四个薄壳单独手动派发且不填日期时还要用，
   // 所以键退化成纯粹的时区策略令牌，别再当成排期读。
   "5 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   "10 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   "15 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
+  "20 10 * * *": { task: "reddit-top20", dateTimeZone: "America/Los_Angeles" },
   // 定时已关闭，只在手动派发时用到。恢复后要错开上面那条 Reddit 链：打的是同一个来源服务，
   // 而热搜还要额外跑一次评论深挖作业。
   "29 11 * * *": { task: "reddit-trending", dateTimeZone: "America/Los_Angeles" },

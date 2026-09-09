@@ -40,10 +40,13 @@ import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
   parseRedditItemOutcome,
+  parseRedditTitleOutcome,
   redditCategoryArticleFromSource,
   redditCategoryByKey,
   type RedditCategory,
   type RedditModelItem,
+  type RedditSummaryFormat,
+  type RedditTitleTranslation,
 } from "./reddit_top20_compose.ts";
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
@@ -577,13 +580,21 @@ export type RedditItemProcessingOutcome = RedditItemSummaryOutcome & {
   rank: number;
 };
 
+type RedditTitleTranslationOutcome = { translation: RedditTitleTranslation | null; error?: string };
+
+type RedditTitleProcessingOutcome = RedditTitleTranslationOutcome & {
+  block: string;
+  rank: number;
+};
+
 // 显式映射供约定检查器追踪模板归属，避免动态文件名让孤儿模板悄然失效。
-// 四个栏目读的是同一形状的 source block，各自的提示词决定怎么读它。
+// 五个栏目读的是同一形状的 source block，各自的提示词决定怎么读它。
 const REDDIT_PROMPT_BY_CATEGORY: Record<RedditCategory["key"], string> = {
   life: "reddit-item-summary",
   "life-discussions": "reddit-life-discussions-summary",
   ama: "reddit-ama-summary",
   markets: "reddit-markets-item-summary",
+  ask: "reddit-ask-title-translation",
 };
 
 const REDDIT_PROMPT_FRAGMENTS = { reddit_translation_rules: "_reddit-translation-rules" };
@@ -609,7 +620,7 @@ function summarizeRedditItem(
   model: string,
   artifactsDir: string,
   minChars: number,
-  summaryFormat: RedditCategory["summaryFormat"]
+  summaryFormat: RedditSummaryFormat
 ): Promise<RedditItemSummaryOutcome> {
   return generateJsonStageWithRetries<RedditItemSummaryOutcome>({
     task: "reddit-top20",
@@ -622,6 +633,87 @@ function summarizeRedditItem(
     parse: content => ({ summary: parseRedditItemOutcome(content, rank, minChars, summaryFormat) }),
     onExhausted: error => ({ summary: null, error }),
   });
+}
+
+// 标题栏目同样单帖失败不带走整批：翻译不出来的那条丢掉，其余照常成篇。
+function translateRedditTitle(prompt: string, rank: number, model: string, artifactsDir: string): Promise<RedditTitleTranslationOutcome> {
+  return generateJsonStageWithRetries<RedditTitleTranslationOutcome>({
+    task: "reddit-top20",
+    stage: `Reddit title ${rank}`,
+    artifactPrefix: `item-${String(rank).padStart(2, "0")}-title`,
+    prompt,
+    model,
+    artifactsDir,
+    jitterMs: 1_000,
+    parse: content => ({ translation: parseRedditTitleOutcome(content, rank) }),
+    onExhausted: error => ({ translation: null, error }),
+  });
+}
+
+// 标题栏目只把原题喂给模型，不传正文与评论。产出的中间契约里每条仅多一行「中文标题」，
+// 没有描述与摘要 bullet，规则层据此走 composeRedditTitleOnlyBody。
+async function buildCombinedRedditTitleOnlySource({
+  source,
+  blocks,
+  template,
+  date,
+  model,
+  artifactsDir,
+  categoryKey,
+}: {
+  source: string;
+  blocks: string[];
+  template: string;
+  date: string;
+  model: string;
+  artifactsDir: string;
+  categoryKey: RedditCategory["key"];
+}): Promise<string> {
+  const outcomes: RedditTitleProcessingOutcome[] = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
+    const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
+    if (!Number.isInteger(rank)) throw new Error("Reddit source item is missing rank");
+    const originalTitle = block.match(/^\d+\.\s*\[r\/[^\]]+\]\s+(.+)$/m)?.[1]?.trim();
+    if (!originalTitle) throw new Error(`Reddit source item ${rank} is missing its original title`);
+    const prompt = template.replaceAll("{date}", date).replaceAll("{rank}", String(rank)).replaceAll("{title}", originalTitle);
+    const outcome = await translateRedditTitle(prompt, rank, model, artifactsDir);
+    return { block, rank, ...outcome };
+  });
+  const kept = outcomes.filter((outcome): outcome is RedditTitleProcessingOutcome & { translation: RedditTitleTranslation } => outcome.translation !== null);
+  const excluded = outcomes.filter(outcome => outcome.translation === null && !outcome.error).map(outcome => outcome.rank);
+  const failed = outcomes
+    .filter((outcome): outcome is RedditTitleProcessingOutcome & { translation: null; error: string } => outcome.translation === null && Boolean(outcome.error))
+    .map(outcome => ({ rank: outcome.rank, error: outcome.error }));
+  if (excluded.length || failed.length) {
+    if (excluded.length) writeStderr(`WARN: Reddit ${categoryKey} excluded ${excluded.length}/${blocks.length} posts by topic: ranks ${excluded.join(", ")}`);
+    if (failed.length)
+      writeStderr(
+        `WARN: Reddit ${categoryKey} skipped ${failed.length}/${blocks.length} posts after title translation retries: ranks ${failed.map(item => item.rank).join(", ")}`
+      );
+    writeArtifact(artifactsDir, "reddit-top20", "dropped-items.json", JSON.stringify({ excluded, failed, total: blocks.length }, null, 2));
+  }
+  if (!kept.length)
+    throw new Error(
+      `Reddit ${categoryKey} has no publishable posts after excluding ${excluded.length} posts and skipping ${failed.length} failed title translations`
+    );
+  const firstBlockOffset = source.search(/^\d+\.\s*\[r\//m);
+  const header = firstBlockOffset >= 0 ? source.slice(0, firstBlockOffset).trimEnd() : "";
+  const combined = [
+    header,
+    "",
+    "以下条目只使用 AI 翻译原帖标题；热度、来源与帖子链接均保留抓取证据，正文不使用评论或模型摘要。",
+    "",
+    // 丢帖后排名必须重新连续编号：下游按块序号校验 rank，留空号会直接判为契约损坏。
+    ...kept.flatMap(({ block, translation }, index) => {
+      const rank = index + 1;
+      const factLines = block
+        .split("\n")
+        .filter(line => /^\d+\.\s*\[r\//.test(line) || /^- (?:⭐|来源：|栏目：|发布时间：|帖子链接：)/.test(line))
+        .map(line => line.replace(/^\d+\.\s*(?=\[r\/)/, `${rank}. `));
+      return [...factLines, `- 中文标题：${translation.title_zh}`, ""];
+    }),
+  ].join("\n");
+  writeArtifact(artifactsDir, "reddit-top20", "source.dynamic.md", combined);
+  return combined;
 }
 
 async function buildCombinedRedditSource({
@@ -648,6 +740,9 @@ async function buildCombinedRedditSource({
   const resolvedPromptDir = promptDir || path.join(repo, "prompts/blog");
   const templateName = REDDIT_PROMPT_BY_CATEGORY[redditCategory.key];
   const template = readPromptTemplate(resolvedPromptDir, templateName, REDDIT_PROMPT_FRAGMENTS);
+  if (redditCategory.mode === "title-only") {
+    return buildCombinedRedditTitleOnlySource({ source, blocks, template, date, model, artifactsDir, categoryKey: redditCategory.key });
+  }
   // 逐帖传入受限 source block。有限并发保证各栏目运行时不会把候选池拼成一个巨型提示词。
   const outcomes: RedditItemProcessingOutcome[] = await mapWithConcurrency(blocks, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async block => {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);

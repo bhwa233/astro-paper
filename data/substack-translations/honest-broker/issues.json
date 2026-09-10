@@ -108,6 +108,17 @@
       "sourceTextChars": 916,
       "minimumSourceTextChars": 4000,
       "evaluatedAt": "2026-09-07T04:50:00.681Z"
+    },
+    {
+      "guid": "https://www.honest-broker.com/p/the-last-24-hours-are-the-opening",
+      "canonicalUrl": "https://www.honest-broker.com/p/the-last-24-hours-are-the-opening",
+      "sourcePublishedAt": "2026-09-09T19:45:46.000Z",
+      "sourceSha256": "a6354ba88b32a40e81a732670d56ebfbe8374ce12e686358770d126d8383a99d",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2510,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-10T04:51:08.388Z"
     }
   ]
 }

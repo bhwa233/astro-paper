@@ -86,6 +86,21 @@
       "sourceTextChars": 3777,
       "minimumSourceTextChars": 4000,
       "evaluatedAt": "2026-09-05T04:36:41.130Z"
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/it-was-just-a-game-of-catch",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/it-was-just-a-game-of-catch",
+      "sourcePublishedAt": "2026-09-09T12:03:22.000Z",
+      "sourceSha256": "ba7d74960b8f5a4ba7a9b66539260c1f914de033ee9f986500cf39bd0d2cc221",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260909-it-was-just-a-game-of-catch.md",
+      "translatedAt": "2026-09-10T04:51:02.162Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2233,
+        "outputTokens": 5867,
+        "totalTokens": 8100
+      }
     }
   ]
 }

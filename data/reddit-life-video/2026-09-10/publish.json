@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-10",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "56e859c4e0c7a27cc012291ba3cb11d0856ad1307f592235ccde4456e44f6bba",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "从业者爆料",
+        "细思极恐",
+        "反常识"
+      ],
+      "summary": "真正出卖一个人的往往不是疏忽，而是刻意表演的随性与欲盖弥彰的强调。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 3,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "人性观察",
+        "富人世界",
+        "普通人故事",
+        "反常识"
+      ],
+      "summary": "家境优渥最深层的体现是面对意外时的松弛感，以及花钱买时间的本能习惯。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

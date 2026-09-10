@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-10",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-09-10",
+    "drafts": [
+      "01-1wbybt1.md",
+      "02-1wcdfj7.md"
+    ],
+    "sha256": "3a7d19867d0b34f643feb4f24c6c4c1741dbbf1126afb6dec76e374a35e74bee"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 9,
+  "selectedQuestionIndexes": [
+    1,
+    3
+  ],
+  "titles": [
+    "识人高手十秒看出的破绽",
+    "从小家境优渥的隐形迹象"
+  ],
+  "questions": [
+    "以“看人”为生的高手，在最初十秒能察觉出哪些常人意识不到的破绽？",
+    "哪怕从不主动谈钱，一个人从小家境优渥最明显的迹象有哪些？"
+  ],
+  "verbatimCounts": [
+    4,
+    8
+  ]
+}

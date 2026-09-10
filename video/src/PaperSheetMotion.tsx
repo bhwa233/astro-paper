@@ -29,10 +29,13 @@ export const PaperSheetMotion: React.FC<PaperSheetMotionProps> = ({ children, en
   const translateY = interpolate(entering, [0, 1], [30, 0]);
   const rotation = interpolate(entering, [0, 1], [1.5, 0]);
   const scale = interpolate(entering, [0, 1], [0.992, 1]);
+  // 窄的贴边阴影给纸卡厚度，宽的暖色阴影表现悬浮距离；翻页时展开，落位后收回。
+  const contactShadowY = interpolate(settled, [0, 1], [8, 4]);
+  const contactShadowBlur = interpolate(settled, [0, 1], [20, 12]);
   const shadowX = interpolate(settled, [0, 1], [-34, 0]);
-  const shadowY = interpolate(settled, [0, 1], [8, 18]);
-  const shadowBlur = interpolate(settled, [0, 1], [68, 46]);
-  const shadowAlpha = interpolate(settled, [0, 1], [0.34, 0.18]);
+  const shadowY = interpolate(settled, [0, 1], [8, 24]);
+  const shadowBlur = interpolate(settled, [0, 1], [76, 56]);
+  const shadowAlpha = interpolate(settled, [0, 1], [0.28, 0.2]);
 
   return (
     <div
@@ -43,7 +46,7 @@ export const PaperSheetMotion: React.FC<PaperSheetMotionProps> = ({ children, en
         borderRadius: "inherit",
         transform: `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg) scale(${scale})`,
         transformOrigin: "100% 50%",
-        boxShadow: `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(80, 24, 0, ${shadowAlpha})`,
+        boxShadow: `0 ${contactShadowY}px ${contactShadowBlur}px rgba(80, 24, 0, 0.12), ${shadowX}px ${shadowY}px ${shadowBlur}px rgba(80, 24, 0, ${shadowAlpha})`,
       }}
     >
       {children}

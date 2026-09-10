@@ -24,9 +24,11 @@ const THEME = PLATFORM_THEMES.reddit;
 // BGM 比任何一天的成片都长，loop 实际不会触发；留着它是为了将来卡片数或时长上限
 // 变大时不至于突然静音。
 const MASTER_GAIN = 0.6;
+// 只将倒计时与换页音效降至原来的六成，背景音乐保持现有音量。
+const EFFECTS_GAIN = 0.6;
 const BGM_VOLUME = 0.144 * MASTER_GAIN;
-const TICK_VOLUME = 0.168 * MASTER_GAIN;
-const PAGE_TURN_VOLUME = 1 * MASTER_GAIN;
+const TICK_VOLUME = 0.168 * MASTER_GAIN * EFFECTS_GAIN;
+const PAGE_TURN_VOLUME = 1 * MASTER_GAIN * EFFECTS_GAIN;
 const BGM_FADE_OUT_FRAMES = FPS;
 // page-turn.mp3 的有效声音在 4/30 至 20/30 秒；按当前帧率换算裁剪位置，前后都是静音。
 const PAGE_TURN_TRIM_BEFORE = Math.round((4 / 30) * FPS);

@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-10",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "2e5d628b1aa5718187c3ea1b2e10b09ddf77a14d",
+    "workflowRun": "34489417044",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-10-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-10/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "汇集法律、急救与服务业从业者的微表情与行为洞察，充满具象生动的真实故事，跨文化跨行业通用且极具社交传播度。"
+      },
+      {
+        "rank": 11,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "硬核颠覆关于古人寿命与哥伦布等流传甚广的历史伪常识，有扎实的统计与考古学论据支撑，具备经久不衰的长尾科普价值。"
+      },
+      {
+        "rank": 21,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "亲历者分享走出抑郁的具体生活微调与心理转变过程，情感真挚不悬浮，能为大众读者带来切实的经验启发与心理抚慰。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "聚焦耐用品消费避坑与选购哲学，关于钢材标准与刀具保养的科普干货十足，兼具实用迁移价值与生活消费共鸣。"
+      },
+      {
+        "rank": 19,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从松弛感与消费习惯切入对家庭经济底气的微观观察，切中当代人对阶层生活方式的讨论热点，引发极强共鸣与代入感。"
+      },
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "通过极具文学感与冲击力的亲历细节精准揭示成瘾心理机制及坠落过程，警示意义深刻，长尾阅读价值高。"
+      },
+      {
+        "rank": 29,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "深度盘点塞麦尔维斯洗手革命等改变历史进程却被忽视的关键事件，因果链条严谨深刻，极大激发读者的求知欲与历史宿命感。"
+      },
+      {
+        "rank": 24,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "深度揭秘洞穴潜水等极限圈子的致命吸引力与毛骨悚然的死亡风险，猎奇度与信息增量极高，戏剧张力十足。"
+      },
+      {
+        "rank": 7,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "展示高情商礼貌反唇相讥的语言艺术，金句杀伤力极强且适配各种职场与社交场景，兼具实用性与幽默感。"
+      },
+      {
+        "rank": 16,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "包含从青梅竹马到大龄遇真爱的多元婚姻样本，打破年龄焦虑，故事温暖而真实，容易唤起跨年龄层读者的个人情感共鸣。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 2,
+        "category": "low_resonance",
+        "reason": "围绕极端假设性财富情境的口水讨论，回答以调侃前任为主，缺乏真实人生经验与讨论深度。"
+      },
+      {
+        "rank": 3,
+        "category": "region_specific",
+        "reason": "内容高度依附于美国本土特定的9·11历史创伤与纽约本地现场回忆，具有明显的特定国家与地缘事件依赖。"
+      },
+      {
+        "rank": 4,
+        "category": "low_resonance",
+        "reason": "宠物全天跟随主人的家庭琐事分享，多为品种与粘人表现的清单式列举，缺乏深度洞察与广泛话题延展性。"
+      },
+      {
+        "rank": 8,
+        "category": "narrow_interest",
+        "reason": "受众局限于核心硬核游戏玩家的老派单机清单盘点，严重依赖具体游戏作品背景。"
+      },
+      {
+        "rank": 9,
+        "category": "region_specific",
+        "reason": "涉及美国中期选举、竞选发钱红利与美国联邦法典，强依赖美国本土政党政治与法律体制。"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "欧美单口喜剧专场作品推荐，依赖英语脱口秀文化背景与特定段子演员，受众范围较为小众。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "高个子男性的日常体感吐槽偏向生活琐碎杂谈，缺乏深层情绪共鸣或普遍可借鉴价值。"
+      },
+      {
+        "rank": 13,
+        "category": "low_resonance",
+        "reason": "蓝领工地的俏皮嘲讽受限于特定体力劳动工种语境，相较通用社交金句其受众面窄且缺乏延展深度。"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "半夜被小动物或电器噪声虚惊一场的生活惊吓偶遇，内容体量轻薄且多为巧合杂谈。"
+      },
+      {
+        "rank": 15,
+        "category": "narrow_interest",
+        "reason": "特定影视剧决死名场面的主观清单盘点，高度依赖对具体电影情节和角色的了解。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "故意念错的梗词高度依赖英语发音与海外网络古早梗，中文语境下理解门槛高、缺乏可代入性。"
+      },
+      {
+        "rank": 18,
+        "category": "time_sensitive",
+        "reason": "围绕特定机构员工单次耸人言论的短期时事争议，属于短期热点且结论流于臆测。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "个人院线初体验的童年观影清单报菜名，内容属于个人琐碎怀旧，缺乏普遍探讨价值。"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "假想失忆留遗言的思维实验，回答多为抖机灵与段子式长句，缺少严肃思考与现实共鸣。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "雨声、落叶声等白噪音的简单列举，体验过于私人浅显，缺少故事层次与互动深度。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "对《权力的游戏》等具体美剧剧集烂尾的情绪宣泄吐槽，高度依附特定影视受众的怀旧清单。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "日常心理调节建议较为零散碎片，在同类话题中不如具象真实经历更具共鸣和长尾沉淀价值。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "继续活下去的理由偏向常见的感性鸡汤宽慰语，缺少具体厚实的人物故事与认知增量。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "对宇宙空洞、深海未知等概念的泛泛罗列，缺少具体论据支撑与人文故事载体，阅读共鸣较平淡。"
+      },
+      {
+        "rank": 30,
+        "category": "time_sensitive",
+        "reason": "回顾已过期的轰动性新闻及其舆论衰退周期，内容多依附特定阶段的西方政治时事热点。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wbybt1",
+      "title": "以“看人”为生的高手，在最初十秒能察觉出哪些常人意识不到的破绽？",
+      "subreddit": "AskReddit",
+      "points": "13011 points · 4578 评论",
+      "numComments": 4578,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wbybt1/people_whose_job_is_to_read_strangers_for_a/",
+      "sourceRank": 1,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/01-1wbybt1.md",
+      "contentSha256": "5107f1d78ce3b0c70a6f5484ae8a39493609c75133c084655624a6876da67dd9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wcdfj7",
+      "title": "有哪些流传甚广、至今仍被许多人当真的荒诞历史伪常识？",
+      "subreddit": "AskReddit",
+      "points": "741 points · 721 评论",
+      "numComments": 721,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wcdfj7/what_is_a_completely_untrue_historical_fact_that/",
+      "sourceRank": 11,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/02-1wcdfj7.md",
+      "contentSha256": "b2c51e65ce8413fc7f459200f7cac148e4c642bc35c903921ba977be924d86ca",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wcclah",
+      "title": "走出抑郁症的人，真正带来最大改变的一件事是什么？",
+      "subreddit": "AskReddit",
+      "points": "150 points · 263 评论",
+      "numComments": 263,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wcclah/people_who_overcame_depression_what_was_the_one/",
+      "sourceRank": 21,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/01-1wbybt1.md",
+      "contentSha256": "5107f1d78ce3b0c70a6f5484ae8a39493609c75133c084655624a6876da67dd9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wcctyz",
+      "title": "有哪些贵得离谱但用过才发现之前都白活了的终身耐用品（buy it for life）？",
+      "subreddit": "AskReddit",
+      "points": "932 points · 793 评论",
+      "numComments": 793,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wcctyz/what_is_a_buy_it_for_life_item_that_is/",
+      "sourceRank": 6,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/02-1wcdfj7.md",
+      "contentSha256": "b2c51e65ce8413fc7f459200f7cac148e4c642bc35c903921ba977be924d86ca",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wc2dpz",
+      "title": "哪怕从不主动谈钱，一个人从小家境优渥最明显的迹象有哪些？",
+      "subreddit": "AskReddit",
+      "points": "195 points · 235 评论",
+      "numComments": 235,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wc2dpz/whats_a_dead_giveaway_that_someone_grew_up_rich/",
+      "sourceRank": 19,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/01-1wbybt1.md",
+      "contentSha256": "5107f1d78ce3b0c70a6f5484ae8a39493609c75133c084655624a6876da67dd9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wc5vzr",
+      "title": "吸食可卡因（cocaine）究竟是什么感觉？亲历者眼中的虚幻自信与清晨地狱",
+      "subreddit": "AskReddit",
+      "points": "1153 points · 1367 评论",
+      "numComments": 1367,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wc5vzr/people_whove_tried_cocaine_what_does_the_high/",
+      "sourceRank": 5,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/02-1wcdfj7.md",
+      "contentSha256": "b2c51e65ce8413fc7f459200f7cac148e4c642bc35c903921ba977be924d86ca",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wc0r7a",
+      "title": "历史上有哪些影响极其深远却鲜少被提及的重大事件？",
+      "subreddit": "AskReddit",
+      "points": "104 points · 77 评论",
+      "numComments": 77,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wc0r7a/historians_whats_an_event_thats_never_talked/",
+      "sourceRank": 29,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/01-1wbybt1.md",
+      "contentSha256": "5107f1d78ce3b0c70a6f5484ae8a39493609c75133c084655624a6876da67dd9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wc4p8l",
+      "title": "什么爱好里聚集了最多真正“不可理喻”的疯子？",
+      "subreddit": "AskReddit",
+      "points": "133 points · 359 评论",
+      "numComments": 359,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wc4p8l/what_hobby_has_the_most_batshit_crazy_people/",
+      "sourceRank": 24,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/02-1wcdfj7.md",
+      "contentSha256": "b2c51e65ce8413fc7f459200f7cac148e4c642bc35c903921ba977be924d86ca",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wbtp9s",
+      "title": "不带脏字却杀伤力拉满：网友分享最精彩的“全年龄向（Rated G）”损人金句",
+      "subreddit": "AskReddit",
+      "points": "914 points · 1268 评论",
+      "numComments": 1268,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wbtp9s/whats_the_best_rated_g_insult_you_know/",
+      "sourceRank": 7,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/01-1wbybt1.md",
+      "contentSha256": "5107f1d78ce3b0c70a6f5484ae8a39493609c75133c084655624a6876da67dd9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wbuplk",
+      "title": "已婚网友们，你们是在几岁遇到后来结为伴侣的那个人？",
+      "subreddit": "AskReddit",
+      "points": "242 points · 1244 评论",
+      "numComments": 1244,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wbuplk/married_redditors_at_what_age_did_you_meet_the/",
+      "sourceRank": 16,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-10/02-1wcdfj7.md",
+      "contentSha256": "b2c51e65ce8413fc7f459200f7cac148e4c642bc35c903921ba977be924d86ca",
+      "volume": "v2"
+    }
+  ]
+}

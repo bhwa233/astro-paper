@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-11",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "41deac4da4bcfe6073cb4647b135d4b3ff7487fd",
+    "workflowRun": "34610356928",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-11-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-11/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "聚焦亲密关系中隐性心理负担与有效沟通，提供了极具实操价值且普适的婚姻维护哲学。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "探讨尖子生的人生轨迹与社会现实落差，极易唤起读者对成长经历、职业选择与个人价值的深度共鸣。"
+      },
+      {
+        "rank": 11,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "普及被传统教育忽视的女性生理常识，消除病理与道德耻感，兼具极高的科普价值与社会共鸣。"
+      },
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击现代双职工家庭做家务的普遍焦虑，给出化整为零与降低心理负担的真实生活解法。"
+      },
+      {
+        "rank": 4,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "解释日食巧合与可观测宇宙尺度等硬核事实，通俗生动且具备跨越时空的恒久求知价值。"
+      },
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "一线医生揭示可预防疾病与终末期创伤的残酷真相，具有极强的生命警示意义与科普深度。"
+      },
+      {
+        "rank": 5,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "揭示律师拒绝代理背后的伦理底线与人性善恶，故事性与职业洞察力兼备。"
+      },
+      {
+        "rank": 27,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "反思盛大婚礼与奢侈品等消费主义符号，倡导回归生活本质与真实情感体验。"
+      },
+      {
+        "rank": 10,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "在耐用品普遍缩水的背景下盘点经典实用品，契合大众反消费主义与追求实用价值的心理。"
+      },
+      {
+        "rank": 6,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "通过突获横财后迅速返贫的真实案例，深刻揭示博彩心理与人性弱点，具有警示长尾价值。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 3,
+        "category": "low_resonance",
+        "reason": "回到2001年的穿越假设多为彩票与股票投机白日梦，缺乏现实层面的探讨深度。"
+      },
+      {
+        "rank": 8,
+        "category": "narrow_interest",
+        "reason": "英文单词拼写与读音纠错高度依赖特定语言背景，非英语母语群体共鸣有限。"
+      },
+      {
+        "rank": 9,
+        "category": "low_resonance",
+        "reason": "搜索未来网络的脑洞杂谈以暴富幻想为主，缺乏可迁移的生活经验与深度。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "带手机穿越至1999年的脑洞问答充斥影视梗与段子，缺少启发性内容。"
+      },
+      {
+        "rank": 13,
+        "category": "low_resonance",
+        "reason": "餐厅踩雷细节偏碎片化且多为基础常识，讨论深度不足。"
+      },
+      {
+        "rank": 14,
+        "category": "time_sensitive",
+        "reason": "围绕特定单场橄榄球赛事惨败与行程安排的即时讨论，属于短期时效新闻。"
+      },
+      {
+        "rank": 16,
+        "category": "narrow_interest",
+        "reason": "停更经典游戏盘点高度依赖特定玩家群体的作品记忆与情怀。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "电视剧推荐清单属于主观影视盘点，缺乏深入的普适话题展开。"
+      },
+      {
+        "rank": 18,
+        "category": "narrow_interest",
+        "reason": "战争电影盘点偏向特定题材影视清单梳理，受众面相对局限。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "千年虫危机历史回顾偏向小众IT群体回忆，对当代普通读者启发有限。"
+      },
+      {
+        "rank": 20,
+        "category": "low_resonance",
+        "reason": "伴侣日常买错物品的零散生活琐事，段子性质较强且缺乏深度共鸣。"
+      },
+      {
+        "rank": 21,
+        "category": "region_specific",
+        "reason": "老派骂人脏话高度依赖北美特定城市方言与英语俚语文化背景。"
+      },
+      {
+        "rank": 22,
+        "category": "narrow_interest",
+        "reason": "电子游戏精神舒适区盘点依赖特定玩家作品知识，受众面较窄。"
+      },
+      {
+        "rank": 23,
+        "category": "region_specific",
+        "reason": "无车库电动车充电方案严重依赖欧美本地电价体系、补贴政策与公桩基建。"
+      },
+      {
+        "rank": 24,
+        "category": "narrow_interest",
+        "reason": "90年代童年商品怀旧清单依赖特定群体的童年消费记忆，共鸣范围有限。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "震撼电影观影体验盘点属于大众影视清单汇总，缺乏独特探讨深度。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "个人稀有藏品展示属于零碎碎屑分享，缺乏普遍共鸣与启发价值。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "校园霸凌者后续为个例命运碎屑汇总，缺乏普适规律与建设性反思。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "马球与迴力球等小众体育项目的兴衰探讨，受众关注面较窄。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "披萨小众配料杂谈属于日常零碎饮食偏好交流，缺少讨论深度。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wdcgb7",
+      "title": "已婚男士分享：做哪些不起眼的小事能让婚姻明显更幸福或避免无谓争吵？",
+      "subreddit": "AskReddit",
+      "points": "351 points · 353 评论",
+      "numComments": 353,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wdcgb7/married_men_of_reddit_whats_one_small_thing_you/",
+      "sourceRank": 15,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/01-1wdcgb7.md",
+      "contentSha256": "b44fa4fc568c6f58f103b4cc34c69dd2336a436930f1d5bfb00896b521613516",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wd2cpd",
+      "title": "高中班里最聪明的人，现在都在做什么？",
+      "subreddit": "AskReddit",
+      "points": "4275 points · 1903 评论",
+      "numComments": 1903,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wd2cpd/who_was_the_smartest_person_in_your_high_school/",
+      "sourceRank": 1,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/02-1wd2cpd.md",
+      "contentSha256": "e83719d70089835d8eb4cbda7f814e030d398e3df9d324aa8e411452f04e8cb1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wd0je6",
+      "title": "有哪些关于女性身体的事实，是学校性教育从未教过的？",
+      "subreddit": "AskReddit",
+      "points": "589 points · 897 评论",
+      "numComments": 897,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wd0je6/women_of_reddit_what_did_u_learn_about_our_bodies/",
+      "sourceRank": 11,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/01-1wdcgb7.md",
+      "contentSha256": "b44fa4fc568c6f58f103b4cc34c69dd2336a436930f1d5bfb00896b521613516",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wcof4d",
+      "title": "双职工夫妻如何维持家里整洁？",
+      "subreddit": "AskReddit",
+      "points": "3606 points · 3246 评论",
+      "numComments": 3246,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wcof4d/how_do_full_time_working_couples_keep_a_home_clean/",
+      "sourceRank": 2,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/02-1wd2cpd.md",
+      "contentSha256": "e83719d70089835d8eb4cbda7f814e030d398e3df9d324aa8e411452f04e8cb1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wczdsk",
+      "title": "天文学与宇宙学中有哪些听起来匪夷所思却千真万确的宇宙事实？",
+      "subreddit": "AskReddit",
+      "points": "3305 points · 1776 评论",
+      "numComments": 1776,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wczdsk/astronomers_and_cosmologists_of_reddit_what_is/",
+      "sourceRank": 4,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/01-1wdcgb7.md",
+      "contentSha256": "b44fa4fc568c6f58f103b4cc34c69dd2336a436930f1d5bfb00896b521613516",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wd7rn8",
+      "title": "医生们在临床中最不想再次接诊或治疗的疾病与创伤有哪些？",
+      "subreddit": "AskReddit",
+      "points": "1271 points · 1076 评论",
+      "numComments": 1076,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wd7rn8/doctors_of_reddit_what_disease_do_you_never_want/",
+      "sourceRank": 7,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/02-1wd2cpd.md",
+      "contentSha256": "e83719d70089835d8eb4cbda7f814e030d398e3df9d324aa8e411452f04e8cb1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wct5cl",
+      "title": "出于道德原因，律师们曾拒绝过哪些案件？",
+      "subreddit": "AskReddit",
+      "points": "3097 points · 691 评论",
+      "numComments": 691,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wct5cl/lawyers_of_reddit_what_type_of_case_have_you/",
+      "sourceRank": 5,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/01-1wdcgb7.md",
+      "contentSha256": "b44fa4fc568c6f58f103b4cc34c69dd2336a436930f1d5bfb00896b521613516",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wd4tsh",
+      "title": "别人一掷千金而你绝不买单的东西有哪些？",
+      "subreddit": "AskReddit",
+      "points": "98 points · 381 评论",
+      "numComments": 381,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wd4tsh/whats_something_people_spend_a_lot_of_money_on/",
+      "sourceRank": 27,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/02-1wd2cpd.md",
+      "contentSha256": "e83719d70089835d8eb4cbda7f814e030d398e3df9d324aa8e411452f04e8cb1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wclmte",
+      "title": "在“偷工减料”普遍的时代，还有哪些东西依然结实耐用？",
+      "subreddit": "AskReddit",
+      "points": "629 points · 557 评论",
+      "numComments": 557,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wclmte/in_an_age_where_things_arent_built_like_they_used/",
+      "sourceRank": 10,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/01-1wdcgb7.md",
+      "contentSha256": "b44fa4fc568c6f58f103b4cc34c69dd2336a436930f1d5bfb00896b521613516",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wcxohm",
+      "title": "天降横财（cash windfall）后，你见过最离谱的挥霍方式是什么？",
+      "subreddit": "AskReddit",
+      "points": "2133 points · 1159 评论",
+      "numComments": 1159,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wcxohm/what_is_the_worst_use_of_cash_windfall_youve_ever/",
+      "sourceRank": 6,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-11/02-1wd2cpd.md",
+      "contentSha256": "e83719d70089835d8eb4cbda7f814e030d398e3df9d324aa8e411452f04e8cb1",
+      "volume": "v2"
+    }
+  ]
+}

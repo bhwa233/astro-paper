@@ -776,6 +776,46 @@
       "title": "Leviticus",
       "archivedAt": "2026-09-04",
       "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-04.md"
+    },
+    {
+      "key": "movie:1204680",
+      "mediaType": "movie",
+      "tmdbId": 1204680,
+      "title": "Coyote vs. Acme",
+      "archivedAt": "2026-09-11",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-11.md"
+    },
+    {
+      "key": "movie:1621552",
+      "mediaType": "movie",
+      "tmdbId": 1621552,
+      "title": "Facing El Chapo",
+      "archivedAt": "2026-09-11",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-11.md"
+    },
+    {
+      "key": "movie:1291595",
+      "mediaType": "movie",
+      "tmdbId": 1291595,
+      "title": "Insidious: Out of the Further",
+      "archivedAt": "2026-09-11",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-11.md"
+    },
+    {
+      "key": "movie:1058424",
+      "mediaType": "movie",
+      "tmdbId": 1058424,
+      "title": "Hope",
+      "archivedAt": "2026-09-11",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-11.md"
+    },
+    {
+      "key": "movie:1185806",
+      "mediaType": "movie",
+      "tmdbId": 1185806,
+      "title": "PAW Patrol: The Dino Movie",
+      "archivedAt": "2026-09-11",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-11.md"
     }
   ]
 }

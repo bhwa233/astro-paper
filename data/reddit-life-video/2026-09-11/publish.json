@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-11",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "c27b51728aee23941f919c697023f6f086e6d4383294de0481e63f9dacd9d93a",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "婚姻情感",
+        "人性观察",
+        "相处之道",
+        "高赞问答"
+      ],
+      "summary": "婚姻变好的关键在于不把伴侣当项目经理或假想敌，主动分担隐性家务并先给拥抱再给建议",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 4,
+      "status": "processed",
+      "tags": [
+        "职场生存",
+        "人性观察",
+        "从业者爆料",
+        "避坑指南"
+      ],
+      "summary": "许多律师的职业底线是绝不成为恶意折磨他人、危害儿童或掩盖致害真相的武器",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

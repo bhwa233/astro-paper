@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-11",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-09-11",
+    "drafts": [
+      "01-1wdcgb7.md",
+      "02-1wd2cpd.md"
+    ],
+    "sha256": "31f3ec59cbdb59f9480a8e3c2d1ed6d3e37f509e58a29938d10179abf8735200"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 10,
+  "selectedQuestionIndexes": [
+    1,
+    4
+  ],
+  "titles": [
+    "男士让婚姻变幸福的小习惯",
+    "律师出于良知当场拒接的案件"
+  ],
+  "questions": [
+    "已婚男士分享：做哪些不起眼的小事能让婚姻明显更幸福或避免无谓争吵？",
+    "出于道德原因，律师们曾拒绝过哪些案件？"
+  ],
+  "verbatimCounts": [
+    7,
+    1
+  ]
+}

@@ -409,6 +409,21 @@
         "outputTokens": 3942,
         "totalTokens": 7553
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87867",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/05/regret-remorse",
+      "sourcePublishedAt": "2026-09-05T21:28:32.000Z",
+      "sourceSha256": "b1735178e67b35add5d6621841436d6c589ea41c0406382e71eb2904ad35f4ff",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260905-regret-remorse.md",
+      "translatedAt": "2026-09-11T04:48:26.467Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2202,
+        "outputTokens": 2163,
+        "totalTokens": 4365
+      }
     }
   ]
 }

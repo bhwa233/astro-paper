@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-12",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "105d2fea1aa3c07cc7da89dc837a0bfe07316338a71e3e2e5e24d64072373b66",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 6,
+      "status": "processed",
+      "tags": [
+        "职场生存",
+        "人性观察",
+        "从业者爆料",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "光鲜光环背后往往充斥着极度枯燥的机械重复、微薄薪水以及高压带来的精神内耗。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 7,
+      "status": "processed",
+      "tags": [
+        "婚姻情感",
+        "人性观察",
+        "破防瞬间",
+        "亲身经历"
+      ],
+      "summary": "真正的放弃往往没有歇斯底里的争吵，而是分享欲的彻底消亡与离开时的如释重负。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

@@ -30,6 +30,21 @@
         "outputTokens": 6341,
         "totalTokens": 13046
       }
+    },
+    {
+      "guid": "https://www.construction-physics.com/p/where-has-construction-automation",
+      "canonicalUrl": "https://www.construction-physics.com/p/where-has-construction-automation",
+      "sourcePublishedAt": "2026-09-11T12:04:09.000Z",
+      "sourceSha256": "d6708c1fd00b6f793d623cd99fc096606980f160f43413f0148a6343d5724f4a",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/construction-physics-20260911-where-has-construction-automation.md",
+      "translatedAt": "2026-09-12T04:42:59.974Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 6157,
+        "outputTokens": 12301,
+        "totalTokens": 18458
+      }
     }
   ]
 }

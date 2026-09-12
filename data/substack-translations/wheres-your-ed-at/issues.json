@@ -90,6 +90,21 @@
         "outputTokens": 14842,
         "totalTokens": 29367
       }
+    },
+    {
+      "guid": "6aa3e780dcfa1f0001b371b9",
+      "canonicalUrl": "https://www.wheresyoured.at/premium-the-haters-guide-to-broadcom",
+      "sourcePublishedAt": "2026-09-11T14:05:01.000Z",
+      "sourceSha256": "8449bfcd77dfeb5b785c6ca7a0c9d7394820080d9bc5160af49ee49e444a6433",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/wheres-your-ed-at-20260911-premium-the-haters-guide-to-broadcom.md",
+      "translatedAt": "2026-09-12T04:42:19.890Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3975,
+        "outputTokens": 8786,
+        "totalTokens": 12761
+      }
     }
   ]
 }

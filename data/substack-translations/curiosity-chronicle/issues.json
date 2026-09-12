@@ -101,6 +101,21 @@
         "outputTokens": 5867,
         "totalTokens": 8100
       }
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/be-a-ford-then-a-sloan",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/be-a-ford-then-a-sloan",
+      "sourcePublishedAt": "2026-09-11T12:41:20.000Z",
+      "sourceSha256": "bc9d5ceaaec4b11ed89af4e8b3b923075ec29e599cfe8ff5e5969facea98e7f5",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260911-be-a-ford-then-a-sloan.md",
+      "translatedAt": "2026-09-12T04:41:54.931Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2651,
+        "outputTokens": 2127,
+        "totalTokens": 4778
+      }
     }
   ]
 }

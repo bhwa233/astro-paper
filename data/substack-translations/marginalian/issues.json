@@ -424,6 +424,43 @@
         "outputTokens": 2163,
         "totalTokens": 4365
       }
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=60799",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/06/erich-fromm-the-art-of-listening",
+      "sourcePublishedAt": "2026-09-06T04:04:17.000Z",
+      "sourceSha256": "20b16d78220a85acc50a722124ed04fcb41e6b66c52a160bee64b13f6672bdb9",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2294,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-12T04:43:03.124Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=81375",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/06/how-to-apologize-ellen-bass",
+      "sourcePublishedAt": "2026-09-06T16:29:04.000Z",
+      "sourceSha256": "7498c2055c35e6024c646e7f48172985f44c6c88d18c7adc5b524b097343ea89",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2307,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-12T04:43:03.154Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87873",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/06/alejandro-jorodowsky-tarot",
+      "sourcePublishedAt": "2026-09-06T18:51:32.000Z",
+      "sourceSha256": "0e72e45f655882854bb8eec846729ea03171c3b110ba07328d769e8a3b579460",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260906-alejandro-jorodowsky-tarot.md",
+      "translatedAt": "2026-09-12T04:43:23.891Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2073,
+        "outputTokens": 6410,
+        "totalTokens": 8483
+      }
     }
   ]
 }

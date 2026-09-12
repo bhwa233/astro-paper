@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-12",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "ed877854179e3a37540a81dcffd532f0c51ab989",
+    "workflowRun": "34696955421",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-12-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-12/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "洞察隐蔽人际关系毒性，剖析具体深刻且直击日常盲区，具有极高的警示与共鸣价值。"
+      },
+      {
+        "rank": 10,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "多行业一线人员打破职业光环的真实叙事，情感饱满且对职场选择极具借鉴意义。"
+      },
+      {
+        "rank": 12,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从原生家庭健康者的独特视角切入，细腻呈现与外界创伤碰撞的心态，视角新颖且触动人心。"
+      },
+      {
+        "rank": 16,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "真实描摹亲密关系在细微日常中自然消亡的瞬间，克制平静却直击心灵。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "围绕三十岁年龄节点的人生得失展开，引用名言与切身教训兼备，能够引发广泛的生命反思。"
+      },
+      {
+        "rank": 28,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "详述不生育决定的心理演变与自我认知，视角真诚独立且充满跨群体思考价值。"
+      },
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "硬核科学思维实验，清晰拆解终端速度、体温对流与离心缺氧等反直觉致命机制。"
+      },
+      {
+        "rank": 20,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从古生物学和化石机制科学剖析寒武纪大爆发，破除营销话术，科普逻辑极其严密。"
+      },
+      {
+        "rank": 3,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "以幽默细腻的亲子对话探讨父母审美滤镜与现实反差，兼具生活趣味与普遍共鸣。"
+      },
+      {
+        "rank": 2,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "列举因失言或瞬间曝光毁掉职业生涯的典型案例，故事性极强且富含公关与职场警示。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 4,
+        "category": "region_specific",
+        "reason": "围绕美国得州地方官员、选举争议及党派政治展开，具有强烈的本地制度与事件依赖。"
+      },
+      {
+        "rank": 5,
+        "category": "narrow_interest",
+        "reason": "属于特定电影情节设定的娱乐盘点，依赖具体的观影经验且缺乏深层共鸣。"
+      },
+      {
+        "rank": 8,
+        "category": "low_resonance",
+        "reason": "核心话题与候选6的人生后悔高度重合，内容偏向常规投资与婚姻建议，讨论深度重复。"
+      },
+      {
+        "rank": 9,
+        "category": "narrow_interest",
+        "reason": "探讨老款汽车与工业柴油发动机型号，属于硬核机械车迷的小众圈层讨论。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "围绕网络对线、钓鱼等个人爱好闲聊，内容零散且缺乏可延展的讨论深度。"
+      },
+      {
+        "rank": 13,
+        "category": "region_specific",
+        "reason": "讨论高度依赖北美Costco会员福利、特定海外网络工具与本地健身房价格体系。"
+      },
+      {
+        "rank": 14,
+        "category": "narrow_interest",
+        "reason": "盘点免费开源工具与底层代码库，受众偏向程序员和数字极客圈层。"
+      },
+      {
+        "rank": 15,
+        "category": "narrow_interest",
+        "reason": "针对特定欧美停产老字号与零售品牌的怀旧清单，依赖特定区域的童年记忆。"
+      },
+      {
+        "rank": 17,
+        "category": "low_resonance",
+        "reason": "下逐客令的日常段子与肢体技巧分享，内容体量轻薄且缺乏长尾探讨价值。"
+      },
+      {
+        "rank": 18,
+        "category": "narrow_interest",
+        "reason": "特定主机游戏单一IP的作品评析，高度依赖《塞尔达传说》粉丝的关卡知识储备。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "穿越说三个词的问答形式偏向段子化，多为买币或避坑前任的简单口号，缺少延展空间。"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "高龄育儿日常碎碎念，相比同类亲子及育儿选题，洞察力与探讨深度略显平淡。"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "涉及违禁迷幻剂的药物体验描述，缺少普适的情感连接与可迁移的社会生活经验。"
+      },
+      {
+        "rank": 23,
+        "category": "narrow_interest",
+        "reason": "聚焦欧美娱乐圈名人过往访谈翻车事件，高度依赖特定海外娱乐八卦背景。"
+      },
+      {
+        "rank": 24,
+        "category": "low_resonance",
+        "reason": "关于汽油、旧书等古怪气味偏好的零散罗列，讨论深度不足。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "对具体商业游戏的画面与手感进行吐槽，受众局限于特定电子游戏玩家群体。"
+      },
+      {
+        "rank": 26,
+        "category": "narrow_interest",
+        "reason": "被腰斩美剧盘点与粉丝意难平抱怨，依赖特定剧集的观看经历与小众情怀。"
+      },
+      {
+        "rank": 27,
+        "category": "narrow_interest",
+        "reason": "盘点北美职业体育联赛的比分痛点，高度绑定特定球队粉丝群体和赛事背景。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "911当天的周边个人奇闻轶事，属于特定历史灾难的花絮聚合，长尾讨论价值有限。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "针对高物价餐馆与演出门票的情绪化抱怨，偏向日常牢骚，缺乏深度洞察。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wdj3kh",
+      "title": "初见看似十分友善，实则极其「有毒」（toxic）的人有哪些不易察觉的隐蔽迹象？",
+      "subreddit": "AskReddit",
+      "points": "7028 points · 2011 评论",
+      "numComments": 2011,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wdj3kh/what_is_a_subtle_sign_that_someone_is_an/",
+      "sourceRank": 1,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/01-1wdj3kh.md",
+      "contentSha256": "384e36f63b4aaf6835d4c954a95f97fb8297f9c3488db6b8536e09e42ee4afe3",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wdrvhy",
+      "title": "有哪些听起来像梦中情职，实际入行后却彻底沦为噩梦的职业？",
+      "subreddit": "AskReddit",
+      "points": "774 points · 477 评论",
+      "numComments": 477,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wdrvhy/what_is_a_career_that_sounds_like_a_dream_but_is/",
+      "sourceRank": 10,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/02-1wdrvhy.md",
+      "contentSha256": "3ebbdec1e9306954a62c96cca6aba4238a9aab3bf6db9ea85d498896ec3168a1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1we2wbt",
+      "title": "从小在充满爱且情绪健康的家庭长大、拥有安全型依恋（securely attached）是种什么体验？",
+      "subreddit": "AskReddit",
+      "points": "449 points · 184 评论",
+      "numComments": 184,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1we2wbt/people_who_grew_up_in_loving_homes_with_two/",
+      "sourceRank": 12,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/01-1wdj3kh.md",
+      "contentSha256": "384e36f63b4aaf6835d4c954a95f97fb8297f9c3488db6b8536e09e42ee4afe3",
+      "volume": "v1"
+    },
+    {
+      "postId": "1we6w91",
+      "title": "你在哪一个瞬间彻底意识到，自己和上一任伴侣已经走到了尽头？",
+      "subreddit": "AskReddit",
+      "points": "255 points · 421 评论",
+      "numComments": 421,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1we6w91/when_did_you_know_it_was_over_with_your_last/",
+      "sourceRank": 16,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/02-1wdrvhy.md",
+      "contentSha256": "3ebbdec1e9306954a62c96cca6aba4238a9aab3bf6db9ea85d498896ec3168a1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wdi6v0",
+      "title": "过了三十岁的人，人生中最后悔的事情是什么？",
+      "subreddit": "AskReddit",
+      "points": "1444 points · 1961 评论",
+      "numComments": 1961,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wdi6v0/people_who_are_older_than_30_years_old_what_are/",
+      "sourceRank": 6,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/01-1wdj3kh.md",
+      "contentSha256": "384e36f63b4aaf6835d4c954a95f97fb8297f9c3488db6b8536e09e42ee4afe3",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wdw7bk",
+      "title": "没有生孩子的女性，你们是如何确信自己不想要孩子的？",
+      "subreddit": "AskReddit",
+      "points": "122 points · 662 评论",
+      "numComments": 662,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wdw7bk/women_with_no_children_how_did_you_know_for/",
+      "sourceRank": 28,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/02-1wdrvhy.md",
+      "contentSha256": "3ebbdec1e9306954a62c96cca6aba4238a9aab3bf6db9ea85d498896ec3168a1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wdm44p",
+      "title": "如果人在无休止的坠落中永远不触地，最先致命的会是什么？",
+      "subreddit": "askscience",
+      "points": "914 points · 119 评论",
+      "numComments": 119,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wdm44p/in_an_infinite_fall_what_would_kill_a_human_first/",
+      "sourceRank": 7,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/01-1wdj3kh.md",
+      "contentSha256": "384e36f63b4aaf6835d4c954a95f97fb8297f9c3488db6b8536e09e42ee4afe3",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wdvopy",
+      "title": "寒武纪大爆发（Cambrian explosion）真的无法用科学解释吗？",
+      "subreddit": "askscience",
+      "points": "199 points · 59 评论",
+      "numComments": 59,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wdvopy/is_there_a_explanation_for_the_cambrian_explosion/",
+      "sourceRank": 20,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/02-1wdrvhy.md",
+      "contentSha256": "3ebbdec1e9306954a62c96cca6aba4238a9aab3bf6db9ea85d498896ec3168a1",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wdnj4a",
+      "title": "孩子长相普通甚至不好看，父母是真的觉得美还是自带滤镜？",
+      "subreddit": "AskReddit",
+      "points": "3747 points · 1179 评论",
+      "numComments": 1179,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wdnj4a/parents_of_conventionally_unattractive_kids_at/",
+      "sourceRank": 3,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/01-1wdj3kh.md",
+      "contentSha256": "384e36f63b4aaf6835d4c954a95f97fb8297f9c3488db6b8536e09e42ee4afe3",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wdrr0k",
+      "title": "历史上最让人直呼“他职业生涯彻底玩完了”的瞬间有哪些？",
+      "subreddit": "AskReddit",
+      "points": "5544 points · 3784 评论",
+      "numComments": 3784,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wdrr0k/whats_the_greatest_well_their_career_is_over/",
+      "sourceRank": 2,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-12/02-1wdrvhy.md",
+      "contentSha256": "3ebbdec1e9306954a62c96cca6aba4238a9aab3bf6db9ea85d498896ec3168a1",
+      "volume": "v2"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-13",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "9cc891a2bdf782b153a3140bfe630b44f0ac64950524356b9d91608eafaf97b3",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 6,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "人们总为了省下几秒钟或几块钱，拿生命安全与整个人生去进行最极端的赌博",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 10,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "认知思维",
+        "生活妙招",
+        "普通人故事"
+      ],
+      "summary": "真正能买回时间、健康和日常好心情的开销，其实远比想象中更划算且回不去",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

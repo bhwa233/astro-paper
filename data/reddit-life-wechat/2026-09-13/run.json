@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-13",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "daa541b299af6cc8f4f1e9b50b51433e4e1435de",
+    "workflowRun": "34762710995",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-13-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-13/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深刻剖析长期伴侣在双重低谷期与平淡期中的真实情感困境，具有极高的现实指导意义与持久共鸣。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从路怒、不戴头盔到违规作弊，直击日常生活中高风险低收益的侥幸心理，警示意义深刻且普适性极强。"
+      },
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "幸存者分享吞咽异常与持续疲倦等微小身体预警信号，具有跨时间的健康警示与现实救命价值。"
+      },
+      {
+        "rank": 4,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "医护与殡葬从业者通过真实惨痛案例揭示忽视安全带、头盔与微小色斑的毁灭性后果，长尾警示价值极高。"
+      },
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "探讨消耗型关系、慢性心理压力与防晒缺失对身心的断崖式摧残，切中现代人普遍的身心疲惫与衰老焦虑。"
+      },
+      {
+        "rank": 23,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "精准区分想念恋爱状态与想念具体的人，拆解分手后自我重塑与默契消逝的心理过程，情绪共鸣极其强烈。"
+      },
+      {
+        "rank": 13,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "深入揭示酒精等成瘾物易得性背后的残酷生理与家庭摧毁力，提供极具分量的戒断认知与现实警示。"
+      },
+      {
+        "rank": 28,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "探讨对未抑郁的过往自我、旧时代网络与逝去时光的深层哀伤，精准捕捉现代人的精神困境与情感共振。"
+      },
+      {
+        "rank": 19,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "总结「我的真相」「心直口快」等典型语言雷区，揭示其背后傲慢与刻薄的社交本质，实用性与共鸣度兼备。"
+      },
+      {
+        "rank": 21,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "聚焦家政、按摩与人体工学装备等改善生活质量的真实消费体验，为读者提供务实的生活决策参考。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 2,
+        "category": "region_specific",
+        "reason": "核心围绕美国特定前总统的政治指控与司法争议，高度依赖美国本地政治语境。"
+      },
+      {
+        "rank": 6,
+        "category": "narrow_interest",
+        "reason": "盘点英超与拳击史上的冷门赛事，高度依赖特定体育项目背景与球迷兴趣。"
+      },
+      {
+        "rank": 8,
+        "category": "low_resonance",
+        "reason": "多为军营新兵挨训的零散轶事段子，受众场景狭窄且缺乏普适讨论深度。"
+      },
+      {
+        "rank": 9,
+        "category": "low_resonance",
+        "reason": "聚焦于单一特定历史灾难事件的细节回顾，缺乏跨时间的普适经验与生活共鸣。"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "围绕特定欧美腰斩美剧展开的粉丝向盘点，高度依赖具体剧集背景知识。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "内容全为主观直觉对欧美公众人物的无根据揣测，缺乏事实支撑与深度价值。"
+      },
+      {
+        "rank": 12,
+        "category": "narrow_interest",
+        "reason": "聚焦具体单机角色扮演游戏的剧情与机制盘点，受众局限于特定核心玩家群体。"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "回答多为坚持打卡、充足睡眠等浅显健身常识，信息增量较少且讨论深度有限。"
+      },
+      {
+        "rank": 15,
+        "category": "narrow_interest",
+        "reason": "针对特定欧美老电影伦理道德尺度的怀旧与探讨，依赖特定影视作品背景。"
+      },
+      {
+        "rank": 16,
+        "category": "narrow_interest",
+        "reason": "单纯盘点欧美本地早餐麦片品牌与口味，受众局限且缺乏探讨深度。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "针对具体长寿欧美电视剧剧情跳鲨套路的吐槽盘点，依赖特定影视作品背景。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "掺杂踩宠物尾巴的玩笑段子与极端历史人物列举，内容松散且缺乏深入思考价值。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "盘点特定欧美已故演员与名人，受众面较窄且高度依赖特定人物认知。"
+      },
+      {
+        "rank": 22,
+        "category": "region_specific",
+        "reason": "核心探讨美国大学体育联盟的商业对阵机制与高校橄榄球文化，具有强烈的地区制度依赖。"
+      },
+      {
+        "rank": 24,
+        "category": "narrow_interest",
+        "reason": "围绕特定欧美影视配音演员表现展开的粉丝向讨论，依赖具体作品背景。"
+      },
+      {
+        "rank": 25,
+        "category": "low_resonance",
+        "reason": "穿越目击历史的假设性脑洞题，回答多为零散趣味设想，缺乏现实参考与情感共鸣。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "针对长途驾驶概念的定义讨论，内容夹杂高尔夫等无序闲聊，信息价值较低。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "长生不老常见脑洞假想，回答多为常规哲学探讨，缺乏实质性的认知增量。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "微观凝聚态物理理论探讨，专业门槛极高且受众面极其狭窄。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "零散家电零件维修个案分享，缺乏系统性经验总结与广泛的情感共鸣。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1weiijp",
+      "title": "长期恋爱与婚姻中，有哪些没人提前提醒过的残酷现实？",
+      "subreddit": "AskReddit",
+      "points": "3115 points · 696 评论",
+      "numComments": 696,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1weiijp/what_are_the_unsexy_raw_realities_of_a_longterm/",
+      "sourceRank": 3,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/01-1weiijp.md",
+      "contentSha256": "f3145764f2772da7c3193ae847e1a9852096881a886268074f257371b31582cb",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wef9e2",
+      "title": "日常生活中最典型的「极高风险、极低回报」行为有哪些？",
+      "subreddit": "AskReddit",
+      "points": "9041 points · 3308 评论",
+      "numComments": 3308,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wef9e2/what_is_the_ultimate_example_of_high_risk/",
+      "sourceRank": 1,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/02-1wef9e2.md",
+      "contentSha256": "abe0d96b950035cdcc89b4f16d854524e06687415c6645e5f2a1d63d325cad16",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wewskc",
+      "title": "癌症（cancer）幸存者是在哪一瞬间意识到身体彻底不对劲的？",
+      "subreddit": "AskReddit",
+      "points": "2256 points · 1141 评论",
+      "numComments": 1141,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wewskc/cancer_survivors_of_reddit_what_was_the_moment/",
+      "sourceRank": 5,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/01-1weiijp.md",
+      "contentSha256": "f3145764f2772da7c3193ae847e1a9852096881a886268074f257371b31582cb",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wefk36",
+      "title": "医护人员见过哪些因不起眼的小事而引发的严重后果？",
+      "subreddit": "AskReddit",
+      "points": "2259 points · 1967 评论",
+      "numComments": 1967,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wefk36/medical_people_of_reddit_what_the_biggest/",
+      "sourceRank": 4,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/02-1wef9e2.md",
+      "contentSha256": "abe0d96b950035cdcc89b4f16d854524e06687415c6645e5f2a1d63d325cad16",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wegzqz",
+      "title": "有哪些事情比人们愿意承认的更让人断崖式衰老？",
+      "subreddit": "AskReddit",
+      "points": "1314 points · 889 评论",
+      "numComments": 889,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wegzqz/what_is_something_that_really_ages_people_more/",
+      "sourceRank": 7,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/01-1weiijp.md",
+      "contentSha256": "f3145764f2772da7c3193ae847e1a9852096881a886268074f257371b31582cb",
+      "volume": "v1"
+    },
+    {
+      "postId": "1weg5t9",
+      "title": "结束一段感情后，大多数人会意识到什么？",
+      "subreddit": "AskReddit",
+      "points": "177 points · 169 评论",
+      "numComments": 169,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1weg5t9/what_do_most_people_realize_after_ending_a/",
+      "sourceRank": 23,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/02-1wef9e2.md",
+      "contentSha256": "abe0d96b950035cdcc89b4f16d854524e06687415c6645e5f2a1d63d325cad16",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wepkbu",
+      "title": "什么东西一旦成瘾最可怕？",
+      "subreddit": "AskReddit",
+      "points": "640 points · 925 评论",
+      "numComments": 925,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wepkbu/whats_the_worst_thing_to_be_addicted_to/",
+      "sourceRank": 13,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/01-1weiijp.md",
+      "contentSha256": "f3145764f2772da7c3193ae847e1a9852096881a886268074f257371b31582cb",
+      "volume": "v1"
+    },
+    {
+      "postId": "1weub6g",
+      "title": "除了亲友离世，你还在为失去什么而哀伤？",
+      "subreddit": "AskReddit",
+      "points": "104 points · 343 评论",
+      "numComments": 343,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1weub6g/whats_something_youre_grieving_that_isnt_a_death/",
+      "sourceRank": 28,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/02-1wef9e2.md",
+      "contentSha256": "abe0d96b950035cdcc89b4f16d854524e06687415c6645e5f2a1d63d325cad16",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wf1w0m",
+      "title": "听到哪一句话，你就知道对方接下来绝对极难相处？",
+      "subreddit": "AskReddit",
+      "points": "280 points · 335 评论",
+      "numComments": 335,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wf1w0m/whats_a_sentence_that_instantly_tells_you_someone/",
+      "sourceRank": 19,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/01-1weiijp.md",
+      "contentSha256": "f3145764f2772da7c3193ae847e1a9852096881a886268074f257371b31582cb",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wen2ea",
+      "title": "有哪些曾经觉得是「奢侈消费」，体验后却再也离不开的开销？",
+      "subreddit": "AskReddit",
+      "points": "211 points · 351 评论",
+      "numComments": 351,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wen2ea/what_is_a_luxury_you_started_paying_for_that_you/",
+      "sourceRank": 21,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-13/02-1wef9e2.md",
+      "contentSha256": "abe0d96b950035cdcc89b4f16d854524e06687415c6645e5f2a1d63d325cad16",
+      "volume": "v2"
+    }
+  ]
+}

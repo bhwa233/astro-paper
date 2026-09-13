@@ -461,6 +461,21 @@
         "outputTokens": 6410,
         "totalTokens": 8483
       }
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=70899",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/06/tove-jansson-letters-tuulikki-pietila",
+      "sourcePublishedAt": "2026-09-07T01:39:00.000Z",
+      "sourceSha256": "fcbec9d47d88137b5ff9e708fa59f04a9228ad72ce1b7ff8a973b14b197c8b99",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260906-tove-jansson-letters-tuulikki-pietila.md",
+      "translatedAt": "2026-09-13T04:56:11.034Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3447,
+        "outputTokens": 3595,
+        "totalTokens": 7042
+      }
     }
   ]
 }

@@ -119,6 +119,21 @@
       "sourceTextChars": 2510,
       "minimumSourceTextChars": 4000,
       "evaluatedAt": "2026-09-10T04:51:08.388Z"
+    },
+    {
+      "guid": "https://www.honest-broker.com/p/how-a-healthy-society-falls-apart",
+      "canonicalUrl": "https://www.honest-broker.com/p/how-a-healthy-society-falls-apart",
+      "sourcePublishedAt": "2026-09-12T17:26:43.000Z",
+      "sourceSha256": "bce4f63b80fcf874eda93283b87365fda5c3972a5a969669d83beabca6ec1eda",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/honest-broker-20260912-how-a-healthy-society-falls-apart.md",
+      "translatedAt": "2026-09-13T04:55:51.099Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3669,
+        "outputTokens": 4061,
+        "totalTokens": 7730
+      }
     }
   ]
 }

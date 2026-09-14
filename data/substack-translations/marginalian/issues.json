@@ -476,6 +476,21 @@
         "outputTokens": 3595,
         "totalTokens": 7042
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=82567",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/07/polyvagal-theory",
+      "sourcePublishedAt": "2026-09-07T16:06:37.000Z",
+      "sourceSha256": "f84ebe9fb00dfe55139d3ddb2a57eed44d58110b2951dba715eddf20c62082ec",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260907-polyvagal-theory.md",
+      "translatedAt": "2026-09-14T05:03:55.944Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2890,
+        "outputTokens": 2369,
+        "totalTokens": 5259
+      }
     }
   ]
 }

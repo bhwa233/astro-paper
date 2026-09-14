@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-14",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "699592ea627a5605080a8eb3e49ea7f550e84aab3e95f139d1d2d75d13f372eb",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "反常识",
+        "意想不到"
+      ],
+      "summary": "从养鱼养绿植到木工手工，那些追求岁月静好的爱好往往容错率极低且极其折磨人",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 8,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "很多被当成真性情、自律或有魄力的炫耀，本质上是情绪失控、缺乏共情与极度不自信",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

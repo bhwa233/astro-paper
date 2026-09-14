@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-14",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "f59b12bccfa99bb1a71b67dc79cc55361651c40d",
+    "workflowRun": "34868329931",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-14-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-14/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "触及直面死亡与生命意义的终极命题，回答中的真实故事充满超越年龄的接纳与力量，具有永恒的长尾价值与强烈的情感震撼。"
+      },
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "戳破成年人无所不知的虚假面具，深刻剖析了当代人的成长幻觉与代际鸿沟抚平，极易引发不同年龄读者的广泛代入与反思。"
+      },
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "精准揭示水族、园艺与盆景等爱好背后的极端操心与失控反差，内容生动风趣，极具讨论欲与跨时空的趣味长尾。"
+      },
+      {
+        "rank": 14,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从专业视角捕捉宠物在危机时对主人的依恋细节与日常负责标准，细节真实温情，对养宠群体具有极高共鸣与警醒价值。"
+      },
+      {
+        "rank": 9,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "硬核专业视角推演人类退场后的生态演变与自愈机制，颠覆常规末日想象，具有极高的科学长尾价值与知识满足感。"
+      },
+      {
+        "rank": 16,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "深刻反思炫耀不读书、虚荣消费与滥用权力等隐蔽陷阱，切中人性盲区与社会痛点，具备跨越圈层的警示与讨论价值。"
+      },
+      {
+        "rank": 7,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "真实呈现非传统生活方式下的精神自处、自由与社交边缘感，直击现代人的孤独与选择困境，代入感极强。"
+      },
+      {
+        "rank": 8,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "打破两性交往中的刻板防御，细腻描绘男性真实脆弱与纯粹热爱所带来的吸引力，极具情感治愈力与交流启发。"
+      },
+      {
+        "rank": 3,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "汇聚普通人在低谷期靠变卖家当、睡车里硬撑过来的真实生存经验与心理转变，具有极强的可迁移韧性与现实共情。"
+      },
+      {
+        "rank": 17,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "盘点历经数十年无需改进的经典工业设计，反思计划性报废与消费主义，知识性与耐用品哲学并存，常读常新。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 4,
+        "category": "low_resonance",
+        "reason": "围绕单亲家庭伴侣选择的个人偏好讨论，观点较为离散，缺乏普遍普适的深度洞见。"
+      },
+      {
+        "rank": 6,
+        "category": "narrow_interest",
+        "reason": "属于特定儿童动画影视的提名盘点，内容偏向作品向怀旧，受众面相对小众。"
+      },
+      {
+        "rank": 10,
+        "category": "low_resonance",
+        "reason": "聚焦军旅生活琐碎等待与特定后勤文书官僚流程，行业经验局限，难以唤起大众读者普遍代入。"
+      },
+      {
+        "rank": 11,
+        "category": "region_specific",
+        "reason": "高度依赖北美快餐连锁品牌（如 Panera Bread、Subway）的本地溢价与品控吐槽，地区依赖度过高。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "围绕少数欧美本土名人的主观反感八卦，缺乏建设性见解与普遍情绪共鸣。"
+      },
+      {
+        "rank": 13,
+        "category": "narrow_interest",
+        "reason": "属于摇滚经典吉他开场的歌曲报菜名清单，严重依赖特定音乐作品与乐迷背景知识。"
+      },
+      {
+        "rank": 15,
+        "category": "narrow_interest",
+        "reason": "针对特定老旧海外网络论坛与变质平台的单纯怀旧，受众范围狭窄且缺乏当下启发。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "多为零散奇葩的职场白嫖八卦与个别恶俗举动，缺乏普遍讨论深度与经验价值。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "回答集中在基础个人卫生与琐碎段子调侃，内容单薄且缺乏深刻启发。"
+      },
+      {
+        "rank": 20,
+        "category": "low_resonance",
+        "reason": "集中于垃圾袋、卫生纸等普通日用品踩坑碎念，属于泛滥的日常消费清单，缺乏讨论深度。"
+      },
+      {
+        "rank": 21,
+        "category": "region_specific",
+        "reason": "核心讨论紧密围绕北美滑雪场季票涨价、太浩湖度假村价格及阿尔卑斯补贴对比，具有强烈的地域消费属性。"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "面对成年社交困境给出的多为绝望叹息或常规心理求助劝告，缺乏建设性破局经验与多元视角。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "单纯报送父母生育年龄与偶发意外轶事，缺少有深度的故事展开与普遍共鸣价值。"
+      },
+      {
+        "rank": 24,
+        "category": "narrow_interest",
+        "reason": "依赖特定欧美小说及其影视改编版本的知识背景，属于小众文艺作品对比清单。"
+      },
+      {
+        "rank": 25,
+        "category": "region_specific",
+        "reason": "完全依赖特定国家旅游经历中的治安、拉客骚扰与本地执法敲诈事件，属于地区性旅游吐槽。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "老套的假设性金钱戒断选题，回答千篇一律地表示愿意白拿钱，缺乏思维碰撞与深度体验。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "回答多为为了家人或宠物硬扛的个人感性宣泄，同质化较高，相较其他入选的生命议题深度与典型故事略显单薄。"
+      },
+      {
+        "rank": 28,
+        "category": "narrow_interest",
+        "reason": "依赖对特定经典影视剧与童年动画剧情角色的认知，属于粉丝圈层内的情绪盘点。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "纯粹围绕个人财务数字高低的假设性讨论，缺乏普适性经验与深入思考。"
+      },
+      {
+        "rank": 30,
+        "category": "narrow_interest",
+        "reason": "局限于千禧与X世代好莱坞流行大片的集体情怀片单盘点，内容缺少长尾新知。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wfdry9",
+      "title": "身患绝症（terminal illness）的青少年，是如何面对自己永远无法长大这个事实的？",
+      "subreddit": "AskReddit",
+      "points": "4332 points · 652 评论",
+      "numComments": 652,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wfdry9/how_do_terminally_ill_teenagers_deal_with_the/",
+      "sourceRank": 1,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/01-1wfdry9.md",
+      "contentSha256": "b0d705f732c17a6441a651f62a39e46bc68e846ebb4430502cf01494aea30d68",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wft11n",
+      "title": "为什么现在的成年人看起来越来越没有“大人样”了？",
+      "subreddit": "AskReddit",
+      "points": "1476 points · 897 评论",
+      "numComments": 897,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wft11n/why_dont_adults_today_seem_as_adulty/",
+      "sourceRank": 5,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/02-1wft11n.md",
+      "contentSha256": "e8ab8dd7fe720f07b4f48fbbc7aefd22006f77628727917ba221b58c59d842cf",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wfssag",
+      "title": "哪些爱好表面看似无比宁静祥和，实际入坑后却压力拉满？",
+      "subreddit": "AskReddit",
+      "points": "4319 points · 2306 评论",
+      "numComments": 2306,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wfssag/whats_a_hobby_that_looks_incredibly_peaceful_from/",
+      "sourceRank": 2,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/01-1wfdry9.md",
+      "contentSha256": "b0d705f732c17a6441a651f62a39e46bc68e846ebb4430502cf01494aea30d68",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wg2n9j",
+      "title": "如何一眼看出主人是好是坏？兽医和宠物从业者眼中那些藏不住的细节",
+      "subreddit": "AskReddit",
+      "points": "606 points · 150 评论",
+      "numComments": 150,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wg2n9j/veterinarians_of_reddit_or_people_working_with/",
+      "sourceRank": 14,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/02-1wft11n.md",
+      "contentSha256": "e8ab8dd7fe720f07b4f48fbbc7aefd22006f77628727917ba221b58c59d842cf",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wfddyo",
+      "title": "如果人类突然全部消失，遗留的海上钻井平台与漏油会彻底毁灭海洋吗？",
+      "subreddit": "askscience",
+      "points": "993 points · 307 评论",
+      "numComments": 307,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wfddyo/if_humans_disappeared_would_oil_rigs_and_spills/",
+      "sourceRank": 9,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/01-1wfdry9.md",
+      "contentSha256": "b0d705f732c17a6441a651f62a39e46bc68e846ebb4430502cf01494aea30d68",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wg0kew",
+      "title": "有哪些常被人当作炫耀资本的事，其实是巨大的危险信号？",
+      "subreddit": "AskReddit",
+      "points": "526 points · 437 评论",
+      "numComments": 437,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wg0kew/whats_something_people_brag_about_that_is/",
+      "sourceRank": 16,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/02-1wft11n.md",
+      "contentSha256": "e8ab8dd7fe720f07b4f48fbbc7aefd22006f77628727917ba221b58c59d842cf",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wfhyrk",
+      "title": "三四十岁没有子女（childfree）的人，现在的生活重心都在什么上？",
+      "subreddit": "AskReddit",
+      "points": "1076 points · 2347 评论",
+      "numComments": 2347,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wfhyrk/childfree_people_in_your_3040s_what_is_your_life/",
+      "sourceRank": 7,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/01-1wfdry9.md",
+      "contentSha256": "b0d705f732c17a6441a651f62a39e46bc68e846ebb4430502cf01494aea30d68",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wfoyvc",
+      "title": "男人以为女性很反感、但女性其实格外喜欢的特质与举动有哪些？",
+      "subreddit": "AskReddit",
+      "points": "1001 points · 992 评论",
+      "numComments": 992,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wfoyvc/women_of_reddit_what_is_something_men_think_you/",
+      "sourceRank": 8,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/02-1wft11n.md",
+      "contentSha256": "e8ab8dd7fe720f07b4f48fbbc7aefd22006f77628727917ba221b58c59d842cf",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wfgszh",
+      "title": "失业期间，大家究竟是靠什么活下来的？",
+      "subreddit": "AskReddit",
+      "points": "2884 points · 933 评论",
+      "numComments": 933,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wfgszh/unemployed_people_of_reddit_how_are_you_surviving/",
+      "sourceRank": 3,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/01-1wfdry9.md",
+      "contentSha256": "b0d705f732c17a6441a651f62a39e46bc68e846ebb4430502cf01494aea30d68",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wfo6tw",
+      "title": "有哪些产品在你看来已经被人类设计到了完美境界？",
+      "subreddit": "AskReddit",
+      "points": "455 points · 369 评论",
+      "numComments": 369,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wfo6tw/what_product_do_you_think_has_been_perfected/",
+      "sourceRank": 17,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-14/02-1wft11n.md",
+      "contentSha256": "e8ab8dd7fe720f07b4f48fbbc7aefd22006f77628727917ba221b58c59d842cf",
+      "volume": "v2"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-15",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "d1cf0b3eb38165e56b23c9d61059ae2d6a37d313bc1dc1f7aed703208932b6bf",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 7,
+      "status": "processed",
+      "tags": [
+        "婚姻情感",
+        "认知思维",
+        "相处之道",
+        "反常识"
+      ],
+      "summary": "能安然共处沉默、保有独处与隐私，远比强求步调一致和时刻秒回更健康。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "社会变迁",
+        "普通人故事",
+        "避坑指南"
+      ],
+      "summary": "商业资本与高昂耗材正在将演唱会、露营和手工等平民乐趣变成高门槛消费。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

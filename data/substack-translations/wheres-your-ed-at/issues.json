@@ -105,6 +105,21 @@
         "outputTokens": 8786,
         "totalTokens": 12761
       }
+    },
+    {
+      "guid": "6aa7fe416c48af0001bc6f55",
+      "canonicalUrl": "https://www.wheresyoured.at/ai-is-already-in-dangerous-hands",
+      "sourcePublishedAt": "2026-09-14T16:23:50.000Z",
+      "sourceSha256": "3b9378b918c5b672007e6e2d5d1b5d3bb07ed75c3d8e5923231b03d842feb6cd",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/wheres-your-ed-at-20260914-ai-is-already-in-dangerous-hands.md",
+      "translatedAt": "2026-09-15T05:01:10.923Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 10790,
+        "outputTokens": 11563,
+        "totalTokens": 22353
+      }
     }
   ]
 }

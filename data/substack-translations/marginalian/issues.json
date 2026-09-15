@@ -491,6 +491,21 @@
         "outputTokens": 2369,
         "totalTokens": 5259
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=83327",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/07/dont-waste-your-wildness",
+      "sourcePublishedAt": "2026-09-07T19:25:02.000Z",
+      "sourceSha256": "3af664e9bc691cf00dde494010342f73fec26cf8ac0899e393678d04cf5a0cac",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260907-dont-waste-your-wildness.md",
+      "translatedAt": "2026-09-15T05:01:31.200Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2896,
+        "outputTokens": 2948,
+        "totalTokens": 5844
+      }
     }
   ]
 }

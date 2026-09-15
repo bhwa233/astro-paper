@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-15",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "512314a6833aefffe2f9ba1fbcd2188800a6bb5a",
+    "workflowRun": "34985920283",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-15-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-15/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "揭示娱乐与爱好消费门槛普遍飙升的现实，直击当代大众消费痛点，具有强烈的社会共鸣与跨周期长尾价值。"
+      },
+      {
+        "rank": 21,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从育儿反思延伸至与自我童年和解、接纳自身局限，情感细腻且富有启发性，具有极高的心理深度与普遍共鸣。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深入剖析外语、棋类与乐器等学习过程中认知偏差与技术壁垒，普遍适用于各类终身学习者，自省与讨论价值极高。"
+      },
+      {
+        "rank": 26,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击亲密关系中关于争吵、独处与边界感的常见误区，提供成熟健康的相处视角，普遍适用于各类伴侣关系。"
+      },
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "结合前列腺素机制给出提前抗炎干预等严谨医学逻辑，提供切实有效的经期护理经验，实用性与长尾价值兼备。"
+      },
+      {
+        "rank": 16,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "涵盖戒酒自律、自我技能投资与低成本指数定投，提供跨越周期、可终身复用的个人成长与财务常识。"
+      },
+      {
+        "rank": 2,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "通过具体咨询案例与亲历故事揭示反社会人格伪装与操控本质，具备强烈的戏剧张力、心理科普与防范警示价值。"
+      },
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "直面死亡与临终体验的终极议题，回答兼具对虚无的理性释怀与对至亲羁绊的温情反思，能唤起深层情绪共鸣。"
+      },
+      {
+        "rank": 14,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "系统复盘3D电视、赛格威与加密狂热等技术商业炒作的历史落差，提供极具洞察力的科技泡沫反思与长尾参照。"
+      },
+      {
+        "rank": 13,
+        "longTail": 5,
+        "resonance": 3,
+        "reason": "以清晰有力的神经生物学证据解释多足动物体节神经节的自动化控制与哺乳动物运动中枢机制，科学求知价值持久。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 3,
+        "category": "low_resonance",
+        "reason": "多为离线地图与特定软件的简单推荐清单，内容偏零碎工具介绍，缺乏深度思考与情感共鸣。"
+      },
+      {
+        "rank": 4,
+        "category": "low_resonance",
+        "reason": "回答穿插对特定政客现状的政治调侃，临终征兆讨论缺乏完整系统的医学或照护经验支撑。"
+      },
+      {
+        "rank": 5,
+        "category": "narrow_interest",
+        "reason": "属于常见经典剧集清单罗列，内容高度依赖读者对特定影视剧背景知识的了解。"
+      },
+      {
+        "rank": 8,
+        "category": "narrow_interest",
+        "reason": "围绕欧美特定流行歌手唱功优劣展开八卦盘点，话题局限于特定音乐圈层与歌手受众。"
+      },
+      {
+        "rank": 9,
+        "category": "narrow_interest",
+        "reason": "核心为网络迷因梗与小众冷门老游戏分享，依赖特定玩家背景且讨论过于小众。"
+      },
+      {
+        "rank": 10,
+        "category": "region_specific",
+        "reason": "核心紧密围绕美国现任总统履职表现与政治制度展开批评，完全依赖特定国家政治环境。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "主要针对北美市场特定快消瓶装饮料的口味与营销吐槽，消费场景受限且缺乏普适性。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "基于人口骤减脑洞展开的琐碎段子与生活琐事调侃，缺少深入系统的求生逻辑与思想价值。"
+      },
+      {
+        "rank": 17,
+        "category": "low_resonance",
+        "reason": "聚焦个体极端缺乏卫生的个案猎奇吐槽，内容流于生活碎碎念，缺乏延展探讨价值。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "针对外星人接触设定的即兴脑洞段子集合，回答主要为无厘头戏谑，缺乏实质深度。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "关于财富自由后买房看牙换车的泛泛畅想，回答老生常谈且缺乏深入剖析。"
+      },
+      {
+        "rank": 20,
+        "category": "low_resonance",
+        "reason": "面向全球广播发声的科幻恶搞与玩梗发言，属于纯消遣段子，缺少实际共鸣与长尾沉淀。"
+      },
+      {
+        "rank": 22,
+        "category": "narrow_interest",
+        "reason": "集中在正宗帕马森干酪等西式昂贵食材的品鉴经验，偏向小众餐饮消费清单。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "以汇编语言等谐音冷笑话为主的调侃内容，缺乏关于语言魅力的严肃探讨与共情基础。"
+      },
+      {
+        "rank": 24,
+        "category": "narrow_interest",
+        "reason": "单纯盘点经典影视尾声台词，高度依赖读者对具体电影剧情的记忆与背景了解。"
+      },
+      {
+        "rank": 25,
+        "category": "region_specific",
+        "reason": "核心围绕美国各州政府立法与当地公立学校行政博弈展开，存在强烈的地区政策依赖。"
+      },
+      {
+        "rank": 27,
+        "category": "narrow_interest",
+        "reason": "二维动画佳作的主观心头好推荐，本质为特定影迷圈层的影视作品盘点。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "助眠诀窍多为主观随性的个人偏方与调侃，缺乏严谨科学依据与系统方法论。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "针对特定长寿美剧烂尾史的剧粉向讨论，重度依赖对具体作品情节脉络的认知。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "经典耐用文具与日用品的好评罗列，信息量与生活经验深度较为单一单薄。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wg736i",
+      "title": "哪些曾经大众化的爱好，如今已经贵到普通人玩不起了？",
+      "subreddit": "AskReddit",
+      "points": "8166 points · 8774 评论",
+      "numComments": 8774,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wg736i/what_hobby_has_become_too_expensive_for_the/",
+      "sourceRank": 1,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/01-1wg736i.md",
+      "contentSha256": "1cee913e1f0ccc50e912fbe30e221e73cccbc5b1b40c390b0c72a8956c97044b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wgrxku",
+      "title": "成为父母前，有哪些事是你真希望有人提前告诉你的？",
+      "subreddit": "AskReddit",
+      "points": "153 points · 265 评论",
+      "numComments": 265,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wgrxku/parents_whats_something_you_wish_someone_had_told/",
+      "sourceRank": 21,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/02-1wgrxku.md",
+      "contentSha256": "50d9739d75cba4eb678575e002de74d40e19bda6a79befa1c3f75bb4e35e50fe",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wga1ps",
+      "title": "哪种爱好的「自以为水平不错」与「真正厉害」之间差距最大？",
+      "subreddit": "AskReddit",
+      "points": "1497 points · 866 评论",
+      "numComments": 866,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wga1ps/what_hobby_has_the_longest_gap_between_im_getting/",
+      "sourceRank": 6,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/01-1wg736i.md",
+      "contentSha256": "1cee913e1f0ccc50e912fbe30e221e73cccbc5b1b40c390b0c72a8956c97044b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wgys1z",
+      "title": "亲密关系里有哪些常被误当成危险信号（red flag）其实完全正常的表现？",
+      "subreddit": "AskReddit",
+      "points": "97 points · 95 评论",
+      "numComments": 95,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wgys1z/whats_something_people_assume_is_a_red_flag_in_a/",
+      "sourceRank": 26,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/02-1wgrxku.md",
+      "contentSha256": "50d9739d75cba4eb678575e002de74d40e19bda6a79befa1c3f75bb4e35e50fe",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wgk4ou",
+      "title": "Reddit网友分享：应对月经期最管用、最实用的妙招有哪些？",
+      "subreddit": "AskReddit",
+      "points": "1138 points · 2150 评论",
+      "numComments": 2150,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wgk4ou/women_of_reddit_whats_your_most_effective/",
+      "sourceRank": 7,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/01-1wg736i.md",
+      "contentSha256": "1cee913e1f0ccc50e912fbe30e221e73cccbc5b1b40c390b0c72a8956c97044b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wgw4sp",
+      "title": "你做过回报达到满分（10/10）的财务投资是什么？",
+      "subreddit": "AskReddit",
+      "points": "475 points · 400 评论",
+      "numComments": 400,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wgw4sp/whats_your_1010_financial_investment/",
+      "sourceRank": 16,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/02-1wgrxku.md",
+      "contentSha256": "50d9739d75cba4eb678575e002de74d40e19bda6a79befa1c3f75bb4e35e50fe",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wg9ql7",
+      "title": "心理咨询师们是在哪个瞬间，意识到自己正在接待一名反社会者（sociopath）的？",
+      "subreddit": "AskReddit",
+      "points": "5803 points · 1315 评论",
+      "numComments": 1315,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wg9ql7/therapists_of_reddit_what_made_you_realize_you/",
+      "sourceRank": 2,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/01-1wg736i.md",
+      "contentSha256": "1cee913e1f0ccc50e912fbe30e221e73cccbc5b1b40c390b0c72a8956c97044b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wgqlsa",
+      "title": "当生命走到尽头，我们真正会经历什么？",
+      "subreddit": "AskReddit",
+      "points": "480 points · 1076 评论",
+      "numComments": 1076,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wgqlsa/what_do_you_think_actually_happens_when_your_life/",
+      "sourceRank": 15,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/02-1wgrxku.md",
+      "contentSha256": "50d9739d75cba4eb678575e002de74d40e19bda6a79befa1c3f75bb4e35e50fe",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wgyh3b",
+      "title": "十年前被吹成「未来趋势」的事物，有哪些如今几乎无人问津？",
+      "subreddit": "AskReddit",
+      "points": "481 points · 584 评论",
+      "numComments": 584,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wgyh3b/whats_something_that_was_hyped_as_the_future_10/",
+      "sourceRank": 14,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/01-1wg736i.md",
+      "contentSha256": "1cee913e1f0ccc50e912fbe30e221e73cccbc5b1b40c390b0c72a8956c97044b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wgajzm",
+      "title": "长着成百条腿的多足虫，走路时是单独控制每条腿还是另有机制？",
+      "subreddit": "askscience",
+      "points": "540 points · 56 评论",
+      "numComments": 56,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wgajzm/can_bugs_with_hundreds_of_legs_control_each_one/",
+      "sourceRank": 13,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-15/02-1wgrxku.md",
+      "contentSha256": "50d9739d75cba4eb678575e002de74d40e19bda6a79befa1c3f75bb4e35e50fe",
+      "volume": "v2"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-16",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "b2c45a845f4e1e2594f064a21b691f46a21f5c118cb10d68898c147da310768b",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "医护视角",
+        "离谱见闻",
+        "意想不到"
+      ],
+      "summary": "药效上头与刚苏醒时的断电状态，往往会让人毫无防备地抖出最真实的顶级包袱。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 3,
+      "status": "processed",
+      "tags": [
+        "婚姻情感",
+        "人性观察",
+        "亲身经历",
+        "避坑指南",
+        "相处之道"
+      ],
+      "summary": "他们最怕的并非负担开销，而是倾注真情视如己出后，分手时被彻底剥夺做父亲的权利。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

@@ -26,6 +26,21 @@
       "sourceTextChars": 302,
       "minimumSourceTextChars": 4000,
       "evaluatedAt": "2026-08-27T02:00:00.000Z"
+    },
+    {
+      "guid": "https://www.experimental-history.com/p/there-is-no-epidemic-of-loneliness",
+      "canonicalUrl": "https://www.experimental-history.com/p/there-is-no-epidemic-of-loneliness",
+      "sourcePublishedAt": "2026-09-15T12:54:38.000Z",
+      "sourceSha256": "62c569ef8d1dd30e61d697dcc5e9b119accc5dac8f88b75bf32a5cc7cbfccdd0",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/experimental-history-20260915-there-is-no-epidemic-of-loneliness.md",
+      "translatedAt": "2026-09-16T04:56:20.795Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 8234,
+        "outputTokens": 8242,
+        "totalTokens": 16476
+      }
     }
   ]
 }

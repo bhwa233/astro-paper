@@ -506,6 +506,32 @@
         "outputTokens": 2948,
         "totalTokens": 5844
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87883",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/07/ma",
+      "sourcePublishedAt": "2026-09-08T02:08:36.000Z",
+      "sourceSha256": "e2a28b9215f3a6892e55eb5bf6e26b1386fec2b5ec6603104be965f06deff368",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2594,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-16T04:56:28.685Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=82587",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/08/on-wanting-to-change-adam-phillips",
+      "sourcePublishedAt": "2026-09-09T01:38:09.000Z",
+      "sourceSha256": "29542dbdd0cb05d79e50c6f2e479e6a695497fc7a6704d7ebf654a4de9b41864",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260908-on-wanting-to-change-adam-phillips.md",
+      "translatedAt": "2026-09-16T04:56:39.127Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3100,
+        "outputTokens": 2634,
+        "totalTokens": 5734
+      }
     }
   ]
 }

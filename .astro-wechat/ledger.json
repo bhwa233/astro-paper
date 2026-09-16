@@ -1032,6 +1032,32 @@
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNP-nFNtaSxnCGJloj_e4buqmbcwTc_yV77plLVcIgLwK",
       "coverContentHash": "1f2646b9785955f1"
     },
+    "reddit-life-2026-09-16-v1": {
+      "sourceId": "reddit-life-2026-09-16-v1",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/reddit-2026-09-16-life/",
+      "contentHash": "ca2fab33c170bfd96021b886d5fab494fd5eb7376991828dac914c31c2441ef3",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "imageMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-09-16T15:11:38.189Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNLUBq7vSPaKgv_mzQdvBupPjPtjIZ2fpD90BNJHhazBI",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNPerrMPQ6dYW7eDeREYl9DVEK1hZLNx8G_kETGOAxD_7",
+      "coverContentHash": "9f62bff4e3472940"
+    },
+    "reddit-life-2026-09-16-v2": {
+      "sourceId": "reddit-life-2026-09-16-v2",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/reddit-2026-09-16-life/",
+      "contentHash": "f0dd7b089cd7dee641516b47383bec67bfd8397ce583a0c23725b54b4f94a15c",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "imageMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-09-16T15:11:34.045Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNAci0_5Kce_lbYgBvgZs7zA5d0E-j4AZBo7MlihTX7to",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNDLCgi7bCv9DmDAJsgQ1doDbpAJ9j46dKK9erlj5i0-b",
+      "coverContentHash": "2de639cd917c67e6"
+    },
     "reddit-life-newspic-2026-08-27": {
       "sourceId": "reddit-life-newspic-2026-08-27",
       "contentHash": "e330843163ba51fac3b161ee2a282d2673e8c075721700091b7d5ec39c93059d",

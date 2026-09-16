@@ -1,7 +1,7 @@
 # Reddit 人生精选微信草稿技术方案
 
 状态：已实现（全文 AI 选题 + 固定问答清单开篇 + 一天最多两篇，每篇五帖 + 每帖条数自适应）
-最后更新：2026-08-27
+最后更新：2026-09-16
 
 ## 1. 背景
 
@@ -11,7 +11,7 @@
 
 模型只做微信选题，不改写故事正文、标题、摘要或开篇。每篇标题取选后第一帖，摘要列出本篇收录的标题。曾经有一次模型调用把多帖话题串成一个标题，读者一眼看不出在讲什么，因此成稿仍坚持主打第一帖。
 
-稿子的「阅读原文」固定指向当天问答博客文章的原始地址，不添加查询参数或锚点。正文末尾没有二维码卡片和「今天还有这些热帖」清单，入选内容直接进入草稿正文。
+所有新建微信草稿统一关闭「阅读原文」。当天问答博客文章的原始地址仍保留在归档与本地台账中，不添加查询参数或锚点。正文末尾没有二维码卡片和「今天还有这些热帖」清单，入选内容直接进入草稿正文。
 
 ## 2. 目标与非目标
 
@@ -61,7 +61,7 @@ workflow `reddit-life-wechat.yml` 由 `publish-reddit-life.yml` 在 publish 成�
 - **封面**：每卷仍生成专属封面并作为微信列表缩略图，但 `wechat.showCoverInBody: false` 阻止渲染器把它重复插到正文开头；正文从固定问答清单开始。
 - **标题与摘要**：标题取每篇选后第一帖标题，形如 `<本篇第一帖标题>｜Reddit 问答精选`；期号与卷次均不显示。原文章摘要对应原榜第一帖，重排后不再可靠，因此两篇摘要都列出各自收录的标题。
 - **内部身份**：两篇稿子在 manifest 中记录内部卷序号 `v1` 至 `v2`；微信同步 ID 使用归档日期与卷序号，因此不依赖标题，也不会因标题重复跳过后续稿子。
-- **frontmatter**：`tags: [Reddit人生讨论]`（在 `astro-wechat.config.mjs` 的 `eligibleTags` 内）、`wechat.enabled: true`，另附 `redditPostId` 与 `subreddit` 记本篇第一帖，便于追溯。`wechat.sourceURL` 显式写入当天 `reddit-<date>-life` 博客地址，确保「阅读原文」落到真实页面；两篇使用相同原始地址，不添加查询参数或锚点。同步身份由独立的 `wechat.syncId` 区分，因此正常同步不会把后一篇判为 `already-synchronized`。若某次同步停在 `pending`，微信侧仅凭相同的阅读原文地址无法区分两篇，仍需人工确认后使用 `--force-create`。
+- **frontmatter**：`tags: [Reddit人生讨论]`（在 `astro-wechat.config.mjs` 的 `eligibleTags` 内）、`wechat.enabled: true`，另附 `redditPostId` 与 `subreddit` 记本篇第一帖，便于追溯。`wechat.sourceURL` 显式保留当天 `reddit-<date>-life` 博客地址；两篇使用相同原始地址，不添加查询参数或锚点。统一同步核心将微信请求的 `content_source_url` 置空，因此该字段不再开启「阅读原文」。同步身份由独立的 `wechat.syncId` 区分，因此正常同步不会把后一篇判为 `already-synchronized`。若某次同步停在 `pending`，同步会停止；人工检查草稿箱、确认需要新建后再使用 `--force-create`。
 
 ## 5. 长度收口
 

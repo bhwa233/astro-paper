@@ -103,6 +103,11 @@ describe('草稿同步', () => {
     const article = await render()
 
     await synchronizeArticle(article, context)
+    expect(fake.drafts[0]?.contentSourceUrl).toBe('')
+    await expect(context.store.get(article.document.sourceId)).resolves.toMatchObject({
+      canonicalUrl: 'https://example.com/posts/sample-post/',
+      writeState: 'committed',
+    })
     const callCount = fake.calls.length
     const second = await synchronizeArticle(article, context)
 
@@ -123,7 +128,7 @@ describe('草稿同步', () => {
     await expect(context.store.get(article.document.sourceId)).resolves.toMatchObject({ writeState: 'committed', mediaId: 'draft-b' })
   })
 
-  it('结果不明后发现远程草稿时恢复台账而不重复创建', async () => {
+  it('关闭阅读原文后，结果不明的重跑停止，不误认旧草稿或重复创建', async () => {
     const fake = fakeClient('draft-existing')
     const context = deps(fake.client)
     const article = await render()
@@ -131,8 +136,9 @@ describe('草稿同步', () => {
 
     const result = await synchronizeArticle(article, context)
 
-    expect(result).toMatchObject({ status: 'skipped', reconciled: true, mediaId: 'draft-existing' })
-    expect(fake.calls).not.toContain('createDraft')
+    expect(result).toMatchObject({ status: 'failed', errorCategory: 'wechat' })
+    expect(fake.calls).toEqual([])
+    await expect(context.store.get(article.document.sourceId)).resolves.toMatchObject({ writeState: 'pending' })
   })
 
   it('dry run 不写台账也不调用微信', async () => {
@@ -159,6 +165,7 @@ describe('草稿同步', () => {
     expect(draft).toMatchObject({
       articleType: 'newspic',
       imageMediaIds: ['material-1', 'material-2'],
+      contentSourceUrl: '',
     })
     expect(draft).not.toHaveProperty('thumbMediaId')
     expect(draft).not.toHaveProperty('digest')
@@ -172,9 +179,9 @@ describe('草稿同步', () => {
     await synchronizeArticle(article, deps(failing.client, store))
     expect(failing.calls.filter((call) => call === 'uploadPermanentImage')).toHaveLength(2)
 
-    // 失败那次的素材已经计入配额，重试必须认出它们。
+    // 人工核对草稿箱后显式重建；失败那次的素材已经计入配额，重试必须认出它们。
     const retry = fakeClient()
-    const result = await synchronizeArticle(article, deps(retry.client, store))
+    const result = await synchronizeArticle(article, deps(retry.client, store), { forceCreate: true })
 
     expect(result).toMatchObject({ status: 'created' })
     expect(retry.calls).not.toContain('uploadPermanentImage')

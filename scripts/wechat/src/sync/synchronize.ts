@@ -24,7 +24,6 @@ interface SyncOutcome {
   readonly skipReason?: ArticleResult['skipReason']
   readonly drift?: boolean
   readonly mediaId?: string
-  readonly reconciled?: boolean
   readonly warnings?: readonly Warning[]
 }
 
@@ -83,8 +82,15 @@ export async function synchronizeArticle(
     }
 
     if (existing?.writeState === 'pending' && !options.forceCreate) {
-      const reconciled = await reconcile(rendered, deps)
-      if (reconciled) return { ...base, ...reconciled }
+      // New drafts have no 阅读原文 link. A canonical URL still identifies the
+      // local ledger entry, but cannot identify the draft remotely. Even an
+      // older draft with that URL could belong to a previous force-create.
+      throw new AstroWechatError(
+        'wechat',
+        '上一次同步结果未知；阅读原文已关闭，无法按原文地址核对远端草稿。' +
+          '请手动检查草稿箱，确认需要新建后使用 --force-create。',
+        { code: 'reconcile-impossible', sourcePath: document.source.absolutePath },
+      )
     }
 
     if (options.dryRun) {
@@ -100,44 +106,6 @@ export async function synchronizeArticle(
       errorCategory: error instanceof AstroWechatError ? error.category : 'unknown',
       errorMessage: error instanceof Error ? error.message : String(error),
     }
-  }
-}
-
-/**
- * Resolve a pending record against WeChat.
- *
- * A pending entry means a previous run called WeChat and never learned the
- * outcome. Creating again is exactly how duplicate drafts appear, so the remote
- * state decides.
- */
-async function reconcile(
-  rendered: RenderedArticle,
-  deps: SynchronizeDeps,
-): Promise<SyncOutcome | undefined> {
-  const canonicalUrl = rendered.document.canonicalUrl
-
-  if (!canonicalUrl) {
-    // Without a canonical URL there is nothing in the draft to match on, so we
-    // cannot tell "never created" from "created and lost". Creating would risk
-    // a duplicate; refusing leaves the operator in control.
-    throw new AstroWechatError(
-      'wechat',
-      '上一次同步结果未知，且这篇文章没有 canonical URL，无法与微信核对。' +
-        '请手动检查草稿箱，确认后用 --force-create 或手动清理台账。',
-      { code: 'reconcile-impossible', sourcePath: rendered.document.source.absolutePath },
-    )
-  }
-
-  const mediaId = await deps.client.findDraftBySourceUrl(canonicalUrl)
-  if (!mediaId) return undefined
-
-  await deps.store.commit(rendered.document.sourceId, { mediaId })
-
-  return {
-    status: 'skipped',
-    skipReason: 'already-synchronized',
-    mediaId,
-    reconciled: true,
   }
 }
 
@@ -200,7 +168,8 @@ async function create(
     digest: document.digest,
     content,
     thumbMediaId: coverMaterialId!,
-    contentSourceUrl: document.canonicalUrl,
+    // All synchronized drafts hide 阅读原文; canonicalUrl stays in the ledger.
+    contentSourceUrl: '',
   })
 
   await deps.store.commit(document.sourceId, {
@@ -272,7 +241,7 @@ async function createNewspic(
     author: document.author,
     content: rendered.content,
     imageMediaIds,
-    contentSourceUrl: document.canonicalUrl,
+    contentSourceUrl: '',
   })
 
   await deps.store.commit(document.sourceId, { mediaId })

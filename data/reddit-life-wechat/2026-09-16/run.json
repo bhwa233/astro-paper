@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-16",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "d013f757134f5f644db85b3891798d45646fd827",
+    "workflowRun": "35112424363",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-16-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-16/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 21,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深入剖析离异家庭对孩子心理的隐形长期创伤，包含细腻具体的成长体验与普适反思。"
+      },
+      {
+        "rank": 29,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从日常微小自理与情绪抽离切入剖析抑郁早期迹象，具有极高的心理科普价值与大众共鸣。"
+      },
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "麻醉医生与患者在意识模糊边缘的真实对话，兼具顶级黑色幽默、职业视角与人性温情。"
+      },
+      {
+        "rank": 30,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "基于扎实光学与天文学物理原理的科学解释，满足大众对未知宇宙天象的好奇心与求知欲。"
+      },
+      {
+        "rank": 14,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "讲述无血缘付出、情感断联与家庭重组的真实故事，情感冲击力极强且引人深思。"
+      },
+      {
+        "rank": 20,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "失聪前最后声音的具体感官记忆，故事震撼且具有跨越时空的生命体验价值。"
+      },
+      {
+        "rank": 4,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深刻探讨当代人在独处中的自在、对亲密关系的祛魅与自我保护，切中当代普遍单身心态。"
+      },
+      {
+        "rank": 24,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "直面失业、异地孤独及抚养特殊儿童等真实生活重负，能引发广泛的情感共情与倾诉欲。"
+      },
+      {
+        "rank": 1,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "以黑色幽默解构AI接管网络后回归手工与线下的荒诞职场日常，讨论度与讽刺感极强。"
+      },
+      {
+        "rank": 16,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "兼具离谱下头瞬间与多年后得体回应的戏剧化真实经历，极易唤起两性社交话题的讨论共鸣。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 2,
+        "category": "low_resonance",
+        "reason": "围绕特定明星公关危机的脑洞调侃，内容较为戏谑且缺乏深层共鸣。"
+      },
+      {
+        "rank": 5,
+        "category": "narrow_interest",
+        "reason": "属于特定代际的大学宿舍怀旧物品清单盘点，缺乏深度讨论。"
+      },
+      {
+        "rank": 6,
+        "category": "low_resonance",
+        "reason": "主要围绕特定品牌售后与消费习惯漫谈，缺乏普遍的情感深度。"
+      },
+      {
+        "rank": 7,
+        "category": "region_specific",
+        "reason": "依赖美国移民及海关执法局（ICE）的本地执法与拘留政策。"
+      },
+      {
+        "rank": 8,
+        "category": "narrow_interest",
+        "reason": "高度依赖特定美剧具体剧情与角色死亡设定的娱乐盘点。"
+      },
+      {
+        "rank": 9,
+        "category": "narrow_interest",
+        "reason": "小众冷门童年电子游戏怀旧盘点，受众面较窄。"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "依赖特定老动画片桥段的怀旧盘点，缺乏普适可迁移价值。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "常见阴谋论漫谈与生活小吐槽，缺少深入的证据支撑或故事展开。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "泛书单主观罗列，代表回答较为简短零散，缺乏独特故事与深度视角。"
+      },
+      {
+        "rank": 13,
+        "category": "region_specific",
+        "reason": "依赖美国国会制度及针对特定公职人员交易个股的制度讨论。"
+      },
+      {
+        "rank": 15,
+        "category": "region_specific",
+        "reason": "完全依赖美国本土特定州县小镇的地理环境与本地奇闻。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "属于冷门经典动画片的小众回顾与怀旧清单。"
+      },
+      {
+        "rank": 18,
+        "category": "region_specific",
+        "reason": "高度依赖美国本土停产零食与饮料的地域性怀旧盘点。"
+      },
+      {
+        "rank": 19,
+        "category": "region_specific",
+        "reason": "高度依赖美国总统大选历史及特定时期的美国本土政治情绪。"
+      },
+      {
+        "rank": 22,
+        "category": "narrow_interest",
+        "reason": "高度依赖特定美剧腰斩背景的影视作品讨论。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "深夜即时碎碎念闲聊帖，内容碎片化且缺少深度。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "高度依赖具体电影对白的小众台词向盘点。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "生日糟糕琐事吐槽，案例分散且缺乏核心共鸣议题。"
+      },
+      {
+        "rank": 27,
+        "category": "region_specific",
+        "reason": "依赖美国本土政治人物近期具体言论的时政讨论。"
+      },
+      {
+        "rank": 28,
+        "category": "narrow_interest",
+        "reason": "电子游戏启蒙作品的个人怀旧清单，依赖特定游戏背景知识。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1whik4p",
+      "title": "离婚有娃的夫妻在分开后，有哪些当时没立刻察觉却深深伤害了孩子的细节？",
+      "subreddit": "AskReddit",
+      "points": "299 points · 187 评论",
+      "numComments": 187,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1whik4p/couples_who_had_children_and_divorced_what_are/",
+      "sourceRank": 21,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/01-1whik4p.md",
+      "contentSha256": "25c614c7f303a5eb7176a78839b960c7c221b1749029566d402b9680ee4d5806",
+      "volume": "v1"
+    },
+    {
+      "postId": "1whca2v",
+      "title": "你察觉到过哪些抑郁症（depression）的迹象？",
+      "subreddit": "AskReddit",
+      "points": "123 points · 162 评论",
+      "numComments": 162,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1whca2v/what_are_some_signs_of_depression_that_youve/",
+      "sourceRank": 29,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/02-1whca2v.md",
+      "contentSha256": "7263d0cd32b8fc1202020424d8747af3250e8d7a972be6581627c772864ee150",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wh9fq3",
+      "title": "麻醉医生在患者入睡或苏醒时听过哪些最离奇的话？",
+      "subreddit": "AskReddit",
+      "points": "4802 points · 2693 评论",
+      "numComments": 2693,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wh9fq3/anesthesiologist_whats_the_strangest_thing_youve/",
+      "sourceRank": 3,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/01-1whik4p.md",
+      "contentSha256": "25c614c7f303a5eb7176a78839b960c7c221b1749029566d402b9680ee4d5806",
+      "volume": "v1"
+    },
+    {
+      "postId": "1whe1s1",
+      "title": "外星球上的彩虹（rainbows）会长什么样？",
+      "subreddit": "askscience",
+      "points": "117 points · 33 评论",
+      "numComments": 33,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1whe1s1/what_do_rainbows_on_other_planets_look_like/",
+      "sourceRank": 30,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/02-1whca2v.md",
+      "contentSha256": "7263d0cd32b8fc1202020424d8747af3250e8d7a972be6581627c772864ee150",
+      "volume": "v2"
+    },
+    {
+      "postId": "1whr5xk",
+      "title": "单身无孩男性，你愿意和单亲妈妈交往吗？",
+      "subreddit": "AskReddit",
+      "points": "541 points · 803 评论",
+      "numComments": 803,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1whr5xk/single_childless_men_of_reddit_would_you_date_a/",
+      "sourceRank": 14,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/01-1whik4p.md",
+      "contentSha256": "25c614c7f303a5eb7176a78839b960c7c221b1749029566d402b9680ee4d5806",
+      "volume": "v1"
+    },
+    {
+      "postId": "1whrx5b",
+      "title": "彻底失去听力前，你最后听到的声音是什么？",
+      "subreddit": "AskReddit",
+      "points": "330 points · 116 评论",
+      "numComments": 116,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1whrx5b/people_who_have_gone_deaf_permanently_what_was/",
+      "sourceRank": 20,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/02-1whca2v.md",
+      "contentSha256": "7263d0cd32b8fc1202020424d8747af3250e8d7a972be6581627c772864ee150",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wh7121",
+      "title": "有哪些迹象预示着你可能会终身单身？",
+      "subreddit": "AskReddit",
+      "points": "2534 points · 664 评论",
+      "numComments": 664,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wh7121/what_are_some_signs_you_will_be_single_for_life/",
+      "sourceRank": 4,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/01-1whik4p.md",
+      "contentSha256": "25c614c7f303a5eb7176a78839b960c7c221b1749029566d402b9680ee4d5806",
+      "volume": "v1"
+    },
+    {
+      "postId": "1whe1go",
+      "title": "你目前肩上扛着的最大重担是什么？",
+      "subreddit": "AskReddit",
+      "points": "198 points · 560 评论",
+      "numComments": 560,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1whe1go/whats_the_biggest_burden_you_are_carrying_at_the/",
+      "sourceRank": 24,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/02-1whca2v.md",
+      "contentSha256": "7263d0cd32b8fc1202020424d8747af3250e8d7a972be6581627c772864ee150",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wha3vp",
+      "title": "如果人工智能驱动的僵尸网络（botnet）在一年内接管互联网，之后的生活会变成什么样？",
+      "subreddit": "AskReddit",
+      "points": "9166 points · 2724 评论",
+      "numComments": 2724,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wha3vp/the_ceo_of_anthropic_stated_that_a_ai_driven/",
+      "sourceRank": 1,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/01-1whik4p.md",
+      "contentSha256": "25c614c7f303a5eb7176a78839b960c7c221b1749029566d402b9680ee4d5806",
+      "volume": "v1"
+    },
+    {
+      "postId": "1whh4j2",
+      "title": "女性分享：你曾因什么荒唐离谱的理由，瞬间对一个男人彻底下头？",
+      "subreddit": "AskReddit",
+      "points": "475 points · 762 评论",
+      "numComments": 762,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1whh4j2/women_whats_the_most_ridiculous_reason_youve_ever/",
+      "sourceRank": 16,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-16/02-1whca2v.md",
+      "contentSha256": "7263d0cd32b8fc1202020424d8747af3250e8d7a972be6581627c772864ee150",
+      "volume": "v2"
+    }
+  ]
+}

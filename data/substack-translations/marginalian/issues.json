@@ -532,6 +532,32 @@
         "outputTokens": 2634,
         "totalTokens": 5734
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87890",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/09/how-to-change-your-life",
+      "sourcePublishedAt": "2026-09-09T19:49:45.000Z",
+      "sourceSha256": "dabb27c8d6d7997ba095cf81f04a9b2ff68b8f256dbbfcf1e39d3178888e2a57",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 531,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-17T04:59:45.655Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=82514",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/09/the-light-eaters",
+      "sourcePublishedAt": "2026-09-10T03:06:37.000Z",
+      "sourceSha256": "bd59ffd9771fbe5f262b21aebdcc4b40ffcfadda0a4e4f88ac060e3543f757dd",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260909-the-light-eaters.md",
+      "translatedAt": "2026-09-17T05:00:13.284Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3651,
+        "outputTokens": 10041,
+        "totalTokens": 13692
+      }
     }
   ]
 }

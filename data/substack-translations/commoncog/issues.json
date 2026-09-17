@@ -15,6 +15,21 @@
         "outputTokens": 10026,
         "totalTokens": 20373
       }
+    },
+    {
+      "guid": "6aaa78923117e6b3c7463e03",
+      "canonicalUrl": "https://commoncog.com/how-to-handle-disruptive-change",
+      "sourcePublishedAt": "2026-09-16T11:14:52.000Z",
+      "sourceSha256": "6ec08f8e17f8e93020be2760b92c5e8659ff1ec8bd9b24a815d6d8c8f1d3524d",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/commoncog-20260916-how-to-handle-disruptive-change.md",
+      "translatedAt": "2026-09-17T04:59:43.072Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 7060,
+        "outputTokens": 9116,
+        "totalTokens": 16176
+      }
     }
   ]
 }

@@ -116,6 +116,21 @@
         "outputTokens": 2127,
         "totalTokens": 4778
       }
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/i-think-i-need-to-talk-about-failure",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/i-think-i-need-to-talk-about-failure",
+      "sourcePublishedAt": "2026-09-16T11:47:44.000Z",
+      "sourceSha256": "3e8ca8632ace36b5e5cc097c9f100afe70ff109941eac684ab00c946eb94c29f",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260916-i-think-i-need-to-talk-about-failure.md",
+      "translatedAt": "2026-09-17T04:58:59.604Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3277,
+        "outputTokens": 2723,
+        "totalTokens": 6000
+      }
     }
   ]
 }

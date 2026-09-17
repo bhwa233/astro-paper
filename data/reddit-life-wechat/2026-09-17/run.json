@@ -1,0 +1,319 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-17",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "5ac67efde5f8ee5477b9ed8076cc4e5646be116e",
+    "workflowRun": "35237827801",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-17-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-17/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 29,
+    "selected": [
+      {
+        "rank": 14,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "围绕年龄成长、身体衰老与自我接纳的认知转变，跨人群代入感极强且具有深刻的长尾生命共鸣。"
+      },
+      {
+        "rank": 24,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "对情感忽视下长大的心理防御与行为模式剖析极其精准，能引发跨越地域和代际的深层情感共鸣。"
+      },
+      {
+        "rank": 4,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "深入剖析记者、银行职员等职业声望随技术和时代转型的衰落，行业洞察深刻且引人深思。"
+      },
+      {
+        "rank": 12,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "通过著名的死鱼实验与神经个体差异，深入浅出地解释脑成像难以临床诊断精神疾病的科学机制，科普长尾价值极高。"
+      },
+      {
+        "rank": 28,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从冷战军备预算、技术传承断代和现代安全审查等维度，严密解答了重返月球的认知误区与工程现实。"
+      },
+      {
+        "rank": 5,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "生动描述了 GLP-1 药物如何消除大脑中的食物杂音，将自律困境还原为生理神经机制，兼具前沿性与个人共鸣。"
+      },
+      {
+        "rank": 7,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "汇集肾结石、偏头痛等极端身体疼痛的具体体验与医学常识，感同身受的生理共鸣极高。"
+      },
+      {
+        "rank": 19,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "多维度对比酒精、尼古丁等物质的社会可得性与戒断机制，颠覆大众对成瘾难度的刻板认知。"
+      },
+      {
+        "rank": 2,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "直击打印机墨盒锁死、服装用料降质等品牌口碑滑坡现象，切中大众对消费主义倒退的普遍痛点。"
+      },
+      {
+        "rank": 18,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "真实描绘普通人面对低落情绪时依靠睡眠、暴食和发呆等低成本自救方式，极具生活真实感与情绪抚慰价值。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 1,
+        "category": "low_resonance",
+        "reason": "属于极少数与职业运动员约会的特殊个案八卦，普通读者缺乏直接代入感与生活共鸣。"
+      },
+      {
+        "rank": 3,
+        "category": "narrow_interest",
+        "reason": "属于特定奇幻文学书单推荐，阅读门槛高且依赖特定读者群体的作品知识。"
+      },
+      {
+        "rank": 6,
+        "category": "low_resonance",
+        "reason": "列举阿波罗计划与蒸汽机等宏大成就较为宽泛常规，深度与新颖讨论不足。"
+      },
+      {
+        "rank": 8,
+        "category": "low_resonance",
+        "reason": "内容多为名人惨死轶事盘点，偏向猎奇八卦，缺乏启发性与思考深度。"
+      },
+      {
+        "rank": 9,
+        "category": "region_specific",
+        "reason": "主题完全依赖美国历任总统的历史与政治冷知识，具有强烈的特定国家制度与地域属性。"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "集中于特定恐怖小说的书单盘点，受众面较窄且依赖具体文学作品阅读背景。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "普通人偶遇明星的个例奇遇，内容碎片化且属于小众偶然事件。"
+      },
+      {
+        "rank": 13,
+        "category": "low_resonance",
+        "reason": "约会底线吐槽较为日常零碎，缺乏更深维度的情感洞察或可迁移经验。"
+      },
+      {
+        "rank": 15,
+        "category": "low_resonance",
+        "reason": "主要围绕单亲家庭再婚当继父母的特定困境，受众群体相对局限。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "多为走路、轮滑等常规运动建议，内容较为浅白，缺乏深度探讨与认知增量。"
+      },
+      {
+        "rank": 17,
+        "category": "narrow_interest",
+        "reason": "属于压抑沉重类经典电影作品清单推荐，依赖具体影视作品鉴赏。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "围绕英语特定单词拼读发音的谐音梗，受众圈层小且依赖特定语言文化背景。"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "职场摸鱼与会议吐槽较为日常碎片化，缺少实质性的职场结构与效率反思。"
+      },
+      {
+        "rank": 22,
+        "category": "region_specific",
+        "reason": "严格依赖加拿大、欧盟与美国之间的特定地缘政治与外贸政策讨论。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "分手伤人语录汇编偏向宣泄负面情绪，内容零散且缺少深层心理分析价值。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "属于桌游垂直爱好者的特定游戏作品盘点，受众兴趣圈层较窄。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "纯理论层面的极端带电黑洞物理推导，门槛过高且大众求知共鸣较弱。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "好闻气味盘点多为主观喜好列举，内容篇幅碎片化且缺乏讨论延展性。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "高度依赖《战锤40K》等虚构世界观与军团设定的背景知识，属于小众亚文化盘点。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wi3568",
+      "title": "有哪些事是二十多岁时无论如何都无法真正理解，直到四十岁才会彻底明白的？",
+      "subreddit": "AskReddit",
+      "points": "351 points · 501 评论",
+      "numComments": 501,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wi3568/whats_something_people_in_their_20s_wont_truly/",
+      "sourceRank": 14,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/01-1wi3568.md",
+      "contentSha256": "99da1ca4d3b173bd3e3570273d62119ea43fb89004499a1f04b3eb5990dfce24",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wit2jx",
+      "title": "在情感忽视的家庭中长大，会有哪些典型迹象？",
+      "subreddit": "AskReddit",
+      "points": "106 points · 61 评论",
+      "numComments": 61,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wit2jx/what_are_the_signs_that_someone_grew_up_in_an/",
+      "sourceRank": 24,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/02-1wit2jx.md",
+      "contentSha256": "aff1c5386f5263ea4e2cef9ee15a68ee22795ef477540dcb233125c52a42b5e3",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wi8u0r",
+      "title": "曾经受人尊崇、如今却地位大跌甚至沦为笑柄的职业有哪些？",
+      "subreddit": "AskReddit",
+      "points": "1636 points · 782 评论",
+      "numComments": 782,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wi8u0r/what_is_a_job_that_was_highly_respected_but_is/",
+      "sourceRank": 4,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/01-1wi3568.md",
+      "contentSha256": "99da1ca4d3b173bd3e3570273d62119ea43fb89004499a1f04b3eb5990dfce24",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wic593",
+      "title": "为什么临床上不用脑部扫描（brain scans）或磁共振成像（MRI）来诊断精神健康问题？",
+      "subreddit": "askscience",
+      "points": "453 points · 106 评论",
+      "numComments": 106,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wic593/why_isnt_it_common_practice_to_use_brain/",
+      "sourceRank": 12,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/02-1wit2jx.md",
+      "contentSha256": "aff1c5386f5263ea4e2cef9ee15a68ee22795ef477540dcb233125c52a42b5e3",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wikj7q",
+      "title": "既然 1960 年代就能载人登月，如今科技大幅飞跃，重返月球为何没变得又快又便宜？",
+      "subreddit": "askscience",
+      "points": "83 points · 152 评论",
+      "numComments": 152,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wikj7q/we_landed_humans_on_the_moon_with_1960s/",
+      "sourceRank": 28,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/01-1wi3568.md",
+      "contentSha256": "99da1ca4d3b173bd3e3570273d62119ea43fb89004499a1f04b3eb5990dfce24",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wi7s07",
+      "title": "使用 GLP-1 药物到底是什么体验？",
+      "subreddit": "AskReddit",
+      "points": "1338 points · 1443 评论",
+      "numComments": 1443,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wi7s07/those_of_you_on_a_glp1_what_has_your_experience/",
+      "sourceRank": 5,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/02-1wit2jx.md",
+      "contentSha256": "aff1c5386f5263ea4e2cef9ee15a68ee22795ef477540dcb233125c52a42b5e3",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wifjsz",
+      "title": "你这辈子经历过最剧烈的身体疼痛是什么？",
+      "subreddit": "AskReddit",
+      "points": "983 points · 5250 评论",
+      "numComments": 5250,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wifjsz/whats_the_worse_physical_pain_youve_ever_felt/",
+      "sourceRank": 7,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/01-1wi3568.md",
+      "contentSha256": "99da1ca4d3b173bd3e3570273d62119ea43fb89004499a1f04b3eb5990dfce24",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wi9lo9",
+      "title": "究竟什么成瘾物质最难彻底戒掉？",
+      "subreddit": "AskReddit",
+      "points": "262 points · 748 评论",
+      "numComments": 748,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wi9lo9/what_is_the_hardest_drug_to_quit_for_good/",
+      "sourceRank": 19,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/02-1wit2jx.md",
+      "contentSha256": "aff1c5386f5263ea4e2cef9ee15a68ee22795ef477540dcb233125c52a42b5e3",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wi24tq",
+      "title": "曾经无比忠诚、如今绝不再推荐给任何人的品牌有哪些？",
+      "subreddit": "AskReddit",
+      "points": "2762 points · 2510 评论",
+      "numComments": 2510,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wi24tq/what_was_a_brand_you_used_to_be_loyal_to_but/",
+      "sourceRank": 2,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/01-1wi3568.md",
+      "contentSha256": "99da1ca4d3b173bd3e3570273d62119ea43fb89004499a1f04b3eb5990dfce24",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wijpre",
+      "title": "不抽烟也不喝酒的人，心情低落抑郁时都会做些什么？",
+      "subreddit": "AskReddit",
+      "points": "267 points · 1169 评论",
+      "numComments": 1169,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wijpre/people_who_dont_drink_or_smoke_what_do_you_do/",
+      "sourceRank": 18,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-17/02-1wit2jx.md",
+      "contentSha256": "aff1c5386f5263ea4e2cef9ee15a68ee22795ef477540dcb233125c52a42b5e3",
+      "volume": "v2"
+    }
+  ]
+}

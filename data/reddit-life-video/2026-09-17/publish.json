@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-17",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "4d36b8df7445bd7a0dcfdc6928f9643291b00f70db6b5360e868c004d218d014",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "中年人生",
+        "亲身经历"
+      ],
+      "summary": "容貌焦虑与他人眼光微不足道，唯有身体健康与复利积累才是四十岁的真正底气",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 6,
+      "status": "processed",
+      "tags": [
+        "家庭关系",
+        "人性观察",
+        "身心健康",
+        "破防瞬间"
+      ],
+      "summary": "他们习惯了极端独立与自我压抑，对别人的善意既过度敏感又难以坦然接纳",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

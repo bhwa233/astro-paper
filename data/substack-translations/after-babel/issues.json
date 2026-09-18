@@ -15,6 +15,21 @@
         "outputTokens": 4599,
         "totalTokens": 8841
       }
+    },
+    {
+      "guid": "https://www.afterbabel.com/p/are-phone-free-schools-working",
+      "canonicalUrl": "https://www.afterbabel.com/p/are-phone-free-schools-working",
+      "sourcePublishedAt": "2026-09-17T12:09:05.000Z",
+      "sourceSha256": "b8fc8fa21663fdf5d6c1c72bfacb234ed68d92b4873a66ac3f55009cd90db6dc",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/after-babel-20260917-are-phone-free-schools-working.md",
+      "translatedAt": "2026-09-18T04:51:23.343Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 7036,
+        "outputTokens": 6544,
+        "totalTokens": 13580
+      }
     }
   ]
 }

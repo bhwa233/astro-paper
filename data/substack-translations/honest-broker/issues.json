@@ -134,6 +134,21 @@
         "outputTokens": 4061,
         "totalTokens": 7730
       }
+    },
+    {
+      "guid": "https://www.honest-broker.com/p/my-favorite-philip-k-dick-novels",
+      "canonicalUrl": "https://www.honest-broker.com/p/my-favorite-philip-k-dick-novels",
+      "sourcePublishedAt": "2026-09-17T19:10:29.000Z",
+      "sourceSha256": "c4ef45cb903b8ab865ab69d930d868f9da3bc3dcd5a627f029648fef11713009",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/honest-broker-20260917-my-favorite-philip-k-dick-novels.md",
+      "translatedAt": "2026-09-18T04:51:49.581Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 4227,
+        "outputTokens": 8669,
+        "totalTokens": 12896
+      }
     }
   ]
 }

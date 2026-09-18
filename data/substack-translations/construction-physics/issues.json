@@ -45,6 +45,21 @@
         "outputTokens": 12301,
         "totalTokens": 18458
       }
+    },
+    {
+      "guid": "https://www.construction-physics.com/p/how-spacex-streamlined-the-raptor",
+      "canonicalUrl": "https://www.construction-physics.com/p/how-spacex-streamlined-the-raptor",
+      "sourcePublishedAt": "2026-09-17T12:02:08.000Z",
+      "sourceSha256": "3de4b88da477e334a8889767c80ba72bb84cc128f61353944ca56c9464c0e361",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/construction-physics-20260917-how-spacex-streamlined-the-raptor.md",
+      "translatedAt": "2026-09-18T04:52:12.057Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 5950,
+        "outputTokens": 5403,
+        "totalTokens": 11353
+      }
     }
   ]
 }

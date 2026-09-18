@@ -558,6 +558,43 @@
         "outputTokens": 10041,
         "totalTokens": 13692
       }
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=51630",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/10/albert-camus-almond-trees-character",
+      "sourcePublishedAt": "2026-09-10T21:31:49.000Z",
+      "sourceSha256": "6181dd3b1413933ff3c6d9dfdae4c40f3b34426e3067dc7b4c3ac1e8ad88cfff",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3870,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-18T04:52:14.782Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87899",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/10/alan-watts-unspeakable-world",
+      "sourcePublishedAt": "2026-09-11T02:44:27.000Z",
+      "sourceSha256": "864d203631b8de44316db5d779095c7f5b7c27c8b812ec3420b78b4eb6d70d59",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3408,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-18T04:52:14.817Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=74745",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/11/why-leaves-change-color",
+      "sourcePublishedAt": "2026-09-11T20:23:43.000Z",
+      "sourceSha256": "1ebacf87cf40fbb29092340ad411c8845082e61a3db8e8d7a5400402e8d15cc1",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260911-why-leaves-change-color.md",
+      "translatedAt": "2026-09-18T04:52:22.793Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2506,
+        "outputTokens": 1892,
+        "totalTokens": 4398
+      }
     }
   ]
 }

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-18",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "50497b8ef5b55b219ee4c9b72ecb29623b3c7bdb27a2044e1927c9d7b3f19870",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 10,
+      "status": "processed",
+      "tags": [
+        "婚姻情感",
+        "金钱消费",
+        "认知思维",
+        "避坑指南"
+      ],
+      "summary": "真正成熟的伴侣不把协议当冒犯，宁可在深爱时定规则，也不在反目时争利益",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "职场生存",
+        "人性观察",
+        "从业者爆料",
+        "避坑指南"
+      ],
+      "summary": "所谓不合文化与业绩问题大多是借口，HR谈话的唯一核心永远是维护公司利益",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

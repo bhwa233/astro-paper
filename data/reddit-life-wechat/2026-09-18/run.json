@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-18",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "b036970039bc4e7a78f9b5050630fb076eb506e7",
+    "workflowRun": "35356898007",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-18-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-18/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击职场人在被裁或开除时遭遇的荒诞HR黑幕与敷衍伪造，极具共鸣与宣泄价值。"
+      },
+      {
+        "rank": 21,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "犀利解构「公司是一家人」等职场虚伪黑话，跨越行业与地域引发极强打工人共情。"
+      },
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "探讨爱意从无到有的微小心理转变，情感描写细腻真实且具有普遍的人性共通性。"
+      },
+      {
+        "rank": 9,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "深入剖析C语言空字符等编程底层设计妥协与历史包袱，硬核严谨且极具技术长尾价值。"
+      },
+      {
+        "rank": 18,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从血脑屏障和药代动力学严谨打破「口服多巴胺得快乐」的常识误区，科普价值极高。"
+      },
+      {
+        "rank": 14,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "精准吐槽臃肿软件接管电脑、弹窗不断的普遍痛点，唤起广大网民强烈日常共鸣。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "盘点波罗的海舰队远征等荒谬历史军事溃败，故事性与历史教训兼备，长尾吸引力强。"
+      },
+      {
+        "rank": 3,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "聚焦亲密关系中扫兴与无视安全的下头细节，切中人际交往雷区，互动讨论欲极强。"
+      },
+      {
+        "rank": 17,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从心血管神经支配与去适应机制科学解答移植后的体能极限，解答新颖且论证严密。"
+      },
+      {
+        "rank": 23,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "以理性视角探讨婚前协议与婚姻契约本质，视角成熟且具备长久的情感法律参考价值。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 1,
+        "category": "low_resonance",
+        "reason": "假设性重复刷剧换奖金属于老套脑洞水帖，缺乏深层次讨论价值。"
+      },
+      {
+        "rank": 4,
+        "category": "region_specific",
+        "reason": "围绕美国特定播客主与总统候选人政治言论的争议，依赖当地政治语境。"
+      },
+      {
+        "rank": 7,
+        "category": "low_resonance",
+        "reason": "公共交通占座行为多为看错座位的琐碎抱怨，讨论深度与迁移价值较低。"
+      },
+      {
+        "rank": 8,
+        "category": "time_sensitive",
+        "reason": "围绕特定时期油价上涨与短期生活成本波动的讨论，时效性强且容易过时。"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "盘点特定老电影过时与否，内容高度依赖小众欧美影视作品背景知识。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "首日离职经历多为个别糟糕工作零碎吐槽，缺乏成体系的深度共鸣。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "历史名人人设翻车多为老生常谈的轶事罗列，缺乏新鲜视角与深度启发。"
+      },
+      {
+        "rank": 13,
+        "category": "region_specific",
+        "reason": "高度依赖美国参议院议员健康状况与政客发言争议，属本地政治事件。"
+      },
+      {
+        "rank": 15,
+        "category": "region_specific",
+        "reason": "针对特定欧洲游客前往加拿大城市与景点的旅游攻略，属于地区特定推荐。"
+      },
+      {
+        "rank": 16,
+        "category": "time_sensitive",
+        "reason": "主要为针对疫情后生活物价与心境的泛化感叹，内容零散且具有阶段时效性。"
+      },
+      {
+        "rank": 19,
+        "category": "low_resonance",
+        "reason": "对女性特定小特质的吸引力讨论较为片面零散，普适共鸣与讨论深度有限。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "内容集中在北美橄榄球和棒球联赛特定赛事痛点，高度依赖特定体育圈层受众。"
+      },
+      {
+        "rank": 22,
+        "category": "narrow_interest",
+        "reason": "讨论战锤、光环等虚构势力战斗力，内容高度受限于特定科幻游戏受众。"
+      },
+      {
+        "rank": 24,
+        "category": "region_specific",
+        "reason": "内容完全基于纽约市本地人行道与地铁乘车潜规则，属于典型地区特定经验。"
+      },
+      {
+        "rank": 25,
+        "category": "low_resonance",
+        "reason": "突然暴富后如何花时间的纯假设性空想，缺乏严肃讨论与实际借鉴意义。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "属于纯树洞宣泄与求助热线聚合，缺少深入的故事展开与讨论价值。"
+      },
+      {
+        "rank": 27,
+        "category": "narrow_interest",
+        "reason": "回答高度依赖英文人名发音与谐音双关梗，脱离英语语境后缺乏吸引力。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "抗抑郁药机制偏学术文献综述，内容较为艰深且受众面相对小众，选拔中综合排序靠后。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "戒烟个人心得分享较为常规散碎，缺乏普遍适用的新颖见解。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "战胜抑郁的回答多为个体主观感悟与零星经验，深度与代表性有限。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wj1fom",
+      "title": "被裁员或开除时，人力资源（HR）说过的哪些离谱鬼话让你一听就知道纯属瞎扯？",
+      "subreddit": "AskReddit",
+      "points": "2927 points · 821 评论",
+      "numComments": 821,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wj1fom/people_who_have_been_fired_what_did_hr_say_during/",
+      "sourceRank": 2,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/01-1wj1fom.md",
+      "contentSha256": "9ee1779381528ea714c0a2996b4e6887195b9141501f2a56c20591b7a86b766b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wja26e",
+      "title": "职场中哪句黑话或口头禅会让你瞬间血压飙升？",
+      "subreddit": "AskReddit",
+      "points": "375 points · 1093 评论",
+      "numComments": 1093,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wja26e/what_workplace_phrase_instantly_annoys_you/",
+      "sourceRank": 21,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/02-1wja26e.md",
+      "contentSha256": "4ece829ebbef4d5470750bcc23c247ece549f62ed2ead0254e7e93efe9a8a8cd",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wj6ipn",
+      "title": "你曾爱上过一开始觉得毫无吸引力或讨厌的人吗？是什么改变了你的看法？",
+      "subreddit": "AskReddit",
+      "points": "2078 points · 291 评论",
+      "numComments": 291,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wj6ipn/have_you_fallen_in_love_with_a_person_you_found/",
+      "sourceRank": 5,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/01-1wj1fom.md",
+      "contentSha256": "9ee1779381528ea714c0a2996b4e6887195b9141501f2a56c20591b7a86b766b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wj5ggy",
+      "title": "计算机编程底层有哪些设计在事后看来本可优化，但如今积重难返？",
+      "subreddit": "askscience",
+      "points": "1053 points · 532 评论",
+      "numComments": 532,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wj5ggy/is_there_anything_at_the_heart_of_computer_coding/",
+      "sourceRank": 9,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/02-1wja26e.md",
+      "contentSha256": "4ece829ebbef4d5470750bcc23c247ece549f62ed2ead0254e7e93efe9a8a8cd",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wj2eoc",
+      "title": "直接吃下一大勺纯多巴胺（dopamine）会发生什么？",
+      "subreddit": "askscience",
+      "points": "461 points · 135 评论",
+      "numComments": 135,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wj2eoc/what_would_it_be_like_to_eat_a_tablespoon_of_pure/",
+      "sourceRank": 18,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/01-1wj1fom.md",
+      "contentSha256": "9ee1779381528ea714c0a2996b4e6887195b9141501f2a56c20591b7a86b766b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wj5btf",
+      "title": "有哪些让你深恶痛绝的软件以及原因是什么？",
+      "subreddit": "AskReddit",
+      "points": "584 points · 1014 评论",
+      "numComments": 1014,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wj5btf/whats_one_piece_of_software_you_absolutely/",
+      "sourceRank": 14,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/02-1wja26e.md",
+      "contentSha256": "4ece829ebbef4d5470750bcc23c247ece549f62ed2ead0254e7e93efe9a8a8cd",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wj23zr",
+      "title": "历史上最灾难性的军事失误（military blunder）有哪些？",
+      "subreddit": "AskReddit",
+      "points": "1568 points · 1534 评论",
+      "numComments": 1534,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wj23zr/whats_the_worst_military_blunder_in_history/",
+      "sourceRank": 6,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/01-1wj1fom.md",
+      "contentSha256": "9ee1779381528ea714c0a2996b4e6887195b9141501f2a56c20591b7a86b766b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wj73zq",
+      "title": "男生因为什么离谱或微不足道的小事，瞬间对女生彻底丧失好感？",
+      "subreddit": "AskReddit",
+      "points": "2447 points · 2918 评论",
+      "numComments": 2918,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wj73zq/men_whats_the_dumbest_reason_youve_ever_lost/",
+      "sourceRank": 3,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/02-1wja26e.md",
+      "contentSha256": "4ece829ebbef4d5470750bcc23c247ece549f62ed2ead0254e7e93efe9a8a8cd",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wj5l8w",
+      "title": "如果精英耐力运动员接受普通人的心脏移植（heart transplant），运动能力会怎样？",
+      "subreddit": "askscience",
+      "points": "465 points · 112 评论",
+      "numComments": 112,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wj5l8w/if_an_elite_endurance_athlete_recieved_a_heart/",
+      "sourceRank": 17,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/01-1wj1fom.md",
+      "contentSha256": "9ee1779381528ea714c0a2996b4e6887195b9141501f2a56c20591b7a86b766b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wix9z7",
+      "title": "如果未来的结婚对象婚前提议签一份婚前协议（prenup），你会有什么感受？",
+      "subreddit": "AskReddit",
+      "points": "280 points · 579 评论",
+      "numComments": 579,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wix9z7/how_would_you_feel_if_your_future_spouse_brought/",
+      "sourceRank": 23,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-18/02-1wja26e.md",
+      "contentSha256": "4ece829ebbef4d5470750bcc23c247ece549f62ed2ead0254e7e93efe9a8a8cd",
+      "volume": "v2"
+    }
+  ]
+}

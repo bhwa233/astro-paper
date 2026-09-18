@@ -816,6 +816,54 @@
       "title": "PAW Patrol: The Dino Movie",
       "archivedAt": "2026-09-11",
       "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-11.md"
+    },
+    {
+      "key": "movie:1124142",
+      "mediaType": "movie",
+      "tmdbId": 1124142,
+      "title": "The Rivals of Amziah King",
+      "archivedAt": "2026-09-18",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-18.md"
+    },
+    {
+      "key": "movie:1329016",
+      "mediaType": "movie",
+      "tmdbId": 1329016,
+      "title": "Tony",
+      "archivedAt": "2026-09-18",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-18.md"
+    },
+    {
+      "key": "movie:860508",
+      "mediaType": "movie",
+      "tmdbId": 860508,
+      "title": "The Whisper Man",
+      "archivedAt": "2026-09-18",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-18.md"
+    },
+    {
+      "key": "movie:1432474",
+      "mediaType": "movie",
+      "tmdbId": 1432474,
+      "title": "Nimrods",
+      "archivedAt": "2026-09-18",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-18.md"
+    },
+    {
+      "key": "movie:1408162",
+      "mediaType": "movie",
+      "tmdbId": 1408162,
+      "title": "Vishwanath & Sons",
+      "archivedAt": "2026-09-18",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-18.md"
+    },
+    {
+      "key": "movie:1384216",
+      "mediaType": "movie",
+      "tmdbId": 1384216,
+      "title": "The Dog Stars",
+      "archivedAt": "2026-09-18",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-18.md"
     }
   ]
 }

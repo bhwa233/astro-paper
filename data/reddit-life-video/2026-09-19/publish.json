@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-19",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "31a5867949861a7a8d0c904deb80cb0469dedd4425d94c2a0a29d36ae2896b89",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "避坑指南",
+        "灵魂拷问"
+      ],
+      "summary": "真正的崩盘往往不是嚎啕大哭，而是日常微小习惯的悄然停摆与情绪彻底麻木",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 7,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "当规则的本质是消耗与零和博弈时，拒绝入局和保持沉默才是唯一赢法",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

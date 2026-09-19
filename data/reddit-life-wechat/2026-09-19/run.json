@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-19",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "fa18579091528de903af89bf0806c791336c6640",
+    "workflowRun": "35447214528",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-19-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-19/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "精准描述了快感缺失与极度疲惫等隐性心理危机，具有极高的自查参考价值与跨人群普遍共鸣。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "直击中年危机、背叛与生活重建的多重视角，包含深刻的家庭创伤反思与极具现实厚度的个人经历。"
+      },
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从因果律与四维时空本质拆解光速上限，科普解释严谨通俗且极具启发性，长尾求知价值极高。"
+      },
+      {
+        "rank": 14,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "涵盖诱导质问、算法操纵与路怒冲突等日常困境，总结出克制与抽离的可迁移博弈智慧。"
+      },
+      {
+        "rank": 25,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "生动捕捉新手父母面对新生儿时措手不及的无力感，细节真实幽默且能唤起广泛代入感。"
+      },
+      {
+        "rank": 17,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "以责任感与微小希望为切口，展现个体在极端绝境中的生命韧性，情绪冲击力与治愈感极强。"
+      },
+      {
+        "rank": 2,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "打破社交网络对年轻人群体的刻板印象，真实揭示当下青年面临的求职内卷与生存重压。"
+      },
+      {
+        "rank": 15,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "深入反思算法避嫌导致的委婉语泛滥与伪真理操纵，探讨了日常语言生态退化的深刻议题。"
+      },
+      {
+        "rank": 16,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "通过血红蛋白的抗磁与顺磁性原理解除常见医学误解，逻辑清晰且与日常生活检查紧密相关。"
+      },
+      {
+        "rank": 4,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "将工业开采、密集养殖与社交媒体列为现代阴暗面，提供了极具冲击力的现代文明反思视角。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 3,
+        "category": "narrow_interest",
+        "reason": "讨论高度依赖特定单机游戏的通关机制与彩蛋设定，受众面较窄。"
+      },
+      {
+        "rank": 6,
+        "category": "low_resonance",
+        "reason": "内容偏向基于搜索记录的随机沙雕假想，缺少深层讨论价值与生活迁移意义。"
+      },
+      {
+        "rank": 8,
+        "category": "low_resonance",
+        "reason": "回答多为针对字面游戏规则钻空子的财务脑洞，缺少实质性人生启发。"
+      },
+      {
+        "rank": 9,
+        "category": "region_specific",
+        "reason": "核心议题高度绑定加拿大新斯科舍省的具体法案与地方政治争议。"
+      },
+      {
+        "rank": 10,
+        "category": "low_resonance",
+        "reason": "属于纯粹的口头段子与损人金句罗列，缺乏深度故事与情感共鸣。"
+      },
+      {
+        "rank": 11,
+        "category": "narrow_interest",
+        "reason": "内容完全围绕英语特定姓氏的粗俗谐音梗展开，脱离特定语言语境后价值有限。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "围绕特定欧美明星展开的名人假想互动，讨论流于浅层娱乐调侃。"
+      },
+      {
+        "rank": 13,
+        "category": "low_resonance",
+        "reason": "回答样本量较少且多为简短个案陈述，未形成充分的社会轨迹对照与共鸣深度。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "讨论主要局限于两性拉扯中的试探与退缩心理，相比入选选题厚度略显不足。"
+      },
+      {
+        "rank": 19,
+        "category": "narrow_interest",
+        "reason": "属于个人阅读偏好的书单推荐，依赖特定文学作品的读者圈层。"
+      },
+      {
+        "rank": 20,
+        "category": "low_resonance",
+        "reason": "虽然具备一定生物学知识，但讨论偏学术假设，在科学类选题中吸引力弱于宇宙物理和医学常识。"
+      },
+      {
+        "rank": 21,
+        "category": "region_specific",
+        "reason": "核心议题完全依赖美国特定城市的基础设施投资与产业复兴，地域局限性极强。"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "主要为各类剧烈生理疼痛的感官罗列，虽有真实感但启发性与延展探讨空间有限。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "生态学解答较为专业，但设问属于离奇极端假想，相比其他科学选题普适共鸣较弱。"
+      },
+      {
+        "rank": 24,
+        "category": "low_resonance",
+        "reason": "给出的长辈忠告较为泛化常规，缺少更具戏剧性或反常识的洞察支撑。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "回答多为防范银行转账错误的常识性调侃，缺乏深入展开的情感与故事。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "主要聚焦于卷款蒸发等极端抓马遭遇，普遍代入感弱于同类型的救赎主题帖。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "属于针对特定后遗症群体的受限经验交流，对泛大众读者的长尾吸引力相对有限。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "通篇为刺激性气味的生理描写，缺乏思想性与长尾阅读价值。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "八卦闲聊式的邻里道德选择题，回答多为简短抖机灵，讨论深度不足。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wk1vs7",
+      "title": "心理状态亮红灯时，最早出现的预警信号是什么？",
+      "subreddit": "AskReddit",
+      "points": "1809 points · 1120 评论",
+      "numComments": 1120,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wk1vs7/what_are_your_warnings_signs_that_you_are_not/",
+      "sourceRank": 5,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/01-1wk1vs7.md",
+      "contentSha256": "8b0220379df9c7c4d177a65e953c71581724b5167f715829565166cb117260dd",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wjt02m",
+      "title": "中年或认同危机期间亲手毁掉婚姻与生活的男士，后来如何重建？",
+      "subreddit": "AskReddit",
+      "points": "4453 points · 1552 评论",
+      "numComments": 1552,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wjt02m/men_who_blew_up_their_marriagelife_during_a/",
+      "sourceRank": 1,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/02-1wjt02m.md",
+      "contentSha256": "36aed9d5fc96bd9bb56037d34311cc3ded84344dd2b19c1dfb36ea9acd579a31",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wk64rd",
+      "title": "为什么宇宙的极限速度偏偏是光速（speed of light）？我们能超越它吗？",
+      "subreddit": "askscience",
+      "points": "956 points · 624 评论",
+      "numComments": 624,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wk64rd/why_is_the_maximum_speed_of_the_universe_the/",
+      "sourceRank": 7,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/01-1wk1vs7.md",
+      "contentSha256": "8b0220379df9c7c4d177a65e953c71581724b5167f715829565166cb117260dd",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wjwrit",
+      "title": "有哪些事情的唯一制胜策略就是「彻底不参与」？",
+      "subreddit": "AskReddit",
+      "points": "464 points · 263 评论",
+      "numComments": 263,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wjwrit/what_is_the_best_example_of_the_only_winning_move/",
+      "sourceRank": 14,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/02-1wjt02m.md",
+      "contentSha256": "36aed9d5fc96bd9bb56037d34311cc3ded84344dd2b19c1dfb36ea9acd579a31",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wk96rf",
+      "title": "你在哪一瞬间彻底意识到自己根本没准备好当父母？",
+      "subreddit": "AskReddit",
+      "points": "207 points · 171 评论",
+      "numComments": 171,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wk96rf/at_what_moment_did_you_realize_how_wholly/",
+      "sourceRank": 25,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/01-1wk1vs7.md",
+      "contentSha256": "8b0220379df9c7c4d177a65e953c71581724b5167f715829565166cb117260dd",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wk61y3",
+      "title": "跌入人生最低谷时，究竟是什么支撑着你选择继续活下去？",
+      "subreddit": "AskReddit",
+      "points": "318 points · 561 评论",
+      "numComments": 561,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wk61y3/serious_when_you_were_the_lowest_point_in_your/",
+      "sourceRank": 17,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/02-1wjt02m.md",
+      "contentSha256": "36aed9d5fc96bd9bb56037d34311cc3ded84344dd2b19c1dfb36ea9acd579a31",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wjvfg2",
+      "title": "都说 Z 世代（Gen Z）不再追求朝九晚五，那他们到底在干什么、靠什么生存？",
+      "subreddit": "AskReddit",
+      "points": "3098 points · 741 评论",
+      "numComments": 741,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wjvfg2/they_say_gen_z_is_not_pursuing_9_to_5_job_life/",
+      "sourceRank": 2,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/01-1wk1vs7.md",
+      "contentSha256": "8b0220379df9c7c4d177a65e953c71581724b5167f715829565166cb117260dd",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wkhy6y",
+      "title": "有哪些词汇你真心希望大家别再用了？",
+      "subreddit": "AskReddit",
+      "points": "411 points · 2364 评论",
+      "numComments": 2364,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wkhy6y/what_is_a_word_you_wished_people_would_stop_using/",
+      "sourceRank": 15,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/02-1wjt02m.md",
+      "contentSha256": "36aed9d5fc96bd9bb56037d34311cc3ded84344dd2b19c1dfb36ea9acd579a31",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wjw07s",
+      "title": "做磁共振成像（MRI）时，血液里的铁会发生什么？",
+      "subreddit": "askscience",
+      "points": "320 points · 85 评论",
+      "numComments": 85,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wjw07s/what_happens_to_the_iron_in_your_blood_during_an/",
+      "sourceRank": 16,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/01-1wk1vs7.md",
+      "contentSha256": "8b0220379df9c7c4d177a65e953c71581724b5167f715829565166cb117260dd",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wjtgtu",
+      "title": "如果评选「现代世界七大恐怖奇迹」，哪些事物最有资格上榜？",
+      "subreddit": "AskReddit",
+      "points": "2000 points · 700 评论",
+      "numComments": 700,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wjtgtu/forget_the_seven_wonders_what_are_the_seven_great/",
+      "sourceRank": 4,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-19/02-1wjt02m.md",
+      "contentSha256": "36aed9d5fc96bd9bb56037d34311cc3ded84344dd2b19c1dfb36ea9acd579a31",
+      "volume": "v2"
+    }
+  ]
+}

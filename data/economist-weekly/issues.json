@@ -48,6 +48,14 @@
       "epubSha256": "99639fbd0f1b1f228a208309c3887d683e9d36505ca36899ed055a2a28ecc821",
       "archivedAt": "2026-09-05",
       "postPath": "src/content/posts/zh-cn/经济学人-2026-09-05.md"
+    },
+    {
+      "key": "economist:2026-09-19:aa615d8d8e8f45d02644fbff7c82869242c454893de9921e3726ef2428fa868d",
+      "issueDate": "2026-09-19",
+      "sourceCommit": "18bb6d9392adc174a3e441eec5758274ba0b09f0",
+      "epubSha256": "aa615d8d8e8f45d02644fbff7c82869242c454893de9921e3726ef2428fa868d",
+      "archivedAt": "2026-09-19",
+      "postPath": "src/content/posts/zh-cn/经济学人-2026-09-19.md"
     }
   ]
 }

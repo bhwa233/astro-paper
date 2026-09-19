@@ -30,6 +30,21 @@
         "outputTokens": 4136,
         "totalTokens": 8061
       }
+    },
+    {
+      "guid": "https://www.oneusefulthing.org/p/the-overhang",
+      "canonicalUrl": "https://www.oneusefulthing.org/p/the-overhang",
+      "sourcePublishedAt": "2026-09-18T17:54:32.000Z",
+      "sourceSha256": "0592d418cc6267f770718b6c58caf0e9d1fa6186f85190962d502fe2ddb3aa24",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/one-useful-thing-20260918-the-overhang.md",
+      "translatedAt": "2026-09-19T04:43:54.111Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3702,
+        "outputTokens": 10859,
+        "totalTokens": 14561
+      }
     }
   ]
 }

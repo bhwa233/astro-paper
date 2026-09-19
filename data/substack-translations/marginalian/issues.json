@@ -595,6 +595,21 @@
         "outputTokens": 1892,
         "totalTokens": 4398
       }
+    },
+    {
+      "guid": "http://www.brainpickings.org/?p=38804",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/11/dostoyevsky-dream",
+      "sourcePublishedAt": "2026-09-11T22:19:03.000Z",
+      "sourceSha256": "0b1f1cc0ef9f758be420b156b67cf95f4bb3a1474f2937d6543202189f9823f1",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260911-dostoyevsky-dream.md",
+      "translatedAt": "2026-09-19T04:44:58.334Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 4344,
+        "outputTokens": 9213,
+        "totalTokens": 13557
+      }
     }
   ]
 }

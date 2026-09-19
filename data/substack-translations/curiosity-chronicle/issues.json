@@ -131,6 +131,21 @@
         "outputTokens": 2723,
         "totalTokens": 6000
       }
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/jevons-paradox-the-perils-of-efficiency",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/jevons-paradox-the-perils-of-efficiency",
+      "sourcePublishedAt": "2026-09-18T12:25:33.000Z",
+      "sourceSha256": "6863ec540ed86e2491a9d20d1093669f5866a29b33c8448cf2db1b20b9bdc3c6",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260918-jevons-paradox-the-perils-of-efficiency.md",
+      "translatedAt": "2026-09-19T04:43:21.969Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2460,
+        "outputTokens": 1833,
+        "totalTokens": 4293
+      }
     }
   ]
 }

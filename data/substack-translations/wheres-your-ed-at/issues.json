@@ -120,6 +120,21 @@
         "outputTokens": 11563,
         "totalTokens": 22353
       }
+    },
+    {
+      "guid": "6aad3e6b58a314000111b03d",
+      "canonicalUrl": "https://www.wheresyoured.at/premium-the-haters-guide-to-ai-debt-part-1",
+      "sourcePublishedAt": "2026-09-18T15:45:13.000Z",
+      "sourceSha256": "6277ce635795ff33b964bec641989f82079a03ba4e9695858f60470524ac113d",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/wheres-your-ed-at-20260918-premium-the-haters-guide-to-ai-debt-part-1.md",
+      "translatedAt": "2026-09-19T04:44:09.859Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2951,
+        "outputTokens": 5234,
+        "totalTokens": 8185
+      }
     }
   ]
 }

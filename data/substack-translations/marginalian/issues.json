@@ -610,6 +610,21 @@
         "outputTokens": 9213,
         "totalTokens": 13557
       }
+    },
+    {
+      "guid": "https://www.brainpickings.org/?p=57385",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/11/colette-autumn",
+      "sourcePublishedAt": "2026-09-12T01:44:53.000Z",
+      "sourceSha256": "99971bcbe1365f6bf612529d27968c38c93f2d40f397d67371c41013e090cd39",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260911-colette-autumn.md",
+      "translatedAt": "2026-09-20T04:59:35.767Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2347,
+        "outputTokens": 1741,
+        "totalTokens": 4088
+      }
     }
   ]
 }

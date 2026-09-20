@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-20",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "d20a38607e8e939988be31a16905b51c0b3c0bed794c96f57b62f9ac74a26955",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "家庭关系",
+        "认知思维",
+        "人性观察",
+        "避坑指南"
+      ],
+      "summary": "最具破坏性的管教往往来自日常讽刺、当众取笑以及对诚实交代的大发雷霆",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 4,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "人性观察",
+        "避坑指南",
+        "亲身经历"
+      ],
+      "summary": "房租是住房支出的上限，而房贷只是无底洞般开销与维护成本的起点",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

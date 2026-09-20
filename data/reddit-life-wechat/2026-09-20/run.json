@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-20",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "ad399c4032f700e9e1fd6c09930c36fbad25f179",
+    "workflowRun": "35515954581",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-20-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-20/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 4,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "剖析日常育儿中摧毁信任的沟通雷区，具有极高的代际共鸣与长期警示价值。"
+      },
+      {
+        "rank": 23,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "中老年父母对育儿时光的深情反思与遗憾，情感细腻真挚，极易激发跨年龄层共鸣。"
+      },
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "真实揭示婚姻破裂背后的情感疏离与深层孤独，故事具体且具备强烈的心理代入感。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "盘点医学史上曾被广泛采纳却被证伪的错误疗法，兼具历史知识增益与长尾科普价值。"
+      },
+      {
+        "rank": 7,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "从虚荣尺码到经期隐忍，揭示两性认知盲区与女性现实困境，视角鲜明且极具讨论度。"
+      },
+      {
+        "rank": 10,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "展现当代男性默默硬撑的心理压力与疲惫现状，情绪切片真实，容易引发广泛共情。"
+      },
+      {
+        "rank": 13,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "揭示购房后高昂的隐形维护成本与邻里代价，经验具体接地气，击中买房群体的现实痛点。"
+      },
+      {
+        "rank": 22,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "辟谣味觉地图、刮毛变粗等大众伪常识，内容兼具科学性与破除认知误区的实用价值。"
+      },
+      {
+        "rank": 25,
+        "longTail": 5,
+        "resonance": 3,
+        "reason": "科学解答阑尾储备与肠道菌群平衡机制，解释清晰且具备扎实严谨的生物医学证据。"
+      },
+      {
+        "rank": 28,
+        "longTail": 4,
+        "resonance": 4,
+        "reason": "提供体味自查与口腔清洁等易被忽视的卫生常识，贴近日常生活且具备即时指导意义。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 1,
+        "category": "narrow_interest",
+        "reason": "高度依赖特定影视作品的剧情设定调侃，偏向娱乐消遣且缺乏现实共鸣。"
+      },
+      {
+        "rank": 2,
+        "category": "narrow_interest",
+        "reason": "属于停服与老旧游戏的怀旧盘点，依赖特定游戏经历，受众面较窄。"
+      },
+      {
+        "rank": 5,
+        "category": "low_resonance",
+        "reason": "多为个别同事极端奇葩言论的吐槽，缺乏普适性的职场经验沉淀。"
+      },
+      {
+        "rank": 8,
+        "category": "narrow_interest",
+        "reason": "特定少儿动画作品的剧评与情怀盘点，依赖特定影视背景。"
+      },
+      {
+        "rank": 9,
+        "category": "narrow_interest",
+        "reason": "硬核游戏与刷时长作品盘点，内容局限于特定玩家群体。"
+      },
+      {
+        "rank": 11,
+        "category": "narrow_interest",
+        "reason": "针对特定商业电影口碑与剧情的吐槽，缺乏普遍讨论深度。"
+      },
+      {
+        "rank": 12,
+        "category": "region_specific",
+        "reason": "讨论主要围绕北美本土品牌售后及具体车系投诉，对国内读者参考价值有限。"
+      },
+      {
+        "rank": 14,
+        "category": "narrow_interest",
+        "reason": "纯粹的美剧二刷清单罗列，内容单薄且缺乏深层讨论价值。"
+      },
+      {
+        "rank": 15,
+        "category": "low_resonance",
+        "reason": "散步、随性乱跳等碎片化生活建议，信息密度较低且缺乏启发性。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "针对航司行李与流媒体广告等消费琐事的吐槽，讨论深度有限。"
+      },
+      {
+        "rank": 17,
+        "category": "region_specific",
+        "reason": "完全依赖美国非本土两州的地理隔离、物流配送与本地物价等地域特有条件。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "个人短期财务账单与收支闲聊，缺乏可提炼的普遍经验与长尾价值。"
+      },
+      {
+        "rank": 19,
+        "category": "narrow_interest",
+        "reason": "聚焦北美单口喜剧圈特定艺人的业务评价，受众极度小众。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "小众惊悚与重口味电影盘点，内容受众面窄且多为负面感官体验。"
+      },
+      {
+        "rank": 21,
+        "category": "narrow_interest",
+        "reason": "聚焦英语母语发音习惯与易混淆表达，脱离中文读者日常语境。"
+      },
+      {
+        "rank": 24,
+        "category": "low_resonance",
+        "reason": "个人器材花费与小众爱好清单罗列，缺乏更具普适性的认知洞察。"
+      },
+      {
+        "rank": 26,
+        "category": "narrow_interest",
+        "reason": "经典高分电影的常规清单罗列，观点同质化且缺乏深度讨论。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "个人食品罐头口味偏好罗列，内容单薄且缺少长尾探讨价值。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "假设性金钱支配闲聊与灌水调侃，缺乏实际深度与长尾价值。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "单细胞生物寿命探讨较为抽象冷门，相较其他科普选题共鸣度偏低。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wl14vo",
+      "title": "哪些看似寻常的育儿管教方式，实际上会对孩子造成巨大伤害？",
+      "subreddit": "AskReddit",
+      "points": "2733 points · 1217 评论",
+      "numComments": 1217,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wl14vo/what_common_parenting_tactics_is_actually_really/",
+      "sourceRank": 4,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/01-1wl14vo.md",
+      "contentSha256": "8ce7367d8286d3996206c22e476298a6f7b8d2de6682cdf7a87d37e32af2df72",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wkovtk",
+      "title": "50多岁的父母们：你们对孩子最大的失望是什么？",
+      "subreddit": "AskReddit",
+      "points": "196 points · 235 评论",
+      "numComments": 235,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wkovtk/parents_in_their_50_what_was_the_biggest/",
+      "sourceRank": 23,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/02-1wkovtk.md",
+      "contentSha256": "7a9654cf7cbcc7c125e850b2913a979e59efc32d60a96ab7f87b9d455e1b1b48",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wkvv1l",
+      "title": "离婚人士亲历：究竟是什么摧毁了婚姻，你又在哪一瞬间意识到彻底无法挽回？",
+      "subreddit": "AskReddit",
+      "points": "2992 points · 1573 评论",
+      "numComments": 1573,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wkvv1l/divorced_people_what_was_the_issue_that/",
+      "sourceRank": 3,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/01-1wl14vo.md",
+      "contentSha256": "8ce7367d8286d3996206c22e476298a6f7b8d2de6682cdf7a87d37e32af2df72",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wksgsl",
+      "title": "医务人员分享：哪些曾经通行的医疗实践后来被证明彻底大错特错？",
+      "subreddit": "AskReddit",
+      "points": "1598 points · 1553 评论",
+      "numComments": 1553,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wksgsl/medical_professionals_which_medical_practice_has/",
+      "sourceRank": 6,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/02-1wkovtk.md",
+      "contentSha256": "7a9654cf7cbcc7c125e850b2913a979e59efc32d60a96ab7f87b9d455e1b1b48",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wknz0f",
+      "title": "有哪些女性习以为常、却让男性感到不可思议的事？",
+      "subreddit": "AskReddit",
+      "points": "1295 points · 1311 评论",
+      "numComments": 1311,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wknz0f/men_of_reddit_what_are_some_things_that_are/",
+      "sourceRank": 7,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/01-1wl14vo.md",
+      "contentSha256": "8ce7367d8286d3996206c22e476298a6f7b8d2de6682cdf7a87d37e32af2df72",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wkuajp",
+      "title": "男同胞们，你们现在的心理健康状态如何？",
+      "subreddit": "AskReddit",
+      "points": "963 points · 2048 评论",
+      "numComments": 2048,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wkuajp/dear_men_hows_your_mental_health/",
+      "sourceRank": 10,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/02-1wkovtk.md",
+      "contentSha256": "7a9654cf7cbcc7c125e850b2913a979e59efc32d60a96ab7f87b9d455e1b1b48",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wl6gs1",
+      "title": "买了房子才明白，有哪些平时很少被讨论的隐形代价与烦恼？",
+      "subreddit": "AskReddit",
+      "points": "736 points · 955 评论",
+      "numComments": 955,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wl6gs1/those_who_own_a_house_what_are_some_of_the_less/",
+      "sourceRank": 13,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/01-1wl14vo.md",
+      "contentSha256": "8ce7367d8286d3996206c22e476298a6f7b8d2de6682cdf7a87d37e32af2df72",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wlcbyb",
+      "title": "有哪些被大众普遍当成常识、但其实完全错误的说法？",
+      "subreddit": "AskReddit",
+      "points": "216 points · 658 评论",
+      "numComments": 658,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wlcbyb/what_universally_accepted_fact_is_actually_100/",
+      "sourceRank": 22,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/02-1wkovtk.md",
+      "contentSha256": "7a9654cf7cbcc7c125e850b2913a979e59efc32d60a96ab7f87b9d455e1b1b48",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wkxn9v",
+      "title": "为什么抗生素（antibiotics）不会把肠道里的微生物彻底杀光？",
+      "subreddit": "askscience",
+      "points": "167 points · 52 评论",
+      "numComments": 52,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wkxn9v/how_come_antibiotics_dont_completely_destroy_all/",
+      "sourceRank": 25,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/01-1wl14vo.md",
+      "contentSha256": "8ce7367d8286d3996206c22e476298a6f7b8d2de6682cdf7a87d37e32af2df72",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wl4c3r",
+      "title": "有哪些每个人都该知道、但很多人却忽视的个人卫生常识？",
+      "subreddit": "AskReddit",
+      "points": "133 points · 223 评论",
+      "numComments": 223,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wl4c3r/whats_a_hygiene_tip_we_all_should_know/",
+      "sourceRank": 28,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-20/02-1wkovtk.md",
+      "contentSha256": "7a9654cf7cbcc7c125e850b2913a979e59efc32d60a96ab7f87b9d455e1b1b48",
+      "volume": "v2"
+    }
+  ]
+}

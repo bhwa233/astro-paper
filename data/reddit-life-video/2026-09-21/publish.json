@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-21",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "07b3d9c62afd09d03f62cb791c17a6c6a6ae2512b354d6833f3e14fd34593518",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 3,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "人性观察",
+        "避坑指南"
+      ],
+      "summary": "停止为别人的过失擦屁股和自我解释，划清边界能卸下大部分精神内耗。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 9,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "认知思维",
+        "省钱技巧",
+        "避坑指南"
+      ],
+      "summary": "戒掉微小的日常冲动与自动续费，能堵住资产不断流失的最大隐形漏洞。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

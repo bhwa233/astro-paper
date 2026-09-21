@@ -625,6 +625,32 @@
         "outputTokens": 1741,
         "totalTokens": 4088
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=85924",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/12/pessoa-explorer",
+      "sourcePublishedAt": "2026-09-12T21:22:03.000Z",
+      "sourceSha256": "022673ce5cac98c66c0a487768664d4abd5ad15c548f52ac799deab9ca5ce5b6",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 2736,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-21T05:04:14.753Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=76365",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/13/the-extended-mind",
+      "sourcePublishedAt": "2026-09-13T14:11:15.000Z",
+      "sourceSha256": "e8aa29ade74fa6d8f7a3344f7beebc06bf58e23c487a1260fdf523c4adb4e396",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260913-the-extended-mind.md",
+      "translatedAt": "2026-09-21T05:04:24.991Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2957,
+        "outputTokens": 2478,
+        "totalTokens": 5435
+      }
     }
   ]
 }

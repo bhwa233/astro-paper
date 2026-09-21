@@ -44,7 +44,7 @@ pnpm run test:wechat    # scripts/wechat 的用例
 
 手动补跑：`scheduled-posts.yml` 传任务名；单篇重推微信：`sync-wechat-draft.yml` 传稿件路径。
 
-微信同步统一关闭所有新草稿的“阅读原文”，包括图文和图片消息；正文外链保持不变。`sourceURL`、canonical URL 和 `syncId` 仍用于归档与本地台账身份，不再发送为草稿原文地址。已有草稿和已发布文章不会自动修改。若台账停在 `pending`，同步会停止：原文地址已无法用于远端恢复，须人工检查草稿箱，确认需要新建后再传 `force_create: true`（CLI 为 `--force-create`）。
+图文草稿的“阅读原文”指向文章的 canonical URL（`wechat.sourceURL` 或由 `siteUrl` 推导；两者都没有时留空）。图片消息一律不发原文地址：微信编辑器里的图片消息本就没有“阅读原文”入口，而且没有任何读接口能查回图片草稿，无法验证该字段是否生效。正文外链保持不变，仍会被解包成纯文本。已有草稿和已发布文章不会自动修改。若台账停在 `pending`，同步会停止：原文地址不足以认定远端草稿（多篇可共用同一地址），须人工检查草稿箱，确认需要新建后再传 `force_create: true`（CLI 为 `--force-create`）。
 
 各流水线的细节与坑见 `docs/`。
 

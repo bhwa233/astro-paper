@@ -14,6 +14,8 @@ const BLOG_URL = "https://blog.bhwa233.com/";
 // 图片消息没有图文页脚，唯一可用的站外入口是「阅读原文」。保留独立开关，避免改动
 // Reddit 的实验状态；翻转时在这里记录日期与意图。
 //   2026-08-25 关闭，作为无站外入口的基线。
+//   2026-09-21 同步核心只给图文（news）发 content_source_url，图片消息一律发空串，
+//   因此翻开这个开关目前不会产生「阅读原文」，只会把地址写进归档 frontmatter。
 export const WEIBO_TRENDING_WECHAT_SHOW_SOURCE_URL = false;
 
 export function weiboTrendingArticleUrl(articlePath: string): string {

@@ -103,7 +103,7 @@ describe('草稿同步', () => {
     const article = await render()
 
     await synchronizeArticle(article, context)
-    expect(fake.drafts[0]?.contentSourceUrl).toBe('')
+    expect(fake.drafts[0]?.contentSourceUrl).toBe('https://example.com/posts/sample-post/')
     await expect(context.store.get(article.document.sourceId)).resolves.toMatchObject({
       canonicalUrl: 'https://example.com/posts/sample-post/',
       writeState: 'committed',
@@ -128,7 +128,7 @@ describe('草稿同步', () => {
     await expect(context.store.get(article.document.sourceId)).resolves.toMatchObject({ writeState: 'committed', mediaId: 'draft-b' })
   })
 
-  it('关闭阅读原文后，结果不明的重跑停止，不误认旧草稿或重复创建', async () => {
+  it('结果不明的重跑停止，不按原文地址误认旧草稿，也不重复创建', async () => {
     const fake = fakeClient('draft-existing')
     const context = deps(fake.client)
     const article = await render()
@@ -161,6 +161,8 @@ describe('草稿同步', () => {
     expect(fake.calls.filter((call) => call === 'uploadPermanentImage')).toHaveLength(2)
     expect(fake.calls).not.toContain('uploadBodyImage')
 
+    // 这篇在 contentDir 内，canonical URL 推得出来，但图片消息没有「阅读原文」，
+    // 仍必须发空串。
     const draft = fake.drafts[0]
     expect(draft).toMatchObject({
       articleType: 'newspic',

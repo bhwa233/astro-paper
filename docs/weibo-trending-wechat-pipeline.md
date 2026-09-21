@@ -23,7 +23,7 @@ src/content/posts/zh-cn/wb-<YYYYMMDD>.md
 - `card-00.png` 是总封面，显示栏目、日期与前 10 条标题；后 10 张各承载一条热搜总结，按上游排名排列。
 - 话题卡包含排名、标题、摘要和页码。上游 AI 摘要已经限制在 250 个 Unicode 字符内，卡片直接使用完整摘要，不再二次截取或添加省略号。
 - `wechat.articleType` 固定为 `newspic`。同一段话题总结既写入归档稿的 `description`，也作为图片列表前唯一的纯文本段落；后者会由 astro-wechat 发送为微信图片消息的 `content`。
-- **不写 `wechat.sourceURL`**：它会变成草稿的「阅读原文」。同步身份固定为 `weibo-trending-<date>`，与读者是否看到站外入口无关。
+- **不写 `wechat.sourceURL`**：同步身份固定为 `weibo-trending-<date>`，与读者是否看到站外入口无关。另外同步核心只给图文（news）草稿发 `content_source_url`，图片消息一律发空串，所以就算写了也不会出现「阅读原文」。
 - 图片消息的第一张图同时是微信封面；`ogImage` 因此也指向 `card-00.png`，不会再生成独立横版封面或二维码。
 
 卡片由 `scripts/weibo_trending_wechat_cards.ts` 使用 satori 渲染为 1080×1080 PNG，沿用站点微博主题色、`platformCard` 骨架、手绘笔圈品牌和字体子集加载器。方图白色面板固定为画布的 90%×90%，使四边微博红背景均为 54px；封面列表使用新增空间放大字号。话题标题占固定高度，多行标题与编号垂直居中；摘要顶部对齐，页码拥有独立底部区域，字号按可用面积与文本长度动态计算。图片是消息正文，任何一张渲染失败都会终止归档，不回落到默认封面。

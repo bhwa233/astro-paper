@@ -82,12 +82,14 @@ export async function synchronizeArticle(
     }
 
     if (existing?.writeState === 'pending' && !options.forceCreate) {
-      // New drafts have no 阅读原文 link. A canonical URL still identifies the
-      // local ledger entry, but cannot identify the draft remotely. Even an
-      // older draft with that URL could belong to a previous force-create.
+      // A news draft does carry its canonical URL as 阅读原文 again, but that
+      // still does not identify a draft: several drafts are cut from one
+      // article on purpose (Reddit volumes share a source URL), an older draft
+      // with that URL could belong to a previous force-create, and a 图片消息
+      // never sends the field and cannot be read back remotely at all.
       throw new AstroWechatError(
         'wechat',
-        '上一次同步结果未知；阅读原文已关闭，无法按原文地址核对远端草稿。' +
+        '上一次同步结果未知；原文地址不足以认定远端草稿（多篇可共用同一地址，图片消息也查不到）。' +
           '请手动检查草稿箱，确认需要新建后使用 --force-create。',
         { code: 'reconcile-impossible', sourcePath: document.source.absolutePath },
       )
@@ -168,8 +170,9 @@ async function create(
     digest: document.digest,
     content,
     thumbMediaId: coverMaterialId!,
-    // All synchronized drafts hide 阅读原文; canonicalUrl stays in the ledger.
-    contentSourceUrl: '',
+    // 阅读原文. Undefined for a source with no canonical URL, which the client
+    // sends as an empty string — the same as having no link.
+    contentSourceUrl: document.canonicalUrl,
   })
 
   await deps.store.commit(document.sourceId, {
@@ -241,6 +244,11 @@ async function createNewspic(
     author: document.author,
     content: rendered.content,
     imageMediaIds,
+    // A 图片消息 has no 阅读原文 entry in WeChat's own editor, and the endpoint
+    // rejects fields it does not accept here (see `digest`/`thumb_media_id`).
+    // Unverifiable too: no read endpoint returns a newspic draft, so nothing
+    // could confirm the field survived. Left empty until checked by hand in the
+    // draft box.
     contentSourceUrl: '',
   })
 

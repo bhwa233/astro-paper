@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-21",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "adc4331979eb531b357a85cca10b034c469e041c",
+    "workflowRun": "35625942633",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-21-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-21/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 30,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "从重病患者视角重新审视健康的微小日常，情感真挚深沉，极具生命共鸣与长尾思考价值。"
+      },
+      {
+        "rank": 24,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "探讨真诚表达中不可侵犯的心理边界，兼具日常处世智慧与深层次的社交同理心。"
+      },
+      {
+        "rank": 4,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "打破穿越爽文幻想，从失去现有人生羁绊与家庭痛苦的独特视角切入，极具思辨深度。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深入探讨老龄化照护困境、AI冲击与基础技术蓝领的不可替代性，跨越地域且兼具现实长尾价值。"
+      },
+      {
+        "rank": 15,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "讲述建立个人边界、停止无谓道歉与远离内耗的心理成熟过程，能唤起成年人强烈共鸣。"
+      },
+      {
+        "rank": 3,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "精准击中外卖溢价、快餐通胀与单人生活成本失控的现实痛点，社会代入感与讨论欲极强。"
+      },
+      {
+        "rank": 7,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "通过早期员工红利、实业运作等真实案例满足对财富积累的好奇心，兼具故事性与客观视角。"
+      },
+      {
+        "rank": 10,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "提供取消自动续费减少冲动消费、戒除不良嗜好等具有普适性且可迁移的真实理财生活经验。"
+      },
+      {
+        "rank": 8,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "生动还原窃取他人经历当谈资等离谱社交谎言，情境具体鲜活，极易唤起读者的倾诉欲。"
+      },
+      {
+        "rank": 11,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "通过无防护驾驶意外与毒品成瘾等具体惨痛案例，传递具有长期警示意义的人生风险认知。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 2,
+        "category": "low_resonance",
+        "reason": "内容主要围绕北美高校体育生特长选课的特定水课机制，缺乏普适的学业共鸣与讨论深度。"
+      },
+      {
+        "rank": 5,
+        "category": "narrow_interest",
+        "reason": "属于特定商业游戏发售翻车与数值漏洞的玩家吐槽，受众局限且高度依赖特定游戏知识。"
+      },
+      {
+        "rank": 6,
+        "category": "low_resonance",
+        "reason": "聚焦小众极端个案与网络猎奇黑洞，内容偏向阴暗压抑，缺乏更广泛的大众认知与共鸣价值。"
+      },
+      {
+        "rank": 9,
+        "category": "low_resonance",
+        "reason": "天降横财的假想回答多为零碎调侃或浅层消费愿望，缺乏具体故事与深度讨论。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "关于三十岁女性购衣渠道的回答琐碎分散，偏向日常随聊，缺少深层话题价值。"
+      },
+      {
+        "rank": 13,
+        "category": "narrow_interest",
+        "reason": "盘点特定欧美影视剧的催泪剧集，高度依赖读者对特定剧集人物与情节的熟悉程度。"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "中年爱好推荐以常规散步、飞盘与桌游为主，内容较为平淡，缺乏强烈的讨论冲突与深度。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "被奉为神明的脑洞假设偏向荒诞调侃与抖机灵，缺乏真实的生活共鸣与讨论厚度。"
+      },
+      {
+        "rank": 17,
+        "category": "low_resonance",
+        "reason": "关于高跟鞋与文胸穿着体验的讨论较为浅层常见，缺乏足够展开的代表性故事。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "耐用畅销车型盘点偏向老生常谈的日系车口碑，观点较为常规且信息增量有限。"
+      },
+      {
+        "rank": 19,
+        "category": "narrow_interest",
+        "reason": "低价独立宝藏游戏推荐清单，受众局限于核心玩家，依赖特定游戏产品体验。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "童年放学追剧怀旧清单，高度依赖特定年代与地区受众的情感回忆，属于单纯怀旧。"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "个人情感创伤对话以个例情绪宣泄为主，缺乏更广泛的行为认知与生活经验迁移。"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "对成年生活账单贵的讨论与同类高热议题重复，且本帖回答相对平淡简略。"
+      },
+      {
+        "rank": 23,
+        "category": "narrow_interest",
+        "reason": "怀旧停产零食清单高度依赖特定地区已下架的商品记忆，属于小众怀旧盘点。"
+      },
+      {
+        "rank": 25,
+        "category": "low_resonance",
+        "reason": "男性生日礼物愿望多为网络梗与碎片化调侃，缺乏成体系的深度情感与认知探讨。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "低估职业讨论偏口号化宣讲，与已有职业发展深度议题存在重叠且论述层次较浅。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "对抑郁症重新命名主要停留在词汇替换与抽象状态描述，缺乏具体的经历叙事支撑。"
+      },
+      {
+        "rank": 28,
+        "category": "narrow_interest",
+        "reason": "盘点大型单机游戏剧情叙事，高度依赖对特定游戏主线设定的了解，受众面较窄。"
+      },
+      {
+        "rank": 29,
+        "category": "time_sensitive",
+        "reason": "围绕特定年份的超级厄尔尼诺与当季极端天气展开讨论，属于时效性极强的短期热点。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wluc0a",
+      "title": "如果明天醒来彻底康复，身患残障与重病的人第一件事想做什么？",
+      "subreddit": "AskReddit",
+      "points": "108 points · 249 评论",
+      "numComments": 249,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wluc0a/people_with_disabilities_if_you_wake_up_tomorrow/",
+      "sourceRank": 30,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/01-1wluc0a.md",
+      "contentSha256": "e1ccde4b1c496d32c6c11a74a808e934dd2a58c7e588c04d4e159a6e47eb2507",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wm65vr",
+      "title": "有哪些事就算再真实，也绝对不该当面告诉对方？",
+      "subreddit": "AskReddit",
+      "points": "166 points · 150 评论",
+      "numComments": 150,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wm65vr/whats_something_you_shouldnt_tell_someone_no/",
+      "sourceRank": 24,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/02-1wm65vr.md",
+      "contentSha256": "e33c5aa83e244797734e1db5027f7c1514dc37b2c7fe8819a90c43c04fe9d7a5",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wlr3bx",
+      "title": "如果明天醒来变回10岁的自己，你第一件事会做什么？",
+      "subreddit": "AskReddit",
+      "points": "1182 points · 2661 评论",
+      "numComments": 2661,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wlr3bx/if_you_woke_up_tomorrow_as_your_10_year_old_self/",
+      "sourceRank": 4,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/01-1wluc0a.md",
+      "contentSha256": "e1ccde4b1c496d32c6c11a74a808e934dd2a58c7e588c04d4e159a6e47eb2507",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wm37ty",
+      "title": "未来十年哪些职业会迎来爆发？",
+      "subreddit": "AskReddit",
+      "points": "3191 points · 1419 评论",
+      "numComments": 1419,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wm37ty/what_career_do_you_think_will_be_huge_in_the_next/",
+      "sourceRank": 1,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/02-1wm65vr.md",
+      "contentSha256": "e33c5aa83e244797734e1db5027f7c1514dc37b2c7fe8819a90c43c04fe9d7a5",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wm41s1",
+      "title": "意识到“其实完全没必要”后，你主动放弃了哪些事情？",
+      "subreddit": "AskReddit",
+      "points": "375 points · 420 评论",
+      "numComments": 420,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wm41s1/whats_something_you_stopped_doing_once_you/",
+      "sourceRank": 15,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/01-1wluc0a.md",
+      "contentSha256": "e1ccde4b1c496d32c6c11a74a808e934dd2a58c7e588c04d4e159a6e47eb2507",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wlocgz",
+      "title": "现在究竟有什么东西贵到让人无法理解别人怎么负担得起？",
+      "subreddit": "AskReddit",
+      "points": "1223 points · 1405 评论",
+      "numComments": 1405,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wlocgz/what_has_become_so_expensive_that_you_genuinely/",
+      "sourceRank": 3,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/02-1wm65vr.md",
+      "contentSha256": "e33c5aa83e244797734e1db5027f7c1514dc37b2c7fe8819a90c43c04fe9d7a5",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wlorna",
+      "title": "你家那个最有钱的亲戚，现实中到底是做什么工作的？",
+      "subreddit": "AskReddit",
+      "points": "801 points · 554 评论",
+      "numComments": 554,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wlorna/whats_that_rich_family_member_you_have_do_for_a/",
+      "sourceRank": 7,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/01-1wluc0a.md",
+      "contentSha256": "e1ccde4b1c496d32c6c11a74a808e934dd2a58c7e588c04d4e159a6e47eb2507",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wlz924",
+      "title": "网友停止购买哪些东西后，真正存下了大笔钱？",
+      "subreddit": "AskReddit",
+      "points": "721 points · 664 评论",
+      "numComments": 664,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wlz924/what_did_you_stop_buying_that_helped_you_to_save/",
+      "sourceRank": 10,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/02-1wm65vr.md",
+      "contentSha256": "e33c5aa83e244797734e1db5027f7c1514dc37b2c7fe8819a90c43c04fe9d7a5",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wmczaf",
+      "title": "有哪些一眼就能拆穿、对方却死不承认的离谱谎言？",
+      "subreddit": "AskReddit",
+      "points": "752 points · 634 评论",
+      "numComments": 634,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wmczaf/whats_the_most_insane_lie_someone_has_ever_told/",
+      "sourceRank": 8,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/01-1wluc0a.md",
+      "contentSha256": "e1ccde4b1c496d32c6c11a74a808e934dd2a58c7e588c04d4e159a6e47eb2507",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wln99c",
+      "title": "你见过别人毁掉自己生活最快的方式是什么？",
+      "subreddit": "AskReddit",
+      "points": "619 points · 342 评论",
+      "numComments": 342,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wln99c/whats_the_fastest_way_you_have_seen_someone_ruin/",
+      "sourceRank": 11,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-21/02-1wm65vr.md",
+      "contentSha256": "e33c5aa83e244797734e1db5027f7c1514dc37b2c7fe8819a90c43c04fe9d7a5",
+      "volume": "v2"
+    }
+  ]
+}

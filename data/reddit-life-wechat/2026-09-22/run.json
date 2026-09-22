@@ -1,0 +1,324 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-22",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "db65c372f7e58a001cec2d8aace5f1035dcdf62d",
+    "workflowRun": "35744304228",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-22-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-22/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "消费者对知名品牌产品策略与垄断行为的真实控诉，案例详实且具有长期的参考与讨论价值。"
+      },
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "聚焦亲密关系中的关键负面特质，回答直击共情缺失与尊重底线，极易引发广泛读者共鸣。"
+      },
+      {
+        "rank": 3,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "深刻剖析现代亲密关系中的精力损耗与心理动机转变，具有普遍的情感共鸣与社会心理观察价值。"
+      },
+      {
+        "rank": 7,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "真实且充满幽默感的育儿打脸经历，生动呈现理想与现实的落差，极具生活共鸣与传播力。"
+      },
+      {
+        "rank": 28,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "用流体力学壅塞流与热力学原理解析空间站失压场景，论证严密且有效破除影视误区，长尾科普价值极高。"
+      },
+      {
+        "rank": 22,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "细腻展现不善索取者的深层情感需求，故事真挚动人，能引发亲密关系中的深度共鸣与反思。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "探讨日常生活中容易被低估的隐蔽风险与决策代价，案例具有跨时间的警示意义与代入感。"
+      },
+      {
+        "rank": 10,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "触及成年人隐秘的自尊、经济跃升与家庭付出，真实反映普通人无法言说的成就感与生活辛酸。"
+      },
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "分享从怀疑到依赖的实用消费体验，兼具科技认知与居家生活价值，长尾参考性强。"
+      },
+      {
+        "rank": 19,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "以具象的生活细节（如卫生恶化、眼神放空）拆解心理健康滑坡的早期迹象，具备高实用性与警示价值。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 4,
+        "category": "low_resonance",
+        "reason": "身边人涉案的故事过于离奇极端，属于个案猎奇叙事，缺乏普遍迁移价值。"
+      },
+      {
+        "rank": 5,
+        "category": "narrow_interest",
+        "reason": "属于影视作品特定场景与演员颜值的怀旧盘点，缺乏深度讨论价值。"
+      },
+      {
+        "rank": 9,
+        "category": "narrow_interest",
+        "reason": "单纯罗列引起不适的书单，讨论受限于具体书目内容，缺乏延展性。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "关于四天工作制的讨论多为常规吐槽，洞察深度弱于已选的高共鸣议题。"
+      },
+      {
+        "rank": 12,
+        "category": "region_specific",
+        "reason": "内容完全基于美国本土独有的体育联盟、地方企业及社会制度，属于典型地区依赖。"
+      },
+      {
+        "rank": 13,
+        "category": "narrow_interest",
+        "reason": "英语人名谐音梗与文化语境强相关，对中文读者缺乏共鸣与实用价值。"
+      },
+      {
+        "rank": 14,
+        "category": "narrow_interest",
+        "reason": "特定情景喜剧催泪桥段盘点，严重依赖具体剧集的观看背景。"
+      },
+      {
+        "rank": 15,
+        "category": "narrow_interest",
+        "reason": "美剧单集巅峰盘点，依赖特定剧集的情节记忆，受众面较窄。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "千禧年私人怀旧流水账，缺乏普遍的生活经验提炼与深度共鸣。"
+      },
+      {
+        "rank": 17,
+        "category": "low_resonance",
+        "reason": "观点与男性单身议题多有重合，回答样本相对单一，综合价值弱于已选内容。"
+      },
+      {
+        "rank": 18,
+        "category": "narrow_interest",
+        "reason": "简单的近期游戏清单分享，缺乏普适性生活观察或讨论深度。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "大众商业电影重温清单，缺乏新鲜视角与深入讨论。"
+      },
+      {
+        "rank": 21,
+        "category": "narrow_interest",
+        "reason": "小众极端邪典电影盘点，内容较为猎奇，不适合大众传播。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "学术问答现场记录，回答以同行提问为主，缺乏成体系的扎实科普结论。"
+      },
+      {
+        "rank": 24,
+        "category": "low_resonance",
+        "reason": "三十岁身体变化的讨论较为碎片化，多为常见生理现象罗列，深度有限。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "针对特定欧美流行歌曲的个人情绪吐槽，依赖具体听歌背景且受众局限。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "暴富假设类老生常谈话题，回答多为常见空想段子，缺乏思考深度。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "助眠技巧讨论较为零碎且因人而异，论证深度弱于已选的高价值长尾内容。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "虚构角色童年初恋盘点，依赖特定年代影视人物记忆，普适性不足。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "回答以无厘头调侃和段子为主，缺少实质性有效信息与讨论价值。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wmgnh0",
+      "title": "哪家公司彻底失去了你的信任与业务，究竟因为什么？",
+      "subreddit": "AskReddit",
+      "points": "7910 points · 8696 评论",
+      "numComments": 8696,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wmgnh0/what_company_has_lost_your_business_permanently/",
+      "sourceRank": 1,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/01-1wmgnh0.md",
+      "contentSha256": "5607118a5f9812511a0978ab38da6c4b8b97cebb15e9f91e6f06096efa1a9ea7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wmulgs",
+      "title": "原本非常心动的人，是在哪个瞬间让你彻底“下头”的？",
+      "subreddit": "AskReddit",
+      "points": "3171 points · 2882 评论",
+      "numComments": 2882,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wmulgs/what_made_you_instantly_a_lot_less_attracted_to/",
+      "sourceRank": 2,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/02-1wmulgs.md",
+      "contentSha256": "525e3ce1c1834d05344dd2f27b61407fff6d3c5bf4eabc71a2a4df5f44062f58",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wmp77m",
+      "title": "主动选择单身的男性，究竟因为什么彻底放弃了约会？",
+      "subreddit": "AskReddit",
+      "points": "2801 points · 3444 评论",
+      "numComments": 3444,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wmp77m/men_who_are_single_by_choice_what_made_you_stop/",
+      "sourceRank": 3,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/01-1wmgnh0.md",
+      "contentSha256": "5607118a5f9812511a0978ab38da6c4b8b97cebb15e9f91e6f06096efa1a9ea7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wn3itv",
+      "title": "“生娃前人均育儿专家”，现实中有哪些被狠狠打脸的真实案例？",
+      "subreddit": "AskReddit",
+      "points": "1574 points · 773 评论",
+      "numComments": 773,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wn3itv/the_best_parents_are_the_parents_before_they_have/",
+      "sourceRank": 7,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/02-1wmulgs.md",
+      "contentSha256": "525e3ce1c1834d05344dd2f27b61407fff6d3c5bf4eabc71a2a4df5f44062f58",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wmoxyo",
+      "title": "如果国际空间站（ISS）破了一个 1 平方米的大洞，舱内空气会以多快的速度喷出？",
+      "subreddit": "askscience",
+      "points": "112 points · 43 评论",
+      "numComments": 43,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wmoxyo/how_fast_would_air_exit_a_hole_in_the_iss/",
+      "sourceRank": 28,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/01-1wmgnh0.md",
+      "contentSha256": "5607118a5f9812511a0978ab38da6c4b8b97cebb15e9f91e6f06096efa1a9ea7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wmyask",
+      "title": "对于从不主动要礼物或派对的男生，女友在生日做什么能让他真正感到被在乎？",
+      "subreddit": "AskReddit",
+      "points": "179 points · 117 评论",
+      "numComments": 117,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wmyask/men_of_reddit_whats_something_a_girlfriend_could/",
+      "sourceRank": 22,
+      "selectionRank": 6,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/02-1wmulgs.md",
+      "contentSha256": "525e3ce1c1834d05344dd2f27b61407fff6d3c5bf4eabc71a2a4df5f44062f58",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wmth80",
+      "title": "有哪些看似人畜无害的小事，却能以惊人的速度毁掉一个人的一生？",
+      "subreddit": "AskReddit",
+      "points": "1911 points · 494 评论",
+      "numComments": 494,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wmth80/what_seemingly_harmless_thing_can_ruin_a_persons/",
+      "sourceRank": 6,
+      "selectionRank": 7,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/01-1wmgnh0.md",
+      "contentSha256": "5607118a5f9812511a0978ab38da6c4b8b97cebb15e9f91e6f06096efa1a9ea7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wn58q7",
+      "title": "有哪些只能藏在心底、完全无法向身边人炫耀的个人成就？",
+      "subreddit": "AskReddit",
+      "points": "506 points · 431 评论",
+      "numComments": 431,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wn58q7/whats_your_biggest_flex_that_you_cant_tell_anybody/",
+      "sourceRank": 10,
+      "selectionRank": 8,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/02-1wmulgs.md",
+      "contentSha256": "525e3ce1c1834d05344dd2f27b61407fff6d3c5bf4eabc71a2a4df5f44062f58",
+      "volume": "v2"
+    },
+    {
+      "postId": "1wmuxv7",
+      "title": "买之前觉得纯属浪费钱、买之后彻底离不开的物品或服务有哪些？",
+      "subreddit": "AskReddit",
+      "points": "1471 points · 844 评论",
+      "numComments": 844,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wmuxv7/what_did_you_think_was_a_complete_waste_of_money/",
+      "sourceRank": 8,
+      "selectionRank": 9,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/01-1wmgnh0.md",
+      "contentSha256": "5607118a5f9812511a0978ab38da6c4b8b97cebb15e9f91e6f06096efa1a9ea7",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wmshom",
+      "title": "陷入抑郁症（depression）时，有哪些容易被忽视的细微征兆？",
+      "subreddit": "AskReddit",
+      "points": "191 points · 94 评论",
+      "numComments": 94,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wmshom/whats_a_subtle_sign_someone_is_struggling_with/",
+      "sourceRank": 19,
+      "selectionRank": 10,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-22/02-1wmulgs.md",
+      "contentSha256": "525e3ce1c1834d05344dd2f27b61407fff6d3c5bf4eabc71a2a4df5f44062f58",
+      "volume": "v2"
+    }
+  ]
+}

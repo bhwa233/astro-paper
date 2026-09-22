@@ -1,0 +1,34 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-22",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-09-22",
+    "drafts": [
+      "01-1wmgnh0.md",
+      "02-1wmulgs.md"
+    ],
+    "sha256": "4e66f839365f5e01e14a2d550eb2296f3898b7890768e628f86bdd0cab537351"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 10,
+  "eligibleQuestionCount": 9,
+  "selectedQuestionIndexes": [
+    7,
+    10
+  ],
+  "titles": [
+    "生娃前立下的flag被打脸",
+    "容易被忽视的抑郁症征兆"
+  ],
+  "questions": [
+    "“生娃前人均育儿专家”，现实中有哪些被狠狠打脸的真实案例？",
+    "陷入抑郁症时，有哪些容易被忽视的细微征兆？"
+  ],
+  "verbatimCounts": [
+    7,
+    9
+  ]
+}

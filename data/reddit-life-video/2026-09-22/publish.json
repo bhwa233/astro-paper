@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-22",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "df1fcb32b802cb048136c1cd5bf6c0e7c7815b7303b9c884e1ddbb8ae8d4db14",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 7,
+      "status": "processed",
+      "tags": [
+        "家庭关系",
+        "认知思维",
+        "反常识",
+        "破防瞬间"
+      ],
+      "summary": "从不给看屏幕到离不开哄娃神器，现实总能让曾经自信的预备父母迅速妥协",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 10,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "反常识",
+        "健康常识"
+      ],
+      "summary": "它往往不是放声大哭，而是变成社交圈里最幽默的人、极力回避谈及自己并悄悄退场",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

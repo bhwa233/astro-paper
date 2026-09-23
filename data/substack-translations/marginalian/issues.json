@@ -651,6 +651,21 @@
         "outputTokens": 2478,
         "totalTokens": 5435
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=79652",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/13/dawn-redwood-metasequoia",
+      "sourcePublishedAt": "2026-09-13T14:29:01.000Z",
+      "sourceSha256": "407619217c04790374555f20330bd9a8b4723e416493cd877538277d684c4cbe",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260913-dawn-redwood-metasequoia.md",
+      "translatedAt": "2026-09-23T04:53:33.967Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 1738,
+        "outputTokens": 2711,
+        "totalTokens": 4449
+      }
     }
   ]
 }

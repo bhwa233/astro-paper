@@ -135,6 +135,21 @@
         "outputTokens": 5234,
         "totalTokens": 8185
       }
+    },
+    {
+      "guid": "6ab27b394c994e000187a7ce",
+      "canonicalUrl": "https://www.wheresyoured.at/wherere-all-the-ai-chips",
+      "sourcePublishedAt": "2026-09-22T14:35:46.000Z",
+      "sourceSha256": "c12a8d9bd7adc13fdb99d9aeb1bec4431ed185c913bc641ee3acee1d7d3c9e8f",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/wheres-your-ed-at-20260922-wherere-all-the-ai-chips.md",
+      "translatedAt": "2026-09-23T04:52:25.854Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 13935,
+        "outputTokens": 14356,
+        "totalTokens": 28291
+      }
     }
   ]
 }

@@ -1,0 +1,244 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-23",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "2b67b92e9bc9785d829d50c389cf9d99fb689b4c",
+    "workflowRun": "35878911260",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-23-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-23/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 29,
+    "selected": [
+      {
+        "rank": 5,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "童年清贫记忆与对奢华的误解极具普遍情感共鸣，包含大量鲜活扎实的个人经历与家庭细节。"
+      },
+      {
+        "rank": 2,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "揭示看似体面轻松职业背后的真实心理重压，幼儿园老师与宠物诊所的故事极具感染力与代入感。"
+      },
+      {
+        "rank": 10,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "探讨告别宠物的漫长哀伤与心理重建，情感真挚细腻且跨越文化与地域，具有持久的长尾抚慰价值。"
+      },
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "提供自我原谅与破除聚光灯效应的实用心理调节认知，具有高度普适性和长尾可迁移价值。"
+      },
+      {
+        "rank": 13,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "直击强制改密和低效会议等职场形式主义痛点，同时兼顾正反视角，容易激发职场群体广泛讨论。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 1,
+        "category": "narrow_interest",
+        "reason": "讨论局限于特定海外视频博主的转型与内容变质，依赖对特定网红频道的了解。"
+      },
+      {
+        "rank": 3,
+        "category": "low_resonance",
+        "reason": "主要聚焦于医疗机构管理层行政弊端的集中控诉，议题视角偏单一且缺少多元故事展开。"
+      },
+      {
+        "rank": 4,
+        "category": "low_resonance",
+        "reason": "属于纯娱乐性质的假设性起名脑洞，缺乏实质讨论深度与真实生活共鸣。"
+      },
+      {
+        "rank": 6,
+        "category": "region_specific",
+        "reason": "内容高度依赖美国 Costco 门店的药品定价、处方政策与本地汽油差价。"
+      },
+      {
+        "rank": 7,
+        "category": "low_resonance",
+        "reason": "回答多为冲动自残或荒唐打洞的猎奇个人经历，缺乏普适启发与共鸣价值。"
+      },
+      {
+        "rank": 9,
+        "category": "low_resonance",
+        "reason": "属于零散的海外名人高中轶事盘点，内容琐碎且缺乏持续阅读价值。"
+      },
+      {
+        "rank": 11,
+        "category": "narrow_interest",
+        "reason": "属于经典流行音乐前奏的浅层盘点清单，缺乏深层次讨论价值。"
+      },
+      {
+        "rank": 12,
+        "category": "narrow_interest",
+        "reason": "围绕童年特定影视作品带来的心理阴影盘点，高度依赖对具体老电影的情怀记忆。"
+      },
+      {
+        "rank": 14,
+        "category": "low_resonance",
+        "reason": "内容主要偏向早期生理症状与情绪崩溃碎片的罗列，讨论维度相对单一。"
+      },
+      {
+        "rank": 15,
+        "category": "region_specific",
+        "reason": "讨论深度依赖安乐死合法化、宗教免税等特定国家的司法与制度环境。"
+      },
+      {
+        "rank": 16,
+        "category": "low_resonance",
+        "reason": "属于假设性的社交互动脑洞，回答多为轻度调侃，缺少真实生活经验沉淀。"
+      },
+      {
+        "rank": 17,
+        "category": "region_specific",
+        "reason": "讨论核心完全绑定美国医疗保险体系、高昂自付费用及特定账单机制。"
+      },
+      {
+        "rank": 18,
+        "category": "narrow_interest",
+        "reason": "围绕特定美剧的家庭禁令回忆，高度依赖特定年代的海外电视文化背景。"
+      },
+      {
+        "rank": 19,
+        "category": "narrow_interest",
+        "reason": "围绕特定欧美明星的个人审美盘点，属于纯追星偏好清单。"
+      },
+      {
+        "rank": 20,
+        "category": "narrow_interest",
+        "reason": "聚焦古代政权战略失误的历史案例复盘，属于特定历史爱好者的冷知识讨论。"
+      },
+      {
+        "rank": 21,
+        "category": "low_resonance",
+        "reason": "属于车主对特定汽车品牌机械故障的零散吐槽，缺乏有深度的叙事与共鸣。"
+      },
+      {
+        "rank": 22,
+        "category": "narrow_interest",
+        "reason": "属于对特定海外停产零食与商品的怀旧清单，依赖特定区域的童年消费记忆。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "内容多为简短的年龄反差情绪宣泄，缺乏展开的具体故事与生活细节。"
+      },
+      {
+        "rank": 24,
+        "category": "low_resonance",
+        "reason": "盘点常见高危窒息职业，内容多为浮于表面的抗拒表态，不如入选的职业话题深刻。"
+      },
+      {
+        "rank": 25,
+        "category": "low_resonance",
+        "reason": "内容为极端悲惨事件的沉重罗列，情绪过于压抑且缺乏建设性思考。"
+      },
+      {
+        "rank": 26,
+        "category": "low_resonance",
+        "reason": "属于日常止嗝偏方与段子分享，内容体量单薄且缺少长效讨论价值。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "属于简短的情绪宣泄树洞帖，缺少具体故事情境支撑与深入探讨。"
+      },
+      {
+        "rank": 28,
+        "category": "narrow_interest",
+        "reason": "高度依赖英语谐音双关与文字梗为殡仪馆起名，存在明显的语言文化隔阂。"
+      },
+      {
+        "rank": 29,
+        "category": "low_resonance",
+        "reason": "探讨人类最伟大发明的宏大命题，观点较为常规且缺少切身的情感共鸣。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wnovcs",
+      "title": "小时候家里穷，你曾以为哪些平常事物是顶级奢华？",
+      "subreddit": "AskReddit",
+      "points": "1915 points · 3214 评论",
+      "numComments": 3214,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wnovcs/people_that_grew_up_being_poor_what_did_you/",
+      "sourceRank": 5,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-23/01-1wnovcs.md",
+      "contentSha256": "90b262365f6cf54bd46a6858960d297ac3415a229caca5959fb85f9517aebb2e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wnpa7j",
+      "title": "哪些工作表面看起来轻松，实际干起来却极其折磨摧残人？",
+      "subreddit": "AskReddit",
+      "points": "3919 points · 1453 评论",
+      "numComments": 1453,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wnpa7j/whats_a_job_that_looks_easy_but_is_actually_brutal/",
+      "sourceRank": 2,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-23/01-1wnovcs.md",
+      "contentSha256": "90b262365f6cf54bd46a6858960d297ac3415a229caca5959fb85f9517aebb2e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wnc20b",
+      "title": "失去深爱的宠物后，那些漫长的悲痛究竟该如何熬过去？",
+      "subreddit": "AskReddit",
+      "points": "580 points · 1316 评论",
+      "numComments": 1316,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wnc20b/serious_people_who_have_lost_a_pet_how_did_you/",
+      "sourceRank": 10,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-23/01-1wnovcs.md",
+      "contentSha256": "90b262365f6cf54bd46a6858960d297ac3415a229caca5959fb85f9517aebb2e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wnuggd",
+      "title": "有哪些彻底改变了你生活的心理健康小建议？",
+      "subreddit": "AskReddit",
+      "points": "1210 points · 543 评论",
+      "numComments": 543,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wnuggd/whats_the_mental_health_tip_that_changed_your_life/",
+      "sourceRank": 8,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-23/01-1wnovcs.md",
+      "contentSha256": "90b262365f6cf54bd46a6858960d297ac3415a229caca5959fb85f9517aebb2e",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wo4hzk",
+      "title": "有哪些看似合理实则纯属浪费时间的职场规则？",
+      "subreddit": "AskReddit",
+      "points": "424 points · 280 评论",
+      "numComments": 280,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wo4hzk/what_is_a_professional_standard_or_workplace_rule/",
+      "sourceRank": 13,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-23/01-1wnovcs.md",
+      "contentSha256": "90b262365f6cf54bd46a6858960d297ac3415a229caca5959fb85f9517aebb2e",
+      "volume": "v1"
+    }
+  ]
+}

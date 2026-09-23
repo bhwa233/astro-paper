@@ -18,11 +18,13 @@ const TITLE_ELLIPSIS = "…";
 export const REDDIT_LIFE_WECHAT_POST_LIMIT = 5;
 export const REDDIT_LIFE_WECHAT_REPLY_LIMIT = 30;
 
-// AI 会评估上游文章里的全部帖子，最多选十帖；一篇稿子收录五帖，因此分成两卷推送。
-// 卷号只作内部身份，不展示给读者。
-export const REDDIT_LIFE_WECHAT_VOLUMES = ["v1", "v2"] as const;
+// AI 会评估上游文章里的全部帖子，最多选五帖，每天只推一篇稿子。
+// 卷号只作内部身份，不展示给读者。2026-09-23 之前每天两卷共十帖，历史 manifest 里仍有 v2。
+export const REDDIT_LIFE_WECHAT_VOLUMES = ["v1"] as const;
 export type RedditLifeVolume = (typeof REDDIT_LIFE_WECHAT_VOLUMES)[number];
 export const REDDIT_LIFE_WECHAT_TOTAL_POSTS = REDDIT_LIFE_WECHAT_VOLUMES.length * REDDIT_LIFE_WECHAT_POST_LIMIT;
+// 历史 manifest 的选题上限。读旧归档时按它校验，否则重跑旧日期会因为「选了十帖」被判非法。
+export const REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS = 10;
 
 // ------------------------------------------------------------------ A/B 开关
 //

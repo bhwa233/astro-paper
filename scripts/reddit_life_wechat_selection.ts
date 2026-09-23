@@ -50,14 +50,19 @@ function reason(value: unknown, rank: number): string {
   return parsed;
 }
 
-export function validateRedditLifeWechatSelection(raw: unknown, candidateCount: number): RedditLifeWechatSelection {
+/** maxSelected 默认取当前上限；读历史 manifest 时传入旧上限。 */
+export function validateRedditLifeWechatSelection(
+  raw: unknown,
+  candidateCount: number,
+  maxSelected: number = REDDIT_LIFE_WECHAT_TOTAL_POSTS
+): RedditLifeWechatSelection {
   if (!Number.isInteger(candidateCount) || candidateCount < 1) throw new Error(`invalid Reddit life WeChat candidate count: ${candidateCount}`);
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life WeChat selection must be a JSON object");
   const value = raw as Record<string, unknown>;
   if (!Array.isArray(value.selected) || !Array.isArray(value.rejected))
     throw new Error("Reddit life WeChat selection must contain selected and rejected arrays");
-  if (value.selected.length > REDDIT_LIFE_WECHAT_TOTAL_POSTS) {
-    throw new Error(`Reddit life WeChat selection picked ${value.selected.length} posts, at most ${REDDIT_LIFE_WECHAT_TOTAL_POSTS} are allowed`);
+  if (value.selected.length > maxSelected) {
+    throw new Error(`Reddit life WeChat selection picked ${value.selected.length} posts, at most ${maxSelected} are allowed`);
   }
 
   const selected = value.selected.map((rawEntry, index): RedditLifeWechatSelectedPost => {
@@ -102,15 +107,13 @@ export function rankedRedditLifeCandidates(candidates: RedditLifeCandidate[], se
 }
 
 /**
- * 两篇微信稿需要均摊 AI 的高优先级选题：第 1、3、5… 名进第一篇，第 2、4、6… 名进第二篇。
- * 只有凑满十题才拆成两篇；不足时保留成一篇，避免为少量选题额外发一篇短稿。
+ * 每天一篇稿子，按 AI 排序收录全部入选帖。不足五帖照样成篇，不为凑数补低质量帖子。
  */
 export function splitRedditLifeWechatCandidates(candidates: RedditLifeCandidate[]): RedditLifeCandidate[][] {
   if (candidates.length > REDDIT_LIFE_WECHAT_TOTAL_POSTS) {
     throw new Error(`Reddit life WeChat can split at most ${REDDIT_LIFE_WECHAT_TOTAL_POSTS} selected posts`);
   }
-  if (candidates.length < REDDIT_LIFE_WECHAT_TOTAL_POSTS) return candidates.length ? [candidates] : [];
-  return [candidates.filter((_, index) => index % 2 === 0), candidates.filter((_, index) => index % 2 === 1)];
+  return candidates.length ? [candidates] : [];
 }
 
 function storyExcerpts(body: string): string[] {

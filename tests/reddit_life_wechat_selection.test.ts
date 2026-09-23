@@ -56,21 +56,11 @@ test("Reddit life WeChat selection rejects duplicate and omitted candidates", ()
   );
 });
 
-test("Reddit life WeChat splits ten AI-ranked posts across both drafts", () => {
-  const volumes = splitRedditLifeWechatCandidates(candidates(10));
+test("Reddit life WeChat keeps up to five AI-ranked posts in one ordered draft", () => {
+  const volumes = splitRedditLifeWechatCandidates(candidates(5));
   assert.deepEqual(
     volumes.map(volume => volume.map(item => item.rank)),
-    [
-      [1, 3, 5, 7, 9],
-      [2, 4, 6, 8, 10],
-    ]
+    [[1, 2, 3, 4, 5]]
   );
-});
-
-test("Reddit life WeChat keeps an incomplete selection in one ordered draft", () => {
-  const volumes = splitRedditLifeWechatCandidates(candidates(6));
-  assert.deepEqual(
-    volumes.map(volume => volume.map(item => item.rank)),
-    [[1, 2, 3, 4, 5, 6]]
-  );
+  assert.throws(() => splitRedditLifeWechatCandidates(candidates(6)), /at most 5 selected posts/);
 });

@@ -19,7 +19,7 @@ import {
   REDDIT_LIFE_WECHAT_QR_FILE,
   REDDIT_LIFE_WECHAT_REPLY_LIMIT,
   REDDIT_LIFE_WECHAT_SHOW_QR,
-  REDDIT_LIFE_WECHAT_TOTAL_POSTS,
+  REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS,
   REDDIT_LIFE_WECHAT_TITLE_BRAND,
   REDDIT_LIFE_WECHAT_VOLUMES,
   type RedditLifeCandidate,
@@ -49,9 +49,9 @@ type Entry = Omit<RedditLifeCandidate, "body" | "rank"> & {
   path?: string;
   contentSha256?: string;
   reason?: string;
-  // 这一帖被分到哪一卷。两卷各一篇稿子，卷次同样要能被重跑复用。
-  // 分卷之前的归档没有这个字段，因此保持可选以兼容历史 manifest。
-  volume?: RedditLifeVolume;
+  // 这一帖被分到哪一卷，卷次同样要能被重跑复用。
+  // 分卷之前的归档没有这个字段，因此保持可选以兼容历史 manifest；v2 只出现在每天两卷时期的归档里。
+  volume?: RedditLifeVolume | "v2";
 };
 
 export type RedditLifeRunManifest = {
@@ -106,9 +106,9 @@ function parseManifest(raw: unknown, file: string): RedditLifeRunManifest {
       throw new Error(`invalid Reddit life WeChat selection audit: ${file}`);
     }
     try {
-      selection = validateRedditLifeWechatSelection(audit, audit.candidateCount);
+      selection = validateRedditLifeWechatSelection(audit, audit.candidateCount, REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS);
       if (value.version === 3) {
-        const expectedLeadCount = selection.selected.length === REDDIT_LIFE_WECHAT_TOTAL_POSTS ? 2 : selection.selected.length ? 1 : 0;
+        const expectedLeadCount = selection.selected.length === REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS ? 2 : selection.selected.length ? 1 : 0;
         if (
           !Array.isArray(audit.leads) ||
           audit.leads.length !== expectedLeadCount ||
@@ -315,9 +315,8 @@ export async function generateRedditLifeWechat({
   const candidates = rankedRedditLifeCandidates(sourceCandidates, selection);
   const candidateVolumes = splitRedditLifeWechatCandidates(candidates);
   const selectionRankBySourceRank = new Map(candidates.map((candidate, index) => [candidate.rank, index + 1]));
-  // 凑满十帖时两篇交错分配，避免第二篇只有低优先级题目；不足十帖就保留为一篇。
-  // 每帖保留几条仍由 fitWechatContentLimit 按渲染长度决定，每篇各自二分。
-  // 两卷共用这一个地址：它是「阅读原文」的落点，不是身份。身份走 syncId。
+  // 每帖保留几条由 fitWechatContentLimit 按渲染长度决定。
+  // 这个地址是「阅读原文」的落点，不是身份。身份走 syncId。
   const articleUrl = redditLifeArticleUrl(lifeArticlePath);
   const footer = redditLifeWechatFooter(articleUrl);
   writeStderr(
@@ -354,7 +353,7 @@ export async function generateRedditLifeWechat({
       writeStderr(`[reddit-life-wechat] ${label}: rendered ${coverFile} (${cover.length} bytes)`);
     }
     // 页脚卡片无条件引用 qr.png，所以开着二维码时这张图必须存在，失败就得让整次归档失败——
-    // 写出一篇引用了不存在资源的稿子，只会把问题推到发布那一步才炸。两卷共用同一张。
+    // 写出一篇引用了不存在资源的稿子，只会把问题推到发布那一步才炸。
     if (REDDIT_LIFE_WECHAT_SHOW_QR && !fs.existsSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_QR_FILE))) {
       const qr = await renderQrPng(articleUrl);
       fs.writeFileSync(path.join(path.dirname(target), REDDIT_LIFE_WECHAT_QR_FILE), qr);

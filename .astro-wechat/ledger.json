@@ -1214,6 +1214,19 @@
       "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNOE-95nqjqnqf1Obsl0yC6Z0xKJGAdaZBndRaEdbFdqk",
       "coverContentHash": "610e12d0abb08914"
     },
+    "reddit-life-2026-09-23-v1": {
+      "sourceId": "reddit-life-2026-09-23-v1",
+      "canonicalUrl": "https://blog.bhwa233.com/posts/reddit-2026-09-23-life/",
+      "contentHash": "a0a0ed138e7d960abc7d24d8c081fd0f3707cbd56d6be79c21f594a5d5a10a0e",
+      "hashSchemaVersion": 1,
+      "orphanedCoverMaterialIds": [],
+      "imageMaterialIds": [],
+      "writeState": "committed",
+      "updatedAt": "2026-09-23T15:16:43.897Z",
+      "mediaId": "lAMaLd-mzPj_bm0zorBkNAFXY_4VddkMLS1rSgQrpJmQKNO_pQmd9-gnqkz11fDA",
+      "coverMaterialId": "lAMaLd-mzPj_bm0zorBkNO8KJYUjgRkI517reW9-FnKKjKGmlhq7uUqsiQw6j7kT",
+      "coverContentHash": "ae9ec359bee107f2"
+    },
     "reddit-life-newspic-2026-08-27": {
       "sourceId": "reddit-life-newspic-2026-08-27",
       "contentHash": "e330843163ba51fac3b161ee2a282d2673e8c075721700091b7d5ec39c93059d",

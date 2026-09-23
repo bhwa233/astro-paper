@@ -1,0 +1,33 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-23",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-09-23",
+    "drafts": [
+      "01-1wnovcs.md"
+    ],
+    "sha256": "90b262365f6cf54bd46a6858960d297ac3415a229caca5959fb85f9517aebb2e"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 2,
+  "questionCount": 5,
+  "eligibleQuestionCount": 5,
+  "selectedQuestionIndexes": [
+    2,
+    4
+  ],
+  "titles": [
+    "表面轻松实则折磨人的工作",
+    "改变生活的心理健康建议"
+  ],
+  "questions": [
+    "哪些工作表面看起来轻松，实际干起来却极其折磨摧残人？",
+    "有哪些彻底改变了你生活的心理健康小建议？"
+  ],
+  "verbatimCounts": [
+    4,
+    7
+  ]
+}

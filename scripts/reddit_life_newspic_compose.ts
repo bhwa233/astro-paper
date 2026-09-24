@@ -65,8 +65,9 @@ export function parseRedditLifeNewspicSelections(raw: unknown, expectedDate: str
   }
   if (value.archiveDate !== expectedDate) throw new Error(`Reddit life newspic selection date ${String(value.archiveDate)} does not match ${expectedDate}`);
   const expectedAdditionalIssues = REDDIT_LIFE_DAILY_SELECTION_COUNT - 1;
-  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length !== expectedAdditionalIssues) {
-    throw new Error(`Reddit life newspic selection needs exactly ${expectedAdditionalIssues} additional issues`);
+  // 旧归档按更大的每日数量选过题，多出来的组随后截掉。
+  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length < expectedAdditionalIssues) {
+    throw new Error(`Reddit life newspic selection needs at least ${expectedAdditionalIssues} additional issues`);
   }
 
   const selections = [value, ...value.additionalIssues]

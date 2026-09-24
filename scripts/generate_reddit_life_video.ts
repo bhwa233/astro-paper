@@ -86,7 +86,8 @@ async function main(): Promise<void> {
   // publish.json 也要在：标签与结论出自同一次调用，缺了它就说明这份归档早于该契约。
   if (!force && fs.existsSync(videoPath) && fs.existsSync(manifestPath) && fs.existsSync(publishPath)) {
     const existing = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as RunManifest;
-    if (existing.version === MANIFEST_VERSION && existing.selectionCount === REDDIT_LIFE_DAILY_SELECTION_COUNT) {
+    // 旧归档选过更多组也能复用：下游只取前几组，重选反而会换掉已发布的内容。
+    if (existing.version === MANIFEST_VERSION && existing.selectionCount >= REDDIT_LIFE_DAILY_SELECTION_COUNT) {
       writeStderr(`[reddit-life-video] reusing existing manifest for ${date}; pass --force to reselect\n`);
       writeStdout(
         `${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), videoCount: REDDIT_LIFE_DAILY_VIDEO_COUNT, cardCount: REDDIT_LIFE_DAILY_VIDEO_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`

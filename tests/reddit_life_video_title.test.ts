@@ -14,7 +14,7 @@ test("Reddit life AI title enforces the issue-specific 20-character boundary", (
   assert.throws(() => validateRedditLifeVideoTitle(question, question), /copying it verbatim/);
 });
 
-test("Reddit life daily selection requires exactly two issues", () => {
-  assert.throws(() => validateRedditLifeVideoSelection({ issues: [] }, []), /exactly 2 issues/);
-  assert.throws(() => validateRedditLifeVideoSelection({ issues: [{}] }, []), /exactly 2 issues/);
+test("Reddit life daily selection requires exactly one issue", () => {
+  assert.throws(() => validateRedditLifeVideoSelection({ issues: [] }, []), /exactly 1 issues/);
+  assert.throws(() => validateRedditLifeVideoSelection({ issues: [{}, {}] }, []), /exactly 1 issues/);
 });

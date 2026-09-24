@@ -68,8 +68,9 @@ export function parseVideoManifests(raw: unknown): VideoManifest[] {
   const primary = parseVideoManifest(raw);
   const value = raw as Record<string, unknown>;
   const expectedAdditionalIssues = REDDIT_LIFE_DAILY_SELECTION_COUNT - 1;
-  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length !== expectedAdditionalIssues) {
-    throw new Error(`video manifest needs exactly ${expectedAdditionalIssues} additional issues`);
+  // 旧归档按更大的每日数量选过题，多出来的组照常解析、随后截掉。
+  if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length < expectedAdditionalIssues) {
+    throw new Error(`video manifest needs at least ${expectedAdditionalIssues} additional issues`);
   }
 
   const selections = [

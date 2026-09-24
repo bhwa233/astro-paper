@@ -146,6 +146,21 @@
         "outputTokens": 1833,
         "totalTokens": 4293
       }
+    },
+    {
+      "guid": "https://sahilbloom.substack.com/p/7-lessons-from-my-249-marathon-that",
+      "canonicalUrl": "https://sahilbloom.substack.com/p/7-lessons-from-my-249-marathon-that",
+      "sourcePublishedAt": "2026-09-23T19:02:06.000Z",
+      "sourceSha256": "cf9f761426455edb216d62b99af1ae3bd0e9108c627302d4773a455f657b79c9",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/curiosity-chronicle-20260923-7-lessons-from-my-249-marathon-that.md",
+      "translatedAt": "2026-09-24T04:59:44.231Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 3658,
+        "outputTokens": 3254,
+        "totalTokens": 6912
+      }
     }
   ]
 }

@@ -30,6 +30,21 @@
         "outputTokens": 6544,
         "totalTokens": 13580
       }
+    },
+    {
+      "guid": "https://www.afterbabel.com/p/the-many-lines-of-evidence-that-social",
+      "canonicalUrl": "https://www.afterbabel.com/p/the-many-lines-of-evidence-that-social",
+      "sourcePublishedAt": "2026-09-23T20:28:08.000Z",
+      "sourceSha256": "dbbda7e4f9c8e311e6294462bab8d45d2a41a3797e90ead5a3cbfa3c71a7691c",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/after-babel-20260923-the-many-lines-of-evidence-that-social.md",
+      "translatedAt": "2026-09-24T05:00:54.912Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 16564,
+        "outputTokens": 16268,
+        "totalTokens": 32832
+      }
     }
   ]
 }

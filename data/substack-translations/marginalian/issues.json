@@ -666,6 +666,32 @@
         "outputTokens": 2711,
         "totalTokens": 4449
       }
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87913",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/15/tolkien-faery",
+      "sourcePublishedAt": "2026-09-15T15:23:26.000Z",
+      "sourceSha256": "fe2dca34f97b8883588a51c16c89429c7ac02261391979efd8be2c62661172e2",
+      "status": "skipped",
+      "reason": "below-min-source-length",
+      "sourceTextChars": 3329,
+      "minimumSourceTextChars": 4000,
+      "evaluatedAt": "2026-09-24T05:01:04.163Z"
+    },
+    {
+      "guid": "https://www.themarginalian.org/?p=87922",
+      "canonicalUrl": "https://www.themarginalian.org/2026/09/16/how-to-promise-and-how-to-keep-promises-from-breaking",
+      "sourcePublishedAt": "2026-09-16T23:02:00.000Z",
+      "sourceSha256": "3d71bd2c43b3144c28fddb54a6e73166e2f6d03e2bb6d0ec1d4465ae576697ce",
+      "status": "published",
+      "postPath": "src/content/posts/zh-cn/marginalian-20260916-how-to-promise-and-how-to-keep-promises-from-breaking.md",
+      "translatedAt": "2026-09-24T05:01:13.752Z",
+      "model": "gemini-3.7-flash",
+      "usage": {
+        "inputTokens": 2556,
+        "outputTokens": 1985,
+        "totalTokens": 4541
+      }
     }
   ]
 }

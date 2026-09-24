@@ -3,9 +3,9 @@ name: Publish Newsletter Translations
 permissions:
   contents: write
 
+# 每日 schedule 已于 2026-09-24 长期停用，只保留手动 dispatch。选题按 feed 从旧到新、
+# 每栏目每次一篇，停得越久，手动运行先翻到的越是积压的旧文章。
 on:
-  schedule:
-    - cron: "17 0 * * *"
   workflow_dispatch:
     inputs:
       publication:

@@ -60,6 +60,8 @@
 
 The Marginalian 发文频率可能达到一天多篇；Curiosity Chronicle 近期约一周两篇；SatPost 的 Feed 最新文章停在 2026-06-26。CI 应采用“每日轮询 + 账本去重”，而不是假定所有栏目都按同一星期几更新。
 
+> 现状（2026-09-24）：每日调度已长期停用，workflow 只保留手动 dispatch。选题仍按 feed 从旧到新、每栏目每次一篇，停用期间积压的文章会在手动运行时先被处理。
+
 ## 4. 总体架构
 
 ```text
@@ -286,7 +288,7 @@ node --import tsx scripts/generate_substack_translations.ts \
 
 新增 `.github/workflows/publish-substack-translations.yml`：
 
-- `schedule` 每天轮询一次，传 `publication=all`
+- ~~`schedule` 每天轮询一次，传 `publication=all`~~（2026-09-24 起停用，只保留手动 dispatch）
 - `workflow_dispatch` 允许选择已登记 key、`all`、`force` 和 `backfill`
 - 使用现有 `AI_*` / `AI_FALLBACK_*` secrets，不增加栏目级 secret
 - 将现有 `REDDIT_SOURCE_API_URL` / `REDDIT_SOURCE_API_TOKEN` secrets 映射为 `SUBSTACK_FETCH_PROXY_URL` / `SUBSTACK_FETCH_PROXY_TOKEN`，统一复用已部署的 `yt-dlp-fastapi`
@@ -680,7 +682,7 @@ Fixture 使用经过缩减和匿名化的 RSS/HTML 结构，不把完整第三�
 5. 新增接收 `publication` 与 token budget、使用全局 concurrency 的独立发布 workflow
 6. 对单个栏目执行 `--dry-run`，人工检查 extracted.md、effective config 和 token 估算
 7. 手动翻译每个栏目最新一篇，检查完整响应、结构、署名、链接、图片、构建和实际模型成本
-8. 先启用 `publication=<单栏目>` 的手动运行，再启用每日 `all` 调度
+8. 先启用 `publication=<单栏目>` 的手动运行，再启用每日 `all` 调度（每日调度已于 2026-09-24 停用）
 
 ## 17. 验收标准
 

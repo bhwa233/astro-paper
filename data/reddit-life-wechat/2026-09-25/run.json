@@ -1,0 +1,249 @@
+{
+  "version": 4,
+  "archiveDate": "2026-09-25",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "b4f2392ee7ad6879e1cc2e0bb606c88b871c9f9b",
+    "workflowRun": "36153403927",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-25-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-25/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.7-flash",
+    "candidateCount": 30,
+    "selected": [
+      {
+        "rank": 8,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "聚焦医疗忽视与误诊经历，直击普遍痛点，真实案例极具警示价值与跨地域共鸣。"
+      },
+      {
+        "rank": 6,
+        "longTail": 5,
+        "resonance": 4,
+        "reason": "从演化生物学视角深入解析人类生理机制，解答严谨且颠覆常识，长尾科普价值极高。"
+      },
+      {
+        "rank": 1,
+        "longTail": 5,
+        "resonance": 5,
+        "reason": "结合职场博弈与诉讼案例阐释博弈智慧，故事生动且具有极强的现实可迁移性。"
+      },
+      {
+        "rank": 26,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "精准剖析亲密关系中的隐蔽性格缺陷与心理操纵，洞察深刻且能引发广泛讨论与反思。"
+      },
+      {
+        "rank": 2,
+        "longTail": 4,
+        "resonance": 5,
+        "reason": "打破对特定大学专业的刻板印象，揭示高强度学习背后的真实困境，细节详实且易共情。"
+      }
+    ],
+    "rejected": [
+      {
+        "rank": 3,
+        "category": "narrow_interest",
+        "reason": "围绕特定军用品与老兵情怀的装备盘点，受众群体与兴趣面较窄。"
+      },
+      {
+        "rank": 4,
+        "category": "region_specific",
+        "reason": "讨论高度依赖特定国家关于在家教育（homeschooling）的社会环境与法律制度。"
+      },
+      {
+        "rank": 5,
+        "category": "region_specific",
+        "reason": "讨论的核心对象均为北美本地连锁餐饮品牌及其经营现状，具有明显地域局限。"
+      },
+      {
+        "rank": 7,
+        "category": "narrow_interest",
+        "reason": "围绕千禧年代个人电脑使用习惯的单纯怀旧盘点，缺乏深入讨论价值。"
+      },
+      {
+        "rank": 9,
+        "category": "region_specific",
+        "reason": "讨论涉及特定国家的党派政治周期与以加仑油价为核心的本地化通勤生活感知。"
+      },
+      {
+        "rank": 10,
+        "category": "narrow_interest",
+        "reason": "针对特定欧美电视剧设定的主观吐槽清单，高度依赖具体剧集背景。"
+      },
+      {
+        "rank": 11,
+        "category": "low_resonance",
+        "reason": "虽有真诚分享，但更多属于个体沟通碎片的罗列，缺乏系统性与更广泛的讨论深度。"
+      },
+      {
+        "rank": 12,
+        "category": "low_resonance",
+        "reason": "举例多为历史常识、名人八卦或特定社区管理，讨论深度与大众共鸣较弱。"
+      },
+      {
+        "rank": 13,
+        "category": "narrow_interest",
+        "reason": "围绕英美特定脱口秀演员及其节目的小众盘点，依赖对特定喜剧圈的了解。"
+      },
+      {
+        "rank": 14,
+        "category": "narrow_interest",
+        "reason": "依赖对初代《魔兽世界》特定游戏机制与历史版本的怀旧记忆，受众相对垂类。"
+      },
+      {
+        "rank": 15,
+        "category": "low_resonance",
+        "reason": "针对天降横财假设的泛泛闲聊，缺乏具体生活经验与深入洞察。"
+      },
+      {
+        "rank": 16,
+        "category": "narrow_interest",
+        "reason": "动漫爱好者的作品推荐清单，高度依赖特定作品背景知识。"
+      },
+      {
+        "rank": 17,
+        "category": "low_resonance",
+        "reason": "纯属恶作剧与脑洞假设的情景闲聊，缺少讨论深度与现实意义。"
+      },
+      {
+        "rank": 18,
+        "category": "low_resonance",
+        "reason": "夫妻独处生活中的琐碎调侃与段子，缺少可延展的深度思考。"
+      },
+      {
+        "rank": 19,
+        "category": "narrow_interest",
+        "reason": "针对特定老电影情节与幕后花絮的细节盘点，属于怀旧影视小众讨论。"
+      },
+      {
+        "rank": 20,
+        "category": "low_resonance",
+        "reason": "围绕焦虑、熬夜和防晒等常见常识的泛泛讨论，缺乏新颖视角与讨论纵深。"
+      },
+      {
+        "rank": 21,
+        "category": "narrow_interest",
+        "reason": "围绕好莱坞特定配音与影视演员的声音盘点，受众与知识面较局限。"
+      },
+      {
+        "rank": 22,
+        "category": "low_resonance",
+        "reason": "属于个人生活困境与负面情绪的碎片化倾诉，缺乏启发性观点与建设性讨论。"
+      },
+      {
+        "rank": 23,
+        "category": "low_resonance",
+        "reason": "多为对富豪心理的推测与段子式调侃，普通读者难以代入并产生切身共鸣。"
+      },
+      {
+        "rank": 24,
+        "category": "region_specific",
+        "reason": "讨论完全依赖美国特定连锁超市 Trader Joe's 的自有商品与购物体验。"
+      },
+      {
+        "rank": 25,
+        "category": "narrow_interest",
+        "reason": "围绕经典主机游戏的个人情怀盘点，高度依赖特定游戏经历。"
+      },
+      {
+        "rank": 27,
+        "category": "low_resonance",
+        "reason": "针对35岁生活习惯的常规建议多为基础运动常识，缺乏新颖洞见与独特视角。"
+      },
+      {
+        "rank": 28,
+        "category": "low_resonance",
+        "reason": "临终反思的结论多为多陪家人、少拼命工作等常规道理，启发性与讨论空间有限。"
+      },
+      {
+        "rank": 29,
+        "category": "narrow_interest",
+        "reason": "围绕特定美剧片头音乐与画面的主观喜好盘点，属于小众影视话题。"
+      },
+      {
+        "rank": 30,
+        "category": "low_resonance",
+        "reason": "围绕第一笔工资花销的流水账式回忆闲聊，缺乏深度与可探讨的话题延展。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wp4ldr",
+      "title": "医生把剧烈身体疼痛轻描淡写成“只是压力大”或“当女人的常态”，你经历过最气愤的误诊是什么？",
+      "subreddit": "AskReddit",
+      "points": "1927 points · 1652 评论",
+      "numComments": 1652,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wp4ldr/women_of_reddit_what_is_the_most_infuriating/",
+      "sourceRank": 8,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
+      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wp8brv",
+      "title": "为什么人类会演化出显性月经（overt menstruation）？",
+      "subreddit": "askscience",
+      "points": "2455 points · 202 评论",
+      "numComments": 202,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wp8brv/can_someone_explain_the_evolutionary_benefit_of/",
+      "sourceRank": 6,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
+      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wpn40w",
+      "title": "拿破仑曾说「永远不要打断正在犯错的敌人」，现实中有哪些绝佳例证？",
+      "subreddit": "AskReddit",
+      "points": "8710 points · 2626 评论",
+      "numComments": 2626,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wpn40w/napoleon_said_never_interrupt_your_enemy_when_he/",
+      "sourceRank": 1,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
+      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wpstj2",
+      "title": "有哪些你曾经视而不见、但今后绝不会再容忍的伴侣危险信号？",
+      "subreddit": "AskReddit",
+      "points": "177 points · 662 评论",
+      "numComments": 662,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wpstj2/whats_one_red_flag_you_ignored_in_a_partner_once/",
+      "sourceRank": 26,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
+      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wpc4vb",
+      "title": "有哪些大学专业实际学起来远比外人想象的更折磨？",
+      "subreddit": "AskReddit",
+      "points": "5447 points · 2565 评论",
+      "numComments": 2565,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wpc4vb/what_university_degree_is_harder_than_people_think/",
+      "sourceRank": 2,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
+      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
+      "volume": "v1"
+    }
+  ]
+}

@@ -864,6 +864,22 @@
       "title": "The Dog Stars",
       "archivedAt": "2026-09-18",
       "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-18.md"
+    },
+    {
+      "key": "movie:1137844",
+      "mediaType": "movie",
+      "tmdbId": 1137844,
+      "title": "Mayday",
+      "archivedAt": "2026-09-25",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-25.md"
+    },
+    {
+      "key": "movie:675871",
+      "mediaType": "movie",
+      "tmdbId": 675871,
+      "title": "Super Troopers 3",
+      "archivedAt": "2026-09-25",
+      "postPath": "src/content/posts/zh-cn/每周影视推荐-2026-09-25.md"
     }
   ]
 }

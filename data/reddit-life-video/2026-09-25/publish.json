@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-25",
+  "model": "gemini-3.7-flash",
+  "sourceSha": "8b48c3536ec28d4d767db96870acb55483bae5f08bab511950c774aa0e656c9e",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "亲身经历",
+        "避坑指南"
+      ],
+      "summary": "很多致命的器质性病变常被轻易归咎于女性焦虑和经期，必须坚持做客观影像检查",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

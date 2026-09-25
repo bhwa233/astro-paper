@@ -1,0 +1,29 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-25",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "archiveDir": "data/reddit-life-wechat/2026-09-25",
+    "drafts": [
+      "01-1wp4ldr.md"
+    ],
+    "sha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c"
+  },
+  "model": "gemini-3.7-flash",
+  "selectionCount": 1,
+  "questionCount": 5,
+  "eligibleQuestionCount": 4,
+  "selectedQuestionIndexes": [
+    1
+  ],
+  "titles": [
+    "被医生轻描淡写成压力的误诊"
+  ],
+  "questions": [
+    "医生把剧烈身体疼痛轻描淡写成“只是压力大”或“当女人的常态”，你经历过最气愤的误诊是什么？"
+  ],
+  "verbatimCounts": [
+    6
+  ]
+}

@@ -4,7 +4,7 @@
   "timeZone": "America/Los_Angeles",
   "status": "processed",
   "upstream": {
-    "generatedSha": "3ffd3b5d6441f4b858bdf84ce940e750f36b00a8",
+    "generatedSha": "18e5b679705db0062880d06476ba3f2e1c3c3839",
     "workflowRun": "36153403927",
     "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-25-life.md"
   },
@@ -17,170 +17,170 @@
     "minScore": 60,
     "scores": [
       {
-        "rank": 7,
-        "score": 89,
-        "reason": "肌肉记忆狂按保存键与坚守PC大屏的习惯引发跨时代网民的强烈集体共鸣，代入感极高。"
+        "rank": 18,
+        "score": 91,
+        "reason": "重摆洗碗机、水槽前扒饭等独处细节观察入微且幽默风趣，家庭生活反差极易激发转发共鸣。"
       },
       {
         "rank": 1,
-        "score": 88,
-        "reason": "商业竞争与职场抓马的案例生动幽默，充满人生博弈的智慧与具体故事，可迁移性与可读性极佳。"
+        "score": 90,
+        "reason": "职场邮件抄送反噬、前任接盘债务等案例生动鲜活，处世智慧普适且长尾价值极高。"
       },
       {
         "rank": 26,
-        "score": 87,
-        "reason": "表演型人设与对错责任过敏等伴侣危险信号剖析深刻，提供了极具普适价值的亲密关系避坑经验。"
-      },
-      {
-        "rank": 6,
-        "score": 86,
-        "reason": "从演化生物学角度通俗解释母体与胚胎的资源博弈机制，新奇颠覆认知且充满长尾科普价值。"
+        "score": 89,
+        "reason": "对表演型人设、责任过敏与习惯性隐瞒等亲密关系陷阱的剖析入木三分，极具现实警示价值。"
       },
       {
         "rank": 28,
-        "score": 85,
-        "reason": "临终前对过度工作与错过家庭时光的懊悔探讨直击人心，金钱带不进坟墓的思考具有永恒共鸣。"
-      },
-      {
-        "rank": 2,
-        "score": 84,
-        "reason": "打破大众对小众冷门或光鲜专业的刻板认知，通宵改图与硬核乐理等细节反差感强烈，故事鲜活好看。"
-      },
-      {
-        "rank": 18,
-        "score": 83,
-        "reason": "重新摆洗碗机与趴水槽吃麦片等细节极其真实抓人，生动刻画夫妻相处与独处反差，共鸣拉满。"
+        "score": 88,
+        "reason": "灵车不带拖车、临终后悔拼命工作与节食等感悟直击灵魂，具有超越时空的永恒长尾价值。"
       },
       {
         "rank": 20,
-        "score": 82,
-        "reason": "将精神内耗、缺觉与不防晒对容貌的摧毁拆解得真实具象，是人人用得上的基础健康常识与避坑指南。"
+        "score": 86,
+        "reason": "精神内耗、光老化与过度戒脂等常识直击现代人衰老焦虑，兼具科学性、实用性与长尾价值。"
       },
       {
-        "rank": 11,
-        "score": 81,
-        "reason": "真诚揭示神经多样性群体的真实沟通困扰，没有隐藏潜台词的直球表达极能引发大众的同理心与理解。"
-      },
-      {
-        "rank": 12,
-        "score": 80,
-        "reason": "从罗马独裁官到业委会主席量草坪，微小权力照出人性阴暗面的观察极具洞察力与生活共鸣。"
-      },
-      {
-        "rank": 23,
-        "score": 79,
-        "reason": "把赚钱视为游戏高分与无休止游艇攀比的视角，巧妙满足了大众对富豪心理的好奇心与人性洞察。"
-      },
-      {
-        "rank": 27,
-        "score": 78,
-        "reason": "年长者对35岁群体身体维护与适度锻炼的真诚告诫，平实有力且具有跨越周期的长尾指导价值。"
-      },
-      {
-        "rank": 15,
-        "score": 77,
-        "reason": "探讨普通人与意外之财的关系，「负债足以毁掉生活但收入不能改变人生」的金句极具扎心生活感悟。"
-      },
-      {
-        "rank": 22,
-        "score": 76,
-        "reason": "家庭忙碌却内心孤独的描写极其细腻深沉，直击当下普通人的精神困境与生存重压。"
-      },
-      {
-        "rank": 17,
-        "score": 75,
-        "reason": "双手假装捧重物或闹市提电锯等场景脑洞大开、极具荒诞幽默感，画面感十足且利于社交传播。"
+        "rank": 7,
+        "score": 85,
+        "reason": "神经质按Ctrl+S、坚守电脑大屏等习惯精准戳中时代记忆，细节生动且共鸣强烈。"
       },
       {
         "rank": 30,
-        "score": 74,
-        "reason": "为生存充值房租或挥霍点满外卖的经历唤醒打工人的初入职场记忆，质朴而充满烟火气。"
+        "score": 84,
+        "reason": "充值生存资格、狂点外卖、带奶奶看电影等经历烟火气十足，青春回甘感极强且容易代入。"
+      },
+      {
+        "rank": 17,
+        "score": 82,
+        "reason": "抱隐形重物、单拿棒球棍等生活脑洞极其滑稽，画面感十足，大众阅读门槛极低且趣味性强。"
+      },
+      {
+        "rank": 2,
+        "score": 79,
+        "reason": "打破对建筑、气象、音乐等专业的刻板认知，具体细节丰富且反差感强烈。"
+      },
+      {
+        "rank": 23,
+        "score": 77,
+        "reason": "将搞钱比作通关打高分、无休止攀比游艇等分析，满足了大众对富豪心理的好奇心且解释通俗。"
+      },
+      {
+        "rank": 11,
+        "score": 75,
+        "reason": "字面沟通与踩点等自述视角独特，为大众理解人际沟通差异提供了极好的启发。"
+      },
+      {
+        "rank": 12,
+        "score": 73,
+        "reason": "从历史人物到物业主席、后厨代管等微权力滥用，对人性的剖析通俗深刻且讽刺拉满。"
+      },
+      {
+        "rank": 15,
+        "score": 70,
+        "reason": "从还清车贷到添置轮椅，真实反映了普通人面对金钱的务实心态，朴实且有共鸣。"
+      },
+      {
+        "rank": 27,
+        "score": 67,
+        "reason": "体能锻炼与心态调整建议有益，但部分回答涉及美国专属养老账户且整体偏老生常谈的说教。"
+      },
+      {
+        "rank": 6,
+        "score": 64,
+        "reason": "演化生物学视角新颖且解释通俗，但整体偏生理科普知识，普遍情绪共鸣相对有限。"
       },
       {
         "rank": 3,
-        "score": 65,
-        "reason": "退伍老兵眼中的实用单品视角有趣，但题材局限于军旅生活装备，共鸣面相对受限。"
+        "score": 61,
+        "reason": "军用毯与工兵铲等实战装备耐用性探讨有趣，但话题偏军迷小众，大众代入感一般。"
+      },
+      {
+        "rank": 22,
+        "score": 60,
+        "reason": "孤独与经济压力等自述虽真实，但全篇充斥重度抑郁与绝症等负能量，内容沉重压抑。"
       },
       {
         "rank": 14,
         "score": 58,
-        "reason": "老玩家针对早期MMO机制的怀旧清单，需要大量特定游戏背景知识，大众代入感不足。"
-      },
-      {
-        "rank": 25,
-        "score": 55,
-        "reason": "经典电子游戏的情怀盘点清单，依赖玩家特定作品情结，缺乏跨群体共鸣的故事展开。"
-      },
-      {
-        "rank": 10,
-        "score": 52,
-        "reason": "属于纯粹的美剧吐槽盘点，答案高度依赖读者对特定影视剧情节的了解，受众较窄。"
+        "reason": "属于特定网络游戏的情怀怀旧，受众局限于老玩家群体，缺乏普遍大众代入感。"
       },
       {
         "rank": 16,
-        "score": 50,
-        "reason": "属于垂直领域的动漫作品安利清单，缺乏普适故事，依赖读者对特定动漫的了解。"
+        "score": 53,
+        "reason": "属于经典动漫作品的主观盘点清单，缺乏具体故事展开，依赖特定二次元背景知识。"
       },
       {
-        "rank": 19,
+        "rank": 25,
+        "score": 50,
+        "reason": "属于经典单机游戏名单盘点，缺乏深入的现实迁移价值，依赖特定玩家背景知识。"
+      },
+      {
+        "rank": 10,
         "score": 48,
-        "reason": "聚焦特定童年老电影幕后虐待动物黑料的盘点，答案依赖特定片目，属于垂直影视幕后清单。"
+        "reason": "属于海外剧集吐槽盘点，内容高度依赖对特定欧美电视剧剧情及角色的了解。"
       },
       {
         "rank": 29,
         "score": 46,
-        "reason": "特定影视剧片头曲的个人喜好推荐，偏向纯娱乐音乐清单，难以唤起非剧迷的兴趣。"
+        "reason": "属于欧美影视剧片头曲清单盘点，缺乏故事性，完全依赖对特定剧集的观看记忆。"
       },
       {
-        "rank": 13,
+        "rank": 19,
         "score": 45,
-        "reason": "高度依赖英语脱口秀与英美喜剧综艺背景知识，缺少文化背景的普通读者难以体会笑点。"
+        "reason": "欧美老电影盘点与幕后动物虐待细节，中国读者缺乏童年滤镜与作品交集。"
       },
       {
         "rank": 21,
+        "score": 44,
+        "reason": "好莱坞配音与演员声线盘点，依赖对特定英文影视原声的熟悉度，受众面过窄。"
+      },
+      {
+        "rank": 13,
         "score": 42,
-        "reason": "好莱坞与美漫配音演员盘点，缺乏视听直观体验且依赖特定作品认知，大众可读性较差。"
-      },
-      {
-        "rank": 5,
-        "score": 35,
-        "reason": "触及地区依赖，讨论完全围绕美国本土连锁快餐品牌的商业衰亡，缺乏跨地区共鸣。"
-      },
-      {
-        "rank": 4,
-        "score": 32,
-        "reason": "触及对立争议，核心在于对特定父母群体的智识贬低与道德审判，极易在评论区引发站队撕裂。"
+        "reason": "高度依赖对英美单口喜剧演员和脱口秀节目的了解，文化语境隔阂极大，普通读者难以领会。"
       },
       {
         "rank": 9,
-        "score": 30,
-        "reason": "触及地区依赖与对立争议，回答直接绑定美国两党执政政治立场及当地油价通勤模式。"
+        "score": 41,
+        "reason": "虽有内裤指数等通俗观察，但大量回答依赖美国两党政治、大麻消费与加州牛肉物价，共鸣偏弱。"
+      },
+      {
+        "rank": 4,
+        "score": 35,
+        "reason": "触及对立争议：核心在于对特定父母群体进行道德审判，且在家教育制度严重脱离中国语境。"
       },
       {
         "rank": 8,
+        "score": 32,
+        "reason": "触及过度专业与对立争议：涉及大量严重病理诊断细节，且内容核心在于激化医患矛盾与性别对立。"
+      },
+      {
+        "rank": 5,
         "score": 28,
-        "reason": "触及过度专业与对立争议，核心涉及具体疾病误诊细节，并激化了医患矛盾与性别偏见争议。"
+        "reason": "触及地区依赖：讨论全篇依赖Panera、Ruby Tuesday等美国本土快餐连锁，中国读者毫无感知。"
       },
       {
         "rank": 24,
-        "score": 25,
-        "reason": "触及地区依赖，完全限定于美国特定连锁超市的自有品牌食品推荐，对其他地区读者无参考价值。"
+        "score": 24,
+        "reason": "触及地区依赖：完全针对美国本土超市Trader Joe's的自营零食推荐，国内读者既买不到也无共鸣。"
       }
     ]
   },
   "posts": [
     {
-      "postId": "1wp4yms",
-      "title": "你在90年代与千禧年代养成了哪些至今未改的电脑使用习惯？",
+      "postId": "1wp9cl6",
+      "title": "老婆出门不在家时，男人们都在偷偷干些什么？",
       "subreddit": "AskReddit",
-      "points": "2376 points · 2962 评论",
-      "numComments": 2962,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wp4yms/what_computer_habits_do_you_still_have_that_give/",
-      "sourceRank": 7,
+      "points": "531 points · 1065 评论",
+      "numComments": 1065,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wp9cl6/men_on_reddit_what_do_you_like_doing_when_your/",
+      "sourceRank": 18,
       "selectionRank": 1,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
-      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp9cl6.md",
+      "contentSha256": "c6dc236889fbec9ea4e4d2794b3491b714332b03f84a8996174515cf8c7cf31b",
       "volume": "v1"
     },
     {
@@ -193,8 +193,8 @@
       "sourceRank": 1,
       "selectionRank": 2,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
-      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp9cl6.md",
+      "contentSha256": "c6dc236889fbec9ea4e4d2794b3491b714332b03f84a8996174515cf8c7cf31b",
       "volume": "v1"
     },
     {
@@ -207,22 +207,8 @@
       "sourceRank": 26,
       "selectionRank": 3,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
-      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
-      "volume": "v1"
-    },
-    {
-      "postId": "1wp8brv",
-      "title": "为什么人类会演化出显性月经（overt menstruation）？",
-      "subreddit": "askscience",
-      "points": "2455 points · 202 评论",
-      "numComments": 202,
-      "permalink": "https://www.reddit.com/r/askscience/comments/1wp8brv/can_someone_explain_the_evolutionary_benefit_of/",
-      "sourceRank": 6,
-      "selectionRank": 4,
-      "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
-      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp9cl6.md",
+      "contentSha256": "c6dc236889fbec9ea4e4d2794b3491b714332b03f84a8996174515cf8c7cf31b",
       "volume": "v1"
     },
     {
@@ -233,10 +219,24 @@
       "numComments": 177,
       "permalink": "https://www.reddit.com/r/AskReddit/comments/1wpj9oj/what_is_something_almost_everyone_seems_to/",
       "sourceRank": 28,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp9cl6.md",
+      "contentSha256": "c6dc236889fbec9ea4e4d2794b3491b714332b03f84a8996174515cf8c7cf31b",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wprvew",
+      "title": "有哪些日常习惯让人衰老的速度远超预期？",
+      "subreddit": "AskReddit",
+      "points": "365 points · 297 评论",
+      "numComments": 297,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wprvew/what_habits_ages_you_faster_than_people_realize/",
+      "sourceRank": 20,
       "selectionRank": 5,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
-      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp9cl6.md",
+      "contentSha256": "c6dc236889fbec9ea4e4d2794b3491b714332b03f84a8996174515cf8c7cf31b",
       "volume": "v1"
     }
   ]

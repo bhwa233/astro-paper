@@ -1,6 +1,6 @@
-# 音频素材出处
+# 素材出处
 
-素材本身是可替换的：文件名不变即可，`src/Video.tsx` 里的 `BGM_VOLUME` / `TICK_VOLUME`
+音频素材本身是可替换的：文件名不变即可，`src/Video.tsx` 里的 `BGM_VOLUME` / `TICK_VOLUME`
 是按「峰值已经统一到 -3.5dB」这个前提定的，换素材要照同一口径重新做增益，否则那两个数字失去意义。
 
 ## bgm.mp3
@@ -42,3 +42,15 @@
 - 许可：沿用素材提供方取得的许可；本仓库未独立核验。
 - 本仓库的使用：以原始编码保留；渲染时只播放源文件第 4 至第 20 帧（30fps），
   跳过约 143ms 的前导静音及其尾部静音，并在每次纸张覆盖切换的首帧触发。
+
+## fonts/OPPOSans4.0.ttf
+
+- 原名：`OPPO Sans 4.0.ttf`（可变字重，字重轴对应 CSS 100–700），出自 OPPO 开放平台发布的 `OPPO_Sans_4.0.zip`
+- 作者：Guangdong OPPO Mobile Telecommunications Corp., Ltd.
+- 许可：OPPO Sans Fonts License Agreement，全文见同目录 `OPPO Sans 4.0 License Notice.txt`。
+  允许随软件捆绑再分发**未修改**的副本；不得修改字体或其组件、不得单独分发或出售字体本身、
+  必须保留版权声明与协议全文，并在软件中显著声明使用了 OPPO Sans——本节即该声明。
+- 本仓库的处理：只改了文件名（去掉空格），字体内容逐字节未动（SHA-256
+  `6c7d5864c661516e1f400d9f21e4297f2e2a0719909691e29607cc4ef484a9f4`）。
+  因此不能转 woff2、不能裁子集；`src/font.ts` 的 `useOppoSans` 直接加载这份 TTF。
+- 用途：图片消息静态卡（`src/newspic/`）。视频仍用按需裁子集的 Noto Sans SC。

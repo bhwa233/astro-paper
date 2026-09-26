@@ -7,7 +7,7 @@
 // 用 process.stderr 打日志，还要为 satori 骗 UA 拿 ttf（satori 不认 woff2）。
 // 这边跑在 Chromium 里，woff2 原生支持，不需要那两样。
 import { useEffect, useState } from "react";
-import { cancelRender, continueRender, delayRender } from "remotion";
+import { cancelRender, continueRender, delayRender, staticFile } from "remotion";
 
 export const FONT_FAMILY = "Noto Sans SC";
 
@@ -37,4 +37,24 @@ export function useSubsetFont(text: string): void {
       .then(() => continueRender(handle))
       .catch(error => cancelRender(error));
   }, [handle, text]);
+}
+
+// 图片消息用 OPPO Sans 4.0。许可只允许随软件分发「未修改」的字体，所以仓库里放的是官方原版
+// 可变字重 TTF（约 22MB），不能转 woff2、也不能按 text= 裁子集。字重轴对应 CSS 100–700。
+// 字体文件由 Remotion 的本地静态服务提供，每次截图重新加载也只是本机读盘。
+export const OPPO_SANS_FAMILY = "OPPO Sans 4.0";
+
+async function loadOppoSans(): Promise<void> {
+  const face = new FontFace(OPPO_SANS_FAMILY, `url("${staticFile("fonts/OPPOSans4.0.ttf")}") format("truetype")`, { weight: "100 700" });
+  document.fonts.add(await face.load());
+  await document.fonts.ready;
+}
+
+export function useOppoSans(): void {
+  const [handle] = useState(() => delayRender("Loading OPPO Sans 4.0"));
+  useEffect(() => {
+    loadOppoSans()
+      .then(() => continueRender(handle))
+      .catch(error => cancelRender(error));
+  }, [handle]);
 }

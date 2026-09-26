@@ -1,7 +1,7 @@
 import React from "react";
 import { PLATFORM_THEMES } from "../../../src/utils/platformTheme.ts";
 import type { VideoManifest } from "../contract.ts";
-import { FONT_FAMILY, useSubsetFont } from "../font.ts";
+import { OPPO_SANS_FAMILY, useOppoSans } from "../font.ts";
 import { fitFontSize } from "../layout.ts";
 import { fitBalancedChineseTitle } from "../still/balancedTitle.ts";
 import { StaticCardFrame } from "../still/StaticCardFrame.tsx";
@@ -23,7 +23,7 @@ const Masthead: React.FC = () => (
 const Cover: React.FC<{ question: string }> = ({ question }) => {
   const title = fitBalancedChineseTitle({ text: question, width: INNER_WIDTH, height: 620, lineHeight: 1.24, min: 56, max: 92 });
   return (
-    <StaticCardFrame background={THEME.bg} surface={THEME.card}>
+    <StaticCardFrame background={THEME.bg} surface={THEME.card} fontFamily={OPPO_SANS_FAMILY}>
       <Masthead />
       <div style={{ marginTop: CONTENT_TOP_GAP, width: INNER_WIDTH, display: "flex", flexDirection: "column", fontSize: title.fontSize, lineHeight: 1.24, fontWeight: 700, color: "#191919" }}>
         {title.lines.map((line, index) => <div key={`${index}:${line}`} style={{ display: "flex" }}>{line}</div>)}
@@ -35,7 +35,7 @@ const Cover: React.FC<{ question: string }> = ({ question }) => {
 const Answer: React.FC<{ body: string; index: number; total: number }> = ({ body, index, total }) => {
   const fontSize = fitFontSize({ text: body, width: INNER_WIDTH, height: 900, lineHeight: 1.52, min: 38, max: 62 });
   return (
-    <StaticCardFrame background={THEME.bg} surface={THEME.card}>
+    <StaticCardFrame background={THEME.bg} surface={THEME.card} fontFamily={OPPO_SANS_FAMILY}>
       <Masthead />
       {/* 这里的父级是纵向 flex，宽度由 stretch 给定，撑不宽；但断不开的长英文串仍会溢出这一行
           被裁掉。`fitFontSize` 已经会为这种串压字号，`overflowWrap` 只兜住连最小字号都塞不下的。 */}
@@ -47,7 +47,7 @@ const Answer: React.FC<{ body: string; index: number; total: number }> = ({ body
 
 export const RedditLifeNewspic: React.FC<RedditLifeNewspicProps> = ({ manifest, cardIndex }) => {
   const { question, cards } = manifest;
-  useSubsetFont(`REDDIT精选问答${question}${cards.map(card => card.body).join("")}0123456789/`);
+  useOppoSans();
   if (cardIndex === 0) return <Cover question={question} />;
   const card = cards[cardIndex - 1];
   if (!card) throw new Error(`missing Reddit image answer ${cardIndex}`);

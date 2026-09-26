@@ -230,6 +230,7 @@ export const TASKS = Object.keys(BLOG_TASKS) as Task[];
 export const SCHEDULED_TASK_INPUTS: Record<string, { task: TaskInput; dateOffset?: number; dateTimeZone?: string }> = {
   "30 0 * * *": { task: "tech-daily", dateTimeZone: "America/Los_Angeles" },
   "30 1 * * *": { task: "daily-podcasts" },
+  // 2026-09-26 暂停定时；保留日期策略，手动派发仍按洛杉矶时区归档。
   "41 6 * * *": { task: "hn-top10", dateTimeZone: "America/Los_Angeles" },
   "0 2 * * 1": { task: "xyzrank-top-episodes", dateTimeZone: "Asia/Shanghai" },
   // 2026-09-07 暂停定时；保留日期策略，手动派发仍按洛杉矶时区归档。

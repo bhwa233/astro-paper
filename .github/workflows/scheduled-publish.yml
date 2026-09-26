@@ -10,7 +10,6 @@ name: Scheduled Publish
 # 每个任务在 blog-publish.yml 里按 task 分并发组，彼此不会互相排队或被静默 cancel。
 run-name: >-
   Publish ${{ inputs.task
-  || (github.event.schedule == '41 6 * * *' && 'hn-top10')
   || (github.event.schedule == '47 2 * * 0' && 'nyt-books-weekly')
   || (github.event.schedule == '38 2 * * 5' && 'mdblist-weekly')
   || (github.event.schedule == '26 3 * * 6' && 'economist-weekly')
@@ -25,7 +24,8 @@ permissions:
 
 on:
   schedule:
-    - cron: "41 6 * * *" # hn-top10
+    # 2026-09-26 暂停 hn-top10，只保留手动派发；恢复时同步补回两处 cron 映射。
+    # - cron: "41 6 * * *" # hn-top10
     # 2026-09-07 暂停 github-trending-daily，只保留手动派发；恢复时同步补回两处 cron 映射。
     # - cron: "52 23 * * *" # github-trending-daily
     # 2026-09-07 暂停 forum-top10，只保留手动派发；恢复时同步补回两处 cron 映射。
@@ -78,7 +78,6 @@ jobs:
     with:
       task: >-
         ${{ inputs.task
-        || (github.event.schedule == '41 6 * * *' && 'hn-top10')
         || (github.event.schedule == '47 2 * * 0' && 'nyt-books-weekly')
         || (github.event.schedule == '38 2 * * 5' && 'mdblist-weekly')
         || (github.event.schedule == '26 3 * * 6' && 'economist-weekly')

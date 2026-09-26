@@ -1,0 +1,30 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-26",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "kind": "sparkhub",
+    "sourcePath": "data/reddit-life-video/2026-09-26/source.json",
+    "postIds": [
+      "1wq84yr"
+    ],
+    "sha256": "dea2e362f905a2403766aa92c270f6ec823b4f65359aa3a4c741e7607d4446cb"
+  },
+  "model": "gemini-3.8-flash",
+  "selectionCount": 1,
+  "questionCount": 1,
+  "eligibleQuestionCount": 1,
+  "selectedQuestionIndexes": [
+    1
+  ],
+  "titles": [
+    "哪些细节能看出一个人从未穷过"
+  ],
+  "questions": [
+    "一个人身上有哪些细节，能一眼看出他从来没穷过？"
+  ],
+  "verbatimCounts": [
+    0
+  ]
+}

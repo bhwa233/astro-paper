@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-26",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "bc3e93b3697e523536799991998d31ca5f7b2a136d1adde80c1f1031ee4e9966",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "认知思维",
+        "人性观察",
+        "富人世界"
+      ],
+      "summary": "他们不是刻意炫耀，而是对真实的匮乏毫无概念，理所当然地把阶层特权当成了常态。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

@@ -121,6 +121,22 @@ jobs:
           const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).map(post => post.path))].reverse();
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `paths<<PATHS\n${paths.join("\n")}\nPATHS\n`);
           NODE
+      # 把当天全部打分候选推进 SparkHub 素材池，供后台查看与以后草稿按分领取。
+      # 旁路步骤：失败只留下警告，不挡归档提交与草稿同步。
+      - name: Ingest candidates into SparkHub
+        if: steps.generate.outputs.manifest_path != ''
+        continue-on-error: true
+        env:
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SPARKHUB_DASHBOARD_TOKEN" ]; then
+            echo "::warning::SPARKHUB_DASHBOARD_TOKEN is not set; skipped SparkHub ingest."
+            exit 0
+          fi
+          date=$(node -e 'console.log(JSON.parse(require("fs").readFileSync("reddit-life-wechat-result.json", "utf8")).date)')
+          node --import tsx scripts/ingest_reddit_life_sparkhub.ts --date "$date"
       - name: Upload generation artifacts
         if: always()
         uses: actions/upload-artifact@v7

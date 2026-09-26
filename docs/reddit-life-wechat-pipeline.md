@@ -110,6 +110,17 @@ node --import tsx scripts/generate_reddit_life_wechat.ts \
 pnpm exec astro-wechat preview data/reddit-life-wechat/<date>/01-<postId>.md
 ```
 
+### SparkHub 素材池
+
+生成器跑完后，`Ingest candidates into SparkHub` 步骤用 `scripts/ingest_reddit_life_sparkhub.ts` 把当天 v5 manifest 的全部打分候选（标题、热度、0-100 分与理由、上游正文）推进 SparkHub 的 `POST /api/linkdisk/dashboard/decks/reddit-life/ingest`，在 SparkHub 后台 `/admin/decks/reddit-life` 可查看与增删改。当天已进草稿的帖子带上 `syncId`，在素材池里直接记为 used；其余为 pending，以后草稿可改为从素材池按分领取未使用内容（`next` / `claim` / `confirm` / `release`）。
+
+这一步只读归档、按 postId upsert，`--force` 重跑可重复推送；它是旁路，失败或未配置 `SPARKHUB_DASHBOARD_TOKEN` secret（值即 SparkHub 的 `DASHBOARD_ACCESS_TOKEN`）只留警告，不影响归档提交与草稿同步。手动补推某天：
+
+```bash
+SPARKHUB_API_URL=https://api.bhwa233.com SPARKHUB_DASHBOARD_TOKEN=<token> \
+  node --import tsx scripts/ingest_reddit_life_sparkhub.ts --date <date>
+```
+
 ## 8. 运行方式
 
 ```bash

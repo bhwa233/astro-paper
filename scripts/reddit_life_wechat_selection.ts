@@ -1,4 +1,4 @@
-// Reddit 人生微信稿的 AI 编辑层：一次比较整篇文章的全部候选，返回过滤与排序。
+// Reddit 人生微信稿的 AI 编辑层：一次给整篇文章的全部候选打分，排序与过线由代码决定。
 // JSON 重试、模型调用和提示词寻址均复用博客生成基础设施；本模块只持有该栏目的判断契约。
 import { readPromptTemplate } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries, writeAiArtifact } from "./ai_json_stage.ts";
@@ -10,26 +10,26 @@ const PROMPT_TASK = "reddit-life-wechat-selection";
 const EXCERPT_STORY_LIMIT = 3;
 const EXCERPT_CHARS = 320;
 
-export const REDDIT_LIFE_WECHAT_REJECTION_CATEGORIES = ["region_specific", "time_sensitive", "narrow_interest", "low_resonance"] as const;
-export type RedditLifeWechatRejectionCategory = (typeof REDDIT_LIFE_WECHAT_REJECTION_CATEGORIES)[number];
+/** 过线分。低于它的候选即使排得进前几名也不收录，宁缺毋滥。 */
+export const REDDIT_LIFE_WECHAT_MIN_SCORE = 60;
 
-export type RedditLifeWechatSelectedPost = {
+export type RedditLifeWechatScoredPost = {
   rank: number;
-  longTail: number;
-  resonance: number;
-  reason: string;
-};
-
-export type RedditLifeWechatRejectedPost = {
-  rank: number;
-  category: RedditLifeWechatRejectionCategory;
+  /** 0-100 的综合分，跨天可比；排序只看它，不看模型输出的数组顺序。 */
+  score: number;
   reason: string;
 };
 
 export type RedditLifeWechatSelection = {
-  selected: RedditLifeWechatSelectedPost[];
-  rejected: RedditLifeWechatRejectedPost[];
+  minScore: number;
+  /** 全部候选，按分数降序，同分按上游排名升序。 */
+  scores: RedditLifeWechatScoredPost[];
+  /** scores 中过线的前几条，由代码推导，不存进 manifest。 */
+  selected: RedditLifeWechatScoredPost[];
 };
+
+// v2-v4 manifest 的审计格式：入选帖带两个 1-5 分项，其余帖带拒绝类别。只为读历史归档而保留。
+const LEGACY_REJECTION_CATEGORIES = new Set(["region_specific", "time_sensitive", "narrow_interest", "low_resonance"]);
 
 function validRank(value: unknown, candidateCount: number, label: string): number {
   const rank = Number(value);
@@ -38,10 +38,9 @@ function validRank(value: unknown, candidateCount: number, label: string): numbe
   return rank;
 }
 
-function score(value: unknown, field: string, rank: number): number {
+function legacyScore(value: unknown, field: string, rank: number): void {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < 1 || parsed > 5) throw new Error(`Reddit life WeChat selection rank ${rank} has invalid ${field}`);
-  return parsed;
 }
 
 function reason(value: unknown, rank: number): string {
@@ -50,13 +49,48 @@ function reason(value: unknown, rank: number): string {
   return parsed;
 }
 
-/** maxSelected 默认取当前上限；读历史 manifest 时传入旧上限。 */
+function assertCoversAll(ranks: number[], candidateCount: number): void {
+  if (ranks.length !== candidateCount || new Set(ranks).size !== candidateCount) {
+    throw new Error(`Reddit life WeChat selection must cover all ${candidateCount} candidates exactly once`);
+  }
+}
+
+function entryObject(rawEntry: unknown, label: string): Record<string, unknown> {
+  if (!rawEntry || typeof rawEntry !== "object" || Array.isArray(rawEntry)) throw new Error(`${label} is invalid`);
+  return rawEntry as Record<string, unknown>;
+}
+
+/** 输入是模型输出或 v5 manifest 的审计记录；minScore 读历史时传入当时的过线分。 */
 export function validateRedditLifeWechatSelection(
   raw: unknown,
   candidateCount: number,
-  maxSelected: number = REDDIT_LIFE_WECHAT_TOTAL_POSTS
+  minScore: number = REDDIT_LIFE_WECHAT_MIN_SCORE
 ): RedditLifeWechatSelection {
   if (!Number.isInteger(candidateCount) || candidateCount < 1) throw new Error(`invalid Reddit life WeChat candidate count: ${candidateCount}`);
+  if (!Number.isInteger(minScore) || minScore < 0 || minScore > 100) throw new Error(`invalid Reddit life WeChat min score: ${minScore}`);
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life WeChat selection must be a JSON object");
+  const value = raw as Record<string, unknown>;
+  if (!Array.isArray(value.scores)) throw new Error("Reddit life WeChat selection must contain a scores array");
+
+  const scores = value.scores.map((rawEntry, index): RedditLifeWechatScoredPost => {
+    const entry = entryObject(rawEntry, `Reddit life WeChat score entry ${index + 1}`);
+    const rank = validRank(entry.rank, candidateCount, `Reddit life WeChat score entry ${index + 1}`);
+    const score = Number(entry.score);
+    if (!Number.isInteger(score) || score < 0 || score > 100) throw new Error(`Reddit life WeChat selection rank ${rank} has invalid score`);
+    return { rank, score, reason: reason(entry.reason, rank) };
+  });
+  assertCoversAll(
+    scores.map(item => item.rank),
+    candidateCount
+  );
+
+  scores.sort((a, b) => b.score - a.score || a.rank - b.rank);
+  const selected = scores.filter(item => item.score >= minScore).slice(0, REDDIT_LIFE_WECHAT_TOTAL_POSTS);
+  return { minScore, scores, selected };
+}
+
+/** 只校验 v2-v4 历史审计记录，返回入选顺序；新生成一律走打分制。 */
+export function validateLegacyRedditLifeWechatSelection(raw: unknown, candidateCount: number, maxSelected: number): { selected: Array<{ rank: number }> } {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life WeChat selection must be a JSON object");
   const value = raw as Record<string, unknown>;
   if (!Array.isArray(value.selected) || !Array.isArray(value.rejected))
@@ -64,40 +98,35 @@ export function validateRedditLifeWechatSelection(
   if (value.selected.length > maxSelected) {
     throw new Error(`Reddit life WeChat selection picked ${value.selected.length} posts, at most ${maxSelected} are allowed`);
   }
-
-  const selected = value.selected.map((rawEntry, index): RedditLifeWechatSelectedPost => {
-    if (!rawEntry || typeof rawEntry !== "object" || Array.isArray(rawEntry)) throw new Error(`Reddit life WeChat selected entry ${index + 1} is invalid`);
-    const entry = rawEntry as Record<string, unknown>;
+  const selected = value.selected.map((rawEntry, index) => {
+    const entry = entryObject(rawEntry, `Reddit life WeChat selected entry ${index + 1}`);
     const rank = validRank(entry.rank, candidateCount, `Reddit life WeChat selected entry ${index + 1}`);
-    return {
-      rank,
-      longTail: score(entry.longTail, "longTail", rank),
-      resonance: score(entry.resonance, "resonance", rank),
-      reason: reason(entry.reason, rank),
-    };
+    legacyScore(entry.longTail, "longTail", rank);
+    legacyScore(entry.resonance, "resonance", rank);
+    reason(entry.reason, rank);
+    return { rank };
   });
-  const categories = new Set<string>(REDDIT_LIFE_WECHAT_REJECTION_CATEGORIES);
-  const rejected = value.rejected.map((rawEntry, index): RedditLifeWechatRejectedPost => {
-    if (!rawEntry || typeof rawEntry !== "object" || Array.isArray(rawEntry)) throw new Error(`Reddit life WeChat rejected entry ${index + 1} is invalid`);
-    const entry = rawEntry as Record<string, unknown>;
+  const rejected = value.rejected.map((rawEntry, index) => {
+    const entry = entryObject(rawEntry, `Reddit life WeChat rejected entry ${index + 1}`);
     const rank = validRank(entry.rank, candidateCount, `Reddit life WeChat rejected entry ${index + 1}`);
     const category = String(entry.category || "");
-    if (!categories.has(category)) throw new Error(`Reddit life WeChat selection rank ${rank} has invalid rejection category: ${category || "missing"}`);
-    return { rank, category: category as RedditLifeWechatRejectionCategory, reason: reason(entry.reason, rank) };
+    if (!LEGACY_REJECTION_CATEGORIES.has(category))
+      throw new Error(`Reddit life WeChat selection rank ${rank} has invalid rejection category: ${category || "missing"}`);
+    reason(entry.reason, rank);
+    return { rank };
   });
-
-  const ranks = [...selected, ...rejected].map(item => item.rank);
-  if (ranks.length !== candidateCount || new Set(ranks).size !== candidateCount) {
-    throw new Error(`Reddit life WeChat selection must cover all ${candidateCount} candidates exactly once`);
-  }
-  return { selected, rejected };
+  assertCoversAll(
+    [...selected, ...rejected].map(item => item.rank),
+    candidateCount
+  );
+  return { selected };
 }
 
 export function parseRedditLifeWechatSelection(raw: string, candidateCount: number): RedditLifeWechatSelection {
   return validateRedditLifeWechatSelection(parseModelJsonObject(raw, "Reddit life WeChat selection"), candidateCount);
 }
 
-export function rankedRedditLifeCandidates(candidates: RedditLifeCandidate[], selection: RedditLifeWechatSelection): RedditLifeCandidate[] {
+export function rankedRedditLifeCandidates(candidates: RedditLifeCandidate[], selection: Pick<RedditLifeWechatSelection, "selected">): RedditLifeCandidate[] {
   const byRank = new Map(candidates.map(candidate => [candidate.rank, candidate]));
   return selection.selected.map(item => {
     const candidate = byRank.get(item.rank);
@@ -160,6 +189,8 @@ export async function selectRedditLifeWechatCandidates({
     .replaceAll("{date}", date)
     .replaceAll("{candidate_count}", String(candidates.length))
     .replaceAll("{max_posts}", String(REDDIT_LIFE_WECHAT_TOTAL_POSTS))
+    .replaceAll("{min_score}", String(REDDIT_LIFE_WECHAT_MIN_SCORE))
+    .replaceAll("{min_score_below}", String(REDDIT_LIFE_WECHAT_MIN_SCORE - 1))
     .replaceAll("{source_text}", candidateEvidence(candidates));
   writeAiArtifact(artifactsDir, PROMPT_TASK, "prompt.md", prompt);
   return generateJsonStageWithRetries({

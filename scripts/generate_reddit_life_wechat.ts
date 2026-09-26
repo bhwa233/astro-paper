@@ -30,18 +30,19 @@ import {
   rankedRedditLifeCandidates,
   selectRedditLifeWechatCandidates,
   splitRedditLifeWechatCandidates,
+  validateLegacyRedditLifeWechatSelection,
   validateRedditLifeWechatSelection,
-  type RedditLifeWechatSelection,
+  type RedditLifeWechatScoredPost,
 } from "./reddit_life_wechat_selection.ts";
 import { renderQrPng } from "./qr_code.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 
 const LABEL = "Reddit life WeChat";
 const ROOT_REL = "data/reddit-life-wechat";
-const MANIFEST_VERSION = 4;
+const MANIFEST_VERSION = 5;
 
 type Entry = Omit<RedditLifeCandidate, "body" | "rank"> & {
-  // v1 manifest 使用 rank；v2 拆开来源排名和选后排名；v3 增加每卷导语；v4 撤掉 AI 导语。
+  // v1 manifest 使用 rank；v2 拆开来源排名和选后排名；v3 增加每卷导语；v4 撤掉 AI 导语；v5 选题改为全员打分。
   rank?: number;
   sourceRank?: number;
   selectionRank?: number;
@@ -55,17 +56,23 @@ type Entry = Omit<RedditLifeCandidate, "body" | "rank"> & {
 };
 
 export type RedditLifeRunManifest = {
-  version: 1 | 2 | 3 | 4;
+  version: 1 | 2 | 3 | 4 | 5;
   archiveDate: string;
   timeZone: "America/Los_Angeles";
   status: "processed" | "upstream-empty";
   upstream: { generatedSha: string; workflowRun: string; lifeArticlePath: string };
   rawSources?: { upstreamLifeMarkdown: string };
-  selection?: RedditLifeWechatSelection & {
-    // 仅 v3 历史 manifest 存在；v4 开篇由代码根据入选标题生成。
-    leads?: string[];
+  selection?: {
     model: string;
     candidateCount: number;
+    // v5：全部候选的 0-100 分与当时的过线分，入选顺序由它们推导。
+    minScore?: number;
+    scores?: RedditLifeWechatScoredPost[];
+    // v2-v4：入选帖带 longTail/resonance，其余帖带拒绝类别。
+    selected?: unknown[];
+    rejected?: unknown[];
+    // 仅 v3 历史 manifest 存在；v4 开篇由代码根据入选标题生成。
+    leads?: string[];
   };
   posts: Entry[];
 };
@@ -87,7 +94,7 @@ function parseManifest(raw: unknown, file: string): RedditLifeRunManifest {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`invalid Reddit life WeChat run manifest: ${file}`);
   const value = raw as Partial<RedditLifeRunManifest>;
   if (
-    (value.version !== 1 && value.version !== 2 && value.version !== 3 && value.version !== MANIFEST_VERSION) ||
+    (value.version !== 1 && value.version !== 2 && value.version !== 3 && value.version !== 4 && value.version !== MANIFEST_VERSION) ||
     !/^\d{4}-\d{2}-\d{2}$/.test(value.archiveDate || "") ||
     value.timeZone !== "America/Los_Angeles" ||
     (value.status !== "processed" && value.status !== "upstream-empty") ||
@@ -99,14 +106,17 @@ function parseManifest(raw: unknown, file: string): RedditLifeRunManifest {
   ) {
     throw new Error(`invalid Reddit life WeChat run manifest structure: ${file}`);
   }
-  let selection: RedditLifeWechatSelection | undefined;
+  let selection: { selected: Array<{ rank: number }> } | undefined;
   if (value.version !== 1 && value.status === "processed") {
     const audit = value.selection;
     if (!audit || !audit.model || !Number.isInteger(audit.candidateCount) || (audit.candidateCount || 0) < 1) {
       throw new Error(`invalid Reddit life WeChat selection audit: ${file}`);
     }
     try {
-      selection = validateRedditLifeWechatSelection(audit, audit.candidateCount, REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS);
+      selection =
+        value.version === MANIFEST_VERSION
+          ? validateRedditLifeWechatSelection(audit, audit.candidateCount, audit.minScore)
+          : validateLegacyRedditLifeWechatSelection(audit, audit.candidateCount, REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS);
       if (value.version === 3) {
         const expectedLeadCount = selection.selected.length === REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS ? 2 : selection.selected.length ? 1 : 0;
         if (
@@ -404,7 +414,7 @@ export async function generateRedditLifeWechat({
     status: "processed",
     upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath },
     rawSources,
-    selection: { model, candidateCount: sourceCandidates.length, ...selection },
+    selection: { model, candidateCount: sourceCandidates.length, minScore: selection.minScore, scores: selection.scores },
     posts,
   };
   fs.writeFileSync(path.join(repo, rawSources.upstreamLifeMarkdown), upstreamMarkdown, "utf8");

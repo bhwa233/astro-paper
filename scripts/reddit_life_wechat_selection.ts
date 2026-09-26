@@ -7,7 +7,7 @@ import { parseModelJsonObject } from "./compose_common.ts";
 import { REDDIT_LIFE_WECHAT_TOTAL_POSTS, type RedditLifeCandidate } from "./reddit_life_wechat_compose.ts";
 
 const PROMPT_TASK = "reddit-life-wechat-selection";
-const EXCERPT_STORY_LIMIT = 3;
+const EXCERPT_STORY_LIMIT = 10;
 const EXCERPT_CHARS = 320;
 
 /** 过线分。低于它的候选即使排得进前几名也不收录，宁缺毋滥。 */

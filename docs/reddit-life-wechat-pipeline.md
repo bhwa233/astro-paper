@@ -120,7 +120,7 @@ node --import tsx scripts/generate_reddit_life_wechat.ts \
   --artifacts-dir reddit-life-wechat-artifacts
 ```
 
-`--upstream-sha` 与 `--upstream-workflow-run` 必填，`--model` 默认取 `AI_MODEL` 或 `gemini-3.7-flash`。生成器要求当前仓库 `HEAD` 等于 `upstream_sha`；这条管线只读已提交的父任务交接结果，不接受任意工作区内容冒充该提交。
+`--upstream-sha` 与 `--upstream-workflow-run` 必填，`--model` 默认取 `AI_MODEL` 或 `gemini-3.8-flash`。生成器要求当前仓库 `HEAD` 等于 `upstream_sha`；这条管线只读已提交的父任务交接结果，不接受任意工作区内容冒充该提交。
 
 ## 9. 启用状态
 

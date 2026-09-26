@@ -36,7 +36,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI_MODEL override. Empty = Gemini 3.7 Flash."
+        description: "Optional AI_MODEL override. Empty = Gemini 3.8 Flash."
         required: false
         type: string
 
@@ -73,7 +73,7 @@ jobs:
       reddit_category: life
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
   # 紧跟 publish，保持微信草稿的产出时刻不被后面几个分类推迟。
@@ -87,7 +87,7 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.publish.outputs.generated_sha }}
       upstream_workflow_run: ${{ github.run_id }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
       force_rebuild: ${{ inputs.force || false }}
     secrets: inherit
 
@@ -103,7 +103,7 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
   markets:
@@ -116,7 +116,7 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
   discussions:
@@ -129,7 +129,7 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
   # 视频读 wechat 提交的归档，所以按那一步的 sha 检出，wechat 没成功就没有可读的数据。
@@ -145,7 +145,7 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.wechat.outputs.generated_sha }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
   # 视频跳过选卡时不产出 generated_sha，图文没有可读的 video.json，据此跳过。
@@ -174,5 +174,5 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit

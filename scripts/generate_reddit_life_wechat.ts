@@ -258,7 +258,7 @@ export async function generateRedditLifeWechat({
   upstreamSha,
   workflowRun = "",
   artifactsDir = "",
-  model = process.env.AI_MODEL || "gemini-3.7-flash",
+  model = process.env.AI_MODEL || "gemini-3.8-flash",
   promptDir = "",
   force = false,
 }: {
@@ -422,7 +422,7 @@ async function main(): Promise<void> {
     upstreamSha: stringArg(args, "upstream-sha", process.env.UPSTREAM_GENERATED_SHA || ""),
     workflowRun: stringArg(args, "upstream-workflow-run", process.env.UPSTREAM_WORKFLOW_RUN || ""),
     artifactsDir: path.resolve(stringArg(args, "artifacts-dir", "reddit-life-wechat-artifacts")),
-    model: stringArg(args, "model", process.env.AI_MODEL || "gemini-3.7-flash"),
+    model: stringArg(args, "model", process.env.AI_MODEL || "gemini-3.8-flash"),
     promptDir: stringArg(args, "prompt-dir"),
     force: booleanArg(args, "force"),
   });

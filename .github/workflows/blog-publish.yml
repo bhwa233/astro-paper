@@ -32,7 +32,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI model override. Empty = gemini-3.7-flash."
+        description: "Optional AI model override. Empty = gemini-3.8-flash."
         required: false
         type: string
       podcast_max_episodes:
@@ -75,7 +75,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI model override. Empty = gemini-3.7-flash."
+        description: "Optional AI model override. Empty = gemini-3.8-flash."
         required: false
         type: string
       podcast_max_episodes:
@@ -163,7 +163,7 @@ jobs:
           EVENT_SCHEDULE: ${{ inputs.event_schedule || '' }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
           AI_API_STYLE: gemini
           # Disabled: the codex endpoint rejects the key with HTTP 401 (无效的API Key), so the
           # fallback only masked the primary error. Re-enable once AI_FALLBACK_API_KEY is valid.

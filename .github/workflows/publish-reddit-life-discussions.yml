@@ -20,7 +20,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI_MODEL override. Empty = Gemini 3.7 Flash."
+        description: "Optional AI_MODEL override. Empty = Gemini 3.8 Flash."
         required: false
         type: string
   workflow_dispatch:
@@ -35,7 +35,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI_MODEL override. Empty = Gemini 3.7 Flash."
+        description: "Optional AI_MODEL override. Empty = Gemini 3.8 Flash."
         required: false
         type: string
 
@@ -51,5 +51,5 @@ jobs:
       date: ${{ inputs.date || '' }}
       event_schedule: ${{ github.event.schedule || '15 10 * * *' }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit

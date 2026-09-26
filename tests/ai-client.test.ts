@@ -132,7 +132,7 @@ test("AI client sends Gemini through its native provider and fails over to OpenA
     () =>
       callBlogAiWithFailover({
         prompt: "hello",
-        primaryConfig: { apiKey: "primary-key", baseUrl: "https://rightapi.ai/gemini", model: "gemini-3.7-flash", apiStyle: "gemini" },
+        primaryConfig: { apiKey: "primary-key", baseUrl: "https://rightapi.ai/gemini", model: "gemini-3.8-flash", apiStyle: "gemini" },
         fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://rightapi.ai/codex/v1", model: "gpt-5.6-luna", apiStyle: "chat" },
       })
   );
@@ -142,7 +142,7 @@ test("AI client sends Gemini through its native provider and fails over to OpenA
   assert.match(result.content, /^## 标题/);
   assert.deepEqual(
     calls.map(call => call.url),
-    ["https://rightapi.ai/gemini/v1beta/models/gemini-3.7-flash:generateContent", "https://rightapi.ai/codex/v1/chat/completions"]
+    ["https://rightapi.ai/gemini/v1beta/models/gemini-3.8-flash:generateContent", "https://rightapi.ai/codex/v1/chat/completions"]
   );
   assert.equal(new Headers(calls[0].headers).get("x-goog-api-key"), "primary-key");
 });

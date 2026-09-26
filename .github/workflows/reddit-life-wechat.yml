@@ -22,7 +22,7 @@ on:
         required: true
         type: string
       ai_model:
-        description: "Selection model. Empty = Gemini 3.7 Flash."
+        description: "Selection model. Empty = Gemini 3.8 Flash."
         required: false
         type: string
       force_rebuild:
@@ -46,7 +46,7 @@ on:
         required: true
         type: string
       ai_model:
-        description: "Selection model. Empty = Gemini 3.7 Flash."
+        description: "Selection model. Empty = Gemini 3.8 Flash."
         required: false
         type: string
       force_rebuild:
@@ -87,7 +87,7 @@ jobs:
           INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
           AI_TIMEOUT_MS: "600000"

@@ -65,7 +65,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI_MODEL override. Empty = gemini-3.7-flash."
+        description: "Optional AI_MODEL override. Empty = gemini-3.8-flash."
         required: false
         type: string
 

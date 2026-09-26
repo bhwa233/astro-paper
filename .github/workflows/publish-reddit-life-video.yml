@@ -29,7 +29,7 @@ on:
         default: false
         type: boolean
       ai_model:
-        description: "Question, answer and title selection model. Empty = Gemini 3.7 Flash."
+        description: "Question, answer and title selection model. Empty = Gemini 3.8 Flash."
         required: false
         type: string
   # 手动入口：对着某个已归档提交补跑一次选卡与渲染，不必等父工作流的下一次定时执行。
@@ -49,7 +49,7 @@ on:
         default: false
         type: boolean
       ai_model:
-        description: "Question, answer and title selection model. Empty = Gemini 3.7 Flash."
+        description: "Question, answer and title selection model. Empty = Gemini 3.8 Flash."
         required: false
         type: string
 
@@ -101,7 +101,7 @@ jobs:
           INPUT_FORCE: ${{ inputs.force || false }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.7-flash' }}
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
           AI_TIMEOUT_MS: "600000"

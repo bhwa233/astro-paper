@@ -1,7 +1,15 @@
 # Reddit 人生精选竖屏视频技术方案
 
-状态：已实现（独立 cron + Remotion 竖屏渲染 + Release 长期保留）
-最后更新：2026-09-24
+状态：选卡在用，渲染与 Release 自 2026-09-26 起暂停
+最后更新：2026-09-26
+
+> **2026-09-26 起的变化。**
+>
+> - **选题来源**：不再读当天的文章草稿（文章草稿已停发），改由 `scripts/reddit_life_video_source.ts` 从 SparkHub 素材池领取「未使用、回答满 10 条、评分最高」的问题（`POST /claim`，`min_replies=10`），领取的条目记为 reserved。SparkHub 未配置、请求失败或池子为空时，退回当天 `data/reddit-life-wechat/<date>/run.json` 的打分与 `upstream-life.md`，取分最高、回答满 10 条的问题。领取结果（含池 id）写进 `data/reddit-life-video/<date>/source.json` 随选卡提交，同日重跑（含 `--force`）复用它，不会重复领取；`run.json` 的 `upstream` 改为记录来源类型、source.json 路径与 postId。模型只对这一个问题选十条回答并起标题，`video.json` 契约不变。
+> - **暂停出片**：`publish-reddit-life-video.yml` 的 job 级 `RENDER_VIDEO` 为 `"false"`，选卡与提交照跑（图文复用 `video.json`），浏览器缓存、渲染与 Release 三步跳过。改回 `"true"` 即恢复。
+> - 选卡在模型阶段失败时 source.json 不会提交，重跑会再领一次；上一次的领取 24 小时后自动退回素材池。
+>
+> 下文第 3、4 节「读当天全部 `0X-*.md`」的描述是 2026-09-26 之前的行为。
 
 ## 1. 背景
 

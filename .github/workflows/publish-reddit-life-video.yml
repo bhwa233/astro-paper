@@ -61,6 +61,10 @@ jobs:
   render-and-publish:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      # 视频自 2026-09-26 起暂停：选卡照跑（图文草稿复用它的 video.json），渲染与 Release 跳过。
+      # 改回 "true" 即恢复出片。
+      RENDER_VIDEO: "false"
     outputs:
       generated_sha: ${{ steps.head.outputs.sha }}
     steps:
@@ -105,6 +109,9 @@ jobs:
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
           AI_TIMEOUT_MS: "600000"
+          # 选题从 SparkHub 素材池领取；领取失败或未配置时退回当天本地排名。
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
         run: |
           set -euo pipefail
           args=(--date "$ARCHIVE_DATE" --artifacts-dir reddit-life-video-artifacts)
@@ -134,14 +141,14 @@ jobs:
       # Chrome Headless Shell 约 92MB。不缓存的话每天都要重下一次，
       # 而它由 Remotion 版本唯一决定，锁文件不变就不会失效。
       - name: Restore Remotion browser cache
-        if: steps.select.outputs.status == 'processed'
+        if: steps.select.outputs.status == 'processed' && env.RENDER_VIDEO == 'true'
         uses: actions/cache@v6
         with:
           path: ~/.cache/remotion
           key: remotion-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Render video
-        if: steps.select.outputs.status == 'processed'
+        if: steps.select.outputs.status == 'processed' && env.RENDER_VIDEO == 'true'
         id: render
         env:
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}
@@ -171,7 +178,7 @@ jobs:
       # Release 一直保留，没有清理逻辑。同一天重跑走 upload --clobber 覆盖资产，
       # 而不是先删再建：这条链路不删任何已发布的东西。
       - name: Publish release
-        if: steps.select.outputs.status == 'processed'
+        if: steps.select.outputs.status == 'processed' && env.RENDER_VIDEO == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}
@@ -219,7 +226,7 @@ jobs:
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}
           STATUS: ${{ steps.select.outputs.status }}
           CARD_COUNT: ${{ steps.select.outputs.card_count }}
-          VIDEO_COUNT: ${{ steps.render.outputs.video_count || steps.select.outputs.video_count }}
+          VIDEO_COUNT: ${{ steps.render.outputs.video_count || '0' }}
           FRAMES: ${{ steps.render.outputs.frames }}
         run: |
           {

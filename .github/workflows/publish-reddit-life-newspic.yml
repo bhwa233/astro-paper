@@ -180,3 +180,45 @@ jobs:
       force_create: ${{ inputs.force || false }}
       artifact_name: reddit-life-newspic-sync
     secrets: inherit
+
+  # 草稿建好后回报 SparkHub：这一题记为已用，公众号状态记为 draft（附 media_id），卡片地址存进
+  # assets 供各平台发布 agent 取用。检出分支最新提交，才能读到 sync-wechat 刚提交的台账。
+  # 旁路步骤：失败只告警。没确认的领取 24 小时后自动退回素材池，可能被再次选中，所以要看告警。
+  confirm-sparkhub:
+    needs: [generate-and-archive, sync-wechat]
+    if: needs.sync-wechat.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
+      - name: Resolve archive date
+        id: archive-date
+        env:
+          INPUT_DATE: ${{ inputs.date || '' }}
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_DATE" ]; then
+            date="$INPUT_DATE"
+          else
+            date="$(TZ=America/Los_Angeles date +%F)"
+          fi
+          [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]
+          echo "date=$date" >> "$GITHUB_OUTPUT"
+      - name: Confirm drafts in SparkHub
+        continue-on-error: true
+        env:
+          ARCHIVE_DATE: ${{ steps.archive-date.outputs.date }}
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SPARKHUB_DASHBOARD_TOKEN" ]; then
+            echo "::warning::SPARKHUB_DASHBOARD_TOKEN is not set; skipped SparkHub confirm."
+            exit 0
+          fi
+          if ! node --import tsx scripts/confirm_reddit_life_newspic_sparkhub.ts --date "$ARCHIVE_DATE"; then
+            echo "::warning::SparkHub confirm failed for $ARCHIVE_DATE; mark the post used in the admin page, or it returns to the pool in 24 hours."
+            exit 1
+          fi

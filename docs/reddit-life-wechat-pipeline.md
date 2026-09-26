@@ -1,7 +1,9 @@
 # Reddit 人生精选微信草稿技术方案
 
-状态：已实现（全文 AI 选题 + 固定问答清单开篇 + 一天一篇，最多五帖 + 每帖条数自适应）
-最后更新：2026-09-23
+状态：文章草稿自 2026-09-26 起停发，只保留全员打分与 SparkHub 入库（见下方说明）
+最后更新：2026-09-26
+
+> **2026-09-26 起文章草稿停发。** `src/utils/redditLifePublishing.ts` 的 `REDDIT_LIFE_WECHAT_ARTICLE_ENABLED` 为 `false` 时，生成器仍给当天全部候选打分并写 manifest，但不再生成文章稿和封面，manifest 升为 v6（`posts` 为空）；`generated_count` 为 0，`sync-wechat` 自然跳过。每日只发一篇图文草稿，问题从 SparkHub 素材池领取，见 `reddit-life-video-pipeline.md` 与 `reddit-life-newspic-pipeline.md`。下文描述的是开关打开时的文章草稿行为，改回 `true` 即恢复。
 
 ## 1. 背景
 
@@ -112,7 +114,7 @@ pnpm exec astro-wechat preview data/reddit-life-wechat/<date>/01-<postId>.md
 
 ### SparkHub 素材池
 
-生成器跑完后，`Ingest candidates into SparkHub` 步骤用 `scripts/ingest_reddit_life_sparkhub.ts` 把当天 v5 manifest 的全部打分候选（标题、热度、0-100 分与理由、上游正文）推进 SparkHub 的 `POST /api/linkdisk/dashboard/decks/reddit-life/ingest`，在 SparkHub 后台 `/admin/decks/reddit-life` 可查看与增删改。当天已进草稿的帖子带上 `syncId`，在素材池里直接记为 used；其余为 pending，以后草稿可改为从素材池按分领取未使用内容（`next` / `claim` / `confirm` / `release`）。
+生成器跑完后，`Ingest candidates into SparkHub` 步骤用 `scripts/ingest_reddit_life_sparkhub.ts` 把当天 v5/v6 manifest 的全部打分候选（标题、热度、0-100 分与理由、上游正文）推进 SparkHub 的 `POST /api/linkdisk/dashboard/decks/reddit-life/ingest`，在 SparkHub 后台 `/admin/decks/reddit-life` 可查看与增删改。v5 时期当天已进文章草稿的帖子带上 `syncId`，在素材池里直接记为 used；v6 起全部为 pending，由视频选卡按分领取（`claim`），图文草稿建好后确认（`confirm`）。各平台（抖音、B 站、公众号、视频号）的发布由 agent 通过 SparkHub 的 `publish/{platform}/claim` 与 `report` 接口（或同名 MCP 工具）完成。
 
 这一步只读归档、按 postId upsert，`--force` 重跑可重复推送；它是旁路，失败或未配置 `SPARKHUB_DASHBOARD_TOKEN` secret（值即 SparkHub 的 `DASHBOARD_ACCESS_TOKEN`）只留警告，不影响归档提交与草稿同步。手动补推某天：
 

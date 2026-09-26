@@ -1,5 +1,7 @@
 # Reddit 图片消息管线
 
+> **2026-09-26 起**这是每天唯一的公众号草稿（文章草稿已停发）。问题来自视频选卡从 SparkHub 素材池领取的那一题。草稿建好后，`confirm-sparkhub` job 运行 `scripts/confirm_reddit_life_newspic_sparkhub.ts`：从同步台账 `.astro-wechat/ledger.json` 取草稿 `mediaId`，按 `data/reddit-life-video/<date>/source.json` 找到这一题（池 id，本地兜底选出的用 Reddit postId），调用 SparkHub `confirm` 把它记为已用、公众号状态记为 `draft`（external_id 为 media_id），并把卡片的 Release 下载地址存进 assets，供各平台发布 agent 取用。这一步失败只告警；未确认的领取 24 小时后退回素材池。台账里没有这篇（草稿没建成）时跳过。
+
 `publish-reddit-life-newspic.yml` 每日将已经归档的视频选题转换为一篇微信公众号图片消息草稿。它不请求 Reddit，也不调用模型；上游一次 AI 请求选出一个问题及其标题和回答，与当天视频共用。篇数由 `src/utils/redditLifePublishing.ts` 的 `REDDIT_LIFE_DAILY_NEWSPIC_COUNT` 控制，2026-09-24 起从 2 改为 1；此前的归档目录仍有 `02/`。
 
 ```text

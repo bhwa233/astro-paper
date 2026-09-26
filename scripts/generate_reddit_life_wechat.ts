@@ -36,10 +36,12 @@ import {
 } from "./reddit_life_wechat_selection.ts";
 import { renderQrPng } from "./qr_code.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
+import { REDDIT_LIFE_WECHAT_ARTICLE_ENABLED } from "../src/utils/redditLifePublishing.ts";
 
 const LABEL = "Reddit life WeChat";
 const ROOT_REL = "data/reddit-life-wechat";
-const MANIFEST_VERSION = 5;
+// v5：全员打分 + 当天文章稿；v6：文章稿停发（REDDIT_LIFE_WECHAT_ARTICLE_ENABLED），只有打分，posts 为空。
+const MANIFEST_VERSION = REDDIT_LIFE_WECHAT_ARTICLE_ENABLED ? 5 : 6;
 
 type Entry = Omit<RedditLifeCandidate, "body" | "rank"> & {
   // v1 manifest 使用 rank；v2 拆开来源排名和选后排名；v3 增加每卷导语；v4 撤掉 AI 导语；v5 选题改为全员打分。
@@ -56,7 +58,7 @@ type Entry = Omit<RedditLifeCandidate, "body" | "rank"> & {
 };
 
 export type RedditLifeRunManifest = {
-  version: 1 | 2 | 3 | 4 | 5;
+  version: 1 | 2 | 3 | 4 | 5 | 6;
   archiveDate: string;
   timeZone: "America/Los_Angeles";
   status: "processed" | "upstream-empty";
@@ -94,7 +96,7 @@ function parseManifest(raw: unknown, file: string): RedditLifeRunManifest {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`invalid Reddit life WeChat run manifest: ${file}`);
   const value = raw as Partial<RedditLifeRunManifest>;
   if (
-    (value.version !== 1 && value.version !== 2 && value.version !== 3 && value.version !== 4 && value.version !== MANIFEST_VERSION) ||
+    ![1, 2, 3, 4, 5, 6].includes(value.version as number) ||
     !/^\d{4}-\d{2}-\d{2}$/.test(value.archiveDate || "") ||
     value.timeZone !== "America/Los_Angeles" ||
     (value.status !== "processed" && value.status !== "upstream-empty") ||
@@ -114,7 +116,7 @@ function parseManifest(raw: unknown, file: string): RedditLifeRunManifest {
     }
     try {
       selection =
-        value.version === MANIFEST_VERSION
+        value.version === 5 || value.version === 6
           ? validateRedditLifeWechatSelection(audit, audit.candidateCount, audit.minScore)
           : validateLegacyRedditLifeWechatSelection(audit, audit.candidateCount, REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS);
       if (value.version === 3) {
@@ -130,7 +132,8 @@ function parseManifest(raw: unknown, file: string): RedditLifeRunManifest {
     } catch (error) {
       throw new Error(`invalid Reddit life WeChat selection audit: ${file}: ${error instanceof Error ? error.message : String(error)}`);
     }
-    if (value.posts.length !== selection.selected.length) throw new Error(`invalid Reddit life WeChat selected post count: ${file}`);
+    const expectedPosts = value.version === 6 ? 0 : selection.selected.length;
+    if (value.posts.length !== expectedPosts) throw new Error(`invalid Reddit life WeChat selected post count: ${file}`);
   }
   for (const [index, post] of value.posts.entries()) {
     const validRank =
@@ -323,7 +326,7 @@ export async function generateRedditLifeWechat({
     artifactsDir,
   });
   const candidates = rankedRedditLifeCandidates(sourceCandidates, selection);
-  const candidateVolumes = splitRedditLifeWechatCandidates(candidates);
+  const candidateVolumes = REDDIT_LIFE_WECHAT_ARTICLE_ENABLED ? splitRedditLifeWechatCandidates(candidates) : [];
   const selectionRankBySourceRank = new Map(candidates.map((candidate, index) => [candidate.rank, index + 1]));
   // 每帖保留几条由 fitWechatContentLimit 按渲染长度决定。
   // 这个地址是「阅读原文」的落点，不是身份。身份走 syncId。
@@ -402,11 +405,14 @@ export async function generateRedditLifeWechat({
     }
   }
   // 审计记录仍按 AI 的总排序写入，卷次只描述最终发布去向，不能反过来篡改选择结果的顺序。
-  const posts = candidates.map(candidate => {
-    const post = postsBySourceRank.get(candidate.rank);
-    if (!post) throw new Error(`Reddit life WeChat split did not generate source rank ${candidate.rank}`);
-    return post;
-  });
+  // 文章稿停发时只留打分审计，posts 为空；图文从 SparkHub 素材池按分领取。
+  const posts = REDDIT_LIFE_WECHAT_ARTICLE_ENABLED
+    ? candidates.map(candidate => {
+        const post = postsBySourceRank.get(candidate.rank);
+        if (!post) throw new Error(`Reddit life WeChat split did not generate source rank ${candidate.rank}`);
+        return post;
+      })
+    : [];
   const manifest: RedditLifeRunManifest = {
     version: MANIFEST_VERSION,
     archiveDate: date,

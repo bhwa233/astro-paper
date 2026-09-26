@@ -1,5 +1,6 @@
 #!/usr/bin/env tsx
-// 竖屏视频的选卡编排：读当天已提交的 reddit-life-wechat 归档，调一次模型选足视频与图文所需的问题，写 video.json。
+// 竖屏视频的选卡编排：从 SparkHub 素材池领取当天的问题（不可用时退回当天本地排名，见
+// reddit_life_video_source.ts），调一次模型选十条回答并起标题，写 video.json。图文草稿复用同一份选卡。
 //
 // 只做选卡，不渲染。渲染在 video/ 那个独立的 Remotion 包里（`pnpm --filter reddit-life-video render`），
 // 因为它要拖进 react 和一套 @remotion/*，而这边的脚本要能在不装那些依赖的环境里跑。
@@ -15,12 +16,12 @@ import {
   questionEvidence,
   REDDIT_LIFE_VIDEO_ANSWER_COUNT,
 } from "./reddit_life_video_compose.ts";
+import { redditLifeVideoSourceMarkdown, resolveRedditLifeVideoSource } from "./reddit_life_video_source.ts";
 import { REDDIT_LIFE_DAILY_SELECTION_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT } from "../src/utils/redditLifePublishing.ts";
 import { VIDEO_MANIFEST_VERSION } from "../video/src/contract.ts";
 
 // 微信归档按美西日切分目录，视频沿用同一个口径，两边的 <date> 才指同一天。
 const SOURCE_TIME_ZONE = "America/Los_Angeles";
-const SOURCE_ROOT_REL = "data/reddit-life-wechat";
 const ROOT_REL = "data/reddit-life-video";
 
 /**
@@ -52,7 +53,8 @@ type RunManifest = {
   archiveDate: string;
   timeZone: typeof SOURCE_TIME_ZONE;
   status: RunStatus;
-  upstream: { archiveDir: string; drafts: string[]; sha256: string };
+  /** 选题来源：SparkHub 领取或本地兜底，明细（含池 id）在同目录 source.json。 */
+  upstream: { kind: "sparkhub" | "local" | "none"; sourcePath: string; postIds: string[]; sha256: string };
   model: string;
   selectionCount: number;
   questionCount: number;
@@ -81,6 +83,7 @@ async function main(): Promise<void> {
   const manifestPath = path.join(outDir, "run.json");
   const videoPath = path.join(outDir, "video.json");
   const publishPath = path.join(outDir, "publish.json");
+  const sourcePath = path.join(outDir, "source.json");
 
   // 复用已有结果而不是重新调模型：同一天重跑（补渲染、改版式）不该换掉内容。
   // publish.json 也要在：标签与结论出自同一次调用，缺了它就说明这份归档早于该契约。
@@ -101,21 +104,26 @@ async function main(): Promise<void> {
     );
   }
 
-  const archiveDir = path.join(repo, SOURCE_ROOT_REL, date);
-  const files = fs.existsSync(archiveDir)
-    ? fs
-        .readdirSync(archiveDir)
-        .filter(name => /^\d+-.+\.md$/.test(name))
-        .sort()
-    : [];
-  const markdowns = files.map(name => fs.readFileSync(path.join(archiveDir, name), "utf8"));
+  const source = await resolveRedditLifeVideoSource({
+    repo,
+    date,
+    sourceFile: sourcePath,
+    count: REDDIT_LIFE_DAILY_SELECTION_COUNT,
+    minReplies: REDDIT_LIFE_VIDEO_ANSWER_COUNT,
+  });
+  const markdowns = source ? [redditLifeVideoSourceMarkdown(source)] : [];
 
   const manifest: RunManifest = {
     version: MANIFEST_VERSION,
     archiveDate: date,
     timeZone: SOURCE_TIME_ZONE,
     status: "upstream-empty",
-    upstream: { archiveDir: path.relative(repo, archiveDir), drafts: files, sha256: sha256(markdowns.join("\n")) },
+    upstream: {
+      kind: source?.kind ?? "none",
+      sourcePath: path.relative(repo, sourcePath),
+      postIds: source?.posts.map(post => post.postId) ?? [],
+      sha256: sha256(markdowns.join("\n")),
+    },
     model,
     selectionCount: REDDIT_LIFE_DAILY_SELECTION_COUNT,
     questionCount: 0,
@@ -134,9 +142,9 @@ async function main(): Promise<void> {
     );
   };
 
-  // 上游还没跑完不是错误：独立 cron 早于归档提交时会撞上这个，让 job 成功退出即可。
+  // 素材池和当天打分都拿不到问题不是错误：上游还没跑完时会撞上这个，让 job 成功退出即可。
   if (!markdowns.length) {
-    writeStderr(`[reddit-life-video] no WeChat drafts under ${manifest.upstream.archiveDir}; nothing to render\n`);
+    writeStderr(`[reddit-life-video] no question available for ${date} from SparkHub or the local ranking; nothing to render\n`);
     finish();
     return;
   }

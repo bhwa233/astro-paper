@@ -134,8 +134,9 @@ jobs:
       ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
-  # 视频读 wechat 提交的归档，所以按那一步的 sha 检出，wechat 没成功就没有可读的数据。
-  # needs 里的 discussions 只用来排到三个分类之后：视频渲染慢，文章先落地。
+  # 视频选卡从 SparkHub 素材池领取问题，而当天候选是 wechat 那一步打分后才入库的；
+  # 素材池不可用时还要退回读 wechat 提交的打分归档。所以按那一步的 sha 检出，wechat 没成功就不跑。
+  # needs 里的 discussions 只用来排到三个分类之后。视频本身目前暂停渲染，只选卡供图文使用。
   video:
     name: Publish Reddit Life Vertical Video
     needs: [archive-date, wechat, discussions]

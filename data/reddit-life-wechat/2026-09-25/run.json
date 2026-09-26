@@ -1,10 +1,10 @@
 {
-  "version": 4,
+  "version": 5,
   "archiveDate": "2026-09-25",
   "timeZone": "America/Los_Angeles",
   "status": "processed",
   "upstream": {
-    "generatedSha": "b4f2392ee7ad6879e1cc2e0bb606c88b871c9f9b",
+    "generatedSha": "3ffd3b5d6441f4b858bdf84ce940e750f36b00a8",
     "workflowRun": "36153403927",
     "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-25-life.md"
   },
@@ -12,195 +12,175 @@
     "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-25/upstream-life.md"
   },
   "selection": {
-    "model": "gemini-3.7-flash",
+    "model": "gemini-3.8-flash",
     "candidateCount": 30,
-    "selected": [
+    "minScore": 60,
+    "scores": [
       {
-        "rank": 8,
-        "longTail": 5,
-        "resonance": 5,
-        "reason": "聚焦医疗忽视与误诊经历，直击普遍痛点，真实案例极具警示价值与跨地域共鸣。"
-      },
-      {
-        "rank": 6,
-        "longTail": 5,
-        "resonance": 4,
-        "reason": "从演化生物学视角深入解析人类生理机制，解答严谨且颠覆常识，长尾科普价值极高。"
+        "rank": 7,
+        "score": 89,
+        "reason": "肌肉记忆狂按保存键与坚守PC大屏的习惯引发跨时代网民的强烈集体共鸣，代入感极高。"
       },
       {
         "rank": 1,
-        "longTail": 5,
-        "resonance": 5,
-        "reason": "结合职场博弈与诉讼案例阐释博弈智慧，故事生动且具有极强的现实可迁移性。"
+        "score": 88,
+        "reason": "商业竞争与职场抓马的案例生动幽默，充满人生博弈的智慧与具体故事，可迁移性与可读性极佳。"
       },
       {
         "rank": 26,
-        "longTail": 4,
-        "resonance": 5,
-        "reason": "精准剖析亲密关系中的隐蔽性格缺陷与心理操纵，洞察深刻且能引发广泛讨论与反思。"
+        "score": 87,
+        "reason": "表演型人设与对错责任过敏等伴侣危险信号剖析深刻，提供了极具普适价值的亲密关系避坑经验。"
       },
       {
-        "rank": 2,
-        "longTail": 4,
-        "resonance": 5,
-        "reason": "打破对特定大学专业的刻板印象，揭示高强度学习背后的真实困境，细节详实且易共情。"
-      }
-    ],
-    "rejected": [
-      {
-        "rank": 3,
-        "category": "narrow_interest",
-        "reason": "围绕特定军用品与老兵情怀的装备盘点，受众群体与兴趣面较窄。"
-      },
-      {
-        "rank": 4,
-        "category": "region_specific",
-        "reason": "讨论高度依赖特定国家关于在家教育（homeschooling）的社会环境与法律制度。"
-      },
-      {
-        "rank": 5,
-        "category": "region_specific",
-        "reason": "讨论的核心对象均为北美本地连锁餐饮品牌及其经营现状，具有明显地域局限。"
-      },
-      {
-        "rank": 7,
-        "category": "narrow_interest",
-        "reason": "围绕千禧年代个人电脑使用习惯的单纯怀旧盘点，缺乏深入讨论价值。"
-      },
-      {
-        "rank": 9,
-        "category": "region_specific",
-        "reason": "讨论涉及特定国家的党派政治周期与以加仑油价为核心的本地化通勤生活感知。"
-      },
-      {
-        "rank": 10,
-        "category": "narrow_interest",
-        "reason": "针对特定欧美电视剧设定的主观吐槽清单，高度依赖具体剧集背景。"
-      },
-      {
-        "rank": 11,
-        "category": "low_resonance",
-        "reason": "虽有真诚分享，但更多属于个体沟通碎片的罗列，缺乏系统性与更广泛的讨论深度。"
-      },
-      {
-        "rank": 12,
-        "category": "low_resonance",
-        "reason": "举例多为历史常识、名人八卦或特定社区管理，讨论深度与大众共鸣较弱。"
-      },
-      {
-        "rank": 13,
-        "category": "narrow_interest",
-        "reason": "围绕英美特定脱口秀演员及其节目的小众盘点，依赖对特定喜剧圈的了解。"
-      },
-      {
-        "rank": 14,
-        "category": "narrow_interest",
-        "reason": "依赖对初代《魔兽世界》特定游戏机制与历史版本的怀旧记忆，受众相对垂类。"
-      },
-      {
-        "rank": 15,
-        "category": "low_resonance",
-        "reason": "针对天降横财假设的泛泛闲聊，缺乏具体生活经验与深入洞察。"
-      },
-      {
-        "rank": 16,
-        "category": "narrow_interest",
-        "reason": "动漫爱好者的作品推荐清单，高度依赖特定作品背景知识。"
-      },
-      {
-        "rank": 17,
-        "category": "low_resonance",
-        "reason": "纯属恶作剧与脑洞假设的情景闲聊，缺少讨论深度与现实意义。"
-      },
-      {
-        "rank": 18,
-        "category": "low_resonance",
-        "reason": "夫妻独处生活中的琐碎调侃与段子，缺少可延展的深度思考。"
-      },
-      {
-        "rank": 19,
-        "category": "narrow_interest",
-        "reason": "针对特定老电影情节与幕后花絮的细节盘点，属于怀旧影视小众讨论。"
-      },
-      {
-        "rank": 20,
-        "category": "low_resonance",
-        "reason": "围绕焦虑、熬夜和防晒等常见常识的泛泛讨论，缺乏新颖视角与讨论纵深。"
-      },
-      {
-        "rank": 21,
-        "category": "narrow_interest",
-        "reason": "围绕好莱坞特定配音与影视演员的声音盘点，受众与知识面较局限。"
-      },
-      {
-        "rank": 22,
-        "category": "low_resonance",
-        "reason": "属于个人生活困境与负面情绪的碎片化倾诉，缺乏启发性观点与建设性讨论。"
-      },
-      {
-        "rank": 23,
-        "category": "low_resonance",
-        "reason": "多为对富豪心理的推测与段子式调侃，普通读者难以代入并产生切身共鸣。"
-      },
-      {
-        "rank": 24,
-        "category": "region_specific",
-        "reason": "讨论完全依赖美国特定连锁超市 Trader Joe's 的自有商品与购物体验。"
-      },
-      {
-        "rank": 25,
-        "category": "narrow_interest",
-        "reason": "围绕经典主机游戏的个人情怀盘点，高度依赖特定游戏经历。"
-      },
-      {
-        "rank": 27,
-        "category": "low_resonance",
-        "reason": "针对35岁生活习惯的常规建议多为基础运动常识，缺乏新颖洞见与独特视角。"
+        "rank": 6,
+        "score": 86,
+        "reason": "从演化生物学角度通俗解释母体与胚胎的资源博弈机制，新奇颠覆认知且充满长尾科普价值。"
       },
       {
         "rank": 28,
-        "category": "low_resonance",
-        "reason": "临终反思的结论多为多陪家人、少拼命工作等常规道理，启发性与讨论空间有限。"
+        "score": 85,
+        "reason": "临终前对过度工作与错过家庭时光的懊悔探讨直击人心，金钱带不进坟墓的思考具有永恒共鸣。"
       },
       {
-        "rank": 29,
-        "category": "narrow_interest",
-        "reason": "围绕特定美剧片头音乐与画面的主观喜好盘点，属于小众影视话题。"
+        "rank": 2,
+        "score": 84,
+        "reason": "打破大众对小众冷门或光鲜专业的刻板认知，通宵改图与硬核乐理等细节反差感强烈，故事鲜活好看。"
+      },
+      {
+        "rank": 18,
+        "score": 83,
+        "reason": "重新摆洗碗机与趴水槽吃麦片等细节极其真实抓人，生动刻画夫妻相处与独处反差，共鸣拉满。"
+      },
+      {
+        "rank": 20,
+        "score": 82,
+        "reason": "将精神内耗、缺觉与不防晒对容貌的摧毁拆解得真实具象，是人人用得上的基础健康常识与避坑指南。"
+      },
+      {
+        "rank": 11,
+        "score": 81,
+        "reason": "真诚揭示神经多样性群体的真实沟通困扰，没有隐藏潜台词的直球表达极能引发大众的同理心与理解。"
+      },
+      {
+        "rank": 12,
+        "score": 80,
+        "reason": "从罗马独裁官到业委会主席量草坪，微小权力照出人性阴暗面的观察极具洞察力与生活共鸣。"
+      },
+      {
+        "rank": 23,
+        "score": 79,
+        "reason": "把赚钱视为游戏高分与无休止游艇攀比的视角，巧妙满足了大众对富豪心理的好奇心与人性洞察。"
+      },
+      {
+        "rank": 27,
+        "score": 78,
+        "reason": "年长者对35岁群体身体维护与适度锻炼的真诚告诫，平实有力且具有跨越周期的长尾指导价值。"
+      },
+      {
+        "rank": 15,
+        "score": 77,
+        "reason": "探讨普通人与意外之财的关系，「负债足以毁掉生活但收入不能改变人生」的金句极具扎心生活感悟。"
+      },
+      {
+        "rank": 22,
+        "score": 76,
+        "reason": "家庭忙碌却内心孤独的描写极其细腻深沉，直击当下普通人的精神困境与生存重压。"
+      },
+      {
+        "rank": 17,
+        "score": 75,
+        "reason": "双手假装捧重物或闹市提电锯等场景脑洞大开、极具荒诞幽默感，画面感十足且利于社交传播。"
       },
       {
         "rank": 30,
-        "category": "low_resonance",
-        "reason": "围绕第一笔工资花销的流水账式回忆闲聊，缺乏深度与可探讨的话题延展。"
+        "score": 74,
+        "reason": "为生存充值房租或挥霍点满外卖的经历唤醒打工人的初入职场记忆，质朴而充满烟火气。"
+      },
+      {
+        "rank": 3,
+        "score": 65,
+        "reason": "退伍老兵眼中的实用单品视角有趣，但题材局限于军旅生活装备，共鸣面相对受限。"
+      },
+      {
+        "rank": 14,
+        "score": 58,
+        "reason": "老玩家针对早期MMO机制的怀旧清单，需要大量特定游戏背景知识，大众代入感不足。"
+      },
+      {
+        "rank": 25,
+        "score": 55,
+        "reason": "经典电子游戏的情怀盘点清单，依赖玩家特定作品情结，缺乏跨群体共鸣的故事展开。"
+      },
+      {
+        "rank": 10,
+        "score": 52,
+        "reason": "属于纯粹的美剧吐槽盘点，答案高度依赖读者对特定影视剧情节的了解，受众较窄。"
+      },
+      {
+        "rank": 16,
+        "score": 50,
+        "reason": "属于垂直领域的动漫作品安利清单，缺乏普适故事，依赖读者对特定动漫的了解。"
+      },
+      {
+        "rank": 19,
+        "score": 48,
+        "reason": "聚焦特定童年老电影幕后虐待动物黑料的盘点，答案依赖特定片目，属于垂直影视幕后清单。"
+      },
+      {
+        "rank": 29,
+        "score": 46,
+        "reason": "特定影视剧片头曲的个人喜好推荐，偏向纯娱乐音乐清单，难以唤起非剧迷的兴趣。"
+      },
+      {
+        "rank": 13,
+        "score": 45,
+        "reason": "高度依赖英语脱口秀与英美喜剧综艺背景知识，缺少文化背景的普通读者难以体会笑点。"
+      },
+      {
+        "rank": 21,
+        "score": 42,
+        "reason": "好莱坞与美漫配音演员盘点，缺乏视听直观体验且依赖特定作品认知，大众可读性较差。"
+      },
+      {
+        "rank": 5,
+        "score": 35,
+        "reason": "触及地区依赖，讨论完全围绕美国本土连锁快餐品牌的商业衰亡，缺乏跨地区共鸣。"
+      },
+      {
+        "rank": 4,
+        "score": 32,
+        "reason": "触及对立争议，核心在于对特定父母群体的智识贬低与道德审判，极易在评论区引发站队撕裂。"
+      },
+      {
+        "rank": 9,
+        "score": 30,
+        "reason": "触及地区依赖与对立争议，回答直接绑定美国两党执政政治立场及当地油价通勤模式。"
+      },
+      {
+        "rank": 8,
+        "score": 28,
+        "reason": "触及过度专业与对立争议，核心涉及具体疾病误诊细节，并激化了医患矛盾与性别偏见争议。"
+      },
+      {
+        "rank": 24,
+        "score": 25,
+        "reason": "触及地区依赖，完全限定于美国特定连锁超市的自有品牌食品推荐，对其他地区读者无参考价值。"
       }
     ]
   },
   "posts": [
     {
-      "postId": "1wp4ldr",
-      "title": "医生把剧烈身体疼痛轻描淡写成“只是压力大”或“当女人的常态”，你经历过最气愤的误诊是什么？",
+      "postId": "1wp4yms",
+      "title": "你在90年代与千禧年代养成了哪些至今未改的电脑使用习惯？",
       "subreddit": "AskReddit",
-      "points": "1927 points · 1652 评论",
-      "numComments": 1652,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wp4ldr/women_of_reddit_what_is_the_most_infuriating/",
-      "sourceRank": 8,
+      "points": "2376 points · 2962 评论",
+      "numComments": 2962,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wp4yms/what_computer_habits_do_you_still_have_that_give/",
+      "sourceRank": 7,
       "selectionRank": 1,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
-      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
-      "volume": "v1"
-    },
-    {
-      "postId": "1wp8brv",
-      "title": "为什么人类会演化出显性月经（overt menstruation）？",
-      "subreddit": "askscience",
-      "points": "2455 points · 202 评论",
-      "numComments": 202,
-      "permalink": "https://www.reddit.com/r/askscience/comments/1wp8brv/can_someone_explain_the_evolutionary_benefit_of/",
-      "sourceRank": 6,
-      "selectionRank": 2,
-      "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
-      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
+      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
       "volume": "v1"
     },
     {
@@ -211,10 +191,10 @@
       "numComments": 2626,
       "permalink": "https://www.reddit.com/r/AskReddit/comments/1wpn40w/napoleon_said_never_interrupt_your_enemy_when_he/",
       "sourceRank": 1,
-      "selectionRank": 3,
+      "selectionRank": 2,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
-      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
+      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
       "volume": "v1"
     },
     {
@@ -225,24 +205,38 @@
       "numComments": 662,
       "permalink": "https://www.reddit.com/r/AskReddit/comments/1wpstj2/whats_one_red_flag_you_ignored_in_a_partner_once/",
       "sourceRank": 26,
-      "selectionRank": 4,
+      "selectionRank": 3,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
-      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
+      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
       "volume": "v1"
     },
     {
-      "postId": "1wpc4vb",
-      "title": "有哪些大学专业实际学起来远比外人想象的更折磨？",
+      "postId": "1wp8brv",
+      "title": "为什么人类会演化出显性月经（overt menstruation）？",
+      "subreddit": "askscience",
+      "points": "2455 points · 202 评论",
+      "numComments": 202,
+      "permalink": "https://www.reddit.com/r/askscience/comments/1wp8brv/can_someone_explain_the_evolutionary_benefit_of/",
+      "sourceRank": 6,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
+      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wpj9oj",
+      "title": "走到生命的尽头时，几乎所有人都会后悔或突然想通什么？",
       "subreddit": "AskReddit",
-      "points": "5447 points · 2565 评论",
-      "numComments": 2565,
-      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wpc4vb/what_university_degree_is_harder_than_people_think/",
-      "sourceRank": 2,
+      "points": "99 points · 177 评论",
+      "numComments": 177,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wpj9oj/what_is_something_almost_everyone_seems_to/",
+      "sourceRank": 28,
       "selectionRank": 5,
       "status": "generated",
-      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4ldr.md",
-      "contentSha256": "d91a60d5ed1bb1e635f6e8f1574530784ef6a7eb2397436f5bd502779c67d52c",
+      "path": "data/reddit-life-wechat/2026-09-25/01-1wp4yms.md",
+      "contentSha256": "a47b3666b5c73af15faab03c8de0367c11a30ecc418df8459900fde081bd03b9",
       "volume": "v1"
     }
   ]

@@ -106,10 +106,12 @@ jobs:
       ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
+  # 2026-09-26 暂停市场与价值投资栏目，只保留 publish-reddit-markets.yml 的手动派发；恢复时改回
+  # always() && needs.archive-date.result == 'success'。跳过的 job 仍会等 ama 结束，discussions 的排队顺序不变。
   markets:
     name: Publish Reddit Markets
     needs: [archive-date, ama]
-    if: always() && needs.archive-date.result == 'success'
+    if: ${{ false }}
     permissions:
       contents: write
     uses: ./.github/workflows/publish-reddit-markets.yml

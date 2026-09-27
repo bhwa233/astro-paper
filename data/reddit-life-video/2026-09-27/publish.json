@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-27",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "754ba2324de5fabe5f26889bc8b5a7945bffcf9131b841db0f54591441ec029f",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "家庭关系",
+        "婚姻情感",
+        "相处之道",
+        "普通人故事"
+      ],
+      "summary": "没有惊天动地的出轨放纵，大多只是关灯、调低温度、霸占整张床以及无所事事地发呆。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

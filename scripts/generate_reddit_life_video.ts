@@ -17,7 +17,7 @@ import {
   REDDIT_LIFE_VIDEO_ANSWER_COUNT,
 } from "./reddit_life_video_compose.ts";
 import { redditLifeVideoSourceMarkdown, resolveRedditLifeVideoSource } from "./reddit_life_video_source.ts";
-import { REDDIT_LIFE_DAILY_SELECTION_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT } from "../src/utils/redditLifePublishing.ts";
+import { loadRedditLifeConfig, redditLifeSelectionCount } from "./reddit_life_config.ts";
 import { VIDEO_MANIFEST_VERSION } from "../video/src/contract.ts";
 
 // 微信归档按美西日切分目录，视频沿用同一个口径，两边的 <date> 才指同一天。
@@ -57,6 +57,8 @@ type RunManifest = {
   upstream: { kind: "sparkhub" | "local" | "none"; sourcePath: string; postIds: string[]; sha256: string };
   model: string;
   selectionCount: number;
+  /** 这次运行生效的数量配置，来自 SparkHub（source=default 表示没读到、用的默认值）。 */
+  config?: { source: "sparkhub" | "default"; newspicPerDay: number; videoPerDay: number };
   questionCount: number;
   eligibleQuestionCount: number;
   selectedQuestionIndexes: number[];
@@ -78,6 +80,10 @@ async function main(): Promise<void> {
   const force = booleanArg(args, "force");
   const model = stringArg(args, "model") || process.env.AI_MODEL || DEFAULT_AI_MODEL;
   const artifactsDir = stringArg(args, "artifacts-dir");
+  // 每天几组题由 SparkHub 配置决定：图文与视频共用一次选题，组数取两者较大者。
+  const { config, source: configSource } = await loadRedditLifeConfig();
+  const selectionCount = redditLifeSelectionCount(config);
+  const videoCount = config.video_per_day;
 
   const outDir = path.join(repo, ROOT_REL, date);
   const manifestPath = path.join(outDir, "run.json");
@@ -85,22 +91,28 @@ async function main(): Promise<void> {
   const publishPath = path.join(outDir, "publish.json");
   const sourcePath = path.join(outDir, "source.json");
 
+  if (selectionCount === 0) {
+    writeStderr(`[reddit-life-video] image messages and videos are both set to 0 per day; nothing to select for ${date}\n`);
+    writeStdout(`${JSON.stringify({ date, status: "disabled", videoPath: "", videoCount: 0, cardCount: 0, reused: false })}\n`);
+    return;
+  }
+
   // 复用已有结果而不是重新调模型：同一天重跑（补渲染、改版式）不该换掉内容。
   // publish.json 也要在：标签与结论出自同一次调用，缺了它就说明这份归档早于该契约。
   if (!force && fs.existsSync(videoPath) && fs.existsSync(manifestPath) && fs.existsSync(publishPath)) {
     const existing = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as RunManifest;
     // 旧归档选过更多组也能复用：下游只取前几组，重选反而会换掉已发布的内容。
-    if (existing.version === MANIFEST_VERSION && existing.selectionCount >= REDDIT_LIFE_DAILY_SELECTION_COUNT) {
+    if (existing.version === MANIFEST_VERSION && existing.selectionCount >= selectionCount) {
       writeStderr(`[reddit-life-video] reusing existing manifest for ${date}; pass --force to reselect\n`);
       writeStdout(
-        `${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), videoCount: REDDIT_LIFE_DAILY_VIDEO_COUNT, cardCount: REDDIT_LIFE_DAILY_VIDEO_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`
+        `${JSON.stringify({ date, status: existing.status, videoPath: path.relative(repo, videoPath), videoCount, cardCount: videoCount * REDDIT_LIFE_VIDEO_ANSWER_COUNT, reused: true })}\n`
       );
       return;
     }
     // 旧版缺少当前契约，或发布数量已经变化；两种情况都必须重选，不能让下游拿到
     // 一份看似有效但数量不足的 video.json。
     writeStderr(
-      `WARN: [reddit-life-video] manifest for ${date} is version ${existing.version}, selectionCount ${String(existing.selectionCount)}; reselecting for version ${MANIFEST_VERSION}, selectionCount ${REDDIT_LIFE_DAILY_SELECTION_COUNT}\n`
+      `WARN: [reddit-life-video] manifest for ${date} is version ${existing.version}, selectionCount ${String(existing.selectionCount)}; reselecting for version ${MANIFEST_VERSION}, selectionCount ${selectionCount}\n`
     );
   }
 
@@ -108,7 +120,7 @@ async function main(): Promise<void> {
     repo,
     date,
     sourceFile: sourcePath,
-    count: REDDIT_LIFE_DAILY_SELECTION_COUNT,
+    count: selectionCount,
     minReplies: REDDIT_LIFE_VIDEO_ANSWER_COUNT,
   });
   const markdowns = source ? [redditLifeVideoSourceMarkdown(source)] : [];
@@ -125,7 +137,8 @@ async function main(): Promise<void> {
       sha256: sha256(markdowns.join("\n")),
     },
     model,
-    selectionCount: REDDIT_LIFE_DAILY_SELECTION_COUNT,
+    selectionCount,
+    config: { source: configSource, newspicPerDay: config.newspic_per_day, videoPerDay: videoCount },
     questionCount: 0,
     eligibleQuestionCount: 0,
     selectedQuestionIndexes: [],
@@ -138,7 +151,7 @@ async function main(): Promise<void> {
     ensureDir(outDir);
     fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
     writeStdout(
-      `${JSON.stringify({ date, status: manifest.status, videoPath: manifest.status === "processed" ? path.relative(repo, videoPath) : "", videoCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_VIDEO_COUNT : 0, cardCount: manifest.status === "processed" ? REDDIT_LIFE_DAILY_VIDEO_COUNT * REDDIT_LIFE_VIDEO_ANSWER_COUNT : 0, reused: false })}\n`
+      `${JSON.stringify({ date, status: manifest.status, videoPath: manifest.status === "processed" ? path.relative(repo, videoPath) : "", videoCount: manifest.status === "processed" ? videoCount : 0, cardCount: manifest.status === "processed" ? videoCount * REDDIT_LIFE_VIDEO_ANSWER_COUNT : 0, reused: false })}\n`
     );
   };
 
@@ -155,10 +168,10 @@ async function main(): Promise<void> {
   manifest.eligibleQuestionCount = eligible.length;
 
   // 实测每天有八到十七个问题满足十条回答，这条兜底正常不会触发。
-  if (eligible.length < REDDIT_LIFE_DAILY_SELECTION_COUNT) {
+  if (eligible.length < selectionCount) {
     manifest.status = "insufficient-candidates";
     writeStderr(
-      `[reddit-life-video] only ${eligible.length} of ${questions.length} questions for ${date} have ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} answers; need ${REDDIT_LIFE_DAILY_SELECTION_COUNT}\n`
+      `[reddit-life-video] only ${eligible.length} of ${questions.length} questions for ${date} have ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} answers; need ${selectionCount}\n`
     );
     finish();
     return;
@@ -171,6 +184,7 @@ async function main(): Promise<void> {
     promptDir: stringArg(args, "prompt-dir") || path.join(repo, "prompts/blog"),
     artifactsDir,
     evidence: questionEvidence(eligible),
+    count: selectionCount,
   });
 
   const [primary, ...additionalIssues] = selection.issues;

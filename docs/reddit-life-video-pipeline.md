@@ -11,6 +11,8 @@
 >
 > 下文第 3、4 节「读当天全部 `0X-*.md`」的描述是 2026-09-26 之前的行为。
 >
+> **2026-09-27 起数量与开关来自 SparkHub 配置。** 每天几题（图文 `newspic_per_day`、视频 `video_per_day`，选题组数取两者较大者）、是否渲染视频（`render_video`，取代原来 job 级的 `RENDER_VIDEO`）、刷新深抓的深度，都由 `scripts/reddit_life_config.ts` 在运行开头从 SparkHub 读取；读不到时用 `src/utils/redditLifePublishing.ts` 的常量作默认值。run.json 的 `config` 记录这次生效的数量与来源。全部配置项见 SparkHub 仓库 `docs/reddit-life-workflow.md` 第 7 节。
+>
 > **2026-09-27 起领题前先刷新评论。** 池里的回答是上游 reddit-top20 当天抓热帖时的快照，一题常在池里排几天才被领走。`publish-reddit-life.yml` 在入库之后、本 workflow 领题之前调用 `refresh-reddit-life.yml`（`scripts/refresh_reddit_life_sparkhub.ts`）：
 >
 > - 向 SparkHub `POST /refresh/runs` 开一次任务，由 SparkHub 按后台配置选帖：人工在后台点过「重新抓取评论」的待用帖全部（最多 20 条，不计入 K），再加按领取顺序的前 K 个待用帖（从没刷过，或上次刷新早于 N 天）。K、N 在 `/admin/decks/reddit-life?tab=refresh` 修改，默认 5 与 3；K=0 时只处理人工请求。

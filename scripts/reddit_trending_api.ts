@@ -214,8 +214,16 @@ export function parseRedditPostDetailJobResponse(payload: unknown): RedditJobSta
 
 const REDDIT_POST_DETAIL_JOB_PATH = "/v1/reddit/post-detail-source/jobs";
 
+/** 单帖深抓的可选深度；不传的项用来源服务的默认值。 */
+export type RedditPostDetailLimits = {
+  topLevelCommentLimit?: number;
+  /** 每条顶层评论保留的直接回复数（不是每帖）。 */
+  directReplyLimit?: number;
+  maxCommentCharsPerPost?: number;
+};
+
 /** 深挖选中帖的两级评论。返回逐帖证据；单帖失败由 status 记下来，不会带走整批。 */
-export async function fetchRedditPostDetail(date: string, urls: string[]): Promise<RedditPostEvidence[]> {
+export async function fetchRedditPostDetail(date: string, urls: string[], limits: RedditPostDetailLimits = {}): Promise<RedditPostEvidence[]> {
   if (!urls.length) throw new Error("Reddit post detail requires at least one post");
   if (urls.length > REDDIT_TRENDING_MAX_DETAIL_POSTS) {
     throw new Error(`Reddit post detail accepts at most ${REDDIT_TRENDING_MAX_DETAIL_POSTS} posts, got ${urls.length}`);
@@ -223,7 +231,13 @@ export async function fetchRedditPostDetail(date: string, urls: string[]): Promi
   const endpoint = redditServiceEndpoint("reddit-trending generation");
   const submitted = await fetchJson(`${endpoint.baseUrl}${REDDIT_POST_DETAIL_JOB_PATH}`, {
     method: "POST",
-    body: JSON.stringify({ archive_date: date, posts: urls }),
+    body: JSON.stringify({
+      archive_date: date,
+      posts: urls,
+      ...(limits.topLevelCommentLimit !== undefined && { top_level_comment_limit: limits.topLevelCommentLimit }),
+      ...(limits.directReplyLimit !== undefined && { direct_reply_limit: limits.directReplyLimit }),
+      ...(limits.maxCommentCharsPerPost !== undefined && { max_comment_chars_per_post: limits.maxCommentCharsPerPost }),
+    }),
     ...endpoint.request,
   });
   const result = await pollRedditJob<unknown>({

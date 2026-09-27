@@ -98,11 +98,15 @@ function validateIssue(raw: unknown, position: number, questions: RedditLifeVide
   return { questionIndex, title, question: question.question, cards, taxonomy: resolveRedditLifeVideoTaxonomy(value, title) };
 }
 
-export function validateRedditLifeVideoSelection(raw: unknown, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
+export function validateRedditLifeVideoSelection(
+  raw: unknown,
+  questions: RedditLifeVideoQuestion[],
+  count = REDDIT_LIFE_DAILY_SELECTION_COUNT
+): RedditLifeVideoSelection {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life video selection must be a JSON object");
   const value = raw as Record<string, unknown>;
-  if (!Array.isArray(value.issues) || value.issues.length !== REDDIT_LIFE_DAILY_SELECTION_COUNT) {
-    throw new Error(`Reddit life selection needs exactly ${REDDIT_LIFE_DAILY_SELECTION_COUNT} issues`);
+  if (!Array.isArray(value.issues) || value.issues.length !== count) {
+    throw new Error(`Reddit life selection needs exactly ${count} issues`);
   }
   const issues = value.issues.map((issue, position) => validateIssue(issue, position, questions));
   if (new Set(issues.map(issue => issue.questionIndex)).size !== issues.length) {
@@ -111,8 +115,12 @@ export function validateRedditLifeVideoSelection(raw: unknown, questions: Reddit
   return { issues };
 }
 
-export function parseRedditLifeVideoSelection(raw: string, questions: RedditLifeVideoQuestion[]): RedditLifeVideoSelection {
-  return validateRedditLifeVideoSelection(parseModelJsonObject(raw, "Reddit life video selection"), questions);
+export function parseRedditLifeVideoSelection(
+  raw: string,
+  questions: RedditLifeVideoQuestion[],
+  count = REDDIT_LIFE_DAILY_SELECTION_COUNT
+): RedditLifeVideoSelection {
+  return validateRedditLifeVideoSelection(parseModelJsonObject(raw, "Reddit life video selection"), questions, count);
 }
 
 export async function selectRedditLifeVideoCards({
@@ -122,6 +130,7 @@ export async function selectRedditLifeVideoCards({
   promptDir,
   artifactsDir,
   evidence,
+  count = REDDIT_LIFE_DAILY_SELECTION_COUNT,
 }: {
   questions: RedditLifeVideoQuestion[];
   date: string;
@@ -129,14 +138,16 @@ export async function selectRedditLifeVideoCards({
   promptDir: string;
   artifactsDir: string;
   evidence: string;
+  /** Issues to select: the day's larger of image messages and videos. */
+  count?: number;
 }): Promise<RedditLifeVideoSelection> {
-  if (questions.length < REDDIT_LIFE_DAILY_SELECTION_COUNT) {
-    throw new Error(`Reddit life selection needs at least ${REDDIT_LIFE_DAILY_SELECTION_COUNT} eligible questions`);
+  if (questions.length < count) {
+    throw new Error(`Reddit life selection needs at least ${count} eligible questions`);
   }
   const prompt = readPromptTemplate(promptDir, PROMPT_TASK)
     .replaceAll("{date}", date)
     .replaceAll("{question_count}", String(questions.length))
-    .replaceAll("{issue_count}", String(REDDIT_LIFE_DAILY_SELECTION_COUNT))
+    .replaceAll("{issue_count}", String(count))
     .replaceAll("{card_count}", String(REDDIT_LIFE_VIDEO_ANSWER_COUNT))
     .replaceAll("{body_max}", String(CARD_BODY_MAX_CHARS))
     .replaceAll("{title_max}", String(REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS))
@@ -156,6 +167,6 @@ export async function selectRedditLifeVideoCards({
     prompt,
     model,
     artifactsDir,
-    parse: content => parseRedditLifeVideoSelection(content, questions),
+    parse: content => parseRedditLifeVideoSelection(content, questions, count),
   });
 }

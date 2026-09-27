@@ -229,7 +229,7 @@ export function parseRedditSourceApiResponse(payload: RedditSourceApiResponse, d
       `Reddit source API did not apply requested comment limits: ` + `${policy.topLevelCommentLimit}/${policy.directReplyLimit}/${policy.detailCommentLimit}`
     );
   }
-  const facts = parseRedditSourceFacts(payload.source);
+  const facts = parseRedditSourceFacts(payload.source, category);
   const maxItems = category.subreddits.length * policy.listingLimit;
   if (
     typeof payload.item_count !== "number" ||

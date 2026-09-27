@@ -62,9 +62,30 @@ jobs:
           [[ "$value" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]
           echo "value=$value" >> "$GITHUB_OUTPUT"
 
+  # 问答链路的模型来自 SparkHub 的 Reddit 问答配置（ai_model）；手动运行填了 ai_model 输入时以输入为准。
+  # 只作用于问答这几步（publish、wechat、refresh、video），其他 Reddit 栏目不跟配置走。
+  # 读不到配置时 ai_model 输出为默认值，链路照常跑。
+  config:
+    name: Read Reddit Q&A config
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      ai_model: ${{ steps.read.outputs.ai_model }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
+      - name: Read config
+        id: read
+        continue-on-error: true
+        env:
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+        run: node --import tsx scripts/reddit_life_config.ts --github-output > /dev/null
+
   publish:
     name: Publish Reddit Q&A
-    needs: archive-date
+    needs: [archive-date, config]
     permissions:
       contents: write
     uses: ./.github/workflows/blog-publish.yml
@@ -73,13 +94,13 @@ jobs:
       reddit_category: life
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
   # 紧跟 publish，保持微信草稿的产出时刻不被后面几个分类推迟。
   wechat:
     name: Archive Reddit Life WeChat Drafts
-    needs: [archive-date, publish]
+    needs: [archive-date, publish, config]
     permissions:
       contents: write
     uses: ./.github/workflows/reddit-life-wechat.yml
@@ -87,7 +108,7 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.publish.outputs.generated_sha }}
       upstream_workflow_run: ${{ github.run_id }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
       force_rebuild: ${{ inputs.force || false }}
     secrets: inherit
 
@@ -139,14 +160,14 @@ jobs:
   # 刷新是旁路：步骤级 continue-on-error，失败不会让 video 跳过。刷新后的回答会写回当天问答文章并提交。
   refresh:
     name: Refresh Reddit Life Comments
-    needs: [archive-date, wechat, discussions]
+    needs: [archive-date, wechat, discussions, config]
     if: always() && needs.wechat.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/refresh-reddit-life.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
   # 视频选卡从 SparkHub 素材池领取问题，而当天候选是 wechat 那一步打分后才入库的；
@@ -154,7 +175,7 @@ jobs:
   # needs 里的 discussions 和 refresh 只用来排队。视频本身目前暂停渲染，只选卡供图文使用。
   video:
     name: Publish Reddit Life Vertical Video
-    needs: [archive-date, wechat, discussions, refresh]
+    needs: [archive-date, wechat, discussions, refresh, config]
     if: always() && needs.wechat.result == 'success'
     permissions:
       contents: write
@@ -163,7 +184,7 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.wechat.outputs.generated_sha }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
   # 视频跳过选卡时不产出 generated_sha，图文没有可读的 video.json，据此跳过。

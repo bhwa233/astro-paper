@@ -38,7 +38,11 @@ const onBrowserDownload: OnBrowserDownload = () => ({
 
 const manifestPath = path.join(repoRoot, "data", "reddit-life-video", date, "video.json");
 if (!fs.existsSync(manifestPath)) throw new Error(`missing video manifest: ${manifestPath}`);
-const manifests = parseVideoManifests(JSON.parse(fs.readFileSync(manifestPath, "utf8")));
+// 渲染几支由 SparkHub 配置的 video_per_day 决定，workflow 读出后用 --count 传进来；不传按默认值。
+const countArg = argValue("count");
+const count = countArg ? Number(countArg) : undefined;
+if (count !== undefined && (!Number.isInteger(count) || count < 1)) throw new Error(`invalid --count: ${countArg}`);
+const manifests = parseVideoManifests(JSON.parse(fs.readFileSync(manifestPath, "utf8")), count);
 
 const outputDir = path.resolve(argValue("out-dir") || path.join(packageRoot, "out", date));
 fs.mkdirSync(outputDir, { recursive: true });

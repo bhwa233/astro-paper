@@ -43,11 +43,13 @@ import {
   parseRedditTitleOutcome,
   redditCategoryArticleFromSource,
   redditCategoryByKey,
+  withRedditCategorySource,
   type RedditCategory,
   type RedditModelItem,
   type RedditSummaryFormat,
   type RedditTitleTranslation,
 } from "./reddit_top20_compose.ts";
+import { loadRedditLifeConfig } from "./reddit_life_config.ts";
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "./daily_digest_compose.ts";
@@ -1415,6 +1417,24 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   return [result];
 }
 
+// 问答栏目（life）的版块与抓取参数来自 SparkHub 的 Reddit 问答配置；其他栏目仍按代码里的注册表。
+async function configuredRedditCategory(category: RedditCategory): Promise<RedditCategory> {
+  if (category.key !== "life") return category;
+  const { config, source } = await loadRedditLifeConfig();
+  writeStderr(
+    `[reddit-top20] life crawl (${source} config): r/${config.subreddits.join(", r/")}, ${config.crawl_max_posts} posts, comments ${config.crawl_top_level_comment_limit}/${config.crawl_direct_reply_limit}/${config.crawl_detail_comment_limit}`
+  );
+  return withRedditCategorySource(category, {
+    subreddits: config.subreddits,
+    maxDetailCandidates: config.crawl_max_posts,
+    limits: {
+      topLevelCommentLimit: config.crawl_top_level_comment_limit,
+      directReplyLimit: config.crawl_direct_reply_limit,
+      detailCommentLimit: config.crawl_detail_comment_limit,
+    },
+  });
+}
+
 async function main(): Promise<void> {
   const args = parseArgs();
   const scheduled = scheduledTaskInput(process.env.EVENT_SCHEDULE || "");
@@ -1423,7 +1443,7 @@ async function main(): Promise<void> {
   const redditCategoryArg = stringArg(args, "reddit-category", process.env.REDDIT_CATEGORY || "");
   if (redditCategoryArg && taskArg !== "reddit-top20") throw new Error("--reddit-category can only be used with reddit-top20");
   if (taskArg === "reddit-top20" && !redditCategoryArg) throw new Error("reddit-top20 requires --reddit-category");
-  const redditCategory = redditCategoryArg ? redditCategoryByKey(redditCategoryArg) : undefined;
+  const redditCategory = redditCategoryArg ? await configuredRedditCategory(redditCategoryByKey(redditCategoryArg)) : undefined;
   const repo = path.resolve(stringArg(args, "repo", repoRoot()));
   const explicitDate = stringArg(args, "date");
   const offsetArg = stringArg(args, "date-offset");

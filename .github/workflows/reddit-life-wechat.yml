@@ -91,6 +91,9 @@ jobs:
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
           AI_TIMEOUT_MS: "600000"
+          # 文章草稿开关来自 SparkHub 的 Reddit 问答配置；读不到按默认（关）。
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
         run: |
           set -euo pipefail
           args=(--upstream-sha "$UPSTREAM_GENERATED_SHA" --upstream-workflow-run "$UPSTREAM_WORKFLOW_RUN" --artifacts-dir reddit-life-wechat-artifacts)

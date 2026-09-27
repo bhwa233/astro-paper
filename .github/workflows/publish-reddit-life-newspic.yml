@@ -92,6 +92,9 @@ jobs:
         env:
           ARCHIVE_DATE: ${{ steps.archive-date.outputs.date }}
           INPUT_FORCE: ${{ inputs.force || false }}
+          # 每天几篇图文来自 SparkHub 的 Reddit 问答配置；读不到按默认值（1 篇）。
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
         run: |
           set -euo pipefail
           args=(--date "$ARCHIVE_DATE" --upstream-sha "$(git rev-parse HEAD)" --artifacts-dir reddit-life-newspic-artifacts)

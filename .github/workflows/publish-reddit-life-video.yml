@@ -61,10 +61,6 @@ jobs:
   render-and-publish:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    env:
-      # 视频自 2026-09-26 起暂停：选卡照跑（图文草稿复用它的 video.json），渲染与 Release 跳过。
-      # 改回 "true" 即恢复出片。
-      RENDER_VIDEO: "false"
     outputs:
       generated_sha: ${{ steps.head.outputs.sha }}
     steps:
@@ -97,6 +93,15 @@ jobs:
           else
             echo "value=$(TZ=America/Los_Angeles date +%F)" >> "$GITHUB_OUTPUT"
           fi
+
+      # 每天几题、渲不渲染视频都来自 SparkHub 的 Reddit 问答配置（后台「配置」标签页）。
+      # 读不到时按默认值：各 1 题、不渲染（2026-09-26 起视频暂停，选卡照跑供图文复用 video.json）。
+      - name: Read Reddit life config
+        id: config
+        env:
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+        run: node --import tsx scripts/reddit_life_config.ts --github-output > /dev/null
 
       # 领题之前先补确认前 7 天漏掉的图文草稿（confirm-sparkhub 失败或读不到归档时），
       # 否则那一题的预留 24 小时后过期，会被这里再领一次、重复出稿。旁路：失败只告警。
@@ -160,14 +165,14 @@ jobs:
       # Chrome Headless Shell 约 92MB。不缓存的话每天都要重下一次，
       # 而它由 Remotion 版本唯一决定，锁文件不变就不会失效。
       - name: Restore Remotion browser cache
-        if: steps.select.outputs.status == 'processed' && env.RENDER_VIDEO == 'true'
+        if: steps.select.outputs.status == 'processed' && steps.config.outputs.render_video == 'true' && steps.select.outputs.video_count != '0'
         uses: actions/cache@v6
         with:
           path: ~/.cache/remotion
           key: remotion-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Render video
-        if: steps.select.outputs.status == 'processed' && env.RENDER_VIDEO == 'true'
+        if: steps.select.outputs.status == 'processed' && steps.config.outputs.render_video == 'true' && steps.select.outputs.video_count != '0'
         id: render
         env:
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}
@@ -176,7 +181,7 @@ jobs:
           set -euo pipefail
           # --result-json 而不是 tee stdout：Remotion 会把浏览器下载进度打在 stdout 上，
           # 管道里混进那几行 JSON.parse 就直接失败，而视频其实已经渲染成功了。
-          pnpm --filter reddit-life-video run render -- --date "$ARCHIVE_DATE" --result-json "$GITHUB_WORKSPACE/reddit-life-video-render.json"
+          pnpm --filter reddit-life-video run render -- --date "$ARCHIVE_DATE" --count "$EXPECTED_VIDEO_COUNT" --result-json "$GITHUB_WORKSPACE/reddit-life-video-render.json"
           node --input-type=module <<'NODE'
           import fs from "node:fs";
           const result = JSON.parse(fs.readFileSync("reddit-life-video-render.json", "utf8"));
@@ -197,7 +202,7 @@ jobs:
       # Release 一直保留，没有清理逻辑。同一天重跑走 upload --clobber 覆盖资产，
       # 而不是先删再建：这条链路不删任何已发布的东西。
       - name: Publish release
-        if: steps.select.outputs.status == 'processed' && env.RENDER_VIDEO == 'true'
+        if: steps.select.outputs.status == 'processed' && steps.config.outputs.render_video == 'true' && steps.select.outputs.video_count != '0'
         env:
           GH_TOKEN: ${{ github.token }}
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}

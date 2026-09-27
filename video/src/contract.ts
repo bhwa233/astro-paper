@@ -1,7 +1,7 @@
 // video.json 的契约。选卡脚本（scripts/generate_reddit_life_video.ts）写它，
 // Remotion 侧只读它——两边不共享代码，因此形状必须在这里明确校验，
 // 而不是靠 TypeScript 断言假装它一定对。
-import { REDDIT_LIFE_DAILY_SELECTION_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT } from "../../src/utils/redditLifePublishing.ts";
+import { REDDIT_LIFE_DAILY_VIDEO_COUNT } from "../../src/utils/redditLifePublishing.ts";
 
 export const VIDEO_MANIFEST_VERSION = 5;
 
@@ -64,11 +64,12 @@ export function parseVideoManifest(raw: unknown): VideoManifest {
 }
 
 /** 归档根对象携带满足两个发布端的选题；视频端只消费配置数量的前几组。 */
-export function parseVideoManifests(raw: unknown): VideoManifest[] {
+/** count：要渲染的视频数（SparkHub 配置 video_per_day，渲染时由 workflow 传入）。 */
+export function parseVideoManifests(raw: unknown, count = REDDIT_LIFE_DAILY_VIDEO_COUNT): VideoManifest[] {
   const primary = parseVideoManifest(raw);
   const value = raw as Record<string, unknown>;
-  const expectedAdditionalIssues = REDDIT_LIFE_DAILY_SELECTION_COUNT - 1;
-  // 旧归档按更大的每日数量选过题，多出来的组照常解析、随后截掉。
+  const expectedAdditionalIssues = count - 1;
+  // 选题组数取图文与视频的较大者，多出来的组照常解析、随后截掉。
   if (!Array.isArray(value.additionalIssues) || value.additionalIssues.length < expectedAdditionalIssues) {
     throw new Error(`video manifest needs at least ${expectedAdditionalIssues} additional issues`);
   }
@@ -86,5 +87,5 @@ export function parseVideoManifests(raw: unknown): VideoManifest[] {
   if (new Set(selections.map(manifest => manifest.question)).size !== selections.length) {
     throw new Error("video manifest issues must use different questions");
   }
-  return selections.slice(0, REDDIT_LIFE_DAILY_VIDEO_COUNT);
+  return selections.slice(0, count);
 }

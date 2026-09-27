@@ -36,12 +36,14 @@ import {
 } from "./reddit_life_wechat_selection.ts";
 import { renderQrPng } from "./qr_code.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
-import { REDDIT_LIFE_WECHAT_ARTICLE_ENABLED } from "../src/utils/redditLifePublishing.ts";
+import { loadRedditLifeConfig } from "./reddit_life_config.ts";
 
 const LABEL = "Reddit life WeChat";
 const ROOT_REL = "data/reddit-life-wechat";
-// v5：全员打分 + 当天文章稿；v6：文章稿停发（REDDIT_LIFE_WECHAT_ARTICLE_ENABLED），只有打分，posts 为空。
-const MANIFEST_VERSION = REDDIT_LIFE_WECHAT_ARTICLE_ENABLED ? 5 : 6;
+// v5：全员打分 + 当天文章稿；v6：文章稿停发（SparkHub 配置 wechat_article_enabled 为 false），只有打分，posts 为空。
+function manifestVersion(articleEnabled: boolean): 5 | 6 {
+  return articleEnabled ? 5 : 6;
+}
 
 type Entry = Omit<RedditLifeCandidate, "body" | "rank"> & {
   // v1 manifest 使用 rank；v2 拆开来源排名和选后排名；v3 增加每卷导语；v4 撤掉 AI 导语；v5 选题改为全员打分。
@@ -274,6 +276,7 @@ export async function generateRedditLifeWechat({
   model = process.env.AI_MODEL || "gemini-3.8-flash",
   promptDir = "",
   force = false,
+  articleEnabled,
 }: {
   repo?: string;
   date: string;
@@ -284,10 +287,13 @@ export async function generateRedditLifeWechat({
   promptDir?: string;
   /** Explicit backfill only: rebuild an existing archive instead of returning its cached manifest. */
   force?: boolean;
+  /** Build the article draft too. Omitted = the SparkHub config's wechat_article_enabled. */
+  articleEnabled?: boolean;
 }): Promise<{ manifestPath: string; generatedPaths: string[]; status: RedditLifeRunManifest["status"] }> {
   if (!upstreamSha) throw new Error("--upstream-sha is required; Reddit life WeChat must read the committed parent handoff");
   if (!/^\d+$/.test(workflowRun)) throw new Error("--upstream-workflow-run is required and must be a GitHub Actions run ID");
   upstreamSha = assertCommittedHandoff(repo, upstreamSha, LABEL);
+  const withArticle = articleEnabled ?? (await loadRedditLifeConfig()).config.wechat_article_enabled;
   const manifestRel = runRelPath(date);
   const manifestFile = path.join(repo, manifestRel);
   assertCommittedPath(repo, manifestRel, LABEL);
@@ -304,7 +310,7 @@ export async function generateRedditLifeWechat({
   const upstreamFile = path.join(repo, lifeArticlePath);
   if (!fs.existsSync(upstreamFile)) {
     const manifest: RedditLifeRunManifest = {
-      version: MANIFEST_VERSION,
+      version: manifestVersion(withArticle),
       archiveDate: date,
       timeZone: "America/Los_Angeles",
       status: "upstream-empty",
@@ -326,7 +332,7 @@ export async function generateRedditLifeWechat({
     artifactsDir,
   });
   const candidates = rankedRedditLifeCandidates(sourceCandidates, selection);
-  const candidateVolumes = REDDIT_LIFE_WECHAT_ARTICLE_ENABLED ? splitRedditLifeWechatCandidates(candidates) : [];
+  const candidateVolumes = withArticle ? splitRedditLifeWechatCandidates(candidates) : [];
   const selectionRankBySourceRank = new Map(candidates.map((candidate, index) => [candidate.rank, index + 1]));
   // 每帖保留几条由 fitWechatContentLimit 按渲染长度决定。
   // 这个地址是「阅读原文」的落点，不是身份。身份走 syncId。
@@ -406,7 +412,7 @@ export async function generateRedditLifeWechat({
   }
   // 审计记录仍按 AI 的总排序写入，卷次只描述最终发布去向，不能反过来篡改选择结果的顺序。
   // 文章稿停发时只留打分审计，posts 为空；图文从 SparkHub 素材池按分领取。
-  const posts = REDDIT_LIFE_WECHAT_ARTICLE_ENABLED
+  const posts = withArticle
     ? candidates.map(candidate => {
         const post = postsBySourceRank.get(candidate.rank);
         if (!post) throw new Error(`Reddit life WeChat split did not generate source rank ${candidate.rank}`);
@@ -414,7 +420,7 @@ export async function generateRedditLifeWechat({
       })
     : [];
   const manifest: RedditLifeRunManifest = {
-    version: MANIFEST_VERSION,
+    version: manifestVersion(withArticle),
     archiveDate: date,
     timeZone: "America/Los_Angeles",
     status: "processed",

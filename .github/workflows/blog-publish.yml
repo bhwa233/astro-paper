@@ -182,6 +182,9 @@ jobs:
           WEIBO_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
           WEIBO_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
           REDDIT_AI_CONCURRENCY: 3
+          # 问答栏目（life）的版块与抓取参数来自 SparkHub 的 Reddit 问答配置；读不到按默认值。
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}
           PODCAST_TRANSCRIBE_PROVIDER: gemini
           PODCAST_GEMINI_MODEL: gemini-flash-latest

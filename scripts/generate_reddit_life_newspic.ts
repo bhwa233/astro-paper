@@ -22,6 +22,7 @@ import { buildReleaseManifest, isReleaseManifest, type ReleaseManifest } from ".
 import { parseRedditLifeNewspicSelections, redditLifeNewspicCardFile, renderRedditLifeNewspicMarkdown } from "./reddit_life_newspic_compose.ts";
 import { renderRedditLifeNewspicCards } from "./reddit_life_newspic_cards.ts";
 import { REDDIT_LIFE_DAILY_NEWSPIC_COUNT } from "../src/utils/redditLifePublishing.ts";
+import { loadRedditLifeConfig } from "./reddit_life_config.ts";
 
 const LABEL = "Reddit life newspic";
 const ROOT_REL = "data/reddit-life-newspic";
@@ -58,7 +59,8 @@ function parseManifest(raw: unknown, file: string): RedditLifeNewspicRunManifest
     value.version !== MANIFEST_VERSION ||
     !isArchiveDate(value.archiveDate || "") ||
     value.timeZone !== "America/Los_Angeles" ||
-    value.issueCount !== REDDIT_LIFE_DAILY_NEWSPIC_COUNT ||
+    !Number.isInteger(value.issueCount) ||
+    value.issueCount! < 1 ||
     (value.status !== "processed" && value.status !== "upstream-empty") ||
     !value.upstream ||
     !/^[0-9a-f]{7,64}$/i.test(value.upstream.generatedSha || "") ||
@@ -72,7 +74,7 @@ function parseManifest(raw: unknown, file: string): RedditLifeNewspicRunManifest
     !value.rawSources ||
     !isArchivedFile(value.rawSources.videoSelection) ||
     !Array.isArray(value.drafts) ||
-    value.drafts.length !== REDDIT_LIFE_DAILY_NEWSPIC_COUNT ||
+    value.drafts.length !== value.issueCount ||
     !value.drafts.every(
       (draft, index) =>
         isArchivedFile(draft) &&
@@ -93,10 +95,11 @@ function parseManifest(raw: unknown, file: string): RedditLifeNewspicRunManifest
   return value as RedditLifeNewspicRunManifest;
 }
 
-export function loadRedditLifeNewspicRunManifest(file: string): RedditLifeNewspicRunManifest | null {
+/** issueCount：当前每天的图文篇数；篇数变了的旧归档视为过期，会按新篇数重建。 */
+export function loadRedditLifeNewspicRunManifest(file: string, issueCount = REDDIT_LIFE_DAILY_NEWSPIC_COUNT): RedditLifeNewspicRunManifest | null {
   return loadRunManifest(file, LABEL, parseManifest, raw => {
     const header = raw as { version?: unknown; issueCount?: unknown } | null;
-    return header?.version === MANIFEST_VERSION && header.issueCount === REDDIT_LIFE_DAILY_NEWSPIC_COUNT;
+    return header?.version === MANIFEST_VERSION && header.issueCount === issueCount;
   });
 }
 
@@ -120,12 +123,15 @@ export async function generateRedditLifeNewspic({
   upstreamSha,
   artifactsDir = "",
   force = false,
+  issueCount,
 }: {
   repo?: string;
   date: string;
   upstreamSha: string;
   artifactsDir?: string;
   force?: boolean;
+  /** 图文篇数。省略 = SparkHub 配置的 newspic_per_day。 */
+  issueCount?: number;
 }): Promise<{ manifestPath: string; generatedPaths: string[]; status: RedditLifeNewspicRunManifest["status"]; rendered: boolean }> {
   date = archiveDate(date);
   upstreamSha = assertCommittedHandoff(repo, upstreamSha, LABEL);
@@ -136,8 +142,13 @@ export async function generateRedditLifeNewspic({
   const selectionFile = path.join(repo, selectionRel);
   assertCommittedPath(repo, manifestRel, LABEL);
   assertCommittedPath(repo, selectionRel, LABEL);
+  const count = issueCount ?? (await loadRedditLifeConfig()).config.newspic_per_day;
+  if (count === 0) {
+    writeStderr(`[reddit-life-newspic] archive=${date}: image messages are set to 0 per day; nothing to build`);
+    return { manifestPath: "", generatedPaths: [], status: "upstream-empty", rendered: false };
+  }
 
-  const existing = loadRedditLifeNewspicRunManifest(manifestFile);
+  const existing = loadRedditLifeNewspicRunManifest(manifestFile, count);
   const upstreamAvailable = fs.existsSync(selectionFile);
   const upstreamSelection = upstreamAvailable ? fs.readFileSync(selectionFile, "utf8") : "";
   const selectionSha = upstreamAvailable ? sha256(upstreamSelection) : "";
@@ -157,7 +168,7 @@ export async function generateRedditLifeNewspic({
       version: MANIFEST_VERSION,
       archiveDate: date,
       timeZone: "America/Los_Angeles",
-      issueCount: REDDIT_LIFE_DAILY_NEWSPIC_COUNT,
+      issueCount: count,
       status: "upstream-empty",
       upstream: { generatedSha: upstreamSha, selection: { path: selectionRel, sha256: "0".repeat(64) } },
     };
@@ -166,7 +177,7 @@ export async function generateRedditLifeNewspic({
     return { manifestPath: manifestRel, generatedPaths: [], status: manifest.status, rendered: false };
   }
 
-  const selections = parseRedditLifeNewspicSelections(JSON.parse(upstreamSelection), date);
+  const selections = parseRedditLifeNewspicSelections(JSON.parse(upstreamSelection), date, count);
   const rendered = selections.map(selection => {
     const cards = renderRedditLifeNewspicCards(selection);
     if (cards.length !== selection.cards.length + 1) {
@@ -224,7 +235,7 @@ export async function generateRedditLifeNewspic({
     version: MANIFEST_VERSION,
     archiveDate: date,
     timeZone: "America/Los_Angeles",
-    issueCount: REDDIT_LIFE_DAILY_NEWSPIC_COUNT,
+    issueCount: count,
     status: "processed",
     upstream: { generatedSha: upstreamSha, selection: { path: selectionRel, sha256: sha256(upstreamSelection) } },
     rawSources: { videoSelection: { path: snapshotRel, sha256: sha256(upstreamSelection) } },

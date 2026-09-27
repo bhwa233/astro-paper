@@ -118,3 +118,8 @@ export function reportRedditLifeRefreshItem(
 export function finishRedditLifeRefreshRun(runId: number, error: string | null = null): Promise<SparkhubRefreshRun> {
   return call("POST", `/refresh/runs/${runId}/finish`, { error });
 }
+
+/** Reddit 问答配置的原始值；字段与校验以 SparkHub 的 apps/api/src/contentpool/config.ts 为准。 */
+export function getRedditLifeConfigValues(): Promise<{ values: Record<string, unknown> }> {
+  return call("GET", "/config");
+}

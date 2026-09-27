@@ -4,7 +4,6 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { compact, frontmatter } from "./blog_common.ts";
-import { REDDIT_LIFE_SUBREDDITS } from "./reddit_life_wechat_source.ts";
 
 export const REDDIT_LIFE_WECHAT_TAG = "Reddit人生讨论";
 export const REDDIT_LIFE_WECHAT_TITLE_BRAND = "Reddit 问答精选";
@@ -133,8 +132,8 @@ export function parseRedditLifeCandidates(markdown: string, limit = Number.POSIT
     if (!heading || Number(heading[1]) !== index + 1 || !source || !url)
       throw new Error(`Reddit life article block ${index + 1} violates the handoff contract`);
     const subreddit = source[1];
-    if (!REDDIT_LIFE_SUBREDDITS.some(item => item.toLowerCase() === subreddit.toLowerCase()))
-      throw new Error(`Reddit life article has an unsupported subreddit: ${subreddit}`);
+    // 版块清单来自 SparkHub 配置、会随时间变化，旧文章也要能读，所以这里只校验名字的形状。
+    if (!/^[A-Za-z0-9][A-Za-z0-9_]{1,20}$/.test(subreddit)) throw new Error(`Reddit life article has an invalid subreddit: ${subreddit}`);
     const commentMatch = heat.match(/(?:·|\s)([\d,]+)\s*评论/i);
     const numComments = Number((commentMatch?.[1] || "0").replaceAll(",", ""));
     if (!Number.isInteger(numComments) || numComments < 0) throw new Error(`Reddit life article has an invalid comment count for rank ${index + 1}`);

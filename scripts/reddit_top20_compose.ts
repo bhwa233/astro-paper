@@ -134,7 +134,24 @@ export function redditCategoryByKey(value: string): RedditCategory {
   return category;
 }
 
-function redditCategory(value: string, subreddit: string): RedditCategoryKey {
+/**
+ * 按运行配置覆盖一个栏目的版块与抓取参数。目前只有问答栏目（life）可配，值来自 SparkHub 的 Reddit 问答配置
+ * （scripts/reddit_life_config.ts）。覆盖后的栏目要同时交给抓取和成文：成文按它的版块认领帖子，
+ * 配置里新加的版块即使在别的栏目注册过，也归到这个栏目。
+ */
+export function withRedditCategorySource<C extends RedditCategory>(
+  category: C,
+  source: {
+    subreddits: readonly string[];
+    maxDetailCandidates: number;
+    limits: { topLevelCommentLimit: number; directReplyLimit: number; detailCommentLimit: number };
+  }
+): C {
+  return { ...category, subreddits: source.subreddits, maxDetailCandidates: source.maxDetailCandidates, sourceLimits: source.limits } as unknown as C;
+}
+
+function redditCategory(value: string, subreddit: string, preferred?: RedditCategory): RedditCategoryKey {
+  if (preferred?.subreddits.some(item => item.toLowerCase() === subreddit.toLowerCase())) return preferred.key;
   const inferred = CATEGORY_BY_SUBREDDIT.get(subreddit.toLowerCase());
   // 栏目 bullet 是来源服务留下的旧标签；当前文章边界由本地 subreddit 注册表持有。
   // 来源 API 仍会按本次请求清单拒绝未请求社区，因此这里兼容旧标签不会放宽信任边界。
@@ -145,13 +162,13 @@ function redditCategory(value: string, subreddit: string): RedditCategoryKey {
   throw new Error(`Reddit source has an unsupported category/subreddit mapping: ${value || "(missing)"} / r/${subreddit || "(missing)"}`);
 }
 
-export function parseSourceFacts(source: string): RedditSourceFact[] {
+export function parseSourceFacts(source: string, preferred?: RedditCategory): RedditSourceFact[] {
   return sourceBlocks(source).map((block, index) => {
     const bullets = extractBullets(block);
     const subreddit = block.match(/^\d+\.\s*\[r\/([^\]]+)\]/)?.[1] ?? "";
     return {
       rank: index + 1,
-      category: redditCategory(bulletValue(bullets, "栏目"), subreddit),
+      category: redditCategory(bulletValue(bullets, "栏目"), subreddit, preferred),
       subreddit,
       points:
         bullets
@@ -344,7 +361,7 @@ function parseRedditTitleTranslations(source: string): RedditTitleTranslation[] 
 }
 
 export function redditCategoryArticleFromSource(source: string, category: RedditCategory): RedditCategoryArticle | null {
-  const facts = parseSourceFacts(source);
+  const facts = parseSourceFacts(source, category);
   const sourceFacts = facts.filter(fact => fact.category === category.key);
   if (!sourceFacts.length) return null;
   const articleFacts = sourceFacts.map((fact, index) => ({ ...fact, rank: index + 1 }));

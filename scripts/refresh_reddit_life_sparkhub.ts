@@ -22,6 +22,7 @@ import { taskPostRelPath } from "./blog_tasks.ts";
 import { replaceRedditLifePostBody } from "./reddit_life_wechat_compose.ts";
 import { type RedditEvidenceComment, type RedditPostEvidence, REDDIT_TRENDING_MAX_DETAIL_POSTS, fetchRedditPostDetail } from "./reddit_trending_api.ts";
 import { parseRedditItemOutcome, redditCategoryByKey } from "./reddit_top20_compose.ts";
+import { loadRedditLifeConfig } from "./reddit_life_config.ts";
 import {
   type SparkhubRefreshItem,
   finishRedditLifeRefreshRun,
@@ -175,6 +176,13 @@ async function main(): Promise<void> {
 
   let runError: string | null = null;
   const articles = new Set<string>();
+  // 深抓多深来自 SparkHub 的 Reddit 问答配置（refresh_* 三项）。
+  const { config } = await loadRedditLifeConfig();
+  const detailLimits = {
+    topLevelCommentLimit: config.refresh_top_level_comment_limit,
+    directReplyLimit: config.refresh_direct_reply_limit,
+    maxCommentCharsPerPost: config.refresh_max_comment_chars,
+  };
   try {
     const context = { template, date, model, artifactsDir };
     for (const batch of chunks(run.items, REDDIT_TRENDING_MAX_DETAIL_POSTS)) {
@@ -182,7 +190,7 @@ async function main(): Promise<void> {
       let evidence: RedditPostEvidence[] = [];
       let fetchError = "";
       try {
-        evidence = withPermalink.length ? await fetchRedditPostDetail(date, withPermalink.map(item => item.permalink as string)) : [];
+        evidence = withPermalink.length ? await fetchRedditPostDetail(date, withPermalink.map(item => item.permalink as string), detailLimits) : [];
       } catch (error) {
         fetchError = `Comment fetch failed: ${error instanceof Error ? error.message : String(error)}`;
         writeStderr(`WARN: ${LABEL} ${fetchError}\n`);

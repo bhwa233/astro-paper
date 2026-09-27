@@ -98,6 +98,25 @@ jobs:
             echo "value=$(TZ=America/Los_Angeles date +%F)" >> "$GITHUB_OUTPUT"
           fi
 
+      # 领题之前先补确认前 7 天漏掉的图文草稿（confirm-sparkhub 失败或读不到归档时），
+      # 否则那一题的预留 24 小时后过期，会被这里再领一次、重复出稿。旁路：失败只告警。
+      - name: Reconcile unconfirmed SparkHub claims
+        continue-on-error: true
+        env:
+          ARCHIVE_DATE: ${{ steps.date.outputs.value }}
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SPARKHUB_DASHBOARD_TOKEN" ]; then
+            echo "::warning::SPARKHUB_DASHBOARD_TOKEN is not set; skipped the SparkHub reconcile."
+            exit 0
+          fi
+          if ! node --import tsx scripts/confirm_reddit_life_newspic_sparkhub.ts --date "$ARCHIVE_DATE" --since-days 7; then
+            echo "::warning::SparkHub reconcile failed; an unconfirmed claim may be handed out again."
+            exit 1
+          fi
+
       - name: Select cards
         id: select
         env:

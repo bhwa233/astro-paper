@@ -2,7 +2,13 @@
 // 并附上草稿 media_id，再把卡片在 Release 里的地址存进 assets，供各平台的发布 agent 取用。
 //
 // 只在草稿真的建成时确认：media_id 取自同步台账 .astro-wechat/ledger.json，台账里没有这篇就跳过。
-// 没确认的领取会在 24 小时后自动退回素材池。同一 syncId 重复确认是安全的，所以普通重跑可以放心再调。
+// 没确认的领取会在 24 小时后自动退回素材池，可能被再次选中。同一 syncId 重复确认是安全的，所以普通重跑可以放心再调。
+//
+// 两种用法：
+// - `--date D`：图文草稿建好后确认这一天。当天有 source.json（领过题）却读不到处理完的图文归档，按失败退出：
+//   2026-09-26 这一步检出的是链路开头的提交，读不到后来才提交的归档，一直静默成功，题目停在 reserved。
+// - `--date D --since-days N`：补确认 D 之前 N 天（不含 D）。视频选卡领题之前跑，把前几天漏掉的确认补上，
+//   赶在预留过期、题目被重新领走之前。没有图文归档的日子是正常的，直接跳过。
 //
 // 题目与草稿的对应：video run.json 的 selectedQuestionIndexes 按位次对应图文第 1、2… 篇，
 // 数值是 source.json 里 posts 的 1 基下标（喂给模型的问题顺序就是 posts 顺序）。
@@ -21,26 +27,29 @@ function readJson<T>(file: string): T | null {
   return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as T) : null;
 }
 
-async function main(): Promise<void> {
-  const args = parseArgs();
-  const repo = path.resolve(stringArg(args, "repo", repoRoot()));
-  const date = stringArg(args, "date");
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("--date YYYY-MM-DD is required");
-  if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
-  const githubRepo = process.env.GITHUB_REPOSITORY || "bhwa233/astro-paper";
+function shiftDate(date: string, days: number): string {
+  const value = new Date(`${date}T00:00:00Z`);
+  value.setUTCDate(value.getUTCDate() + days);
+  return value.toISOString().slice(0, 10);
+}
 
+/** 确认一天的图文草稿，返回确认到的 Reddit postId。strict 时「领过题却没有图文归档」算失败。 */
+async function confirmDay(repo: string, date: string, strict: boolean): Promise<string[]> {
+  const githubRepo = process.env.GITHUB_REPOSITORY || "bhwa233/astro-paper";
   const newspic = readJson<RedditLifeNewspicRunManifest>(path.join(repo, "data/reddit-life-newspic", date, "run.json"));
   const source = readJson<RedditLifeVideoSource>(path.join(repo, "data/reddit-life-video", date, "source.json"));
   const video = readJson<{ selectedQuestionIndexes?: number[] }>(path.join(repo, "data/reddit-life-video", date, "run.json"));
   const ledger = readJson<{ entries?: Record<string, { mediaId?: string; writeState?: string }> }>(path.join(repo, LEDGER_REL));
-  if (newspic?.status !== "processed" || !newspic.drafts?.length) {
-    writeStderr(`${LABEL} ${date}: no processed image-message archive; nothing to confirm`);
-    return;
-  }
   // 2026-09-26 之前的选卡读的是文章草稿，没有 source.json，也就没有素材池里的对应条目。
   if (!source) {
     writeStderr(`${LABEL} ${date}: no SparkHub source for this date's selection; nothing to confirm`);
-    return;
+    return [];
+  }
+  if (newspic?.status !== "processed" || !newspic.drafts?.length) {
+    const message = `${date}: questions were claimed (source.json) but there is no processed image-message archive`;
+    if (strict) throw new Error(`${message}; the checkout may predate the archive commit`);
+    writeStderr(`${LABEL} ${message}; skipped`);
+    return [];
   }
 
   const confirmed: string[] = [];
@@ -78,7 +87,29 @@ async function main(): Promise<void> {
     confirmed.push(post.postId);
     writeStderr(`${LABEL} ${syncId}: confirmed ${post.postId} (pool ${result.ids.join(",")}) with ${cards.length} card(s)`);
   }
-  writeStdout(`${JSON.stringify({ date, confirmed })}\n`);
+  return confirmed;
+}
+
+async function main(): Promise<void> {
+  const args = parseArgs();
+  const repo = path.resolve(stringArg(args, "repo", repoRoot()));
+  const date = stringArg(args, "date");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("--date YYYY-MM-DD is required");
+  if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
+  const sinceDays = Number(stringArg(args, "since-days", "0"));
+  if (!Number.isInteger(sinceDays) || sinceDays < 0) throw new Error("--since-days must be a non-negative integer");
+
+  if (!sinceDays) {
+    writeStdout(`${JSON.stringify({ date, confirmed: await confirmDay(repo, date, true) })}\n`);
+    return;
+  }
+  const results: Record<string, string[]> = {};
+  for (let offset = sinceDays; offset >= 1; offset -= 1) {
+    const day = shiftDate(date, -offset);
+    const confirmed = await confirmDay(repo, day, false);
+    if (confirmed.length) results[day] = confirmed;
+  }
+  writeStdout(`${JSON.stringify({ date, sinceDays, confirmed: results })}\n`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

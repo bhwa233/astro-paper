@@ -182,8 +182,9 @@ jobs:
     secrets: inherit
 
   # 草稿建好后回报 SparkHub：这一题记为已用，公众号状态记为 draft（附 media_id），卡片地址存进
-  # assets 供各平台发布 agent 取用。检出分支最新提交，才能读到 sync-wechat 刚提交的台账。
-  # 旁路步骤：失败只告警。没确认的领取 24 小时后自动退回素材池，可能被再次选中，所以要看告警。
+  # assets 供各平台发布 agent 取用。必须检出分支最新提交才能读到本次刚提交的图文归档和台账：
+  # 不写 ref 时检出的是链路开头的提交，2026-09-26 因此读不到归档、静默跳过，题目一直停在 reserved。
+  # 旁路步骤：失败只告警。漏掉的确认由第二天视频选卡领题前的补确认补上。
   confirm-sparkhub:
     needs: [generate-and-archive, sync-wechat]
     if: needs.sync-wechat.result == 'success'
@@ -191,6 +192,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref_name }}
       - name: "Set up Node and pnpm"
         uses: ./.github/actions/setup
       - name: Resolve archive date

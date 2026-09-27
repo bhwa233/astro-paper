@@ -73,9 +73,14 @@ export function redditLifeEvidenceBlock(post: RedditPostEvidence): string {
   return lines.join("\n");
 }
 
-/** 与上游文章同一编号口径：每条回答一段，列表标记转义成 `N\.`，素材池和下游解析都按这个数。 */
+/**
+ * 与上游文章同一编号口径：每条回答一段，列表标记转义成 `N\.`，素材池和下游解析都按这个数。
+ * 模型偶尔把换行写成字面量 `\n`（2026-09-27 首次运行里一帖 19 条回答因此挤成一行、按 1 条计），
+ * 中文回答里不会有真的反斜杠 n，这里直接还原成换行。
+ */
 export function redditLifeRefreshedContent(summary: string): string {
   return summary
+    .replaceAll("\\n", "\n")
     .split(/\n+(?=\d+\\?\.\s)/)
     .map(item => item.trim().replace(/^(\d+)\.\s/, "$1\\. "))
     .filter(Boolean)

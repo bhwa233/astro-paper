@@ -181,6 +181,19 @@ export function parseRedditItemOutcome(
   return parseRedditItemSummary(raw, expectedRank, minChars, summaryFormat);
 }
 
+// 模型偶尔把 summary 里的换行写成字面量 `\n`（JSON 里的 `\\n`），整段回答于是挤在一行：
+// 2026-08 至 09 月已有 8 帖这样发布，评论刷新首跑也因此把一帖 19 条回答记成 1 条。
+// 中文正文里不会有真的反斜杠 n，直接还原成换行。
+function restoreEscapedNewlines(value: unknown): string {
+  return String(value || "").replaceAll("\\n", "\n");
+}
+
+// numbered 口径的编号 `N\.` 只出现在一条回答的开头；同一行里再出现一个，说明几条回答挤成了一行。
+// 回测 2026-08 以来的全部归档，正常稿件里没有这种行。
+function squeezesNumberedReplies(summary: string): boolean {
+  return summary.split("\n").some(line => /\d+\\\.\s/.test(line.replace(/^\d+\\?\.\s/, "")));
+}
+
 export function parseRedditItemSummary(
   raw: string,
   expectedRank: number,
@@ -195,7 +208,7 @@ export function parseRedditItemSummary(
   const description = String(payload.description || "")
     .replace(/\s+/g, " ")
     .trim();
-  const summary = normalizeMarkdownBlock(payload.summary);
+  const summary = normalizeMarkdownBlock(restoreEscapedNewlines(payload.summary));
   if (rank !== expectedRank) throw new Error(`Reddit item summary rank mismatch: ${rank} vs ${expectedRank}`);
   if (!titleZh || !hasChinese(titleZh)) throw new Error(`Reddit item ${expectedRank} needs a Chinese title`);
   if ([...titleZh].length > TITLE_MAX_CHARS) {
@@ -209,6 +222,9 @@ export function parseRedditItemSummary(
     throw new Error(`Reddit item ${expectedRank} has empty or low-signal summary`);
   }
   if (/^\s{0,3}#{1,6}\s/m.test(summary)) throw new Error(`Reddit item ${expectedRank} summary must not use Markdown headings`);
+  if (summaryFormat === "numbered" && squeezesNumberedReplies(summary)) {
+    throw new Error(`Reddit item ${expectedRank} summary puts several numbered replies on one line; separate each reply with a blank line`);
+  }
   if (summaryFormat === "narrative" && /^(?:\s*\d+\\?\.|\s*[-*+]\s)/m.test(summary)) {
     throw new Error(`Reddit item ${expectedRank} narrative summary must not use lists`);
   }

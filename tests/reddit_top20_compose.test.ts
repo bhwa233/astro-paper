@@ -13,6 +13,14 @@ test("Reddit life discussion summaries reject answer lists but accept continuous
   assert.equal(parseRedditItemSummary(item(narrative), 1, 1, "narrative").summary, narrative);
 });
 
+test("Reddit numbered summaries restore escaped newlines and reject replies squeezed onto one line", () => {
+  // 模型把换行写成字面量 \n 时，整段回答原本会挤成一行、只算 1 条（2026-08 起已有 8 帖这样发布）。
+  const escaped = String.raw`1\. 第一条回答。\n\n2\. 第二条回答。`;
+  assert.equal(parseRedditItemSummary(item(escaped), 1, 1, "numbered").summary, "1\\. 第一条回答。\n\n2\\. 第二条回答。");
+
+  assert.throws(() => parseRedditItemSummary(item("1\\. 第一条回答。 2\\. 第二条回答。"), 1, 1, "numbered"), /several numbered replies on one line/);
+});
+
 test("Reddit source facts use the local subreddit split over a legacy category label", () => {
   const source = [
     "1. [r/confessions] I kept a secret too long",

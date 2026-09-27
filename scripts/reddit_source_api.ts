@@ -56,6 +56,29 @@ type ParsedRedditSourcePolicy = RedditSourcePolicy & {
 };
 
 export const MAX_REDDIT_SOURCE_ITEMS = 2_000;
+
+const FETCHED_AT_LINE = /^- 抓取时间：(\S+)$/m;
+
+// 第一个帖子块的开头；它之前是 source 的抬头，不属于任何帖子。
+const FIRST_POST_BLOCK = /^\d+\.\s*\[r\//m;
+
+/**
+ * 把来源服务的 fetched_at 记进 source 的抬头，紧挨第一个帖子块之前。抬头不属于任何帖子块，
+ * 逐帖提示词和规则层都看不到它；合成后的 source 原样保留抬头，发布时再用 redditSourceFetchedAt 取回，
+ * 写进文章 frontmatter，下游素材池据此记录每帖的初次爬取时间。
+ */
+export function withRedditSourceFetchedAt(source: string, fetchedAt: string): string {
+  const firstBlock = source.search(FIRST_POST_BLOCK);
+  const at = firstBlock >= 0 ? firstBlock : source.length;
+  return `${source.slice(0, at)}- 抓取时间：${fetchedAt}\n\n${source.slice(at)}`;
+}
+
+/** 取回 withRedditSourceFetchedAt 写进抬头的抓取时间；旧 source 或 fixture 没有这一行时返回空串。 */
+export function redditSourceFetchedAt(source: string): string {
+  const firstBlock = source.search(FIRST_POST_BLOCK);
+  const header = firstBlock >= 0 ? source.slice(0, firstBlock) : source;
+  return header.match(FETCHED_AT_LINE)?.[1] ?? "";
+}
 function parseRedditSourcePolicy(value: unknown, sha256: unknown): ParsedRedditSourcePolicy {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Reddit source API returned an invalid policy");
   const record = value as Record<string, unknown>;
@@ -299,5 +322,6 @@ export async function fetchRedditSourceFromApi(date: string, category: RedditCat
   const source = parseRedditSourceApiResponse(result, date, category);
   const policy = parseRedditSourcePolicy(result.policy, result.policy_sha256);
   redditSubredditStatsLogLines(result.subreddit_stats, policy, category).forEach(line => writeStdout(`${line}\n`));
-  return source;
+  // parseRedditSourceApiResponse 已校验过 fetched_at 是合法时间戳。
+  return withRedditSourceFetchedAt(source, new Date(String(result.fetched_at)).toISOString());
 }

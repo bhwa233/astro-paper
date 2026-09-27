@@ -44,12 +44,15 @@ export type RedditPostEvidence = {
   subreddit: string;
   title: string;
   body: string;
+  bodyTruncated: boolean;
   score: number | null;
   numComments: number | null;
   publishedAt: string;
   permalink: string;
   topComments: RedditEvidenceComment[];
   replies: RedditEvidenceComment[];
+  /** 整批作业读 Reddit 的时间（响应顶层的 fetched_at），同一批的帖子相同。 */
+  fetchedAt: string;
 };
 
 function requireString(record: Record<string, unknown>, field: string, label: string): string {
@@ -157,6 +160,8 @@ export function parseRedditPostDetailResult(payload: unknown, date: string): Red
   if (typeof source !== "string" || !source.trim()) throw new Error("Reddit post detail API returned an invalid source payload");
   const sourceHash = createHash("sha256").update(source, "utf8").digest("hex");
   if (record.source_sha256 !== sourceHash) throw new Error("Reddit post detail API source_sha256 does not match source content");
+  const fetchedAt = record.fetched_at;
+  if (typeof fetchedAt !== "string" || Number.isNaN(Date.parse(fetchedAt))) throw new Error("Reddit post detail API returned an invalid fetched_at timestamp");
   const posts = record.posts;
   if (!Array.isArray(posts) || !posts.length) throw new Error("Reddit post detail API returned no posts");
   return posts.map((raw, index) => {
@@ -168,6 +173,7 @@ export function parseRedditPostDetailResult(payload: unknown, date: string): Red
     }
     const score = post.score;
     const numComments = post.num_comments;
+    const stats = post.stats && typeof post.stats === "object" ? (post.stats as Record<string, unknown>) : {};
     return {
       postId: requireString(post, "post_id", label),
       status,
@@ -175,12 +181,14 @@ export function parseRedditPostDetailResult(payload: unknown, date: string): Red
       subreddit: typeof post.subreddit === "string" ? post.subreddit : "",
       title: typeof post.title === "string" ? post.title : "",
       body: typeof post.body === "string" ? post.body : "",
+      bodyTruncated: stats.body_truncated === true,
       score: typeof score === "number" && Number.isInteger(score) ? score : null,
       numComments: typeof numComments === "number" && Number.isInteger(numComments) ? numComments : null,
       publishedAt: typeof post.published_at === "string" ? post.published_at : "",
       permalink: typeof post.permalink === "string" ? post.permalink : "",
       topComments: status === "ok" ? parseEvidenceComments(post.top_comments, label) : [],
       replies: status === "ok" ? parseEvidenceComments(post.replies, label) : [],
+      fetchedAt,
     };
   });
 }

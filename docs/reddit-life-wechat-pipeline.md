@@ -3,6 +3,8 @@
 状态：文章草稿自 2026-09-26 起停发，只保留全员打分与 SparkHub 入库（见下方说明）
 最后更新：2026-09-26
 
+> **2026-09-27 起记录初次爬取时间。** 上游 reddit-top20 把来源服务的 `fetched_at` 写进 life 文章 frontmatter 的 `sourceFetchedAt`（`scripts/reddit_source_api.ts` 先把它记在 source 抬头的「抓取时间」行，发布时取回）。`upstream-life.md` 是这篇文章的原样副本，入库脚本从它的 frontmatter 读出这个时间，作为 `source_fetched_at` 随当天候选送进 SparkHub；素材池只保留第一次的值，供评论刷新任务对照二次爬取时间（见 `reddit-life-video-pipeline.md`）。刷新过的帖子再被入库更新分数时，保留刷新后的回答。
+>
 > **2026-09-26 起文章草稿停发。** `src/utils/redditLifePublishing.ts` 的 `REDDIT_LIFE_WECHAT_ARTICLE_ENABLED` 为 `false` 时，生成器仍给当天全部候选打分并写 manifest，但不再生成文章稿和封面，manifest 升为 v6（`posts` 为空）；`generated_count` 为 0，`sync-wechat` 自然跳过。每日只发一篇图文草稿，问题从 SparkHub 素材池领取，见 `reddit-life-video-pipeline.md` 与 `reddit-life-newspic-pipeline.md`。下文描述的是开关打开时的文章草稿行为，改回 `true` 即恢复。
 
 ## 1. 背景

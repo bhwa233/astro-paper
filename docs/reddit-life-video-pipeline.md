@@ -10,6 +10,15 @@
 > - 选卡在模型阶段失败时 source.json 不会提交，重跑会再领一次；上一次的领取 24 小时后自动退回素材池。
 >
 > 下文第 3、4 节「读当天全部 `0X-*.md`」的描述是 2026-09-26 之前的行为。
+>
+> **2026-09-27 起领题前先刷新评论。** 池里的回答是上游 reddit-top20 当天抓热帖时的快照，一题常在池里排几天才被领走。`publish-reddit-life.yml` 在入库之后、本 workflow 领题之前调用 `refresh-reddit-life.yml`（`scripts/refresh_reddit_life_sparkhub.ts`）：
+>
+> - 向 SparkHub `POST /refresh/runs` 开一次任务，由 SparkHub 按后台配置选帖：人工在后台点过「重新抓取评论」的待用帖全部（最多 20 条，不计入 K），再加按领取顺序的前 K 个待用帖（从没刷过，或上次刷新早于 N 天）。K、N 在 `/admin/decks/reddit-life?tab=refresh` 修改，默认 5 与 3；K=0 时只处理人工请求。
+> - 对这些帖子调用来源服务 `reddit-post-detail-source.v1`（`fetchRedditPostDetail`，每次最多 10 帖，超过分批）深抓评论，拼成 v7 source block 的形状，用上游 life 栏目同一份提示词 `reddit-item-summary`（numbered 口径）逐帖重写回答，逐帖回报 `POST /refresh/runs/{run}/items/{id}`，最后 `finish`。
+> - 回报的回答**整体替换**池里的 `content_md`（标题沿用池里原样，`reply_count` 由 SparkHub 重算），不保留旧版本，也不设条数下限保护。帖子在回报前已被领走（reserved / used）的，SparkHub 记为 rejected、不改正文。
+> - 单帖失败（帖子被删或锁、没有顶层评论、模型判定排除主题、重试后仍不合格）只回报 error，旧回答不动，下次运行会再挑到它。刷新步骤是 `continue-on-error`，整体失败也不挡领题。
+> - 每次运行在 SparkHub 记一条任务、每帖一条明细，含初次爬取时间（上游来源服务的 `fetched_at`，经文章 frontmatter `sourceFetchedAt` 与入库传入；2026-09-27 之前入库的帖子没有，后台显示入库时间并标「≈」）、上次刷新时间与本次二次爬取时间，后台「评论刷新」标签页可查。
+> - 同一 `source.json` 复用逻辑不变：刷新只影响还没被领走的题。
 
 ## 1. 背景
 

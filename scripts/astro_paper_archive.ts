@@ -447,6 +447,7 @@ export function archivePost({
   ogImage = "",
   wechatTitle = "",
   description: providedDescription,
+  extra,
 }: {
   task: string;
   date: string;
@@ -458,6 +459,8 @@ export function archivePost({
   ogImage?: string;
   wechatTitle?: string;
   description?: string;
+  /** 额外的 frontmatter 字段，原样追加在 timezone 之后。 */
+  extra?: Record<string, string>;
 }): ArchiveResult {
   if (!isTask(task)) throw new Error(`unsupported task: ${task}`);
   const info = taskInfo(task);
@@ -480,6 +483,7 @@ export function archivePost({
       tags: taskTags(task),
       ogImage: formatted.ogImage || ogImage,
       wechat: { enabled: Boolean(info.wechatEnabled), title: wechatTitle },
+      extra,
     })}${formatted.markdown.trim()}\n`,
     "utf8"
   );

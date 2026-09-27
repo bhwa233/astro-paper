@@ -12,7 +12,13 @@ import { buildMdblistWeeklySource } from "../scripts/mdblist_weekly_source.ts";
 import { appendMdblistRecommendations } from "../scripts/mdblist_weekly_ledger.ts";
 import { buildXyzRankTopEpisodesSource } from "../scripts/xyzrank_top_episodes_source.ts";
 import { redditCategoryByKey } from "../scripts/reddit_top20_compose.ts";
-import { type RedditSourcePolicy, fetchRedditSourceFromApi, parseRedditSourceApiResponse, redditSubredditStatsLogLines } from "../scripts/reddit_source_api.ts";
+import {
+  type RedditSourcePolicy,
+  fetchRedditSourceFromApi,
+  parseRedditSourceApiResponse,
+  redditSourceFetchedAt,
+  redditSubredditStatsLogLines,
+} from "../scripts/reddit_source_api.ts";
 import { fetchRedditPostDetail, fetchRedditTrendingBoard, parseRedditPostDetailResult } from "../scripts/reddit_trending_api.ts";
 import { fixture, tempDir, tempFile, withMocks } from "./helpers/mocks.ts";
 
@@ -573,7 +579,9 @@ test("Reddit source fetch sends one subreddit-list request to the v7 service", a
     () => fetchRedditSourceFromApi("2099-01-02", category)
   );
 
-  assert.equal(fetched, source);
+  // 抓取时间记在抬头、不进任何帖子块：块本身原样保留，发布时再取回写进 frontmatter。
+  assert.equal(fetched, `- 抓取时间：2099-01-02T08:00:00.000Z\n\n${source}`);
+  assert.equal(redditSourceFetchedAt(fetched), "2099-01-02T08:00:00.000Z");
   assert.deepEqual(JSON.parse(requests.find(request => request.body)?.body || "{}"), {
     archive_date: "2099-01-02",
     subreddits: category.subreddits,

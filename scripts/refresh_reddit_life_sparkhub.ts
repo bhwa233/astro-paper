@@ -1,0 +1,190 @@
+// 给 SparkHub 素材池里待用的问题重抓一次评论，补充回答。
+//
+// 池里的回答是上游 reddit-top20 当天抓热帖时的快照：帖子刚上热门，评论区还没沉淀，而且一题往往要在池里
+// 排几天才会被领走。所以每天入库之后、视频选卡领题之前，先让 SparkHub 开一次刷新任务：它按后台配置
+// 选出要刷的帖子（人工请求的全部，再加按领取顺序的前 K 个、从没刷过或上次刷新早于 N 天的待用帖），
+// 这里深抓评论、用上游 life 栏目同一份提示词（reddit-item-summary，numbered 口径）重写回答，逐帖回报。
+// 回报的正文整体替换池里的旧回答，标题保持池里原样；帖子在这期间被领走的，SparkHub 拒收、不改正文。
+//
+// 单帖失败（帖子被删或锁、没有顶层评论、模型判定排除主题、重试后仍不合格）只回报 error，旧回答不动，
+// 下次运行会再挑到它。整个脚本在 workflow 里是旁路步骤，失败不挡领题。
+import path from "node:path";
+import { dateStringInTimeZone, envPositiveInt, mapWithConcurrency, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { readPromptTemplate } from "./ai_blog_writer.ts";
+import { generateJsonStageWithRetries } from "./ai_json_stage.ts";
+import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
+import { type RedditEvidenceComment, type RedditPostEvidence, REDDIT_TRENDING_MAX_DETAIL_POSTS, fetchRedditPostDetail } from "./reddit_trending_api.ts";
+import { parseRedditItemOutcome, redditCategoryByKey } from "./reddit_top20_compose.ts";
+import {
+  finishRedditLifeRefreshRun,
+  reportRedditLifeRefreshItem,
+  sparkhubEndpoint,
+  startRedditLifeRefreshRun,
+} from "./sparkhub_client.ts";
+
+const LABEL = "[reddit-life-refresh]";
+const SOURCE_TIME_ZONE = "America/Los_Angeles";
+const PROMPT_NAME = "reddit-item-summary";
+const REDDIT_PROMPT_FRAGMENTS = { reddit_translation_rules: "_reddit-translation-rules" };
+// 每帖单独一次模型调用，提示词里的排名固定为 1。
+const PROMPT_RANK = 1;
+
+type Outcome = { content: string } | { error: string };
+
+function scoreLabel(comment: RedditEvidenceComment): string {
+  return comment.score === null ? "分数隐藏" : `${comment.score} 赞`;
+}
+
+/**
+ * 把单帖深抓证据拼成 reddit-top20 v7 source block 的形状，这样上游的 reddit-item-summary 提示词不用改就能读。
+ * 行格式与来源服务 app/reddit.py 渲染 v7 块的写法一致（没有栏目行：这里只有一个栏目）。
+ */
+export function redditLifeEvidenceBlock(post: RedditPostEvidence): string {
+  const repliesByParent = new Map<string, RedditEvidenceComment[]>();
+  for (const reply of post.replies) {
+    if (!reply.parentId) continue;
+    repliesByParent.set(reply.parentId, [...(repliesByParent.get(reply.parentId) ?? []), reply]);
+  }
+  const lines = [
+    `${PROMPT_RANK}. [r/${post.subreddit}] ${post.title}`,
+    `- ⭐ ${post.score ?? "?"} points · ${post.numComments ?? "?"} 评论`,
+    `- 来源：r/${post.subreddit}`,
+    `- 发布时间：${post.publishedAt}`,
+    `- 帖子链接：https://www.reddit.com${post.permalink}`,
+    `- 正文类型：${post.body ? "作者正文" : "无正文"}`,
+    `- 正文截断：${post.bodyTruncated ? "是" : "否"}`,
+    `- 正文：${post.body || "（无正文）"}`,
+    `- 顶层高赞回答（按赞数排序，共 ${post.topComments.length} 条）：`,
+    "",
+  ];
+  post.topComments.forEach((comment, index) => {
+    lines.push(`  ${index + 1}. [${scoreLabel(comment)}] ${comment.text}`);
+    for (const reply of repliesByParent.get(comment.id) ?? []) lines.push(`    - 回复 [${scoreLabel(reply)}] ${reply.text}`);
+  });
+  lines.push(`- 高赞直接回复：共 ${post.replies.length} 条，已附在对应顶层评论下。`);
+  return lines.join("\n");
+}
+
+/** 与上游文章同一编号口径：每条回答一段，列表标记转义成 `N\.`，素材池和下游解析都按这个数。 */
+export function redditLifeRefreshedContent(summary: string): string {
+  return summary
+    .split(/\n+(?=\d+\\?\.\s)/)
+    .map(item => item.trim().replace(/^(\d+)\.\s/, "$1\\. "))
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+async function rewrite(post: RedditPostEvidence, template: string, date: string, model: string, artifactsDir: string): Promise<Outcome> {
+  const category = redditCategoryByKey("life");
+  if (category.mode !== "summary") throw new Error("Reddit life category must be a summary category");
+  const prompt = template
+    .replaceAll("{date}", date)
+    .replaceAll("{rank}", String(PROMPT_RANK))
+    .replaceAll("{post_text}", redditLifeEvidenceBlock(post));
+  const outcome = await generateJsonStageWithRetries<Outcome>({
+    task: "reddit-life-refresh",
+    stage: `Reddit life refresh ${post.postId}`,
+    artifactPrefix: post.postId,
+    prompt,
+    model,
+    artifactsDir,
+    jitterMs: 1_000,
+    parse: raw => {
+      const item = parseRedditItemOutcome(raw, PROMPT_RANK, category.summaryMinChars, category.summaryFormat);
+      return item ? { content: redditLifeRefreshedContent(item.summary) } : { error: "Model excluded this post by topic" };
+    },
+    onExhausted: error => ({ error }),
+  });
+  if ("content" in outcome && !/^\d+\\\.\s/m.test(outcome.content)) return { error: "Rewritten replies have no numbered items" };
+  return outcome;
+}
+
+async function refreshItem(
+  evidence: RedditPostEvidence | undefined,
+  context: { template: string; date: string; model: string; artifactsDir: string }
+): Promise<Outcome> {
+  if (!evidence) return { error: "Missing from the fetch result" };
+  if (evidence.status !== "ok") return { error: `Reddit post ${evidence.status}${evidence.errorCode ? ` (${evidence.errorCode})` : ""}` };
+  if (!evidence.topComments.length) return { error: "No top-level comments" };
+  return rewrite(evidence, context.template, context.date, context.model, context.artifactsDir);
+}
+
+function chunks<T>(items: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let index = 0; index < items.length; index += size) out.push(items.slice(index, index + size));
+  return out;
+}
+
+function githubRun(): { github_run_id: string | null; github_run_url: string | null } {
+  const id = process.env.GITHUB_RUN_ID?.trim() || null;
+  const server = process.env.GITHUB_SERVER_URL?.trim();
+  const repository = process.env.GITHUB_REPOSITORY?.trim();
+  return { github_run_id: id, github_run_url: id && server && repository ? `${server}/${repository}/actions/runs/${id}` : null };
+}
+
+async function main(): Promise<void> {
+  const args = parseArgs();
+  const date = stringArg(args, "date") || dateStringInTimeZone(new Date(), SOURCE_TIME_ZONE);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`invalid --date: ${date}`);
+  const model = stringArg(args, "model") || process.env.AI_MODEL || DEFAULT_AI_MODEL;
+  const artifactsDir = stringArg(args, "artifacts-dir");
+  if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
+
+  const template = readPromptTemplate(path.join(repoRoot(), "prompts/blog"), PROMPT_NAME, REDDIT_PROMPT_FRAGMENTS);
+  const run = await startRedditLifeRefreshRun(githubRun());
+  writeStderr(
+    `${LABEL} run #${run.id}: ${run.manual_count} manual + ${run.auto_count} auto (K=${run.top_k}, N=${run.stale_days}d): ${run.items.map(item => item.reddit_post_id).join(", ") || "nothing to refresh"}\n`
+  );
+  if (!run.items.length) {
+    writeStdout(`${JSON.stringify({ runId: run.id, refreshed: 0, failed: 0, rejected: 0 })}\n`);
+    return;
+  }
+
+  let runError: string | null = null;
+  try {
+    const context = { template, date, model, artifactsDir };
+    for (const batch of chunks(run.items, REDDIT_TRENDING_MAX_DETAIL_POSTS)) {
+      const withPermalink = batch.filter(item => item.permalink);
+      let evidence: RedditPostEvidence[] = [];
+      let fetchError = "";
+      try {
+        evidence = withPermalink.length ? await fetchRedditPostDetail(date, withPermalink.map(item => item.permalink as string)) : [];
+      } catch (error) {
+        fetchError = `Comment fetch failed: ${error instanceof Error ? error.message : String(error)}`;
+        writeStderr(`WARN: ${LABEL} ${fetchError}\n`);
+      }
+      const byPostId = new Map(evidence.map(post => [post.postId, post]));
+      await mapWithConcurrency(batch, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async item => {
+        const post = byPostId.get(item.reddit_post_id);
+        const outcome: Outcome = !item.permalink
+          ? { error: "Post has no Reddit permalink" }
+          : fetchError
+            ? { error: fetchError }
+            : await refreshItem(post, context);
+        if ("error" in outcome) writeStderr(`WARN: ${LABEL} ${item.reddit_post_id}: ${outcome.error}\n`);
+        const reported = await reportRedditLifeRefreshItem(
+          run.id,
+          item.post_id,
+          "content" in outcome ? { content_md: outcome.content, fetched_at: post?.fetchedAt ?? null } : { error: outcome.error, fetched_at: post?.fetchedAt ?? null }
+        );
+        writeStderr(
+          `${LABEL} ${item.reddit_post_id} (${item.source}): ${reported.status}, replies ${reported.reply_count_before} -> ${reported.reply_count_after ?? "-"}${reported.error && reported.status !== "failed" ? ` (${reported.error})` : ""}\n`
+        );
+      });
+    }
+  } catch (error) {
+    runError = error instanceof Error ? error.message : String(error);
+    throw error;
+  } finally {
+    const finished = await finishRedditLifeRefreshRun(run.id, runError);
+    writeStderr(`${LABEL} run #${run.id} ${finished.status}: ${finished.refreshed_count} refreshed, ${finished.failed_count} failed, ${finished.rejected_count} skipped\n`);
+    writeStdout(`${JSON.stringify({ runId: run.id, status: finished.status, refreshed: finished.refreshed_count, failed: finished.failed_count, rejected: finished.rejected_count })}\n`);
+  }
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(error => {
+    writeStderr(`ERROR: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exit(1);
+  });
+}

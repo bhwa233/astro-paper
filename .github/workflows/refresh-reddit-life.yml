@@ -1,0 +1,79 @@
+name: Refresh Reddit Life Comments
+
+# 给 SparkHub 素材池里待用的问题重抓一次评论、重写回答（scripts/refresh_reddit_life_sparkhub.ts）。
+# publish-reddit-life.yml 在入库之后、视频选卡领题之前调用它，领到的题就是刷新过的；
+# 刷哪几题、K 与 N 都在 SparkHub 后台 /admin/decks/reddit-life?tab=refresh 配置，每次运行都记一条任务。
+#
+# 旁路：刷新失败只留警告，旧回答不动，不挡后面的领题。只读仓库、不提交任何东西。
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      ai_model:
+        description: "Reply rewrite model. Empty = Gemini 3.8 Flash."
+        required: false
+        type: string
+  # 手动入口：后台点了「重新抓取评论」又不想等到第二天时，在这里补跑一次。
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      ai_model:
+        description: "Reply rewrite model. Empty = Gemini 3.8 Flash."
+        required: false
+        type: string
+
+concurrency:
+  group: reddit-life-refresh-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - name: "Set up Node and pnpm"
+        uses: ./.github/actions/setup
+      - name: Refresh comments of pending pool posts
+        continue-on-error: true
+        env:
+          INPUT_DATE: ${{ inputs.date || '' }}
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+          REDDIT_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
+          REDDIT_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: https://rightapi.ai/gemini
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+          AI_API_STYLE: gemini
+          AI_FALLBACK_ENABLED: "false"
+          AI_TIMEOUT_MS: "600000"
+          REDDIT_AI_CONCURRENCY: 3
+        run: |
+          set -euo pipefail
+          if [ -z "$SPARKHUB_DASHBOARD_TOKEN" ]; then
+            echo "::warning::SPARKHUB_DASHBOARD_TOKEN is not set; skipped the comment refresh."
+            exit 0
+          fi
+          args=(--artifacts-dir reddit-life-refresh-artifacts)
+          if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
+          node --import tsx scripts/refresh_reddit_life_sparkhub.ts "${args[@]}" | tee reddit-life-refresh-result.json
+      - name: Upload refresh artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reddit-life-refresh
+          path: |
+            reddit-life-refresh-result.json
+            reddit-life-refresh-artifacts/
+          if-no-files-found: ignore

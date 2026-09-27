@@ -81,7 +81,7 @@ import {
 } from "./magazine.ts";
 import { appendMagazineIssue, magazineLedgerRelPath, parseMagazineIssueFromSource } from "./magazine_ledger.ts";
 import { normalizeMarkdownBlock, numberedBlocks, parseModelJsonObject } from "./compose_common.ts";
-import { MAX_REDDIT_SOURCE_ITEMS, fetchRedditSourceFromApi } from "./reddit_source_api.ts";
+import { MAX_REDDIT_SOURCE_ITEMS, fetchRedditSourceFromApi, redditSourceFetchedAt } from "./reddit_source_api.ts";
 import { redditTrendingMarkdownFromTitleTranslations } from "./reddit_trending_compose.ts";
 import { buildCombinedRedditTrendingSource, buildRedditTrendingSource } from "./reddit_trending_source.ts";
 import { weiboTrendingArticleFromSummaries } from "./weibo_trending_compose.ts";
@@ -1328,6 +1328,8 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     const itemConfig = envAiConfig({ model });
     const article = redditCategoryArticleFromSource(source, redditCategory);
     if (!article) return [skippedLowQuality(task, date, `Reddit ${redditCategory.key} source has no publishable posts`)];
+    // 初次爬取时间：reddit-life 素材池从 upstream-life.md 的 frontmatter 读它，和评论刷新的二次爬取时间对照。
+    const sourceFetchedAt = redditSourceFetchedAt(source);
     const result: ResultItem = archivePost({
       task,
       date: contentDate,
@@ -1337,6 +1339,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
       fileNameSuffix: article.fileNameSuffix,
       titleSuffix: article.title,
       description: article.description || undefined,
+      extra: sourceFetchedAt ? { sourceFetchedAt } : undefined,
     });
     result.generation = {
       ai_model: itemConfig.model,

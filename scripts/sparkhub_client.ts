@@ -68,3 +68,51 @@ export function confirmRedditLifePosts(input: {
 }): Promise<{ ids: number[] }> {
   return call("POST", "/confirm", input);
 }
+
+export type SparkhubRefreshItem = {
+  /** 池 id。 */
+  post_id: number;
+  reddit_post_id: string;
+  title: string;
+  permalink: string | null;
+  source: "manual" | "auto";
+  status: "pending" | "ok" | "failed" | "rejected";
+  error: string | null;
+  reply_count_before: number;
+  reply_count_after: number | null;
+};
+
+export type SparkhubRefreshRun = {
+  id: number;
+  status: string;
+  top_k: number;
+  stale_days: number;
+  manual_count: number;
+  auto_count: number;
+  refreshed_count: number;
+  failed_count: number;
+  rejected_count: number;
+  items: SparkhubRefreshItem[];
+};
+
+/**
+ * 开一次评论刷新任务。SparkHub 按后台配置选出要刷的帖子（人工请求全部 + 按领取顺序的前 K 个待用帖），
+ * 每帖记一条 pending 明细连同初次爬取时间一起返回；没有要刷的也会记一次、直接结束。
+ */
+export function startRedditLifeRefreshRun(input: { github_run_id?: string | null; github_run_url?: string | null }): Promise<SparkhubRefreshRun> {
+  return call("POST", "/refresh/runs", input);
+}
+
+/** 回报一帖：带 content_md 即替换正文（帖子已被领走则记为 rejected，不改正文），带 error 记失败。重复回报是安全的。 */
+export function reportRedditLifeRefreshItem(
+  runId: number,
+  postId: number,
+  input: { content_md?: string; fetched_at?: string | null; error?: string | null }
+): Promise<SparkhubRefreshItem> {
+  return call("POST", `/refresh/runs/${runId}/items/${postId}`, input);
+}
+
+/** 结束任务；没回报的明细记为失败。error 是整次任务级别的错误。 */
+export function finishRedditLifeRefreshRun(runId: number, error: string | null = null): Promise<SparkhubRefreshRun> {
+  return call("POST", `/refresh/runs/${runId}/finish`, { error });
+}

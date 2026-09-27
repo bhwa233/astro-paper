@@ -6,6 +6,8 @@
 // v6 起文章草稿停发，manifest 没有 posts，全部候选都是 pending。
 //
 // 接口按 postId upsert，同一天重跑（--force 重建）可以放心重复推送。
+// 上游文章 frontmatter 的 sourceFetchedAt（来源服务抓取当天热帖的时间）作为初次爬取时间一起送过去，
+// 素材池只保留第一次的值；2026-09-27 之前的文章没有这个字段，送 null。
 import fs from "node:fs";
 import path from "node:path";
 import { parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
@@ -34,8 +36,16 @@ export type RedditLifeIngestPayload = {
   archive_date: string;
   upstream_sha: string;
   score_model: string;
+  source_fetched_at: string | null;
   posts: IngestPost[];
 };
+
+/** 文章 frontmatter 里的 sourceFetchedAt；没有或不是合法时间时返回 null。 */
+export function upstreamSourceFetchedAt(markdown: string): string | null {
+  const frontmatter = markdown.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
+  const value = frontmatter.match(/^sourceFetchedAt:\s*"?([^"\n]+)"?\s*$/m)?.[1]?.trim() ?? "";
+  return value && !Number.isNaN(Date.parse(value)) ? value : null;
+}
 
 /** 由归档组装请求体；v5 之前或上游为空的日子返回 null，调用方直接跳过。 */
 export function buildRedditLifeIngestPayload(repo: string, date: string): RedditLifeIngestPayload | null {
@@ -47,7 +57,8 @@ export function buildRedditLifeIngestPayload(repo: string, date: string): Reddit
 
   const upstreamRel = manifest.rawSources?.upstreamLifeMarkdown;
   if (!upstreamRel) throw new Error(`${manifestFile} has no rawSources.upstreamLifeMarkdown`);
-  const candidates = parseRedditLifeCandidates(fs.readFileSync(path.join(repo, upstreamRel), "utf8"));
+  const upstreamMarkdown = fs.readFileSync(path.join(repo, upstreamRel), "utf8");
+  const candidates = parseRedditLifeCandidates(upstreamMarkdown);
   const scores = new Map(manifest.selection.scores.map(entry => [entry.rank, entry]));
 
   // 已进草稿的帖子 → 它所在那一卷的 syncId。
@@ -74,7 +85,13 @@ export function buildRedditLifeIngestPayload(repo: string, date: string): Reddit
     };
   });
 
-  return { archive_date: date, upstream_sha: manifest.upstream.generatedSha, score_model: manifest.selection.model, posts };
+  return {
+    archive_date: date,
+    upstream_sha: manifest.upstream.generatedSha,
+    score_model: manifest.selection.model,
+    source_fetched_at: upstreamSourceFetchedAt(upstreamMarkdown),
+    posts,
+  };
 }
 
 async function main(): Promise<void> {

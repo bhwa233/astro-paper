@@ -136,13 +136,13 @@ jobs:
 
   # 领题之前先给素材池里排在前面的待用问题重抓评论、重写回答，领到的就是刷新过的那份。
   # 要等 wechat 那一步入库；排在 discussions 之后，免得和三个分类同时挤来源服务。
-  # 刷新是旁路：步骤级 continue-on-error，失败不会让 video 跳过。
+  # 刷新是旁路：步骤级 continue-on-error，失败不会让 video 跳过。刷新后的回答会写回当天问答文章并提交。
   refresh:
     name: Refresh Reddit Life Comments
     needs: [archive-date, wechat, discussions]
     if: always() && needs.wechat.result == 'success'
     permissions:
-      contents: read
+      contents: write
     uses: ./.github/workflows/refresh-reddit-life.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}

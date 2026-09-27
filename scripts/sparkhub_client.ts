@@ -73,6 +73,8 @@ export type SparkhubRefreshItem = {
   /** 池 id。 */
   post_id: number;
   reddit_post_id: string;
+  /** 这一题首次出现的归档日；刷新后的回答写回这一天的 life 文章。 */
+  archive_date: string;
   title: string;
   permalink: string | null;
   source: "manual" | "auto";

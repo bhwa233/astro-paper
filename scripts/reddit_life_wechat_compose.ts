@@ -151,6 +151,26 @@ export function parseRedditLifeCandidates(markdown: string, limit = Number.POSIT
   });
 }
 
+const POST_URL_LINE = /^- (?:\*\*)?帖子(?:\*\*)?：\s*https:\/\/[^\s]*\/comments\/([a-z0-9]{5,12})(?:\/|\s|$)/im;
+
+/**
+ * 把 life 文章里某一帖的回答整段换成 body（评论刷新后的新回答），标题和事实 bullet 原样保留。
+ * 按「帖子」行里的 Reddit id 找块，找不到返回 null。body 与上游同一口径：`N\.` 编号、每条一段。
+ */
+export function replaceRedditLifePostBody(markdown: string, postId: string, body: string): string | null {
+  let found = false;
+  const parts = markdown.split(/(?=^##\s+\d+\.\s+)/gm).map(part => {
+    if (found || !/^##\s+\d+\.\s+/.test(part) || part.match(POST_URL_LINE)?.[1]?.toLowerCase() !== postId.toLowerCase()) return part;
+    const lines = part.split("\n");
+    const start = lines.findIndex((line, index) => index > 0 && /^\d+\\?\.\s/.test(line));
+    if (start < 0) return part;
+    found = true;
+    const trailing = part.match(/\s*$/)?.[0] || "\n";
+    return `${lines.slice(0, start).join("\n").trimEnd()}\n\n${body.trim()}${trailing}`;
+  });
+  return found ? parts.join("") : null;
+}
+
 // 事实 bullet 之后的一切都是正文；新契约以 `1\.` 转义 Markdown 列表，旧归档的 `1.` 仍可读取。
 function postBody(block: string, rank: number): string {
   const lines = block.split("\n");

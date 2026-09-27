@@ -6,16 +6,24 @@
 // 这里深抓评论、用上游 life 栏目同一份提示词（reddit-item-summary，numbered 口径）重写回答，逐帖回报。
 // 回报的正文整体替换池里的旧回答，标题保持池里原样；帖子在这期间被领走的，SparkHub 拒收、不改正文。
 //
+// SparkHub 接受（ok）之后，新回答同样写回这一题首次出现那天的 life 文章
+// （src/content/posts/zh-cn/reddit-<date>-life.md），只换编号回答，标题与事实 bullet 不动，并更新 modDatetime；
+// 由 workflow 统一提交。upstream-life.md 保持初次爬取的原样。被拒收或失败的题不改文章。
+//
 // 单帖失败（帖子被删或锁、没有顶层评论、模型判定排除主题、重试后仍不合格）只回报 error，旧回答不动，
 // 下次运行会再挑到它。整个脚本在 workflow 里是旁路步骤，失败不挡领题。
+import fs from "node:fs";
 import path from "node:path";
 import { dateStringInTimeZone, envPositiveInt, mapWithConcurrency, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { readPromptTemplate } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries } from "./ai_json_stage.ts";
 import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
+import { taskPostRelPath } from "./blog_tasks.ts";
+import { replaceRedditLifePostBody } from "./reddit_life_wechat_compose.ts";
 import { type RedditEvidenceComment, type RedditPostEvidence, REDDIT_TRENDING_MAX_DETAIL_POSTS, fetchRedditPostDetail } from "./reddit_trending_api.ts";
 import { parseRedditItemOutcome, redditCategoryByKey } from "./reddit_top20_compose.ts";
 import {
+  type SparkhubRefreshItem,
   finishRedditLifeRefreshRun,
   reportRedditLifeRefreshItem,
   sparkhubEndpoint,
@@ -109,6 +117,27 @@ async function refreshItem(
   return rewrite(evidence, context.template, context.date, context.model, context.artifactsDir);
 }
 
+/**
+ * 把新回答写回 life 文章。读写都是同步的：同一天的几题在并发回报里改同一个文件，
+ * 中间没有 await 就不会互相覆盖。返回写入的相对路径；文章或这一帖找不到时返回空串。
+ */
+function writeBackArticle(repo: string, item: SparkhubRefreshItem, content: string): string {
+  const rel = taskPostRelPath("reddit-top20", `${item.archive_date}-life`);
+  const file = path.join(repo, rel);
+  if (!fs.existsSync(file)) {
+    writeStderr(`WARN: ${LABEL} ${item.reddit_post_id}: ${rel} not found; article left unchanged\n`);
+    return "";
+  }
+  const updated = replaceRedditLifePostBody(fs.readFileSync(file, "utf8"), item.reddit_post_id, content);
+  if (updated === null) {
+    writeStderr(`WARN: ${LABEL} ${item.reddit_post_id}: not in ${rel}; article left unchanged\n`);
+    return "";
+  }
+  const modDatetime = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+  fs.writeFileSync(file, updated.replace(/^modDatetime: .*$/m, `modDatetime: ${modDatetime}`), "utf8");
+  return rel;
+}
+
 function chunks<T>(items: T[], size: number): T[][] {
   const out: T[][] = [];
   for (let index = 0; index < items.length; index += size) out.push(items.slice(index, index + size));
@@ -130,7 +159,8 @@ async function main(): Promise<void> {
   const artifactsDir = stringArg(args, "artifacts-dir");
   if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
 
-  const template = readPromptTemplate(path.join(repoRoot(), "prompts/blog"), PROMPT_NAME, REDDIT_PROMPT_FRAGMENTS);
+  const repo = repoRoot();
+  const template = readPromptTemplate(path.join(repo, "prompts/blog"), PROMPT_NAME, REDDIT_PROMPT_FRAGMENTS);
   const run = await startRedditLifeRefreshRun(githubRun());
   writeStderr(
     `${LABEL} run #${run.id}: ${run.manual_count} manual + ${run.auto_count} auto (K=${run.top_k}, N=${run.stale_days}d): ${run.items.map(item => item.reddit_post_id).join(", ") || "nothing to refresh"}\n`
@@ -141,6 +171,7 @@ async function main(): Promise<void> {
   }
 
   let runError: string | null = null;
+  const articles = new Set<string>();
   try {
     const context = { template, date, model, artifactsDir };
     for (const batch of chunks(run.items, REDDIT_TRENDING_MAX_DETAIL_POSTS)) {
@@ -167,6 +198,10 @@ async function main(): Promise<void> {
           item.post_id,
           "content" in outcome ? { content_md: outcome.content, fetched_at: post?.fetchedAt ?? null } : { error: outcome.error, fetched_at: post?.fetchedAt ?? null }
         );
+        if (reported.status === "ok" && "content" in outcome) {
+          const rel = writeBackArticle(repo, item, outcome.content);
+          if (rel) articles.add(rel);
+        }
         writeStderr(
           `${LABEL} ${item.reddit_post_id} (${item.source}): ${reported.status}, replies ${reported.reply_count_before} -> ${reported.reply_count_after ?? "-"}${reported.error && reported.status !== "failed" ? ` (${reported.error})` : ""}\n`
         );
@@ -178,7 +213,9 @@ async function main(): Promise<void> {
   } finally {
     const finished = await finishRedditLifeRefreshRun(run.id, runError);
     writeStderr(`${LABEL} run #${run.id} ${finished.status}: ${finished.refreshed_count} refreshed, ${finished.failed_count} failed, ${finished.rejected_count} skipped\n`);
-    writeStdout(`${JSON.stringify({ runId: run.id, status: finished.status, refreshed: finished.refreshed_count, failed: finished.failed_count, rejected: finished.rejected_count })}\n`);
+    writeStdout(
+      `${JSON.stringify({ runId: run.id, status: finished.status, refreshed: finished.refreshed_count, failed: finished.failed_count, rejected: finished.rejected_count, articles: [...articles] })}\n`
+    );
   }
 }
 

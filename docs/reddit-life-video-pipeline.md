@@ -16,6 +16,7 @@
 > - 向 SparkHub `POST /refresh/runs` 开一次任务，由 SparkHub 按后台配置选帖：人工在后台点过「重新抓取评论」的待用帖全部（最多 20 条，不计入 K），再加按领取顺序的前 K 个待用帖（从没刷过，或上次刷新早于 N 天）。K、N 在 `/admin/decks/reddit-life?tab=refresh` 修改，默认 5 与 3；K=0 时只处理人工请求。
 > - 对这些帖子调用来源服务 `reddit-post-detail-source.v1`（`fetchRedditPostDetail`，每次最多 10 帖，超过分批）深抓评论，拼成 v7 source block 的形状，用上游 life 栏目同一份提示词 `reddit-item-summary`（numbered 口径）逐帖重写回答，逐帖回报 `POST /refresh/runs/{run}/items/{id}`，最后 `finish`。
 > - 回报的回答**整体替换**池里的 `content_md`（标题沿用池里原样，`reply_count` 由 SparkHub 重算），不保留旧版本，也不设条数下限保护。帖子在回报前已被领走（reserved / used）的，SparkHub 记为 rejected、不改正文。
+> - SparkHub 接受之后，新回答同样写回这一题首次出现那天的问答文章 `src/content/posts/zh-cn/reddit-<date>-life.md`：按「帖子」行的 Reddit id 找到块，只换编号回答，标题与事实 bullet 不动，并更新 `modDatetime`，由 workflow 统一提交。`data/reddit-life-wechat/<date>/upstream-life.md` 保持初次爬取的原样，新旧对比看它和文章的提交历史。
 > - 单帖失败（帖子被删或锁、没有顶层评论、模型判定排除主题、重试后仍不合格）只回报 error，旧回答不动，下次运行会再挑到它。刷新步骤是 `continue-on-error`，整体失败也不挡领题。
 > - 每次运行在 SparkHub 记一条任务、每帖一条明细，含初次爬取时间（上游来源服务的 `fetched_at`，经文章 frontmatter `sourceFetchedAt` 与入库传入；2026-09-27 之前入库的帖子没有，后台显示入库时间并标「≈」）、上次刷新时间与本次二次爬取时间，后台「评论刷新」标签页可查。
 > - 同一 `source.json` 复用逻辑不变：刷新只影响还没被领走的题。

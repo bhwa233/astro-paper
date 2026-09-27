@@ -4,10 +4,11 @@ name: Refresh Reddit Life Comments
 # publish-reddit-life.yml 在入库之后、视频选卡领题之前调用它，领到的题就是刷新过的；
 # 刷哪几题、K 与 N 都在 SparkHub 后台 /admin/decks/reddit-life?tab=refresh 配置，每次运行都记一条任务。
 #
-# 旁路：刷新失败只留警告，旧回答不动，不挡后面的领题。只读仓库、不提交任何东西。
+# 刷新后的回答同时写回那一题首次出现那天的 life 文章，这里统一提交。
+# 旁路：刷新失败只留警告，旧回答不动，不挡后面的领题；已写回的文章照样提交。
 
 permissions:
-  contents: read
+  contents: write
 
 on:
   workflow_call:
@@ -42,6 +43,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: "Set up Node and pnpm"
         uses: ./.github/actions/setup
       - name: Refresh comments of pending pool posts
@@ -68,6 +71,11 @@ jobs:
           args=(--artifacts-dir reddit-life-refresh-artifacts)
           if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
           node --import tsx scripts/refresh_reddit_life_sparkhub.ts "${args[@]}" | tee reddit-life-refresh-result.json
+      - name: Commit refreshed life articles
+        uses: ./.github/actions/archive-commit
+        with:
+          paths: src/content/posts/zh-cn
+          message: "feat(reddit): refresh life article replies"
       - name: Upload refresh artifacts
         if: always()
         uses: actions/upload-artifact@v7

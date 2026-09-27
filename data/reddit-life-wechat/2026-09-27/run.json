@@ -1,0 +1,243 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-27",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "d5f2f198b72e1669cb699789984f6a1fe679e607",
+    "workflowRun": "36328610306",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-09-27-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-09-27/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.8-flash",
+    "candidateCount": 30,
+    "minScore": 60,
+    "scores": [
+      {
+        "rank": 5,
+        "score": 90,
+        "reason": "包含大量极具操作性的人生态度与认知重构经验，温暖且接地气，任何读者都能从中获益。"
+      },
+      {
+        "rank": 15,
+        "score": 89,
+        "reason": "从失去至亲到各类病痛创伤，每个故事都极具具象冲击力与情感共振，长尾生命力极其持久。"
+      },
+      {
+        "rank": 22,
+        "score": 88,
+        "reason": "直击两性关系中残酷的冷漠与敷衍细节，故事痛感直截了当，社交传播与朋友圈分享欲极高。"
+      },
+      {
+        "rank": 27,
+        "score": 87,
+        "reason": "直击奢华婚礼、大牌包、新车车贷等现代消费主义陷阱，观点犀利扎实，切中普通读者的省钱痛点。"
+      },
+      {
+        "rank": 21,
+        "score": 86,
+        "reason": "通过电视机、长途电话等具象载体展现科技红利与时代变迁，极易勾起普通家庭的成长记忆。"
+      },
+      {
+        "rank": 1,
+        "score": 85,
+        "reason": "聚焦极端人性与家庭博弈，具体故事戏剧性极强，八卦好奇心与大众吸引力拉满。"
+      },
+      {
+        "rank": 20,
+        "score": 83,
+        "reason": "猫吐、消息连环轰炸、吧唧嘴等声音细节极具生活气息，画面感十足且能迅速引发吐槽欲望。"
+      },
+      {
+        "rank": 2,
+        "score": 81,
+        "reason": "从廉价全营养口粮切入，探讨生活仪式感与生存效率的冲突，打工人代入感极强且具有长尾思考价值。"
+      },
+      {
+        "rank": 19,
+        "score": 79,
+        "reason": "探讨手写、修缮等技能的代际退化，精准击中数字化时代的集体失落感，跨年龄段共鸣强烈。"
+      },
+      {
+        "rank": 13,
+        "score": 77,
+        "reason": "用生动形象的日常比喻化解宏大天文现象，既满足宇宙好奇心又兼具长尾科普价值。"
+      },
+      {
+        "rank": 26,
+        "score": 76,
+        "reason": "用通俗生动的演化博弈原理解释大众耳熟能详的杂交牲畜差异，趣味性强且通俗易懂。"
+      },
+      {
+        "rank": 9,
+        "score": 74,
+        "reason": "将肠道菌群与基因科普融入吃素、喝牛奶等日常饮食困惑，通俗易懂且兼具生活实用性。"
+      },
+      {
+        "rank": 30,
+        "score": 73,
+        "reason": "以亲身经历梳理早期身体求救信号，警示意义深刻且具备极高长尾健康价值，但病理细节偏沉重。"
+      },
+      {
+        "rank": 10,
+        "score": 71,
+        "reason": "聚焦自我觉察与心理特质自白，回答中的行为细节真实细腻，容易唤起年轻群体的深刻情绪共鸣。"
+      },
+      {
+        "rank": 23,
+        "score": 68,
+        "reason": "生活化切片真实自然，刷手机拖延等细节令人会心一笑，但整体信息量稍显琐碎平淡。"
+      },
+      {
+        "rank": 25,
+        "score": 63,
+        "reason": "探讨家庭饮食习惯变迁有一定长尾价值，但提及的肉冻等具体菜品偏西方老派传统，文化隔阂稍显明显。"
+      },
+      {
+        "rank": 28,
+        "score": 58,
+        "reason": "核心围绕美式庭院烧烤社交礼仪展开，对中国大众的日常生活场景而言迁移度较低。"
+      },
+      {
+        "rank": 24,
+        "score": 57,
+        "reason": "多为海外中产城市风景走马观花式的抒情，缺少扎实的生活落差故事，国内读者不易深度代入。"
+      },
+      {
+        "rank": 6,
+        "score": 55,
+        "reason": "脑洞偏极客向，回答虽有想象力但缺少具体动人的个人生活故事，共鸣感相对扁平。"
+      },
+      {
+        "rank": 14,
+        "score": 52,
+        "reason": "车型讨论高度局限于北美二手车与皮卡市场行情，回答多为单一型号罗列，阅读趣味有限。"
+      },
+      {
+        "rank": 11,
+        "score": 51,
+        "reason": "偏数码与游戏圈子的垂直消费吐槽，个案虽有趣但受众面较窄，属于圈层内部盘点。"
+      },
+      {
+        "rank": 18,
+        "score": 49,
+        "reason": "属于欧美影视烂片吐槽盘点，所选片目偏老或依赖观影门槛，不易引发普通读者的普遍共鸣。"
+      },
+      {
+        "rank": 3,
+        "score": 48,
+        "reason": "案例大多来自美国特定名人八卦与枪击社会新闻，涉及暴力与具体法规，中国读者代入感弱。"
+      },
+      {
+        "rank": 29,
+        "score": 47,
+        "reason": "属于小众影视残酷镜头盘点，画面细节偏血腥重口，且缺乏对普遍现实生活经验的关照。"
+      },
+      {
+        "rank": 17,
+        "score": 45,
+        "reason": "属于纯粹的独立游戏清单报菜名，内容高度依赖特定游戏知识，缺乏打动大众的深层叙事。"
+      },
+      {
+        "rank": 7,
+        "score": 43,
+        "reason": "属于小众娱乐作品内部机制盘点，答案高度依赖特定主机游戏经验，圈外读者门槛高。"
+      },
+      {
+        "rank": 8,
+        "score": 35,
+        "reason": "触及地区依赖扣分项：盘点几乎全为北美本土零售实体与金融机构，脱离海外商业背景的读者无从体会反差。"
+      },
+      {
+        "rank": 4,
+        "score": 33,
+        "reason": "触及地区依赖扣分项：所讨论食品高度依赖北美本土商业品牌与老一辈饮食文化，中国读者极难产生共鸣。"
+      },
+      {
+        "rank": 16,
+        "score": 25,
+        "reason": "触及地区依赖扣分项：完全依赖英语特有的俚语双关梗，中文读者脱离语言环境根本无法看懂幽默点。"
+      },
+      {
+        "rank": 12,
+        "score": 15,
+        "reason": "触及短期失效与对立争议扣分项：属于当下国际政治热点与政客选举站队，一个月后明显失效且极易引发评论区争吵。"
+      }
+    ]
+  },
+  "posts": [
+    {
+      "postId": "1wrbtio",
+      "title": "有哪些偶然发现却好用到像在“开挂”的人生秘诀？",
+      "subreddit": "AskReddit",
+      "points": "2279 points · 1452 评论",
+      "numComments": 1452,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wrbtio/what_is_a_secret_life_cheat_code_you_discovered/",
+      "sourceRank": 5,
+      "selectionRank": 1,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-27/01-1wrbtio.md",
+      "contentSha256": "4a5e6a48240daedad8c12b2b68fb3942d3f4c350fc93613f07c18465f88b62ca",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wr8fl1",
+      "title": "你这辈子经历过最剧烈的疼痛是什么？",
+      "subreddit": "AskReddit",
+      "points": "278 points · 1242 评论",
+      "numComments": 1242,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wr8fl1/what_was_the_worst_pain_that_you_have_ever/",
+      "sourceRank": 15,
+      "selectionRank": 2,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-27/01-1wrbtio.md",
+      "contentSha256": "4a5e6a48240daedad8c12b2b68fb3942d3f4c350fc93613f07c18465f88b62ca",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wrcsem",
+      "title": "对方其实根本没那么喜欢你，但你当初却硬生生忽略的最大信号是什么？",
+      "subreddit": "AskReddit",
+      "points": "159 points · 134 评论",
+      "numComments": 134,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wrcsem/whats_the_biggest_hesshes_not_that_into_you_sign/",
+      "sourceRank": 22,
+      "selectionRank": 3,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-27/01-1wrbtio.md",
+      "contentSha256": "4a5e6a48240daedad8c12b2b68fb3942d3f4c350fc93613f07c18465f88b62ca",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wr31co",
+      "title": "大家都说“花这钱绝对值”，但你却觉得完全是交智商税的东西有哪些？",
+      "subreddit": "AskReddit",
+      "points": "126 points · 453 评论",
+      "numComments": 453,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wr31co/whats_something_everyone_tells_you_is_worth_the/",
+      "sourceRank": 27,
+      "selectionRank": 4,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-27/01-1wrbtio.md",
+      "contentSha256": "4a5e6a48240daedad8c12b2b68fb3942d3f4c350fc93613f07c18465f88b62ca",
+      "volume": "v1"
+    },
+    {
+      "postId": "1wrcy3p",
+      "title": "十到二十年前贵得令人望而生畏，如今却变得极其便宜的物品有哪些？",
+      "subreddit": "AskReddit",
+      "points": "163 points · 288 评论",
+      "numComments": 288,
+      "permalink": "https://www.reddit.com/r/AskReddit/comments/1wrcy3p/what_items_that_are_cheap_now_that_used_to_be/",
+      "sourceRank": 21,
+      "selectionRank": 5,
+      "status": "generated",
+      "path": "data/reddit-life-wechat/2026-09-27/01-1wrbtio.md",
+      "contentSha256": "4a5e6a48240daedad8c12b2b68fb3942d3f4c350fc93613f07c18465f88b62ca",
+      "volume": "v1"
+    }
+  ]
+}

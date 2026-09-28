@@ -14,8 +14,9 @@ import type { RedditLifeCardsRunManifest } from "./generate_reddit_life_cards.ts
 import { attachRedditLifeCards, sparkhubEndpoint } from "./sparkhub_client.ts";
 
 const LABEL = "[reddit-life-cards-sparkhub]";
-// SparkHub 单次最多收 100 题。
-const CHUNK = 100;
+// 虽然接口最多收 100 题，但批量写入会在网关的 30 秒请求上限内超时。
+// 小批次保持回报幂等，也让失败重试只影响少量题目。
+const CHUNK = 10;
 
 function shiftDate(date: string, days: number): string {
   const value = new Date(`${date}T00:00:00Z`);

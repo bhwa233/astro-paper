@@ -6,7 +6,7 @@ import path from "node:path";
 import test from "node:test";
 
 import { sha256 } from "../scripts/committed_handoff.ts";
-import { buildReleaseManifest, findRunManifest, releaseAssetName, restoreReleaseAssets } from "../scripts/release_assets.ts";
+import { buildReleaseManifest, findRunManifest, releaseAssetBatches, releaseAssetName, restoreReleaseAssets } from "../scripts/release_assets.ts";
 import { tempDir } from "./helpers/mocks.ts";
 
 test("release asset names flatten the day directory and stay ASCII", () => {
@@ -14,6 +14,12 @@ test("release asset names flatten the day directory and stay ASCII", () => {
   assert.equal(releaseAssetName("data/weibo-trending-wechat/2099-01-02/card-03.png", "data/weibo-trending-wechat/2099-01-02"), "card-03.png");
   assert.throws(() => releaseAssetName("data/other/2099-01-02/card-00.png", "data/weibo-trending-wechat/2099-01-02"), /must live under/);
   assert.throws(() => buildReleaseManifest("bad tag", "d", []), /invalid release tag/);
+});
+
+// 2026-09-28: a 536-asset release upload hit GitHub's secondary rate limit when sent as one command.
+test("release assets are split into bounded upload batches", () => {
+  assert.deepEqual(releaseAssetBatches(["a", "b", "c", "d", "e"], 2), [["a", "b"], ["c", "d"], ["e"]]);
+  assert.throws(() => releaseAssetBatches(["a"], 0), /positive integer/);
 });
 
 test("restore downloads only assets whose local copy is missing or stale, and verifies every hash", () => {

@@ -16,7 +16,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { parseArgs, repoRoot, sleep, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { isArchivedFile, sha256, type ArchivedFile } from "./committed_handoff.ts";
 
 export type ReleaseAsset = ArchivedFile & { asset: string };
@@ -57,15 +57,60 @@ export function isReleaseManifest(value: unknown): value is ReleaseManifest {
 
 export type GhRunner = (args: string[]) => string;
 
+const RELEASE_UPLOAD_BATCH_SIZE = 10;
+const RELEASE_UPLOAD_BATCH_DELAY_MS = 5_000;
+const RELEASE_UPLOAD_RETRY_DELAYS_MS = [10_000, 30_000, 60_000] as const;
+
 function runGh(args: string[]): string {
-  return execFileSync("gh", args, { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] });
+  try {
+    return execFileSync("gh", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  } catch (error) {
+    const stderr = error && typeof error === "object" && "stderr" in error ? String((error as { stderr?: unknown }).stderr ?? "") : "";
+    if (stderr) writeStderr(stderr.trim());
+    throw error;
+  }
+}
+
+export function releaseAssetBatches<T>(items: readonly T[], batchSize = RELEASE_UPLOAD_BATCH_SIZE): T[][] {
+  if (!Number.isInteger(batchSize) || batchSize < 1) throw new Error(`release asset batch size must be a positive integer: ${batchSize}`);
+  const batches: T[][] = [];
+  for (let start = 0; start < items.length; start += batchSize) batches.push([...items.slice(start, start + batchSize)]);
+  return batches;
+}
+
+function ghErrorText(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  const stderr = error && typeof error === "object" && "stderr" in error ? String((error as { stderr?: unknown }).stderr ?? "") : "";
+  return `${message}\n${stderr}`;
+}
+
+function isSecondaryRateLimit(error: unknown): boolean {
+  return /secondary rate limit|abuse detection|rate limit/i.test(ghErrorText(error));
+}
+
+async function runGhWithRetry(gh: GhRunner, args: string[], label: string): Promise<string> {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return gh(args);
+    } catch (error) {
+      const delayMs = RELEASE_UPLOAD_RETRY_DELAYS_MS[attempt];
+      if (!isSecondaryRateLimit(error) || delayMs === undefined) throw error;
+      writeStderr(`[release-assets] ${label}: GitHub secondary rate limit; retrying in ${Math.round(delayMs / 1000)}s`);
+      await sleep(delayMs);
+    }
+  }
 }
 
 /**
  * 上传 run.json 记录的全部资产。同一天重跑用 --clobber 覆盖，不删任何已发布的东西。
  * 上传前先核对本地文件哈希：manifest 与磁盘不一致时宁可失败，也不要把错的图发出去。
  */
-export function uploadReleaseAssets(repo: string, release: ReleaseManifest, { title, notes }: { title: string; notes: string }, gh: GhRunner = runGh): void {
+export async function uploadReleaseAssets(
+  repo: string,
+  release: ReleaseManifest,
+  { title, notes }: { title: string; notes: string },
+  gh: GhRunner = runGh
+): Promise<void> {
   const staging = fs.mkdtempSync(path.join(os.tmpdir(), "release-assets-"));
   try {
     const files = release.assets.map(asset => {
@@ -82,12 +127,16 @@ export function uploadReleaseAssets(repo: string, release: ReleaseManifest, { ti
     } catch {
       exists = false;
     }
-    if (exists) {
-      gh(["release", "upload", release.tag, ...files, "--clobber"]);
-      gh(["release", "edit", release.tag, "--title", title, "--notes", notes]);
-    } else {
-      gh(["release", "create", release.tag, ...files, "--title", title, "--notes", notes]);
+    if (!exists) {
+      // Create the release separately so a rate-limited asset batch leaves a resumable tag behind.
+      await runGhWithRetry(gh, ["release", "create", release.tag, "--title", title, "--notes", notes], "creating release");
     }
+    const batches = releaseAssetBatches(files);
+    for (const [index, batch] of batches.entries()) {
+      await runGhWithRetry(gh, ["release", "upload", release.tag, ...batch, "--clobber"], `uploading batch ${index + 1}/${batches.length}`);
+      if (index + 1 < batches.length) await sleep(RELEASE_UPLOAD_BATCH_DELAY_MS);
+    }
+    if (exists) await runGhWithRetry(gh, ["release", "edit", release.tag, "--title", title, "--notes", notes], "updating release metadata");
     writeStderr(`[release-assets] ${release.tag}: uploaded ${files.length} asset(s)`);
   } finally {
     fs.rmSync(staging, { recursive: true, force: true });
@@ -154,7 +203,7 @@ export function findRunManifest(repo: string, articleRel: string): string | null
   return null;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(3));
   const command = process.argv[2];
   if (command !== "upload" && command !== "restore") throw new Error("usage: release_assets.ts <upload|restore> --manifest run.json | --article draft.md");
@@ -176,7 +225,7 @@ function main(): void {
   if (command === "upload") {
     const title = stringArg(args, "title");
     if (!title) throw new Error("--title is required for upload");
-    uploadReleaseAssets(repo, release, { title, notes: stringArg(args, "notes") });
+    await uploadReleaseAssets(repo, release, { title, notes: stringArg(args, "notes") });
     writeStdout(`${JSON.stringify({ command, tag: release.tag, assets: release.assets.length })}\n`);
     return;
   }

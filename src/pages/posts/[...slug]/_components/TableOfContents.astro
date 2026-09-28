@@ -224,6 +224,57 @@ const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
     trigger.dataset.tocReady = "true";
     const closeButton = dialog.querySelector("[data-toc-close]");
 
+    function getCurrentSlug() {
+      const activeLink = dialog.querySelector(
+        'a[data-toc-slug][aria-current="location"]'
+      );
+      if (activeLink instanceof HTMLAnchorElement) {
+        return activeLink.dataset.tocSlug ?? null;
+      }
+
+      // The observer may not have emitted its first entry when the reader
+      // opens the drawer immediately after the page becomes visible.
+      const article = document.getElementById("article");
+      if (!article) return null;
+      const headings = Array.from(article.querySelectorAll("h2, h3"));
+      if (headings.length === 0) return null;
+
+      let currentHeading = headings[0];
+      for (const heading of headings) {
+        if (heading.getBoundingClientRect().top <= 120) {
+          currentHeading = heading;
+        } else {
+          break;
+        }
+      }
+      return currentHeading.id || null;
+    }
+
+    function scrollCurrentItemIntoView() {
+      const tocNav = dialog.querySelector("nav[data-toc]");
+      if (!(tocNav instanceof HTMLElement)) return;
+
+      const slug = getCurrentSlug();
+      if (!slug) return;
+      const currentLink = Array.from(
+        tocNav.querySelectorAll("a[data-toc-slug]")
+      ).find(link => link.dataset.tocSlug === slug);
+      if (!(currentLink instanceof HTMLElement)) return;
+
+      const navRect = tocNav.getBoundingClientRect();
+      const linkRect = currentLink.getBoundingClientRect();
+      const centeredTop =
+        tocNav.scrollTop +
+        linkRect.top -
+        navRect.top -
+        (tocNav.clientHeight - linkRect.height) / 2;
+      const maxScrollTop = Math.max(
+        0,
+        tocNav.scrollHeight - tocNav.clientHeight
+      );
+      tocNav.scrollTop = Math.min(maxScrollTop, Math.max(0, centeredTop));
+    }
+
     function closeDialog() {
       dialog.close();
     }
@@ -237,7 +288,10 @@ const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
       if (closeButton instanceof HTMLButtonElement) {
         closeButton.focus({ preventScroll: true });
       }
-      window.requestAnimationFrame(() => window.scrollTo(0, scrollPosition));
+      window.requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPosition);
+        scrollCurrentItemIntoView();
+      });
     }
 
     trigger.addEventListener("click", openDialog);

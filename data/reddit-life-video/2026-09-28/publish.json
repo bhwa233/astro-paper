@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-28",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "60cefedb7dcd195dd1a752388452a290fdb096afc7da230ed09b16caa85ce81c",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "相处之道",
+        "反常识"
+      ],
+      "summary": "比起虚伪推拉与内耗迎合，直接表达诉求、守住边界才是现代人最舒适的相处方式",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "家庭关系",
+        "金钱消费",
+        "亲身经历",
+        "破防瞬间"
+      ],
+      "summary": "长大后的报复性补偿买不回逝去的童年，却能帮我们夺回生活的掌控感",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

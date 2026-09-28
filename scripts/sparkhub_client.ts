@@ -69,6 +69,28 @@ export function confirmRedditLifePosts(input: {
   return call("POST", "/confirm", input);
 }
 
+export type SparkhubCardBacklog = {
+  target: number;
+  /** 各个启用的卡片平台（抖音、B 站、视频号）当前 ready 的条数。 */
+  ready: Record<string, number>;
+  /** 要补卡片的条数：把 ready 最少的那个平台补回 target。 */
+  gap: number;
+  /** 待用、还没有卡片的帖子，按领取顺序，比 gap 多几条备用。 */
+  candidates: SparkhubRedditLifePost[];
+};
+
+/** 卡片批量的缺口与候选。只读，不领取：帖子留在 pending，公众号草稿链路照样能领。 */
+export function getRedditLifeCardBacklog(target: number): Promise<SparkhubCardBacklog> {
+  return call("GET", `/cards/backlog?target=${target}`);
+}
+
+/** 记下卡片地址，并把抖音、B 站、视频号设为 ready。已经从别处拿到卡片的帖子会被跳过；同一 Release 重复回报是安全的。 */
+export function attachRedditLifeCards(
+  items: Array<{ id: number; assets: SparkhubAssets }>
+): Promise<{ ids: number[]; skipped: Array<{ id: number; reason: string }> }> {
+  return call("POST", "/assets", { items });
+}
+
 export type SparkhubRefreshItem = {
   /** 池 id。 */
   post_id: number;

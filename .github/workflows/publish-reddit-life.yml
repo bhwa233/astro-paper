@@ -201,6 +201,20 @@ jobs:
       force: ${{ inputs.force || false }}
     secrets: inherit
 
+  # 给抖音、B 站、视频号补卡片到每个平台 50 条 ready。排在图文之后，让图文先领当天分最高的题；
+  # 候选来自 wechat 那一步入库的素材池，所以只看 wechat 成没成功，图文跳过或失败都照跑。
+  cards:
+    name: Publish Reddit Life Cards
+    needs: [archive-date, wechat, refresh, newspic, config]
+    if: always() && needs.wechat.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-reddit-life-cards.yml
+    with:
+      date: ${{ needs.archive-date.outputs.value }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
+    secrets: inherit
+
   # 排在链尾，微信草稿、视频、图文的产出时刻不受这个栏目影响。needs 只用来排队，
   # 而 newspic 会因视频跳过选卡而不产出，所以只看 archive-date 的结果。
   ask:

@@ -8,6 +8,7 @@ import {
   REDDIT_LIFE_DAILY_SELECTION_COUNT,
   REDDIT_LIFE_VIDEO_ANSWER_COUNT,
   REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS,
+  questionEvidence,
   stripLatinGloss,
   validateRedditLifeVideoTitle,
   type RedditLifeVideoQuestion,
@@ -47,7 +48,17 @@ export type RedditLifeVideoSelection = {
   issues: RedditLifeVideoIssueSelection[];
 };
 
-function validateIssue(raw: unknown, position: number, questions: RedditLifeVideoQuestion[]): RedditLifeVideoIssueSelection {
+/** 卡片批量不设回答数门槛：有几条用几条，最多十条。每日视频仍是固定十条。 */
+export function redditLifeCardCount(question: RedditLifeVideoQuestion): number {
+  return Math.min(question.answers.length, REDDIT_LIFE_VIDEO_ANSWER_COUNT);
+}
+
+function validateIssue(
+  raw: unknown,
+  position: number,
+  questions: RedditLifeVideoQuestion[],
+  cardCount: (question: RedditLifeVideoQuestion) => number
+): RedditLifeVideoIssueSelection {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error(`Reddit life issue ${position + 1} must be a JSON object`);
   const value = raw as Record<string, unknown>;
   const questionIndex = Number(value.questionIndex);
@@ -56,8 +67,12 @@ function validateIssue(raw: unknown, position: number, questions: RedditLifeVide
   const title = validateRedditLifeVideoTitle(value.title, question.question);
 
   if (!Array.isArray(value.cards)) throw new Error("Reddit life video selection must contain a cards array");
-  if (value.cards.length !== REDDIT_LIFE_VIDEO_ANSWER_COUNT) {
-    throw new Error(`Reddit life video needs exactly ${REDDIT_LIFE_VIDEO_ANSWER_COUNT} cards, got ${value.cards.length}`);
+  const expected = cardCount(question);
+  if (expected < 1 || expected > REDDIT_LIFE_VIDEO_ANSWER_COUNT) {
+    throw new Error(`Reddit life cards must contain 1-${REDDIT_LIFE_VIDEO_ANSWER_COUNT} cards`);
+  }
+  if (value.cards.length !== expected) {
+    throw new Error(`Reddit life video needs exactly ${expected} cards, got ${value.cards.length}`);
   }
 
   // 只认这道题下的回答。跨题混选会让封面上的问题和后面的内容对不上，
@@ -101,14 +116,15 @@ function validateIssue(raw: unknown, position: number, questions: RedditLifeVide
 export function validateRedditLifeVideoSelection(
   raw: unknown,
   questions: RedditLifeVideoQuestion[],
-  count = REDDIT_LIFE_DAILY_SELECTION_COUNT
+  count = REDDIT_LIFE_DAILY_SELECTION_COUNT,
+  cardCount: (question: RedditLifeVideoQuestion) => number = () => REDDIT_LIFE_VIDEO_ANSWER_COUNT
 ): RedditLifeVideoSelection {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Reddit life video selection must be a JSON object");
   const value = raw as Record<string, unknown>;
   if (!Array.isArray(value.issues) || value.issues.length !== count) {
     throw new Error(`Reddit life selection needs exactly ${count} issues`);
   }
-  const issues = value.issues.map((issue, position) => validateIssue(issue, position, questions));
+  const issues = value.issues.map((issue, position) => validateIssue(issue, position, questions, cardCount));
   if (new Set(issues.map(issue => issue.questionIndex)).size !== issues.length) {
     throw new Error("Reddit life video selection must use different questions for its daily issues");
   }
@@ -118,9 +134,10 @@ export function validateRedditLifeVideoSelection(
 export function parseRedditLifeVideoSelection(
   raw: string,
   questions: RedditLifeVideoQuestion[],
-  count = REDDIT_LIFE_DAILY_SELECTION_COUNT
+  count = REDDIT_LIFE_DAILY_SELECTION_COUNT,
+  cardCount?: (question: RedditLifeVideoQuestion) => number
 ): RedditLifeVideoSelection {
-  return validateRedditLifeVideoSelection(parseModelJsonObject(raw, "Reddit life video selection"), questions, count);
+  return validateRedditLifeVideoSelection(parseModelJsonObject(raw, "Reddit life video selection"), questions, count, cardCount);
 }
 
 export async function selectRedditLifeVideoCards({
@@ -169,4 +186,48 @@ export async function selectRedditLifeVideoCards({
     artifactsDir,
     parse: content => parseRedditLifeVideoSelection(content, questions, count),
   });
+}
+
+const CARDS_PROMPT_TASK = "reddit-life-cards";
+
+/**
+ * 卡片批量：题目已由 SparkHub 按分数排定，一次只喂一道题，模型不再选题，只挑回答、压缩并起标题。
+ * 卡片数 = min(回答数, 10)，契约与每日选卡相同，所以沿用同一套校验。
+ */
+export async function selectRedditLifeCards({
+  question,
+  model,
+  promptDir,
+  artifactsDir,
+}: {
+  question: RedditLifeVideoQuestion;
+  model: string;
+  promptDir: string;
+  artifactsDir: string;
+}): Promise<RedditLifeVideoIssueSelection> {
+  const cardCount = redditLifeCardCount(question);
+  if (cardCount < 1) throw new Error("Reddit life cards need at least one answer");
+  const prompt = readPromptTemplate(promptDir, CARDS_PROMPT_TASK)
+    .replaceAll("{card_count}", String(cardCount))
+    .replaceAll("{body_max}", String(CARD_BODY_MAX_CHARS))
+    .replaceAll("{title_max}", String(REDDIT_LIFE_VIDEO_TITLE_MAX_CHARS))
+    .replaceAll("{tag_min}", String(REDDIT_LIFE_VIDEO_TAG_MIN))
+    .replaceAll("{tag_max}", String(REDDIT_LIFE_VIDEO_TAG_MAX))
+    .replaceAll("{primary_tag_min}", String(REDDIT_LIFE_VIDEO_PRIMARY_TAG_MIN))
+    .replaceAll("{summary_min}", String(REDDIT_LIFE_VIDEO_SUMMARY_MIN_CHARS))
+    .replaceAll("{summary_max}", String(REDDIT_LIFE_VIDEO_SUMMARY_MAX_CHARS))
+    .replaceAll("{summary_hard_max}", String(REDDIT_LIFE_VIDEO_SUMMARY_HARD_MAX_CHARS))
+    .replaceAll("{tag_vocabulary}", redditLifeVideoTagVocabularyPrompt())
+    .replaceAll("{source_text}", questionEvidence([question]));
+  writeAiArtifact(artifactsDir, CARDS_PROMPT_TASK, "prompt.md", prompt);
+  const selection = await generateJsonStageWithRetries({
+    task: CARDS_PROMPT_TASK,
+    stage: "Reddit life cards",
+    artifactPrefix: "cards",
+    prompt,
+    model,
+    artifactsDir,
+    parse: content => parseRedditLifeVideoSelection(content, [question], 1, redditLifeCardCount),
+  });
+  return selection.issues[0]!;
 }

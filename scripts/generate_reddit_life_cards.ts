@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-// Reddit 问答卡片批量：让抖音、B 站、视频号三个平台始终有约 target 条可发的卡片。
+// Reddit 问答卡片批量：让抖音、B 站、视频号、公众号四个平台始终有约 target 条可发的卡片。
 //
 // 每天问 SparkHub 缺口（ready 最少的那个平台离 target 还差几条），按领取顺序取待用、还没有卡片的帖子，
 // 一题调一次模型挑回答（最多十条，不足十条有几条用几条）、起标题，再用图文同一个 Remotion 静帧渲染器出图。
@@ -23,7 +23,8 @@ import { getRedditLifeCardBacklog, sparkhubEndpoint, type SparkhubRedditLifePost
 const SOURCE_TIME_ZONE = "America/Los_Angeles";
 const ROOT_REL = "data/reddit-life-cards";
 const MANIFEST_VERSION = 1;
-const DEFAULT_TARGET = 50;
+// 每个平台每天发一条左右，20 条够三周；再多只是让存货变旧、首次补满跑得更久。
+const DEFAULT_TARGET = 20;
 
 export function redditLifeCardsReleaseTag(date: string): string {
   return `reddit-life-cards-${date}`;

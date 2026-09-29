@@ -201,7 +201,7 @@ jobs:
       force: ${{ inputs.force || false }}
     secrets: inherit
 
-  # 给抖音、B 站、视频号补卡片到每个平台 50 条 ready。排在图文之后，让图文先领当天分最高的题；
+  # 给抖音、B 站、视频号、公众号补卡片到每个平台 20 条 ready。排在图文之后，让图文先领当天分最高的题；
   # 候选来自 wechat 那一步入库的素材池，所以只看 wechat 成没成功，图文跳过或失败都照跑。
   cards:
     name: Publish Reddit Life Cards

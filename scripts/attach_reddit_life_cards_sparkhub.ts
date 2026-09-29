@@ -1,4 +1,5 @@
-// 卡片上了 Release、run.json 提交之后回报 SparkHub：记下每题的卡片地址，抖音、B 站、视频号设为 ready。
+// 卡片上了 Release、run.json 提交之后回报 SparkHub：记下每题的卡片地址和模型写的标题、结论、标签，
+// 抖音、B 站、视频号、公众号设为 ready。
 // 帖子留在 pending，不影响公众号草稿链路领题。
 //
 // 两种用法：
@@ -45,6 +46,7 @@ async function attachDay(repo: string, date: string): Promise<number[]> {
         return `https://github.com/${githubRepo}/releases/download/${release.tag}/${asset}`;
       }),
       newspic_release: `https://github.com/${githubRepo}/releases/tag/${release.tag}`,
+      meta: { title: item.title, summary: item.summary, tags: item.tags },
     },
   }));
 

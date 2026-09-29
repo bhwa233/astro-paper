@@ -22,6 +22,8 @@ export type SparkhubAssets = {
   newspic_release?: string;
   video?: string;
   cover?: string;
+  /** 卡片批量里模型和卡片一起写的标题、一句话结论、话题标签；发布的 agent 直接拿来用。 */
+  meta?: { title: string; summary: string | null; tags: string[] };
 };
 
 /** 两个环境变量都在才算启用；缺一个就返回 null，由调用方决定跳过还是走本地兜底。 */
@@ -84,7 +86,7 @@ export function getRedditLifeCardBacklog(target: number): Promise<SparkhubCardBa
   return call("GET", `/cards/backlog?target=${target}`);
 }
 
-/** 记下卡片地址，并把抖音、B 站、视频号设为 ready。已经从别处拿到卡片的帖子会被跳过；同一 Release 重复回报是安全的。 */
+/** 记下卡片地址和标题、结论、标签，并把抖音、B 站、视频号、公众号设为 ready。已经从别处拿到卡片的帖子会被跳过；同一 Release 重复回报是安全的。 */
 export function attachRedditLifeCards(
   items: Array<{ id: number; assets: SparkhubAssets }>
 ): Promise<{ ids: number[]; skipped: Array<{ id: number; reason: string }> }> {

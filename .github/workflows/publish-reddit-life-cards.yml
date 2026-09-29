@@ -1,6 +1,6 @@
 name: Publish Reddit Life Cards
 
-# 给抖音、B 站、视频号补卡片，让三个平台始终有约 target 条可发。publish-reddit-life.yml 的子 workflow，
+# 给抖音、B 站、视频号、公众号补卡片，让四个平台始终有约 target 条可发。publish-reddit-life.yml 的子 workflow，
 # 排在图文之后：图文先领走当天分最高的题，这里再从剩下的待用题里补缺口。
 #
 # 卡片与图文同一个 Remotion 静帧渲染器，PNG 走 Release（reddit-life-cards-<date>），仓库只提交 run.json。
@@ -18,7 +18,7 @@ on:
       target:
         description: "Ready posts to keep queued on each card platform."
         required: false
-        default: 50
+        default: 20
         type: number
       ai_model:
         description: "Answer and title selection model. Empty = Gemini 3.8 Flash."
@@ -33,7 +33,7 @@ on:
       target:
         description: "Ready posts to keep queued on each card platform."
         required: false
-        default: 50
+        default: 20
         type: number
       ai_model:
         description: "Answer and title selection model. Empty = Gemini 3.8 Flash."
@@ -52,7 +52,7 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-latest
-    # 一题一次模型调用加一次 Remotion 打包渲染，首次补满 50 题要跑很久；之后每天只补消耗掉的几题。
+    # 一题一次模型调用加一次 Remotion 打包渲染，首次补满 20 题要跑一阵；之后每天只补消耗掉的几题。
     timeout-minutes: 180
     steps:
       # 检出分支最新提交：补回报要读前几天提交的 run.json。
@@ -100,7 +100,7 @@ jobs:
         id: generate
         env:
           ARCHIVE_DATE: ${{ steps.archive-date.outputs.date }}
-          TARGET: ${{ inputs.target || 50 }}
+          TARGET: ${{ inputs.target || 20 }}
           INPUT_FORCE: ${{ inputs.force || false }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
@@ -161,7 +161,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           MANIFEST_PATH: ${{ steps.generate.outputs.manifest_path }}
           ARCHIVE_DATE: ${{ steps.archive-date.outputs.date }}
-        run: node --import tsx scripts/release_assets.ts upload --manifest "$MANIFEST_PATH" --title "Reddit 问答卡片 $ARCHIVE_DATE" --notes "抖音、B 站、视频号用的问答卡片，由 publish-reddit-life-cards.yml 自动生成。归档日期 ${ARCHIVE_DATE}。"
+        run: node --import tsx scripts/release_assets.ts upload --manifest "$MANIFEST_PATH" --title "Reddit 问答卡片 $ARCHIVE_DATE" --notes "抖音、B 站、视频号、公众号用的问答卡片，由 publish-reddit-life-cards.yml 自动生成。归档日期 ${ARCHIVE_DATE}。"
 
       - name: Commit archive
         uses: ./.github/actions/archive-commit

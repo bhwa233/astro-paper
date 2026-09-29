@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-29",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "38a34f1e62afdeaa065cf702f39f3d0c7a382ad99cccc0eac23874b8893c6bde",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "冷知识",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "许多致命风险往往藏在直觉盲区里，压制慌乱本能并遵循物理与医学常识才能绝地逃生。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "中年人生",
+        "后悔清单",
+        "避坑指南"
+      ],
+      "summary": "关节磨损、听力衰退与人际断层等不可逆损伤，大都在年轻时的省事与侥幸中埋下了。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

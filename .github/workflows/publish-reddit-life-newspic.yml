@@ -173,7 +173,7 @@ jobs:
 
   sync-wechat:
     needs: generate-and-archive
-    if: needs.generate-and-archive.outputs.generated_count != '0'
+    if: ${{ needs.generate-and-archive.outputs.generated_count != '0' && vars.ENABLE_REDDIT_LIFE_WECHAT_SYNC == 'true' }}
     permissions:
       contents: write
     uses: ./.github/workflows/wechat-sync.yml

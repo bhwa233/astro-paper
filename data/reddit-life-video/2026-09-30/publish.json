@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-09-30",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "79147ab6e49714b2aa8da68bdfbc87b469b44eba82ee5821a3edd2fbbcddf0bc",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "生活妙招",
+        "健康常识"
+      ],
+      "summary": "放下必须入睡的焦虑，用身体扫描或机械单调的小任务转移注意即可见效",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "人性观察",
+        "避坑指南",
+        "亲身经历"
+      ],
+      "summary": "许多看似门槛极低或为了省钱的爱好，最终都在升级装备与耗材中彻底失控",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "version": 5,
+  "archiveDate": "2026-09-30",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "kind": "sparkhub",
+    "sourcePath": "data/reddit-life-video/2026-09-30/source.json",
+    "postIds": [
+      "1wtlhp5",
+      "1wtfv22"
+    ],
+    "sha256": "499539a51c019bc4d5298dbd0beb235d431b5773c7ce1e73c76b46fc800e2d07"
+  },
+  "model": "gemini-3.8-flash",
+  "selectionCount": 2,
+  "config": {
+    "source": "sparkhub",
+    "newspicPerDay": 2,
+    "videoPerDay": 1
+  },
+  "questionCount": 2,
+  "eligibleQuestionCount": 2,
+  "selectedQuestionIndexes": [
+    1,
+    2
+  ],
+  "titles": [
+    "失眠大脑停不下来时的管用解法",
+    "成年后花销远超预期的烧钱爱好"
+  ],
+  "questions": [
+    "大脑停不下来、根本睡不着时，究竟什么办法真能管用？",
+    "成年后入坑的哪些爱好，实际花销远超当初的预期？"
+  ],
+  "verbatimCounts": [
+    4,
+    0
+  ]
+}

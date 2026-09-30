@@ -34,6 +34,8 @@ export type RedditLifeCardsItem = {
   /** SparkHub 池 id。 */
   id: number;
   postId: string;
+  /** 出卡所用 content_md 的 SHA-256。回报时带上，SparkHub 发现回答已被刷新就不挂这批卡片；早先的批次没有。 */
+  contentSha256?: string;
   question: string;
   title: string;
   summary: string | null;
@@ -135,6 +137,7 @@ export async function generateRedditLifeCards({
       items.push({
         id: post.id,
         postId: post.post_id,
+        contentSha256: sha256(post.content_md),
         question: issue.question,
         title: issue.title,
         // 标签与结论是软校验，降级时留空，不影响卡片。

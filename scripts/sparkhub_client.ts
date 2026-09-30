@@ -86,9 +86,9 @@ export function getRedditLifeCardBacklog(target: number): Promise<SparkhubCardBa
   return call("GET", `/cards/backlog?target=${target}`);
 }
 
-/** 记下卡片地址和标题、结论、标签，并把抖音、B 站、视频号、公众号设为 ready。已经从别处拿到卡片的帖子会被跳过；同一 Release 重复回报是安全的。 */
+/** 记下卡片地址和标题、结论、标签，并把抖音、B 站、视频号、公众号设为 ready。已经从别处拿到卡片的帖子，以及 content_sha256 与当前回答对不上（出卡后被刷新过）的帖子会被跳过；同一 Release 重复回报是安全的。 */
 export function attachRedditLifeCards(
-  items: Array<{ id: number; assets: SparkhubAssets }>
+  items: Array<{ id: number; assets: SparkhubAssets; content_sha256?: string }>
 ): Promise<{ ids: number[]; skipped: Array<{ id: number; reason: string }> }> {
   return call("POST", "/assets", { items });
 }
@@ -129,7 +129,7 @@ export function startRedditLifeRefreshRun(input: { github_run_id?: string | null
   return call("POST", "/refresh/runs", input);
 }
 
-/** 回报一帖：带 content_md 即替换正文（帖子已被领走则记为 rejected，不改正文），带 error 记失败。重复回报是安全的。 */
+/** 回报一帖：带 content_md 即替换正文并撤下还没发出去的卡片（帖子已被领走、或卡片已发出去则记为 rejected，不改正文），带 error 记失败。重复回报是安全的。 */
 export function reportRedditLifeRefreshItem(
   runId: number,
   postId: number,

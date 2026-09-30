@@ -7,7 +7,8 @@
 // - `--date D --since-days N`：补回报 D 之前 N 天（不含 D）。批量生成之前跑：前几天回报失败的题
 //   在 SparkHub 看来仍然没有卡片，不补的话今天会被当成候选再生成一遍。
 //
-// 同一 Release 重复回报是安全的；SparkHub 会跳过已经从公众号链路拿到卡片的题。
+// 同一 Release 重复回报是安全的；SparkHub 会跳过已经从公众号链路拿到卡片的题，
+// 以及出卡之后被评论刷新换过回答的题（按 contentSha256 比对），那些题会在下一批按新回答重新出卡。
 import fs from "node:fs";
 import path from "node:path";
 import { parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
@@ -48,6 +49,7 @@ async function attachDay(repo: string, date: string): Promise<number[]> {
       newspic_release: `https://github.com/${githubRepo}/releases/tag/${release.tag}`,
       meta: { title: item.title, summary: item.summary, tags: item.tags },
     },
+    ...(item.contentSha256 && { content_sha256: item.contentSha256 }),
   }));
 
   const attached: number[] = [];

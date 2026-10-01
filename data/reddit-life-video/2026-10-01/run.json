@@ -1,0 +1,40 @@
+{
+  "version": 5,
+  "archiveDate": "2026-10-01",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "kind": "sparkhub",
+    "sourcePath": "data/reddit-life-video/2026-10-01/source.json",
+    "postIds": [
+      "1wtlhp5",
+      "1wuvk15"
+    ],
+    "sha256": "94449cb94b65ed0dd15f04cf82ed4ba57634c75a7e94bf4ee9de5378e8c002a3"
+  },
+  "model": "gemini-3.8-flash",
+  "selectionCount": 2,
+  "config": {
+    "source": "sparkhub",
+    "newspicPerDay": 2,
+    "videoPerDay": 1
+  },
+  "questionCount": 2,
+  "eligibleQuestionCount": 2,
+  "selectedQuestionIndexes": [
+    1,
+    2
+  ],
+  "titles": [
+    "大脑停不下来时的强制入睡法",
+    "让人瞬间神经紧绷的各种声音"
+  ],
+  "questions": [
+    "大脑停不下来、根本睡不着时，究竟什么办法真能管用？",
+    "什么声音能让你瞬间警觉并拉满注意力？"
+  ],
+  "verbatimCounts": [
+    6,
+    10
+  ]
+}

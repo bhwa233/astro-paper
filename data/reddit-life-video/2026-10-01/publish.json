@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-01",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "3262aa0a17720d7ad35ce6832e4de7198e24046acded5eafa44a445ad84c91cc",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "生活妙招",
+        "避坑指南"
+      ],
+      "summary": "失眠往往源于入睡焦虑，闭眼静卧即是休息，用身体扫描与单调思维占满大脑便能自然睡去。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "家庭关系",
+        "职场生存",
+        "破防瞬间"
+      ],
+      "summary": "最让人警觉的往往不是震耳巨响，而是代表麻烦即将降临的微小动静或反常的死寂。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

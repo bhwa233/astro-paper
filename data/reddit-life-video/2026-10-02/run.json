@@ -1,0 +1,40 @@
+{
+  "version": 5,
+  "archiveDate": "2026-10-02",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "kind": "sparkhub",
+    "sourcePath": "data/reddit-life-video/2026-10-02/source.json",
+    "postIds": [
+      "1wv6qv0",
+      "1wtfv22"
+    ],
+    "sha256": "9e0d1df4ee39cb036bd21856cc4a2b381cf263406cde73f42c8932e0a9e74bc4"
+  },
+  "model": "gemini-3.8-flash",
+  "selectionCount": 2,
+  "config": {
+    "source": "sparkhub",
+    "newspicPerDay": 2,
+    "videoPerDay": 1
+  },
+  "questionCount": 2,
+  "eligibleQuestionCount": 2,
+  "selectedQuestionIndexes": [
+    1,
+    2
+  ],
+  "titles": [
+    "恋爱里再也不踩的致命坑",
+    "以为能省钱却越玩越穷的爱好"
+  ],
+  "questions": [
+    "你在恋爱里踩过哪些再也不会犯的坑？",
+    "成年后入坑的哪些爱好，实际花销远超当初的预期？"
+  ],
+  "verbatimCounts": [
+    3,
+    0
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "version": 5,
+  "archiveDate": "2026-10-03",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "kind": "sparkhub",
+    "sourcePath": "data/reddit-life-video/2026-10-03/source.json",
+    "postIds": [
+      "1ww092e",
+      "1wtlhp5"
+    ],
+    "sha256": "5b3df0119af9209da6977ae868a79179c944b66d55098a8a8978a5f6ddea52fc"
+  },
+  "model": "gemini-3.8-flash",
+  "selectionCount": 2,
+  "config": {
+    "source": "sparkhub",
+    "newspicPerDay": 2,
+    "videoPerDay": 1
+  },
+  "questionCount": 2,
+  "eligibleQuestionCount": 2,
+  "selectedQuestionIndexes": [
+    1,
+    2
+  ],
+  "titles": [
+    "求职面试中最该被禁掉的提问",
+    "大脑停不下来时的真正管用助眠法"
+  ],
+  "questions": [
+    "如果能永久禁止求职面试里的一个问题，你最想删掉哪一句？",
+    "大脑停不下来、根本睡不着时，究竟什么办法真能管用？"
+  ],
+  "verbatimCounts": [
+    0,
+    3
+  ]
+}

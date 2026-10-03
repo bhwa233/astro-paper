@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-03",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "1844bb11282f7d7cde537862629e5edda8a1e54cc00edd92934664d99ac21b0b",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "职场生存",
+        "人性观察",
+        "年轻人困境",
+        "避坑指南"
+      ],
+      "summary": "求职者最反感虚伪的套路博弈与刺探隐私，薪资透明和专注当下业务才是招聘的核心。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "健康常识",
+        "生活妙招"
+      ],
+      "summary": "卸下必须入睡的焦虑，配合单调机械的脑力占位与物理隔离手机，才能让大脑平稳关机。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

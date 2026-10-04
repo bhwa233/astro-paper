@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-04",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "e118122fe34bc05e315291d4d67838e2f074346af9ba2d611582770385dd33ad",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "职场生存",
+        "人性观察",
+        "避坑指南",
+        "灵魂拷问"
+      ],
+      "summary": "这些问题除了逼人表演虚伪和泄露隐私，对评估真实专业能力毫无帮助",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "生活妙招",
+        "健康常识"
+      ],
+      "summary": "摆脱失眠的关键是放下必须睡着的焦虑，用机械任务或微小专注分散大脑狂飙的思绪",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

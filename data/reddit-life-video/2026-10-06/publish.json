@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-06",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "f48296fde9ef70561777bd9fa79ef4a12dfe5c1202db6d377b9df44d98d89772",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "职场生存",
+        "人性观察",
+        "年轻人困境",
+        "避坑指南"
+      ],
+      "summary": "大家最反感把谋生动机包装成热爱、逼求职者自报底价及刺探隐私的虚伪套路考核。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

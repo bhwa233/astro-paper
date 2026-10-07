@@ -97,9 +97,9 @@ jobs:
       ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
-  # 紧跟 publish，保持微信草稿的产出时刻不被后面几个分类推迟。
-  wechat:
-    name: Archive Reddit Life WeChat Drafts
+  # 初次抓取只记录问题元数据；此阶段不评分、不存答案快照，也不生成文章。
+  candidates:
+    name: Record Reddit Life Candidates
     needs: [archive-date, publish, config]
     permissions:
       contents: write
@@ -109,14 +109,14 @@ jobs:
       upstream_sha: ${{ needs.publish.outputs.generated_sha }}
       upstream_workflow_run: ${{ github.run_id }}
       ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
-      force_rebuild: ${{ inputs.force || false }}
+      record_candidates_only: true
     secrets: inherit
 
   # 以下三个分类和 life 没有数据依赖，needs 只用来排队，不用来传值，所以 always()：
   # life 失败不该把它们一起拖下水（近 13 天 life 失败过 3 次，那几天这三篇本来是正常的）。
   ama:
     name: Publish Reddit AMA
-    needs: [archive-date, wechat]
+    needs: [archive-date, candidates]
     if: always() && needs.archive-date.result == 'success'
     permissions:
       contents: write
@@ -155,24 +155,38 @@ jobs:
       ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
-  # 领题之前先给素材池里排在前面的待用问题重抓评论、重写回答，领到的就是刷新过的那份。
-  # 要等 wechat 那一步入库；排在 discussions 之后，免得和三个分类同时挤来源服务。
-  # 刷新是旁路：步骤级 continue-on-error，失败不会让 video 跳过。刷新后的回答会写回当天问答文章并提交。
+  # 刷新这一轮全部新候选后才评分、生成文章。K 默认 100，覆盖默认每天最多 30 个新候选。
+  # 排在 discussions 之后，免得和其他 Reddit 栏目同时挤来源服务。
   refresh:
     name: Refresh Reddit Life Comments
-    needs: [archive-date, wechat, discussions, config]
-    if: always() && needs.wechat.result == 'success'
+    needs: [archive-date, candidates, discussions, config]
+    if: always() && needs.candidates.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/refresh-reddit-life.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}
+      upstream_sha: ${{ needs.candidates.outputs.generated_sha }}
       ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
-  # 视频选卡从 SparkHub 素材池领取问题，而当天候选是 wechat 那一步打分后才入库的；
-  # 素材池不可用时还要退回读 wechat 提交的打分归档。所以按那一步的 sha 检出，wechat 没成功就不跑。
-  # needs 里的 discussions 和 refresh 只用来排队。视频本身目前暂停渲染，只选卡供图文使用。
+  # 读取 SparkHub 中刷新后的同一份答案，完成 AI 评分，并在之后生成归档与微信文章。
+  wechat:
+    name: Generate Refreshed Reddit Life Articles
+    needs: [archive-date, refresh, config]
+    if: always() && needs.refresh.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/reddit-life-wechat.yml
+    with:
+      date: ${{ needs.archive-date.outputs.value }}
+      upstream_sha: ${{ needs.refresh.outputs.generated_sha }}
+      upstream_workflow_run: ${{ github.run_id }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
+      force_rebuild: ${{ inputs.force || false }}
+    secrets: inherit
+
+  # 视频选卡只从评分完成的 SparkHub 素材池领取；按最终文章提交 sha 检出。
   video:
     name: Publish Reddit Life Vertical Video
     needs: [archive-date, wechat, discussions, refresh, config]

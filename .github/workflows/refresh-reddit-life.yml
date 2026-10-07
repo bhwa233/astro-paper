@@ -4,17 +4,24 @@ name: Refresh Reddit Life Comments
 # publish-reddit-life.yml 在入库之后、视频选卡领题之前调用它，领到的题就是刷新过的；
 # 刷哪几题、K 与 N 都在 SparkHub 后台 /admin/decks/reddit-life?tab=refresh 配置，每次运行都记一条任务。
 #
-# 刷新后的回答同时写回那一题首次出现那天的 life 文章，这里统一提交。
-# 旁路：刷新失败只留警告，旧回答不动，不挡后面的领题；已写回的文章照样提交。
+# 刷新后的回答由后续生成任务统一从 SparkHub 读取，并生成 upstream-life.md 与文章。
 
 permissions:
   contents: write
 
 on:
   workflow_call:
+    outputs:
+      generated_sha:
+        description: "Commit containing refreshed Reddit life answers."
+        value: ${{ jobs.refresh.outputs.generated_sha }}
     inputs:
       date:
         description: "Archive date in America/Los_Angeles, YYYY-MM-DD. Empty = today."
+        required: false
+        type: string
+      upstream_sha:
+        description: "Committed candidate source revision to refresh."
         required: false
         type: string
       ai_model:
@@ -41,14 +48,16 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    outputs:
+      generated_sha: ${{ steps.head.outputs.sha }}
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.upstream_sha || github.sha }}
           fetch-depth: 0
       - name: "Set up Node and pnpm"
         uses: ./.github/actions/setup
       - name: Refresh comments of pending pool posts
-        continue-on-error: true
         env:
           INPUT_DATE: ${{ inputs.date || '' }}
           SPARKHUB_API_URL: https://api.bhwa233.com
@@ -65,17 +74,14 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "$SPARKHUB_DASHBOARD_TOKEN" ]; then
-            echo "::warning::SPARKHUB_DASHBOARD_TOKEN is not set; skipped the comment refresh."
-            exit 0
+            echo "::error::SPARKHUB_DASHBOARD_TOKEN is required for the refresh and scoring pipeline."
+            exit 1
           fi
           args=(--artifacts-dir reddit-life-refresh-artifacts)
           if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
           node --import tsx scripts/refresh_reddit_life_sparkhub.ts "${args[@]}" | tee reddit-life-refresh-result.json
-      - name: Commit refreshed life articles
-        uses: ./.github/actions/archive-commit
-        with:
-          paths: src/content/posts/zh-cn
-          message: "feat(reddit): refresh life article replies"
+      - id: head
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Upload refresh artifacts
         if: always()
         uses: actions/upload-artifact@v7

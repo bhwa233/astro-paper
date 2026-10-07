@@ -133,7 +133,7 @@ jobs:
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
           AI_TIMEOUT_MS: "600000"
-          # 选题从 SparkHub 素材池领取；领取失败或未配置时退回当天本地排名。
+          # 选题只从 SparkHub 素材池领取已刷新、已评分的候选；不可用时让任务失败，不能绕过流程。
           SPARKHUB_API_URL: https://api.bhwa233.com
           SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
         run: |

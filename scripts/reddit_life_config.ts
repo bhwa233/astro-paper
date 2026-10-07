@@ -11,11 +11,7 @@ import fs from "node:fs";
 import { booleanArg, parseArgs, writeStderr, writeStdout } from "./blog_common.ts";
 import { getRedditLifeConfigValues, sparkhubEndpoint } from "./sparkhub_client.ts";
 import { REDDIT_CATEGORIES } from "./reddit_top20_compose.ts";
-import {
-  REDDIT_LIFE_DAILY_NEWSPIC_COUNT,
-  REDDIT_LIFE_DAILY_VIDEO_COUNT,
-  REDDIT_LIFE_WECHAT_ARTICLE_ENABLED,
-} from "../src/utils/redditLifePublishing.ts";
+import { REDDIT_LIFE_DAILY_NEWSPIC_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT, REDDIT_LIFE_WECHAT_ARTICLE_ENABLED } from "../src/utils/redditLifePublishing.ts";
 
 const LABEL = "[reddit-life-config]";
 
@@ -55,7 +51,7 @@ export const REDDIT_LIFE_DEFAULT_CONFIG: RedditLifeConfig = {
   crawl_top_level_comment_limit: 50,
   crawl_direct_reply_limit: 10,
   crawl_detail_comment_limit: 100,
-  refresh_top_k: 5,
+  refresh_top_k: 100,
   refresh_stale_days: 3,
   refresh_top_level_comment_limit: 40,
   refresh_direct_reply_limit: 10,
@@ -92,7 +88,9 @@ export function loadRedditLifeConfig(): Promise<LoadedRedditLifeConfig> {
       const { values } = await getRedditLifeConfigValues();
       return { config: mergeRedditLifeConfig(values), source: "sparkhub" };
     } catch (error) {
-      writeStderr(`WARN: ${LABEL} reading the SparkHub config failed; running on the default config: ${error instanceof Error ? error.message : String(error)}\n`);
+      writeStderr(
+        `WARN: ${LABEL} reading the SparkHub config failed; running on the default config: ${error instanceof Error ? error.message : String(error)}\n`
+      );
       return { config: { ...REDDIT_LIFE_DEFAULT_CONFIG }, source: "default" };
     }
   })();

@@ -1,25 +1,18 @@
-// 视频/图文每天用哪几个问题。2026-09-26 起不再读当天的文章草稿，而是从 SparkHub 素材池领取
-// 「未使用、回答满十条、评分最高」的问题，这样跨天去重、分数可比，也能在后台人工调分插队。
-//
-// 素材池不可用（没配 secret、请求失败、池子空了）时退回本地：从当天 reddit-life-wechat 的打分
-// manifest 和上游原文里取分最高、回答满十条的问题，保证 SparkHub 挂了也不断更。本地兜底选出的帖子
-// 在图文草稿建好后按 Reddit postId 确认，同样会在素材池里记为已用。
+// 视频/图文只从 SparkHub 领取已经刷新、按当前答案评分、未使用且回答数达标的问题。
+// 本地 manifest 不再作为评分或候选来源，避免绕过“刷新后评分”的门槛。
 //
 // 领取结果写进 source.json 并随选卡一起提交。同一天重跑（包括 --force 重选卡）直接复用它，
 // 不会再领一次；想换题就删掉这个文件，并在后台把原来那条放回池子。
 import fs from "node:fs";
 import path from "node:path";
 import { writeStderr } from "./blog_common.ts";
-import type { RedditLifeRunManifest } from "./generate_reddit_life_wechat.ts";
-import { parseRedditLifeCandidates } from "./reddit_life_wechat_compose.ts";
 import { claimRedditLifePosts, sparkhubEndpoint } from "./sparkhub_client.ts";
 
 const SOURCE_VERSION = 1;
-const WECHAT_ROOT_REL = "data/reddit-life-wechat";
 
 export type RedditLifeVideoSourcePost = {
-  /** SparkHub 池 id；本地兜底选出的为 null，确认时改用 postId。 */
-  poolId: number | null;
+  /** SparkHub pool id. */
+  poolId: number;
   postId: string;
   /** 这一题首次出现的归档日，不一定是今天。 */
   archiveDate: string;
@@ -32,14 +25,9 @@ export type RedditLifeVideoSourcePost = {
 export type RedditLifeVideoSource = {
   version: typeof SOURCE_VERSION;
   archiveDate: string;
-  kind: "sparkhub" | "local";
+  kind: "sparkhub";
   posts: RedditLifeVideoSourcePost[];
 };
-
-/** 与 SparkHub 的 countReplies 同一口径：正文里 `N\.` 开头的行数。 */
-function countReplies(body: string): number {
-  return body.match(/^\d+\\?\.\s/gm)?.length ?? 0;
-}
 
 function readSource(file: string): RedditLifeVideoSource | null {
   if (!fs.existsSync(file)) return null;
@@ -50,35 +38,9 @@ function readSource(file: string): RedditLifeVideoSource | null {
   return value;
 }
 
-/** 当天打分 manifest 里分最高、回答数达标且不在 exclude 里的 count 个问题。 */
-function localPosts(repo: string, date: string, count: number, minReplies: number, exclude: Set<string>): RedditLifeVideoSourcePost[] {
-  const manifestFile = path.join(repo, WECHAT_ROOT_REL, date, "run.json");
-  if (!fs.existsSync(manifestFile)) return [];
-  const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8")) as RedditLifeRunManifest;
-  const upstreamRel = manifest.rawSources?.upstreamLifeMarkdown;
-  if (manifest.version < 5 || manifest.status !== "processed" || !manifest.selection?.scores || !upstreamRel) return [];
-
-  const scores = new Map(manifest.selection.scores.map(entry => [entry.rank, entry.score]));
-  return parseRedditLifeCandidates(fs.readFileSync(path.join(repo, upstreamRel), "utf8"))
-    .map(candidate => ({ candidate, score: scores.get(candidate.rank) ?? 0, replyCount: countReplies(candidate.body) }))
-    .filter(entry => entry.replyCount >= minReplies && !exclude.has(entry.candidate.postId))
-    .sort((a, b) => b.score - a.score || a.candidate.rank - b.candidate.rank)
-    .slice(0, count)
-    .map(({ candidate, score, replyCount }) => ({
-      poolId: null,
-      postId: candidate.postId,
-      archiveDate: date,
-      title: candidate.title,
-      score,
-      replyCount,
-      contentMd: candidate.body,
-    }));
-}
-
 async function sparkhubPosts(count: number, minReplies: number): Promise<RedditLifeVideoSourcePost[]> {
   if (!sparkhubEndpoint()) {
-    writeStderr("WARN: [reddit-life-video] SparkHub is not configured; falling back to today's local ranking\n");
-    return [];
+    throw new Error("SparkHub is not configured; refreshed and scored candidates are required");
   }
   try {
     const posts = await claimRedditLifePosts(count, minReplies);
@@ -93,10 +55,8 @@ async function sparkhubPosts(count: number, minReplies: number): Promise<RedditL
       contentMd: post.content_md,
     }));
   } catch (error) {
-    writeStderr(
-      `WARN: [reddit-life-video] SparkHub claim failed, falling back to today's local ranking: ${error instanceof Error ? error.message : String(error)}\n`
-    );
-    return [];
+    writeStderr(`ERROR: [reddit-life-video] SparkHub claim failed: ${error instanceof Error ? error.message : String(error)}\n`);
+    throw error;
   }
 }
 
@@ -116,21 +76,19 @@ export async function resolveRedditLifeVideoSource(options: {
     return existing;
   }
 
-  const claimed = await sparkhubPosts(options.count, options.minReplies);
-  const local = localPosts(options.repo, options.date, options.count - claimed.length, options.minReplies, new Set(claimed.map(post => post.postId)));
-  const posts = [...claimed, ...local];
+  const posts = await sparkhubPosts(options.count, options.minReplies);
   if (!posts.length) return null;
 
   const source: RedditLifeVideoSource = {
     version: SOURCE_VERSION,
     archiveDate: options.date,
-    kind: local.length ? "local" : "sparkhub",
+    kind: "sparkhub",
     posts,
   };
   fs.mkdirSync(path.dirname(options.sourceFile), { recursive: true });
   fs.writeFileSync(options.sourceFile, `${JSON.stringify(source, null, 2)}\n`, "utf8");
   writeStderr(
-    `[reddit-life-video] ${options.date}: ${claimed.length} question(s) from SparkHub, ${local.length} from the local fallback: ${posts.map(post => `${post.postId}(${post.score})`).join(", ")}\n`
+    `[reddit-life-video] ${options.date}: ${posts.length} refreshed and scored question(s) from SparkHub: ${posts.map(post => `${post.postId}(${post.score})`).join(", ")}\n`
   );
   return source;
 }

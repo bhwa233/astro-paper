@@ -158,14 +158,7 @@ function candidateEvidence(candidates: RedditLifeCandidate[]): string {
       const stories = storyExcerpts(candidate.body)
         .map((story, index) => `${index + 1}. ${story}`)
         .join("\n");
-      return [
-        `## 候选 ${candidate.rank}`,
-        `标题：${candidate.title}`,
-        `社区：r/${candidate.subreddit}`,
-        `热度：${candidate.points}`,
-        "代表回答：",
-        stories,
-      ].join("\n");
+      return [`## 候选 ${candidate.rank}`, `标题：${candidate.title}`, `社区：r/${candidate.subreddit}`, "刷新后的代表回答：", stories].join("\n");
     })
     .join("\n\n");
 }

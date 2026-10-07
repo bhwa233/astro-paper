@@ -1,6 +1,6 @@
 # Reddit 图片消息管线
 
-> **2026-09-26 起**这是每天唯一的公众号草稿（文章草稿已停发）。问题来自视频选卡从 SparkHub 素材池领取的那一题。草稿建好后，`confirm-sparkhub` job 运行 `scripts/confirm_reddit_life_newspic_sparkhub.ts`：从同步台账 `.astro-wechat/ledger.json` 取草稿 `mediaId`，按 `data/reddit-life-video/<date>/source.json` 找到这一题（池 id，本地兜底选出的用 Reddit postId），调用 SparkHub `confirm` 把它记为已用、公众号状态记为 `draft`（external_id 为 media_id），并把卡片的 Release 下载地址存进 assets，供各平台发布 agent 取用。这一步失败只告警；未确认的领取 24 小时后退回素材池。台账里没有这篇（草稿没建成）时跳过。
+> **2026-09-26 起**这是每天唯一的公众号草稿（文章草稿已停发）。问题来自视频选卡从 SparkHub 素材池领取的那一题。草稿建好后，`confirm-sparkhub` job 运行 `scripts/confirm_reddit_life_newspic_sparkhub.ts`：从同步台账 `.astro-wechat/ledger.json` 取草稿 `mediaId`，按 `data/reddit-life-video/<date>/source.json` 找到这题的池 id，调用 SparkHub `confirm` 把它记为已用、公众号状态记为 `draft`（external_id 为 media_id），并把卡片的 Release 下载地址存进 assets，供各平台发布 agent 取用。这一步失败只告警；未确认的领取 24 小时后退回素材池。台账里没有这篇（草稿没建成）时跳过。
 
 2026-09-27 起，领题之前会先给池里排在前面的待用问题重抓评论、重写回答（见 `reddit-life-video-pipeline.md` 开头的说明），所以图文用到的回答通常是二次爬取后的版本。
 

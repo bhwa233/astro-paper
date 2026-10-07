@@ -8,7 +8,6 @@ const candidate: RedditLifeCandidate = {
   postId: "abc123",
   title: "一个值得讨论的问题",
   subreddit: "AskReddit",
-  points: "1000 points · 100 评论",
   numComments: 100,
   permalink: "https://www.reddit.com/r/AskReddit/comments/abc123/topic/",
   body: "1\\. 第一条回答\n\n2\\. 第二条回答",

@@ -17,7 +17,6 @@ function candidates(count: number): RedditLifeCandidate[] {
       postId: `post${rank}`,
       title: `候选 ${rank}`,
       subreddit: "AskReddit",
-      points: `${1000 - rank} points · ${rank} 评论`,
       numComments: rank,
       permalink: `https://www.reddit.com/r/AskReddit/comments/post${rank}/topic/`,
       body: "1\\. 代表回答",

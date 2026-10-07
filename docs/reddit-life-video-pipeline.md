@@ -1,33 +1,32 @@
 # Reddit 人生精选竖屏视频技术方案
 
 状态：选卡在用，渲染与 Release 自 2026-09-26 起暂停
-最后更新：2026-09-26
+最后更新：2026-10-07
 
-> **2026-09-26 起的变化。**
+> **2026-10-07 起的变化。**
 >
-> - **选题来源**：不再读当天的文章草稿（文章草稿已停发），改由 `scripts/reddit_life_video_source.ts` 从 SparkHub 素材池领取「未使用、回答满 10 条、评分最高」的问题（`POST /claim`，`min_replies=10`），领取的条目记为 reserved。SparkHub 未配置、请求失败或池子为空时，退回当天 `data/reddit-life-wechat/<date>/run.json` 的打分与 `upstream-life.md`，取分最高、回答满 10 条的问题。领取结果（含池 id）写进 `data/reddit-life-video/<date>/source.json` 随选卡提交，同日重跑（含 `--force`）复用它，不会重复领取；`run.json` 的 `upstream` 改为记录来源类型、source.json 路径与 postId。模型只对这一个问题选十条回答并起标题，`video.json` 契约不变。
+> - **选题来源**：`scripts/reddit_life_video_source.ts` 只从 SparkHub 领取「已刷新、已评分、未使用、回答满 10 条」的问题（`POST /claim`，`min_replies=10`），领取的条目记为 reserved。SparkHub 不可用或领取失败直接失败，不再退回本地旧 manifest 或初始快照。领取结果（含池 id）写进 `data/reddit-life-video/<date>/source.json` 随选卡提交，同日重跑（含 `--force`）复用它，不会重复领取。
 > - **暂停出片**：`publish-reddit-life-video.yml` 的 job 级 `RENDER_VIDEO` 为 `"false"`，选卡与提交照跑（图文复用 `video.json`），浏览器缓存、渲染与 Release 三步跳过。改回 `"true"` 即恢复。
 > - 选卡在模型阶段失败时 source.json 不会提交，重跑会再领一次；上一次的领取 24 小时后自动退回素材池。
 >
-> 下文第 3、4 节「读当天全部 `0X-*.md`」的描述是 2026-09-26 之前的行为。
 >
 > **2026-09-27 起数量与开关来自 SparkHub 配置。** 每天几题（图文 `newspic_per_day`、视频 `video_per_day`，选题组数取两者较大者）、是否渲染视频（`render_video`，取代原来 job 级的 `RENDER_VIDEO`）、刷新深抓的深度，都由 `scripts/reddit_life_config.ts` 在运行开头从 SparkHub 读取；读不到时用 `src/utils/redditLifePublishing.ts` 的常量作默认值。run.json 的 `config` 记录这次生效的数量与来源。全部配置项见 SparkHub 仓库 `docs/reddit-life-workflow.md` 第 7 节。
 >
-> **2026-09-27 起领题前先刷新评论。** 池里的回答是上游 reddit-top20 当天抓热帖时的快照，一题常在池里排几天才被领走。`publish-reddit-life.yml` 在入库之后、本 workflow 领题之前调用 `refresh-reddit-life.yml`（`scripts/refresh_reddit_life_sparkhub.ts`）：
+> **刷新与评分先于所有下游产物。** `publish-reddit-life.yml` 在元数据入库之后调用 `refresh-reddit-life.yml`；默认 K=100，首页轮的新候选全部刷新。刷新后的回答由后续生成步骤统一写入文章与 `upstream-life.md`，并完成 hash 绑定的 AI 评分。
 >
-> - 向 SparkHub `POST /refresh/runs` 开一次任务，由 SparkHub 按后台配置选帖：人工在后台点过「重新抓取评论」的待用帖全部（最多 20 条，不计入 K），再加按领取顺序的前 K 个待用帖（从没刷过，或上次刷新早于 N 天）。K、N 在 `/admin/decks/reddit-life?tab=refresh` 修改，默认 5 与 3；K=0 时只处理人工请求。
+> - 向 SparkHub `POST /refresh/runs` 开一次任务，由 SparkHub 按后台配置选帖：人工请求最多 20 条，再加按领取顺序的前 K 个待用帖。K 保留上限，默认 100；N 仍控制旧内容的再次刷新。
 > - 对这些帖子调用来源服务 `reddit-post-detail-source.v1`（`fetchRedditPostDetail`，每次最多 10 帖，超过分批）深抓评论，拼成 v7 source block 的形状，用上游 life 栏目同一份提示词 `reddit-item-summary`（numbered 口径）逐帖重写回答，逐帖回报 `POST /refresh/runs/{run}/items/{id}`，最后 `finish`。
 > - 回报的回答**整体替换**池里的 `content_md`（标题沿用池里原样，`reply_count` 由 SparkHub 重算），不保留旧版本，也不设条数下限保护。帖子在回报前已被领走（reserved / used）的，SparkHub 记为 rejected、不改正文。
-> - SparkHub 接受之后，新回答同样写回这一题首次出现那天的问答文章 `src/content/posts/zh-cn/reddit-<date>-life.md`：按「帖子」行的 Reddit id 找到块，只换编号回答，标题与事实 bullet 不动，并更新 `modDatetime`，由 workflow 统一提交。`data/reddit-life-wechat/<date>/upstream-life.md` 保持初次爬取的原样，新旧对比看它和文章的提交历史。
-> - 单帖失败（帖子被删或锁、没有顶层评论、模型判定排除主题、重试后仍不合格）只回报 error，旧回答不动，下次运行会再挑到它。刷新步骤是 `continue-on-error`，整体失败也不挡领题。
+> - SparkHub 接受之后，refresh 脚本不直接编辑文章。生成脚本重新读取最终 archive，用同一份刷新正文生成 `src/content/posts/zh-cn/reddit-<date>-life.md` 与 `data/reddit-life-wechat/<date>/upstream-life.md`。
+> - 单帖失败（帖子被删或锁、没有顶层评论、模型判定排除主题、重试后仍不合格）只回报 error，旧回答不动，下次运行会再挑到它。刷新任务失败时不允许后续生成阶段绕过门槛。
 > - 每次运行在 SparkHub 记一条任务、每帖一条明细，含初次爬取时间（上游来源服务的 `fetched_at`，经文章 frontmatter `sourceFetchedAt` 与入库传入；2026-09-27 之前入库的帖子没有，后台显示入库时间并标「≈」）、上次刷新时间与本次二次爬取时间，后台「评论刷新」标签页可查。
 > - 同一 `source.json` 复用逻辑不变：刷新只影响还没被领走的题。
 
 ## 1. 背景
 
-`reddit-life-wechat.yml` 每天把 `r/AskReddit` / `r/askscience` 的问答精选转成一篇微信草稿（2026-09-23 之前是两篇），
-落在 `data/reddit-life-wechat/<date>/`。那批中文译文已经过一次 AI 选题过滤，是现成的优质语料。
-一篇最多五帖，按两篇时期的归档回测，其中满十条回答的问题每天 3-5 个，够视频选一个。
+`reddit-life-wechat.yml` 在评论刷新和 hash 绑定评分完成后，从 SparkHub 最终 archive 生成当天的问答文章与微信归档，
+落在 `data/reddit-life-wechat/<date>/`。视频脚本再从同一个素材池领取已经刷新、评分且回答数达标的问题，避免读取未经过新流程的初始文件。
+一篇最多五帖，按历史归档回测，其中满十条回答的问题每天 3-5 个，够视频选一个。
 
 这条管线把同一份语料再做一次转换，每天产出一支 1080×1920 竖屏短视频（2026-09-24 之前是两支），用于视频号 / 抖音这类
 竖屏分发渠道。它只读微信归档的已提交结果，不重新请求 Reddit，也不改动微信侧任何产物。
@@ -61,8 +60,9 @@
 ## 3. 数据流
 
 ```text
-reddit-life-wechat.yml（已有，10:00 UTC 链路）
-  └─ data/reddit-life-wechat/<date>/0X-<postId>.md    ← 唯一内容输入
+publish-reddit-life.yml
+  └─ refresh + scoring + reddit-life-wechat.yml
+       └─ SparkHub archive + data/reddit-life-wechat/<date>/0X-<postId>.md  ← 刷新且评分后的内容
        └─ scripts/generate_reddit_life_video.ts
             ├─ 解析出全部候选问题和回答
             ├─ [Gemini] 一次选 2 组不同的 1 问 10 答，各生成 ≤20 字标题
@@ -73,13 +73,12 @@ reddit-life-wechat.yml（已有，10:00 UTC 链路）
                                 └─ 1.mp4 + metadata.json
 ```
 
-`publish-reddit-life-video.yml` 是独立 cron（13:00 UTC），不是 `publish-reddit-life.yml` 的
-子 workflow。上游 10:00 UTC 起跑，中间还有微信同步，留 3 小时余量。当天目录不存在时
-直接跳过并成功退出，不让上游延迟把这条链路天天染红。
+`publish-reddit-life-video.yml` 现在由 `publish-reddit-life.yml` 在刷新、评分和文章归档完成后调用，
+按上一步的提交检出，保证视频只读最终的 SparkHub 评分候选。当天没有可领取候选时直接跳过并成功退出。
 
 ## 4. 内容选取
 
-- **候选**：`parseRedditLifeVideoQuestions` 读当天全部 `0X-*.md`，按 `## ` 二级标题切出问题，再按 `N\.` 切出每条回答；回答少于 10 条的问题不进入候选。
+- **候选**：`reddit_life_video_source.ts` 从 SparkHub 领取已经刷新并完成 hash 评分的候选，再由 `parseRedditLifeVideoQuestions` 按 `## ` 二级标题和 `N\.` 编号切出问题与回答；回答少于 10 条的问题不进入候选。
 - **模型职责**：一次请求选出一个问题，选 10 条回答并生成内容标题，同时用于当天的视频和图片消息。原回答不超过 100 字时原样使用，超长时只压缩、不扩写。
 - **标题**：每组 `title` 必须是基于该组最终问题与回答生成的具体中文标题，最多 20 个 Unicode 字符；不得使用固定栏目名、日期或 `Reddit` 前缀，也不得照抄完整问题。图片消息直接复用，不再调用模型。
 - **硬约束**（校验不过就 JSON 重试）：恰好一组；每组恰好 10 条；所有 `sourceIndex` 都属于本组问题且互不重复；`body` 含中文、≤100 字且不长于原回答；`title` 满足上述边界。

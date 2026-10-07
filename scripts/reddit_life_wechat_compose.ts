@@ -101,12 +101,58 @@ export type RedditLifeCandidate = {
   postId: string;
   title: string;
   subreddit: string;
-  points: string;
   numComments: number;
   permalink: string;
   // 上游那一帖的正文，逐条故事的有序列表，原样搬运。
   body: string;
+  /** SHA-256 of the refreshed SparkHub answer body, carried into the generated run manifest. */
+  answerSha256?: string;
 };
+
+function refreshedRedditLifeBlocks(candidates: RedditLifeCandidate[]): string[] {
+  return candidates.map((candidate, index) => {
+    if (!candidate.permalink) throw new Error(`refreshed candidate ${candidate.postId} has no permalink`);
+    const title = compact(candidate.title).replace(/\n/g, " ");
+    const subreddit = candidate.subreddit;
+    if (!title || !/^[A-Za-z0-9][A-Za-z0-9_]{1,20}$/.test(subreddit)) {
+      throw new Error(`refreshed candidate ${candidate.postId} has invalid metadata`);
+    }
+    const comments = Number.isInteger(candidate.numComments) && candidate.numComments >= 0 ? candidate.numComments : 0;
+    return [
+      `## ${index + 1}. ${title}`,
+      "",
+      `- **热度**：刷新后 · ${comments.toLocaleString("en-US")} 评论`,
+      `- **来源**：[r/${subreddit}](https://www.reddit.com/r/${subreddit}/)`,
+      `- **帖子**：${candidate.permalink}`,
+      "",
+      candidate.body.trim(),
+    ].join("\n");
+  });
+}
+
+/**
+ * Render the exact refreshed answer set used by the article generator. This is a post-refresh export,
+ * not a copy of the first-crawl source article. The headings and bullets deliberately keep the
+ * ingestion parser's handoff contract so an archive can be inspected or replayed later.
+ */
+export function renderRedditLifeRefreshedSourceMarkdown(candidates: RedditLifeCandidate[], archiveDate: string): string {
+  if (!candidates.length) throw new Error("Reddit life refreshed source needs at least one post");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(archiveDate)) throw new Error(`invalid Reddit life archive date: ${archiveDate}`);
+  const blocks = refreshedRedditLifeBlocks(candidates);
+  return ["---", `archiveDate: ${archiveDate}`, "source: SparkHub refreshed Reddit answers", "---", "", blocks.join("\n\n"), ""].join("\n");
+}
+
+/** The Astro Paper source article is generated from the same blocks as upstream-life.md. */
+export function renderRedditLifeArticleMarkdown(candidates: RedditLifeCandidate[], archiveDate: string): string {
+  if (!candidates.length) throw new Error("Reddit life article needs at least one post");
+  const metadata = frontmatter({
+    title: "Reddit 每日精选｜问答精选",
+    date: archiveDate,
+    tags: ["社区", "Reddit热门"],
+    description: "Reddit 问答精选，内容来自刷新后的评论与回答。",
+  });
+  return `${metadata}${refreshedRedditLifeBlocks(candidates).join("\n\n")}\n`;
+}
 
 function redditId(url: string): string {
   const match = url.match(/reddit\.com\/r\/[^/]+\/comments\/([a-z0-9]{5,12})(?:\/|$)/i);
@@ -142,32 +188,11 @@ export function parseRedditLifeCandidates(markdown: string, limit = Number.POSIT
       postId: redditId(url),
       title: compact(heading[2].replace(/^🔴\s*/, "")),
       subreddit,
-      points: compact(heat),
       numComments,
       permalink: url,
       body: postBody(block, index + 1),
     };
   });
-}
-
-const POST_URL_LINE = /^- (?:\*\*)?帖子(?:\*\*)?：\s*https:\/\/[^\s]*\/comments\/([a-z0-9]{5,12})(?:\/|\s|$)/im;
-
-/**
- * 把 life 文章里某一帖的回答整段换成 body（评论刷新后的新回答），标题和事实 bullet 原样保留。
- * 按「帖子」行里的 Reddit id 找块，找不到返回 null。body 与上游同一口径：`N\.` 编号、每条一段。
- */
-export function replaceRedditLifePostBody(markdown: string, postId: string, body: string): string | null {
-  let found = false;
-  const parts = markdown.split(/(?=^##\s+\d+\.\s+)/gm).map(part => {
-    if (found || !/^##\s+\d+\.\s+/.test(part) || part.match(POST_URL_LINE)?.[1]?.toLowerCase() !== postId.toLowerCase()) return part;
-    const lines = part.split("\n");
-    const start = lines.findIndex((line, index) => index > 0 && /^\d+\\?\.\s/.test(line));
-    if (start < 0) return part;
-    found = true;
-    const trailing = part.match(/\s*$/)?.[0] || "\n";
-    return `${lines.slice(0, start).join("\n").trimEnd()}\n\n${body.trim()}${trailing}`;
-  });
-  return found ? parts.join("") : null;
 }
 
 // 事实 bullet 之后的一切都是正文；新契约以 `1\.` 转义 Markdown 列表，旧归档的 `1.` 仍可读取。

@@ -1,11 +1,11 @@
 # Reddit 人生精选微信草稿技术方案
 
-状态：文章草稿自 2026-09-26 起停发，只保留全员打分与 SparkHub 入库（见下方说明）
-最后更新：2026-09-26
+状态：初次抓取只记录元数据；评论刷新后统一评分并生成最新文章、`upstream-life.md` 与可选微信稿
+最后更新：2026-10-07
 
-> **2026-09-27 起记录初次爬取时间。** 上游 reddit-top20 把来源服务的 `fetched_at` 写进 life 文章 frontmatter 的 `sourceFetchedAt`（`scripts/reddit_source_api.ts` 先把它记在 source 抬头的「抓取时间」行，发布时取回）。`upstream-life.md` 是这篇文章的原样副本，入库脚本从它的 frontmatter 读出这个时间，作为 `source_fetched_at` 随当天候选送进 SparkHub；素材池只保留第一次的值，供评论刷新任务对照二次爬取时间（见 `reddit-life-video-pipeline.md`）。刷新过的帖子再被入库更新分数时，保留刷新后的回答。
+> **新流程。** 初次抓取不保存回答、评分或 `upstream-life.md` 快照，只把帖子 id、标题、版块、链接、评论数和来源排名记录到 SparkHub。随后刷新任务按 K 选出全部首页新候选（默认 K=100，保留人工刷新入口），深抓评论并重写回答。评分阶段只读取这次刷新后的回答，评分结果绑定回答内容 hash；地区依赖明显的回答按规则降分。
 >
-> **2026-09-26 起文章草稿停发。** `src/utils/redditLifePublishing.ts` 的 `REDDIT_LIFE_WECHAT_ARTICLE_ENABLED` 为 `false` 时，生成器仍给当天全部候选打分并写 manifest，但不再生成文章稿和封面，manifest 升为 v6（`posts` 为空）；`generated_count` 为 0，`sync-wechat` 自然跳过。每日只发一篇图文草稿，问题从 SparkHub 素材池领取，见 `reddit-life-video-pipeline.md` 与 `reddit-life-newspic-pipeline.md`。下文描述的是开关打开时的文章草稿行为，改回 `true` 即恢复。
+> **文章生成时机。** 刷新和评分完成后，生成器从 SparkHub 重新读取已接受、已评分的当前正文，用同一批数据生成 `src/content/posts/zh-cn/reddit-<date>-life.md` 与 `data/reddit-life-wechat/<date>/upstream-life.md`。两者都不使用初次来源文章的回答快照；只有这一步成功后，微信稿、视频、图文和卡片才继续。
 
 ## 1. 背景
 
@@ -26,11 +26,11 @@
 - 正文只搬运入选帖的已有回答；除编号规范化、每帖条数截断和超限收口外不改写
 - 渲染结果必须落在微信正文长度上限内
 - 同一天重跑稳定复用 manifest
-- 归档可审计：保留上游文章快照、父任务提交与父 workflow run
+- 归档可审计：保留刷新后的正文导出、回答 hash、父任务提交与父 workflow run
 
 非目标：
 
-- 不请求 Reddit 补充数据，不让模型改写或补造上游内容
+- 初次抓取阶段不做 AI 评分，也不把 Reddit 原始 score/points 存入素材池或参与排序
 - 不进入 Astro 内容集合（`data/` 下的文件不会生成博客页面）
 - 不自动群发或发布公众号文章；这里只创建微信草稿
 
@@ -38,23 +38,21 @@
 
 ```text
 reddit-top20 (publish)
-  └─ src/content/posts/zh-cn/reddit-<date>-life.md   ← 唯一内容输入
-       └─ AI 全员打分，代码排序取过线前 5
-            └─ scripts/generate_reddit_life_wechat.ts     ← 按选后顺序做规则转换
-            ├─ data/reddit-life-wechat/<date>/01-<postId>.md  ← 第 1-5 帖
-            ├─ data/reddit-life-wechat/<date>/upstream-life.md
-            ├─ data/reddit-life-wechat/<date>/run.json
-            ├─ data/reddit-life-wechat/<date>/cover-1.png
-                 └─ astro-wechat dry-run
-                      └─ 创建微信公众号草稿
-                           └─ 提交 .astro-wechat/ledger.json
+  └─ 初次 ingest：只记录候选元数据到 SparkHub
+       └─ refresh：默认 K=100，刷新首页轮全部新候选并重写回答
+            └─ AI 评分：读取刷新后的回答，绑定 content_sha256
+                 └─ 重新读取 SparkHub archive
+                      ├─ src/content/posts/zh-cn/reddit-<date>-life.md
+                      ├─ data/reddit-life-wechat/<date>/upstream-life.md
+                      ├─ data/reddit-life-wechat/<date>/01-<postId>.md
+                      └─ run.json / 微信草稿 / 视频 / 图文 / 卡片
 ```
 
 workflow `reddit-life-wechat.yml` 由 `publish-reddit-life.yml` 在 publish 成功后调用。父任务传入 `upstream_sha`、`upstream_workflow_run` 与归档日期；子 workflow checkout 该提交，生成器再验证当前 `HEAD`，从而保证文章、审计字段和父任务交接一致。
 
 ## 4. 选帖与内容转换
 
-- **候选证据**：`parseRedditLifeCandidates` 解析上游文章的全部 `## N.` 块。每个候选向模型提供标题、subreddit、热度及前三条代表回答，每条回答最多 320 字；正文全量不进入选题提示词。
+- **候选证据**：初次 ingest 只从上游文章解析元数据。评分时从 SparkHub 读取刷新后的 `content_md`，提示词包含问题和代表回答；不包含 Reddit 原始热度或 points。
 - **打分与排序**：一次模型调用给全部候选各打一个 0-100 整数分，综合长尾价值、普遍共鸣和大众可读性；地区依赖、短期失效、对立争议、过度专业是扣分项，分数封顶 39。排序完全由代码决定：按分数降序，同分按上游排名升序，取 ≥60 分（`REDDIT_LIFE_WECHAT_MIN_SCORE`）的前 5 帖，不足 5 帖照样成篇。模型必须给每个候选恰好一个分数，重复、遗漏、越界和非法分数都会触发 JSON 重试。重试耗尽时整次生成失败，不回退到未打分的原榜。
 - **开篇**：代码根据本卷实际收录标题生成固定清单：先写「本期 Reddit 问答包括：」，再按正文顺序列出全部问题。开篇不调用模型，也不会出现清单与正文不一致。
 - **分卷**：入选帖按 AI 顺序全部进同一篇稿子。合格不足 5 帖时照样成篇，不用低质量帖子补齐。
@@ -81,7 +79,7 @@ workflow `reddit-life-wechat.yml` 由 `publish-reddit-life.yml` 在 publish 成�
 data/reddit-life-wechat/
 └── 2026-09-23/
     ├── run.json
-    ├── upstream-life.md
+    ├── upstream-life.md       # 刷新后的最新正文导出，不是初始快照
     ├── cover-1.png        # 提交
     └── 01-<reddit-post-id>.md   # 第 1-5 帖
 ```
@@ -90,9 +88,9 @@ data/reddit-life-wechat/
 
 `cover-1.png` 是稿子的专属列表封面，由 `reddit_life_wechat_cover.ts` 用 satori 渲染后随稿子提交，逐条列出本篇各帖标题和品牌；它不进入文章正文。期号与卷次均不显示。文件名用序号，条目字号由 `wechat_cover_layout.ts` 从大到小试算，允许长标题最多折成两行，再按总行数确保列表不超出条目区；英文括注不再把整张封面压到最小字号。缺失时 `astro-wechat` 回落到配置里的 `defaultCover`，因此渲染失败只降级不中断。
 
-`run.json` v5 记录 manifest version、归档日期与时区、父任务提交 SHA / workflow run / 文章路径、上游快照路径、运行状态（`processed` 或 `upstream-empty`），以及模型名、候选总数、过线分和全部候选按分数排好序的分数与理由（`selection.scores`），入选名单由它们推导，不另存。入选帖同时记录 `sourceRank`、`selectionRank`、内部卷序号、产物路径和内容 hash。同一篇的各帖各占一条 `posts` 记录但共享同一个 `path`，发布前按 `path` 去重，去重后只有一条路径。读取器继续兼容历史 v1/v2/v3/v4 manifest，其中 v2-v4 的审计记录是 `selected`（带 1-5 的 `longTail`/`resonance`）加 `rejected`（带拒绝类别）的旧格式，只作历史数据校验；v3 的 `leads` 同样只作校验，不进入新稿；读旧 manifest 时选题上限按旧值 10 校验（`REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS`），因此每天两篇时期的归档仍能复用。
+`run.json` 记录 manifest version、归档日期与时区、父任务提交 SHA / workflow run / 文章路径、刷新后 `upstream-life.md` 路径、运行状态，以及全部候选的 AI 分数、理由和当前回答 hash。入选帖同时记录 `sourceRank`、`selectionRank`、内部卷序号、产物路径和内容 hash。同一篇的各帖各占一条 `posts` 记录但共享同一个 `path`，发布前按 `path` 去重。旧 manifest 只用于读取历史归档。
 
-同一日期存在合法 manifest 时，重跑复用它而不重新转换正文。manifest 解析失败时抛错，不回退成空快照。上游文章不存在时写入 `status: upstream-empty` 的 manifest，不产出草稿，也不把空结果当成错误。
+同一日期存在合法 manifest 时，重跑复用它而不重新转换正文。manifest 解析失败时抛错，不回退成空快照。刷新后没有已评分 archive 时写入 `status: upstream-empty` 的 manifest，不生成文章或草稿，也不把空结果当成有效候选。
 
 
 ## 7. 微信同步
@@ -116,9 +114,9 @@ pnpm exec astro-wechat preview data/reddit-life-wechat/<date>/01-<postId>.md
 
 ### SparkHub 素材池
 
-生成器跑完后，`Ingest candidates into SparkHub` 步骤用 `scripts/ingest_reddit_life_sparkhub.ts` 把当天 v5/v6 manifest 的全部打分候选（标题、热度、0-100 分与理由、上游正文）推进 SparkHub 的 `POST /api/linkdisk/dashboard/decks/reddit-life/ingest`，在 SparkHub 后台 `/admin/decks/reddit-life` 可查看与增删改。v5 时期当天已进文章草稿的帖子带上 `syncId`，在素材池里直接记为 used；v6 起全部为 pending，由视频选卡按分领取（`claim`），图文草稿建好后确认（`confirm`）。各平台（抖音、B 站、公众号、视频号）的发布由 agent 通过 SparkHub 的 `publish/{platform}/claim` 与 `report` 接口（或同名 MCP 工具）完成。
+初次候选步骤用 `scripts/ingest_reddit_life_sparkhub.ts` 把元数据推进 `POST /api/linkdisk/dashboard/decks/reddit-life/ingest`，不发送正文、score 或 points。刷新完成后，生成器从 `GET /scoring-candidates` 读取当前回答，评分后以回答 hash 回报 `POST /scores`，再从 `GET /archive/{date}` 读取最终版本生成文章和 `upstream-life.md`。素材池只有 `score_status=ready` 且 hash 匹配的帖子才可领取、出卡或进入发布队列。
 
-这一步只读归档、按 postId upsert，`--force` 重跑可重复推送；它是旁路，失败或未配置 `SPARKHUB_DASHBOARD_TOKEN` secret（值即 SparkHub 的 `DASHBOARD_ACCESS_TOKEN`）只留警告，不影响归档提交与草稿同步。手动补推某天：
+这一步只记录初次元数据，按 postId upsert；刷新、评分和文章生成是后续必经步骤。失败或未配置 `SPARKHUB_DASHBOARD_TOKEN` secret（值即 SparkHub 的 `DASHBOARD_ACCESS_TOKEN`）会阻止下游继续，避免生成未刷新内容。手动补推某天：
 
 ```bash
 SPARKHUB_API_URL=https://api.bhwa233.com SPARKHUB_DASHBOARD_TOKEN=<token> \

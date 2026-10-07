@@ -30,6 +30,11 @@ on:
         required: false
         default: false
         type: boolean
+      record_candidates_only:
+        description: "Record first-crawl metadata without scoring or generating articles."
+        required: false
+        default: false
+        type: boolean
   # 手动入口：对着某个已归档提交补跑一次转换，不必等父工作流的下一次定时执行。
   workflow_dispatch:
     inputs:
@@ -51,6 +56,11 @@ on:
         type: string
       force_rebuild:
         description: "Rebuild this date and create duplicate replacement drafts. Manual backfill only."
+        required: false
+        default: false
+        type: boolean
+      record_candidates_only:
+        description: "Record first-crawl metadata without scoring or generating articles."
         required: false
         default: false
         type: boolean
@@ -80,6 +90,7 @@ jobs:
         uses: ./.github/actions/setup
       - name: Generate Reddit life WeChat archives
         id: generate
+        if: ${{ !inputs.record_candidates_only }}
         env:
           UPSTREAM_GENERATED_SHA: ${{ inputs.upstream_sha }}
           UPSTREAM_WORKFLOW_RUN: ${{ inputs.upstream_workflow_run }}
@@ -106,10 +117,26 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `manifest_path=${result.manifestPath}\n`);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `generated_count=${(result.generatedPaths || []).length}\n`);
           NODE
+      - name: Record candidate metadata only
+        if: ${{ inputs.record_candidates_only }}
+        env:
+          INPUT_DATE: ${{ inputs.date || '' }}
+          UPSTREAM_GENERATED_SHA: ${{ inputs.upstream_sha }}
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SPARKHUB_DASHBOARD_TOKEN" ]; then
+            echo "::error::SPARKHUB_DASHBOARD_TOKEN is required to record candidates."
+            exit 1
+          fi
+          args=(--upstream-sha "$UPSTREAM_GENERATED_SHA")
+          if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
+          node --import tsx scripts/ingest_reddit_life_sparkhub.ts "${args[@]}" | tee reddit-life-ingest-result.json
       # 供 sync-wechat 用：按 manifest 算出要发布的稿件路径，一行一个。
       - name: Collect WeChat draft paths
         id: wechat-paths
-        if: steps.generate.outputs.manifest_path != ''
+        if: ${{ !inputs.record_candidates_only && steps.generate.outputs.manifest_path != '' }}
         env:
           MANIFEST_PATH: ${{ steps.generate.outputs.manifest_path }}
         run: |
@@ -124,22 +151,6 @@ jobs:
           const paths = [...new Set((manifest.posts || []).filter(post => post.status === "generated" && post.path).map(post => post.path))].reverse();
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `paths<<PATHS\n${paths.join("\n")}\nPATHS\n`);
           NODE
-      # 把当天全部打分候选推进 SparkHub 素材池，供后台查看与以后草稿按分领取。
-      # 旁路步骤：失败只留下警告，不挡归档提交与草稿同步。
-      - name: Ingest candidates into SparkHub
-        if: steps.generate.outputs.manifest_path != ''
-        continue-on-error: true
-        env:
-          SPARKHUB_API_URL: https://api.bhwa233.com
-          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -z "$SPARKHUB_DASHBOARD_TOKEN" ]; then
-            echo "::warning::SPARKHUB_DASHBOARD_TOKEN is not set; skipped SparkHub ingest."
-            exit 0
-          fi
-          date=$(node -e 'console.log(JSON.parse(require("fs").readFileSync("reddit-life-wechat-result.json", "utf8")).date)')
-          node --import tsx scripts/ingest_reddit_life_sparkhub.ts --date "$date"
       - name: Upload generation artifacts
         if: always()
         uses: actions/upload-artifact@v7
@@ -147,6 +158,7 @@ jobs:
           name: reddit-life-wechat-generation
           path: |
             reddit-life-wechat-result.json
+            reddit-life-ingest-result.json
             reddit-life-wechat-artifacts/
           if-no-files-found: ignore
       - name: Summarize Reddit life generation
@@ -169,9 +181,10 @@ jobs:
           NODE
       - name: Commit archives and recommendation ledger
         uses: ./.github/actions/archive-commit
+        if: ${{ !inputs.record_candidates_only }}
         with:
-          paths: data/reddit-life-wechat
-          message: "feat(reddit): archive life WeChat drafts"
+          paths: data/reddit-life-wechat src/content/posts/zh-cn
+          message: "feat(reddit): archive refreshed life articles"
       - id: head
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 

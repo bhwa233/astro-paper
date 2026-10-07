@@ -1,24 +1,25 @@
 #!/usr/bin/env tsx
-// 独立的 Reddit 人生微信归档编排：不进入 Astro 内容集合，也不重新抓取 Reddit 榜单。
-// AI 对上游文章的全部帖子做过滤与排序；开篇问题清单与故事正文均按规则转换，不由模型改写。
+// Reddit 人生微信归档在答案刷新后运行：SparkHub 提供同一份已刷新正文，AI 评分后再生成文章。
+// 不进入 Astro 内容集合，也不重新抓取 Reddit 榜单；开篇问题清单与故事正文按规则转换，不由模型改写。
 // 每篇取五帖、每帖最多前 30 条回答，标题直接取选后第一帖，避免模型把多帖串成一个标题。
 // 第一帖标题由上游做技术长度兜底，这里仍按微信平台限制防御性收口。
 import fs from "node:fs";
 import path from "node:path";
 import { booleanArg, dateStringInTimeZone, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { assertCommittedHandoff, assertCommittedPath, loadRunManifest, writeJson, writeTextArtifact } from "./committed_handoff.ts";
+import { assertCommittedHandoff, assertCommittedPath, loadRunManifest, writeJson } from "./committed_handoff.ts";
 import {
   countDroppableStories,
   dropTrailingStories,
   markdownSha256,
-  parseRedditLifeCandidates,
+  renderRedditLifeArticleMarkdown,
+  renderRedditLifeRefreshedSourceMarkdown,
   redditLifeArticleUrl,
   redditLifeWechatFooter,
   renderRedditLifeWechatMarkdown,
-  REDDIT_LIFE_WECHAT_POST_LIMIT,
   REDDIT_LIFE_WECHAT_QR_FILE,
   REDDIT_LIFE_WECHAT_REPLY_LIMIT,
   REDDIT_LIFE_WECHAT_SHOW_QR,
+  REDDIT_LIFE_WECHAT_TOTAL_POSTS,
   REDDIT_LIFE_WECHAT_LEGACY_TOTAL_POSTS,
   REDDIT_LIFE_WECHAT_TITLE_BRAND,
   REDDIT_LIFE_WECHAT_VOLUMES,
@@ -37,6 +38,8 @@ import {
 import { renderQrPng } from "./qr_code.ts";
 import { taskPostRelPath } from "./blog_tasks.ts";
 import { loadRedditLifeConfig } from "./reddit_life_config.ts";
+import { getRedditLifeArchive, getRedditLifeScoringCandidates, reportRedditLifeScores } from "./sparkhub_client.ts";
+import { REDDIT_LIFE_WECHAT_MIN_SCORE } from "./reddit_life_wechat_selection.ts";
 
 const LABEL = "Reddit life WeChat";
 const ROOT_REL = "data/reddit-life-wechat";
@@ -296,7 +299,7 @@ export async function generateRedditLifeWechat({
   const withArticle = articleEnabled ?? (await loadRedditLifeConfig()).config.wechat_article_enabled;
   const manifestRel = runRelPath(date);
   const manifestFile = path.join(repo, manifestRel);
-  assertCommittedPath(repo, manifestRel, LABEL);
+  if (fs.existsSync(manifestFile)) assertCommittedPath(repo, manifestRel, LABEL);
   const existing = loadRedditLifeRunManifest(manifestFile);
   if (existing && !force) {
     const generated = existing.posts.filter(post => post.status === "generated");
@@ -305,10 +308,51 @@ export async function generateRedditLifeWechat({
     return { manifestPath: manifestRel, generatedPaths: [...new Set(generated.map(post => post.path!).filter(Boolean))], status: existing.status };
   }
   if (existing) writeStderr(`[reddit-life-wechat] archive=${date}: force rebuilding existing manifest (${existing.status})`);
+  // The parent life article is only a handoff for metadata and the public URL. The refreshed
+  // article itself is always rebuilt from SparkHub, so a missing/old source body cannot leak into
+  // the post-refresh output.
   const lifeArticlePath = taskPostRelPath("reddit-top20", date.replace(/$/, "-life"));
-  assertCommittedPath(repo, lifeArticlePath, LABEL);
-  const upstreamFile = path.join(repo, lifeArticlePath);
-  if (!fs.existsSync(upstreamFile)) {
+  const scoringPosts = await getRedditLifeScoringCandidates(date);
+  if (scoringPosts.length) {
+    const scoringCandidates: RedditLifeCandidate[] = scoringPosts.map((post, index) => {
+      if (!post.permalink || !post.content_sha256) throw new Error(`scoring candidate ${post.post_id} has no permalink or answer hash`);
+      return {
+        rank: index + 1,
+        postId: post.post_id,
+        title: post.title,
+        subreddit: post.subreddit,
+        numComments: post.num_comments ?? 0,
+        permalink: post.permalink,
+        body: post.content_md,
+        answerSha256: post.content_sha256,
+      };
+    });
+    const scored = await selectRedditLifeWechatCandidates({
+      candidates: scoringCandidates,
+      date,
+      model,
+      promptDir: promptDir || path.join(repo, "prompts/blog"),
+      artifactsDir,
+    });
+    const scoreByRank = new Map(scored.scores.map(score => [score.rank, score]));
+    const scoreReport = await reportRedditLifeScores(
+      scoringPosts.map((post, index) => {
+        const score = scoreByRank.get(index + 1);
+        if (!score || !post.content_sha256) throw new Error(`candidate ${post.post_id} has no current answer hash or AI score`);
+        return { post_id: post.post_id, content_sha256: post.content_sha256, score: score.score, reason: score.reason, model };
+      })
+    );
+    if (scoreReport.skipped.length) {
+      throw new Error(
+        `AI scores were rejected for ${scoreReport.skipped.map(item => item.post_id).join(", ")}: ${scoreReport.skipped.map(item => item.reason).join("; ")}`
+      );
+    }
+  }
+
+  // Read back the accepted rows after scoring. This is the only input used for both exports and
+  // the WeChat selection, which prevents a race or a rejected hash from reaching an article.
+  const refreshedPosts = await getRedditLifeArchive(date);
+  if (!refreshedPosts.length) {
     const manifest: RedditLifeRunManifest = {
       version: manifestVersion(withArticle),
       archiveDate: date,
@@ -318,19 +362,40 @@ export async function generateRedditLifeWechat({
       posts: [],
     };
     writeJson(manifestFile, manifest);
-    writeStderr(`[reddit-life-wechat] archive=${date}: upstream life article missing at ${lifeArticlePath}; wrote upstream-empty manifest`);
+    writeStderr(`[reddit-life-wechat] archive=${date}: no successfully refreshed candidates; article generation skipped`);
     return { manifestPath: manifestRel, generatedPaths: [], status: manifest.status };
   }
-  const upstreamMarkdown = fs.readFileSync(upstreamFile, "utf8");
-  writeTextArtifact(artifactsDir, "upstream-life.md", upstreamMarkdown);
-  const sourceCandidates = parseRedditLifeCandidates(upstreamMarkdown);
-  const selection = await selectRedditLifeWechatCandidates({
-    candidates: sourceCandidates,
-    date,
-    model,
-    promptDir: promptDir || path.join(repo, "prompts/blog"),
-    artifactsDir,
+  const sourceCandidates: RedditLifeCandidate[] = refreshedPosts.map((post, index) => {
+    if (!post.permalink || !post.content_sha256) throw new Error(`refreshed candidate ${post.post_id} has no permalink or answer hash`);
+    return {
+      rank: index + 1,
+      postId: post.post_id,
+      title: post.title,
+      subreddit: post.subreddit,
+      numComments: post.num_comments ?? 0,
+      permalink: post.permalink,
+      body: post.content_md,
+      answerSha256: post.content_sha256,
+    };
   });
+  const scores: RedditLifeWechatScoredPost[] = refreshedPosts.map((post, index) => ({
+    rank: index + 1,
+    score: post.effective_score,
+    reason: post.score_reason || "刷新后的回答已完成评分",
+  }));
+  scores.sort((a, b) => b.score - a.score || a.rank - b.rank);
+  const selection = {
+    minScore: REDDIT_LIFE_WECHAT_MIN_SCORE,
+    scores,
+    selected: scores.filter(item => item.score >= REDDIT_LIFE_WECHAT_MIN_SCORE).slice(0, REDDIT_LIFE_WECHAT_TOTAL_POSTS),
+  };
+  const sourceMarkdown = renderRedditLifeRefreshedSourceMarkdown(sourceCandidates, date);
+  const dayDir = path.join(ROOT_REL, date);
+  ensureDir(path.join(repo, dayDir));
+  const upstreamLifeRel = path.join(dayDir, "upstream-life.md");
+  fs.writeFileSync(path.join(repo, upstreamLifeRel), sourceMarkdown, "utf8");
+  ensureDir(path.dirname(path.join(repo, lifeArticlePath)));
+  fs.writeFileSync(path.join(repo, lifeArticlePath), renderRedditLifeArticleMarkdown(sourceCandidates, date), "utf8");
   const candidates = rankedRedditLifeCandidates(sourceCandidates, selection);
   const candidateVolumes = withArticle ? splitRedditLifeWechatCandidates(candidates) : [];
   const selectionRankBySourceRank = new Map(candidates.map((candidate, index) => [candidate.rank, index + 1]));
@@ -341,10 +406,6 @@ export async function generateRedditLifeWechat({
   writeStderr(
     `[reddit-life-wechat] archive=${date}: upstream=${lifeArticlePath}, candidates=${sourceCandidates.length}, selected=${candidates.length}, source_ranks=${candidates.map(item => item.rank).join(",")}`
   );
-  const dayDir = path.join(ROOT_REL, date);
-  const rawSources = { upstreamLifeMarkdown: path.join(dayDir, "upstream-life.md") };
-  ensureDir(path.join(repo, dayDir));
-
   const postsBySourceRank = new Map<number, Entry>();
   const generatedPaths: string[] = [];
   for (const [index, slice] of candidateVolumes.entries()) {
@@ -425,11 +486,10 @@ export async function generateRedditLifeWechat({
     timeZone: "America/Los_Angeles",
     status: "processed",
     upstream: { generatedSha: upstreamSha, workflowRun, lifeArticlePath },
-    rawSources,
+    rawSources: { upstreamLifeMarkdown: upstreamLifeRel },
     selection: { model, candidateCount: sourceCandidates.length, minScore: selection.minScore, scores: selection.scores },
     posts,
   };
-  fs.writeFileSync(path.join(repo, rawSources.upstreamLifeMarkdown), upstreamMarkdown, "utf8");
   writeJson(manifestFile, manifest);
   writeStderr(`[reddit-life-wechat] archive=${date}: complete status=${manifest.status} volumes=${generatedPaths.length} posts=${posts.length}`);
   return { manifestPath: manifestRel, generatedPaths, status: manifest.status };

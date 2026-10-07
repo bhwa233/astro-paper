@@ -12,9 +12,21 @@ export type SparkhubRedditLifePost = {
   subreddit: string;
   title: string;
   permalink: string | null;
+  num_comments: number | null;
+  source_rank: number | null;
   effective_score: number;
+  score: number;
+  score_reason: string;
+  score_model: string | null;
+  score_override: number | null;
+  score_status: "unscored" | "ready" | "failed";
   reply_count: number;
   content_md: string;
+  content_sha256: string | null;
+  scored_content_sha256: string | null;
+  scored_at: string | null;
+  source_fetched_at: string | null;
+  refreshed_at: string | null;
 };
 
 export type SparkhubAssets = {
@@ -26,7 +38,7 @@ export type SparkhubAssets = {
   meta?: { title: string; summary: string | null; tags: string[] };
 };
 
-/** 两个环境变量都在才算启用；缺一个就返回 null，由调用方决定跳过还是走本地兜底。 */
+/** 两个环境变量都在才算启用；缺一个就返回 null，由调用方决定是否让当前任务失败。 */
 export function sparkhubEndpoint(): { baseUrl: string; token: string } | null {
   const baseUrl = process.env.SPARKHUB_API_URL?.trim().replace(/\/+$/, "");
   const token = process.env.SPARKHUB_DASHBOARD_TOKEN?.trim();
@@ -51,13 +63,34 @@ export function ingestRedditLifeDay(payload: unknown): Promise<{ archive_date: s
   return call("POST", "/ingest", payload);
 }
 
+export function getRedditLifeScoringCandidates(archiveDate: string): Promise<SparkhubRedditLifePost[]> {
+  return call("GET", `/scoring-candidates?archive_date=${encodeURIComponent(archiveDate)}`);
+}
+
+export function reportRedditLifeScores(
+  items: Array<{
+    post_id: string;
+    content_sha256: string;
+    score?: number;
+    reason?: string;
+    model?: string;
+    error?: string;
+  }>
+): Promise<{ scored: string[]; skipped: Array<{ post_id: string; reason: string }> }> {
+  return call("POST", "/scores", { items });
+}
+
+export function getRedditLifeArchive(archiveDate: string): Promise<SparkhubRedditLifePost[]> {
+  return call("GET", `/archive/${encodeURIComponent(archiveDate)}`);
+}
+
 /** 领取未使用、回答数达标里分最高的 limit 条，SparkHub 把它们记为 reserved（24 小时未确认自动退回）。 */
 export function claimRedditLifePosts(limit: number, minReplies: number): Promise<SparkhubRedditLifePost[]> {
   return call("POST", "/claim", { limit, min_replies: minReplies });
 }
 
 /**
- * 草稿建好后标记已用。领取来的按池 id，本地兜底选出的按 Reddit postId；
+ * 草稿建好后标记已用。领取来的通常按池 id；只有历史归档没有池 id 时才按 Reddit post id；
  * 同一 syncId 重复确认是安全的。platform 的状态同时记为 draft，externalId 为草稿 media_id。
  */
 export function confirmRedditLifePosts(input: {

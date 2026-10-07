@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
-// 竖屏视频的选卡编排：从 SparkHub 素材池领取当天的问题（不可用时退回当天本地排名，见
-// reddit_life_video_source.ts），调一次模型选十条回答并起标题，写 video.json。图文草稿复用同一份选卡。
+// 竖屏视频的选卡编排：从 SparkHub 素材池领取已刷新、已评分的问题，调一次模型选十条回答并起标题，
+// 写 video.json。图文草稿复用同一份选卡。
 //
 // 只做选卡，不渲染。渲染在 video/ 那个独立的 Remotion 包里（`pnpm --filter reddit-life-video render`），
 // 因为它要拖进 react 和一套 @remotion/*，而这边的脚本要能在不装那些依赖的环境里跑。
@@ -53,8 +53,8 @@ type RunManifest = {
   archiveDate: string;
   timeZone: typeof SOURCE_TIME_ZONE;
   status: RunStatus;
-  /** 选题来源：SparkHub 领取或本地兜底，明细（含池 id）在同目录 source.json。 */
-  upstream: { kind: "sparkhub" | "local" | "none"; sourcePath: string; postIds: string[]; sha256: string };
+  /** SparkHub refreshed and scored candidates, with their ids and content hash in source.json. */
+  upstream: { kind: "sparkhub" | "none"; sourcePath: string; postIds: string[]; sha256: string };
   model: string;
   selectionCount: number;
   /** 这次运行生效的数量配置，来自 SparkHub（source=default 表示没读到、用的默认值）。 */
@@ -157,7 +157,7 @@ async function main(): Promise<void> {
 
   // 素材池和当天打分都拿不到问题不是错误：上游还没跑完时会撞上这个，让 job 成功退出即可。
   if (!markdowns.length) {
-    writeStderr(`[reddit-life-video] no question available for ${date} from SparkHub or the local ranking; nothing to render\n`);
+    writeStderr(`[reddit-life-video] no refreshed and scored question is available for ${date}; nothing to render\n`);
     finish();
     return;
   }

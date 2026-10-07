@@ -1,0 +1,16 @@
+---
+import { addLocaleParam, getNonDefaultLocaleStaticPaths } from "@/i18n/locales";
+import { getPostDetailPaths } from "@/utils/localeStaticPaths";
+import Page from "../../../posts/[...slug]/index.astro";
+
+export async function getStaticPaths() {
+  return getNonDefaultLocaleStaticPaths(async locale =>
+    addLocaleParam(locale, await getPostDetailPaths(locale))
+  );
+}
+
+type PageProps = Parameters<typeof Page>[0];
+const pageProps = Astro.props as PageProps;
+---
+
+<Page {...pageProps} />

@@ -57,7 +57,7 @@ export default {
     allPosts: "All Posts",
     heroTitle: "bhwa233 Blog",
     intro:
-      "A bilingual engineering blog about development, deployment, tooling, and long-term technical notes.",
+      "An engineering blog about development, deployment, tooling, and long-term technical notes.",
   },
   footer: {
     copyright: "Copyright",

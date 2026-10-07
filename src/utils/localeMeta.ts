@@ -1,20 +1,22 @@
-import { DEFAULT_LOCALE, ENGLISH_LOCALE } from "@/i18n/locales";
+import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { getAssetPath } from "@/utils/withBase";
-
-const LOCALE_LANG_TAGS: Record<string, string> = {
-  [DEFAULT_LOCALE]: "zh-CN",
-  [ENGLISH_LOCALE]: "en",
-};
+import config from "@/config";
 
 export function getLocaleLangTag(locale: string): string {
-  return LOCALE_LANG_TAGS[locale] ?? locale;
+  return config.site.locales[locale]?.lang ?? locale;
+}
+
+export function getLocaleLabel(locale: string): string {
+  return config.site.locales[locale]?.label ?? locale;
 }
 
 export function getLocalizedRssPath(locale: string): string {
-  return getAssetPath(locale === ENGLISH_LOCALE ? "en/rss.xml" : "rss.xml");
+  return getAssetPath(
+    locale === DEFAULT_LOCALE ? "rss.xml" : `${locale}/rss.xml`
+  );
 }
 
 export function getTagRssPath(locale: string, tagSlug: string): string {
-  const prefix = locale === ENGLISH_LOCALE ? "en/tags" : "tags";
+  const prefix = locale === DEFAULT_LOCALE ? "tags" : `${locale}/tags`;
   return getAssetPath(`${prefix}/${tagSlug}/rss.xml`);
 }

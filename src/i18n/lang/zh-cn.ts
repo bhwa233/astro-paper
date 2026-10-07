@@ -56,8 +56,7 @@ export default {
     recentPosts: "最新文章",
     allPosts: "全部文章",
     heroTitle: "bhwa233 博客",
-    intro:
-      "一个以中文为主、保留英文内容的双语技术博客，记录开发、部署、工具链与工程化实践。",
+    intro: "一个以中文记录开发、部署、工具链与工程化实践的技术博客。",
   },
   footer: {
     copyright: "版权",

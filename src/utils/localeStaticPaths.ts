@@ -19,7 +19,7 @@ let allPosts: Promise<CollectionEntry<"posts">[]> | undefined;
 const postsByLocale = new Map<string, Promise<CollectionEntry<"posts">[]>>();
 const sortedByLocale = new Map<string, Promise<CollectionEntry<"posts">[]>>();
 
-/** 两个 locale 的全部文章（含草稿）。语言切换器每页都要它做互译查找，逐页 getCollection 太浪费。 */
+/** 配置中所有 locale 的文章（含草稿）。语言切换器每页都要它做互译查找，逐页 getCollection 太浪费。 */
 export function getAllPosts(): Promise<CollectionEntry<"posts">[]> {
   if (allPosts && import.meta.env.PROD) return allPosts;
   allPosts = getCollection("posts");

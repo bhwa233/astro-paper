@@ -4,11 +4,14 @@ export default defineAstroPaperConfig({
   site: {
     url: "https://blog.bhwa233.com/",
     title: "bhwa233 博客",
-    description: "一个以中文为主、保留英文内容的双语技术博客，记录开发、部署、工具链与工程化实践。",
+    description: "一个以中文记录开发、部署、工具链与工程化实践的技术博客。",
     author: "bhwa233",
     profile: "https://github.com/lxw15337674",
     ogImage: "default-og.jpg",
-    lang: "zh-cn",
+    defaultLocale: "zh-cn",
+    locales: {
+      "zh-cn": { label: "中文", lang: "zh-CN" },
+    },
     timezone: "Asia/Shanghai",
     dir: "ltr",
   },

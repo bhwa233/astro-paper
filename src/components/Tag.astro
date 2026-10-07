@@ -11,7 +11,7 @@ type Props = {
 
 const { tag, tagName, size = "lg" } = Astro.props;
 
-const locale = Astro.currentLocale ?? config.site.lang;
+const locale = Astro.currentLocale ?? config.site.defaultLocale;
 ---
 
 <li>

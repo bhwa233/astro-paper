@@ -38,7 +38,15 @@ const posts = defineCollection({
         .optional(),
       translation: z
         .object({
-          language: z.literal("zh-CN"),
+          language: z
+            .string()
+            .refine(
+              value =>
+                Object.values(config.site.locales).some(
+                  locale => locale.lang === value
+                ),
+              "translation.language must match a configured locale language tag"
+            ),
           model: z.string(),
           promptVersion: z.string(),
           translatedAt: z.date(),

@@ -23,7 +23,7 @@ type Props = {
 };
 
 const { site } = config;
-const locale = Astro.currentLocale ?? site.lang;
+const locale = Astro.currentLocale ?? site.defaultLocale;
 const siteTitle = getLocalizedSiteTitle(locale);
 const siteDescription = getLocalizedSiteDescription(locale);
 

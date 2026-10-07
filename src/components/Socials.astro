@@ -5,7 +5,7 @@ import { getLocalizedSiteTitle } from "@/utils/siteMeta";
 import LinkButton from "./LinkButton.astro";
 
 const { site, socials } = config;
-const locale = Astro.currentLocale ?? site.lang;
+const locale = Astro.currentLocale ?? site.defaultLocale;
 const siteTitle = getLocalizedSiteTitle(locale);
 const t = useTranslations(locale);
 

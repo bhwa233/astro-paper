@@ -7,6 +7,7 @@
 import userConfig from "@/astro-paper.config";
 import type { ResolvedAstroPaperConfig } from "./types/config";
 import { PUBLIC_GOOGLE_SITE_VERIFICATION } from "astro:env/client";
+import { DEFAULT_SITE_LOCALE, SITE_LOCALES } from "./utils/siteLocaleConfig";
 
 const DEFAULT_OG_IMAGE = "default-og.jpg";
 
@@ -14,7 +15,8 @@ const config: ResolvedAstroPaperConfig = {
   site: {
     ...userConfig.site,
     ogImage: userConfig.site.ogImage ?? DEFAULT_OG_IMAGE,
-    lang: userConfig.site.lang ?? "en",
+    defaultLocale: DEFAULT_SITE_LOCALE,
+    locales: SITE_LOCALES,
     timezone: userConfig.site.timezone ?? "UTC",
     dir: userConfig.site.dir ?? "ltr",
     googleVerification:

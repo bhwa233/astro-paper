@@ -6,7 +6,7 @@
 
 | 目录                 | 内容                                                                                                  |
 | -------------------- | ----------------------------------------------------------------------------------------------------- |
-| `src/`               | Astro 站点。文章在 `src/content/posts/zh-cn/`，`/en/` 路由树已就位但暂无英文内容                      |
+| `src/`               | Astro 站点。文章在 `src/content/posts/zh-cn/`；多语言配置已接入，目前只启用中文                       |
 | `scripts/`           | 内容流水线：取源、成文、账本、归档、微信同步。分层与约定见 `AGENTS.md`                                |
 | `scripts/wechat/`    | 微信公众号发布器（整棵搬入，自成一套）                                                                |
 | `video/`             | Remotion 工作区，渲染 Reddit 竖屏视频与图片消息卡片                                                   |
@@ -37,6 +37,7 @@ pnpm run test:wechat    # scripts/wechat 的用例
 ```
 
 站点配置在 `astro-paper.config.ts`；Google Site Verification 通过 `PUBLIC_GOOGLE_SITE_VERIFICATION` 环境变量注入。
+语言由 `site.defaultLocale` 和 `site.locales` 统一管理；当前只注册 `zh-cn`，默认语言使用根路径。非默认语言的页面由 `src/pages/[locale]/` 统一路由模板生成，但只有注册的语言才会生成页面。英文翻译资源保留在 `src/i18n/lang/en.ts`，启用英文前还需要补充对应的内容和配置。
 
 ## 流水线
 

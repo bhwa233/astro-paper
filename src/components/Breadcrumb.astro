@@ -5,7 +5,7 @@ import { buildBreadcrumbSchema } from "@/utils/structuredData";
 import { tplStr, useTranslations } from "@/i18n";
 import config from "@/config";
 
-const locale = Astro.currentLocale ?? config.site.lang;
+const locale = Astro.currentLocale ?? config.site.defaultLocale;
 const t = useTranslations(locale);
 
 // Strip base prefix and trailing slash, then locale prefix so segments

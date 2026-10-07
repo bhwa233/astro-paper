@@ -1,0 +1,17 @@
+---
+import type { GetStaticPathsOptions } from "astro";
+import { addLocaleParam, getNonDefaultLocaleStaticPaths } from "@/i18n/locales";
+import { getTagPaginatedPaths } from "@/utils/localeStaticPaths";
+import Page from "../../../tags/[tag]/[...page].astro";
+
+export async function getStaticPaths(options: GetStaticPathsOptions) {
+  return getNonDefaultLocaleStaticPaths(async locale =>
+    addLocaleParam(locale, await getTagPaginatedPaths(locale, options))
+  );
+}
+
+type PageProps = Parameters<typeof Page>[0];
+const pageProps = Astro.props as PageProps;
+---
+
+<Page {...pageProps} />

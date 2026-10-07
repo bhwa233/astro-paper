@@ -1,12 +1,7 @@
 import { getRelativeLocaleUrl } from "astro:i18n";
 import type { CollectionEntry } from "astro:content";
 import config from "@/config";
-import {
-  DEFAULT_LOCALE,
-  ENGLISH_LOCALE,
-  LOCALES,
-  type SiteLocale,
-} from "@/i18n/locales";
+import { DEFAULT_LOCALE, LOCALES, type SiteLocale } from "@/i18n/locales";
 import {
   getEntryLocaleFromFilePath,
   getEntryLocaleFromId,
@@ -25,13 +20,14 @@ function toAbsoluteUrl(path: string): string {
 }
 
 export function getSharedLocaleAlternates(path: string): LocaleAlternate[] {
-  const zhHref = toAbsoluteUrl(getRelativeLocaleUrl(DEFAULT_LOCALE, path));
-  const enHref = toAbsoluteUrl(getRelativeLocaleUrl(ENGLISH_LOCALE, path));
+  const defaultHref = toAbsoluteUrl(getRelativeLocaleUrl(DEFAULT_LOCALE, path));
 
   return [
-    { hreflang: getLocaleLangTag(DEFAULT_LOCALE), href: zhHref },
-    { hreflang: getLocaleLangTag(ENGLISH_LOCALE), href: enHref },
-    { hreflang: "x-default", href: zhHref },
+    ...LOCALES.map(locale => ({
+      hreflang: getLocaleLangTag(locale),
+      href: toAbsoluteUrl(getRelativeLocaleUrl(locale, path)),
+    })),
+    { hreflang: "x-default", href: defaultHref },
   ];
 }
 
@@ -43,8 +39,8 @@ function getEntryLocale(entry: CollectionEntry<"posts">): SiteLocale {
 
 /**
  * Builds article-level hreflang links only for posts that explicitly share a
- * translationKey. Slugs are not translation contracts; many real bilingual
- * articles use different slugs, and posts without a key are independent.
+ * translationKey. Slugs are not translation contracts; localized articles can
+ * use different slugs, and posts without a key are independent.
  */
 export function getPostLocaleAlternates(
   post: CollectionEntry<"posts">,

@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { extname, join, relative, sep } from "node:path";
 import {
   DEFAULT_LOCALE,
+  LOCALES,
   isSupportedLocale,
   type SiteLocale,
 } from "../i18n/locales";
@@ -12,10 +13,14 @@ const POSTS_ROOT = join(PROJECT_ROOT, "src/content/posts");
 const ROUTE_ROOT = join(PROJECT_ROOT, "src/pages");
 
 const POST_EXTENSIONS = new Set([".md", ".mdx"]);
-const STATIC_ROUTE_FILES = new Map<string, string>([
-  ["/about/", "about.astro"],
-  ["/en/about/", "en/about.astro"],
-]);
+const STATIC_ROUTE_FILES = new Map(
+  LOCALES.map(locale => {
+    const prefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
+    const route = `${prefix}/about/`;
+    const file = `${locale === DEFAULT_LOCALE ? "" : "[locale]/"}about.astro`;
+    return [route, file] as const;
+  })
+);
 
 type SitemapLastmodIndex = {
   latest: string;

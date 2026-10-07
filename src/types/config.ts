@@ -11,7 +11,11 @@ interface SiteConfig {
   profile?: string;
   /** Fallback OG image filename in /public, e.g. "og.jpg" */
   ogImage?: string;
-  /** HTML lang attribute, defaults to "en" */
+  /** Locale used for unprefixed routes and as the translation fallback. */
+  defaultLocale?: string;
+  /** Locale registry. Only registered locales are exposed by the site. */
+  locales?: Record<string, LocaleConfig>;
+  /** Legacy alias for backwards compatibility; prefer `defaultLocale`. */
   lang?: string;
   /** IANA timezone for post dates, e.g. "Asia/Bangkok" */
   timezone?: string;
@@ -19,6 +23,13 @@ interface SiteConfig {
   dir?: "ltr" | "rtl" | "auto";
   /** Google Search Console verification meta tag value */
   googleVerification?: string;
+}
+
+export interface LocaleConfig {
+  /** Human-readable label used by the language switcher. */
+  label: string;
+  /** BCP 47 language tag used by HTML, dates, search, and SEO metadata. */
+  lang: string;
 }
 
 interface PostsConfig {
@@ -111,7 +122,8 @@ type ResolvedSiteConfig = Required<
     | "title"
     | "description"
     | "author"
-    | "lang"
+    | "defaultLocale"
+    | "locales"
     | "timezone"
     | "dir"
     | "ogImage"

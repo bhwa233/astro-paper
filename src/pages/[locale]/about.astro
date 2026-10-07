@@ -1,0 +1,12 @@
+---
+import { getNonDefaultLocalePaths } from "@/i18n/locales";
+import Page from "../about.astro";
+
+export function getStaticPaths() {
+  return getNonDefaultLocalePaths();
+}
+
+const pageProps = Astro.props as Record<string, unknown>;
+---
+
+<Page {...pageProps} />

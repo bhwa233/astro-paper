@@ -21,13 +21,13 @@ import { getSitemapLastmodForUrl } from "./src/utils/sitemapLastmod";
 import { transformerFileName } from "./src/utils/transformers/fileName";
 import config from "./astro-paper.config";
 
-const NON_INDEXABLE_PATHNAMES = new Set([
-  "/404/",
-  "/404.html",
-  "/search/",
-  "/en/404/",
-  "/en/search/",
-]);
+const NON_INDEXABLE_PATHNAMES = new Set(["/404/", "/404.html", "/search/"]);
+
+for (const locale of LOCALES) {
+  if (locale === DEFAULT_LOCALE) continue;
+  NON_INDEXABLE_PATHNAMES.add(`/${locale}/404/`);
+  NON_INDEXABLE_PATHNAMES.add(`/${locale}/search/`);
+}
 
 export default defineConfig({
   site: config.site.url,

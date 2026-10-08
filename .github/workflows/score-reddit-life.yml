@@ -1,0 +1,57 @@
+name: Score Reddit Life Posts
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      archive_date:
+        description: "Archive date in America/Los_Angeles, YYYY-MM-DD"
+        required: true
+        type: string
+      ai_model:
+        description: "Optional scoring model override"
+        required: false
+        type: string
+
+concurrency:
+  group: reddit-life-score-${{ inputs.archive_date }}
+  cancel-in-progress: false
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup
+      - name: Score refreshed posts only
+        env:
+          INPUT_DATE: ${{ inputs.archive_date }}
+          INPUT_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: https://rightapi.ai/gemini
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+          AI_API_STYLE: gemini
+          AI_FALLBACK_ENABLED: "false"
+          AI_TIMEOUT_MS: "600000"
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$SPARKHUB_DASHBOARD_TOKEN"
+          node --import tsx scripts/score_reddit_life_sparkhub.ts \
+            --date "$INPUT_DATE" --model "$INPUT_MODEL" \
+            --artifacts-dir reddit-life-score-artifacts | tee reddit-life-score-result.json
+      - name: Upload scoring diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reddit-life-score-${{ inputs.archive_date }}
+          path: |
+            reddit-life-score-result.json
+            reddit-life-score-artifacts/
+          if-no-files-found: ignore
+          retention-days: 7

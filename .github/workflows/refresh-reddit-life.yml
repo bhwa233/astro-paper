@@ -29,6 +29,10 @@ on:
         required: false
         type: string
       post_ids:
+        description: "Optional comma-separated pool IDs to refresh."
+        required: false
+        type: string
+      post_ids:
         description: "Optional comma-separated pool IDs to refresh; requests these before starting the run."
         required: false
         type: string

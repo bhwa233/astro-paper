@@ -128,6 +128,7 @@ jobs:
             weibo-trending-wechat-result.json
             weibo-trending-wechat-artifacts/
           if-no-files-found: ignore
+          retention-days: 7
       - name: Summarize generation
         if: always()
         run: |

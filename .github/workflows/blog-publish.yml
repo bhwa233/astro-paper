@@ -240,6 +240,7 @@ jobs:
             scheduled-posts-result.json
             blog-generation-artifacts/
           if-no-files-found: ignore
+          retention-days: 7
 
       - name: "Summarize scheduled publishing result"
         if: always()

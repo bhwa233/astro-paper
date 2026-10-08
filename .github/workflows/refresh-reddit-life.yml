@@ -91,3 +91,4 @@ jobs:
             reddit-life-refresh-result.json
             reddit-life-refresh-artifacts/
           if-no-files-found: ignore
+          retention-days: 7

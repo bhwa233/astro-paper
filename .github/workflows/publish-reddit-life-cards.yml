@@ -131,6 +131,7 @@ jobs:
             reddit-life-cards-result.json
             reddit-life-cards-artifacts/
           if-no-files-found: ignore
+          retention-days: 7
 
       - name: Summarize generation
         if: always()

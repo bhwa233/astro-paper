@@ -243,6 +243,7 @@ jobs:
             metadata.json
             reddit-life-video-artifacts/
           if-no-files-found: ignore
+          retention-days: 7
 
       - name: Summarize run
         if: always()

@@ -161,6 +161,7 @@ jobs:
             reddit-life-ingest-result.json
             reddit-life-wechat-artifacts/
           if-no-files-found: ignore
+          retention-days: 7
       - name: Summarize Reddit life generation
         if: always()
         run: |

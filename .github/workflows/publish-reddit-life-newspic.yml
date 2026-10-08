@@ -133,6 +133,7 @@ jobs:
             reddit-life-newspic-result.json
             reddit-life-newspic-artifacts/
           if-no-files-found: ignore
+          retention-days: 7
       - name: Summarize generation
         if: always()
         run: |

@@ -182,6 +182,7 @@ jobs:
             wechat-dry-run.json
             wechat-results.json
           if-no-files-found: ignore
+          retention-days: 7
 
       # 人工补推的语义是「我要一篇新草稿」：已同步而没传 force_create 时要明确失败，而不是静默跳过。
       - name: Require created drafts

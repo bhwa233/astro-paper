@@ -1,0 +1,61 @@
+name: Reddit Life Historical Refresh
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      post_ids:
+        description: "Comma-separated pool IDs (pending only)."
+        required: true
+        type: string
+      ai_model:
+        description: "Optional reply rewrite model."
+        required: false
+        type: string
+
+concurrency:
+  group: reddit-life-historical-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup
+      - name: Refresh selected historical posts
+        env:
+          POST_IDS: ${{ inputs.post_ids }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: https://rightapi.ai/gemini
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+          AI_API_STYLE: gemini
+          AI_FALLBACK_ENABLED: "false"
+          AI_TIMEOUT_MS: "600000"
+          REDDIT_AI_CONCURRENCY: 2
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+          REDDIT_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
+          REDDIT_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$POST_IDS"
+          test -n "$SPARKHUB_DASHBOARD_TOKEN"
+          node --import tsx scripts/refresh_reddit_life_sparkhub.ts \
+            --post-ids "$POST_IDS" \
+            --artifacts-dir reddit-life-historical-refresh-artifacts \
+            | tee reddit-life-historical-refresh-result.json
+      - name: Upload refresh diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reddit-life-historical-refresh
+          path: |
+            reddit-life-historical-refresh-result.json
+            reddit-life-historical-refresh-artifacts/
+          if-no-files-found: ignore
+          retention-days: 7

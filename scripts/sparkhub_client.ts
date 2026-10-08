@@ -162,6 +162,10 @@ export function startRedditLifeRefreshRun(input: { github_run_id?: string | null
   return call("POST", "/refresh/runs", input);
 }
 
+export function requestRedditLifeRefresh(id: number): Promise<{ id: number; refresh_requested_at: string }> {
+  return call("POST", `/posts/${id}/refresh-request`);
+}
+
 /** 回报一帖：带 content_md 即替换正文并撤下还没发出去的卡片（帖子已被领走、或卡片已发出去则记为 rejected，不改正文），带 error 记失败。重复回报是安全的。 */
 export function reportRedditLifeRefreshItem(
   runId: number,

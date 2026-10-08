@@ -28,6 +28,10 @@ on:
         description: "Reply rewrite model. Empty = Gemini 3.8 Flash."
         required: false
         type: string
+      post_ids:
+        description: "Optional comma-separated pool IDs to refresh; requests these before starting the run."
+        required: false
+        type: string
   # 手动入口：后台点了「重新抓取评论」又不想等到第二天时，在这里补跑一次。
   workflow_dispatch:
     inputs:
@@ -60,6 +64,7 @@ jobs:
       - name: Refresh comments of pending pool posts
         env:
           INPUT_DATE: ${{ inputs.date || '' }}
+          INPUT_POST_IDS: ${{ inputs.post_ids || '' }}
           SPARKHUB_API_URL: https://api.bhwa233.com
           SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
           REDDIT_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
@@ -79,6 +84,7 @@ jobs:
           fi
           args=(--artifacts-dir reddit-life-refresh-artifacts)
           if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
+          if [ -n "$INPUT_POST_IDS" ]; then args+=(--post-ids "$INPUT_POST_IDS"); fi
           node --import tsx scripts/refresh_reddit_life_sparkhub.ts "${args[@]}" | tee reddit-life-refresh-result.json
       - id: head
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"

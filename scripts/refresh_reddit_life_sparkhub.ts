@@ -20,7 +20,13 @@ import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
 import { type RedditEvidenceComment, type RedditPostEvidence, REDDIT_TRENDING_MAX_DETAIL_POSTS, fetchRedditPostDetail } from "./reddit_trending_api.ts";
 import { parseRedditItemOutcome, redditCategoryByKey } from "./reddit_top20_compose.ts";
 import { loadRedditLifeConfig } from "./reddit_life_config.ts";
-import { finishRedditLifeRefreshRun, reportRedditLifeRefreshItem, sparkhubEndpoint, startRedditLifeRefreshRun } from "./sparkhub_client.ts";
+import {
+  finishRedditLifeRefreshRun,
+  reportRedditLifeRefreshItem,
+  requestRedditLifeRefresh,
+  sparkhubEndpoint,
+  startRedditLifeRefreshRun,
+} from "./sparkhub_client.ts";
 
 const LABEL = "[reddit-life-refresh]";
 const SOURCE_TIME_ZONE = "America/Los_Angeles";
@@ -125,6 +131,15 @@ async function main(): Promise<void> {
   const model = stringArg(args, "model") || process.env.AI_MODEL || DEFAULT_AI_MODEL;
   const artifactsDir = stringArg(args, "artifacts-dir");
   if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
+
+  const requestedIds = (stringArg(args, "post-ids") || "")
+    .split(",")
+    .map(value => Number(value.trim()))
+    .filter(value => Number.isInteger(value) && value > 0);
+  if (requestedIds.length) {
+    for (const id of requestedIds) await requestRedditLifeRefresh(id);
+    writeStderr(`${LABEL} requested ${requestedIds.length} historical post refresh(es)\n`);
+  }
 
   const repo = repoRoot();
   const template = readPromptTemplate(path.join(repo, "prompts/blog"), PROMPT_NAME, REDDIT_PROMPT_FRAGMENTS);

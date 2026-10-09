@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-09",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "bd222b16fd463393df7898802124dd3f213581f3c8abc2ae5bc9d966e0884a8c",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "强行塞入屏幕、联网与订阅的伪改良，不仅没带来便利，反而剥夺了用户的控制权与耐用度。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

@@ -170,11 +170,24 @@ jobs:
       ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
-  # 读取 SparkHub 中刷新后的同一份答案，完成 AI 评分，并在之后生成归档与微信文章。
+  # 每次刷新可能跨多个归档日；只评分这一轮成功刷新的帖，不能只评分今天。
+  score:
+    name: Score All Refreshed Reddit Life Posts
+    needs: [refresh, config]
+    if: always() && needs.refresh.result == 'success'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/score-reddit-life.yml
+    with:
+      refresh_artifact: reddit-life-refresh
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
+    secrets: inherit
+
+  # 复用已接受的评分，只生成当天文章；历史日期只评分，不重建历史文章。
   wechat:
     name: Generate Refreshed Reddit Life Articles
-    needs: [archive-date, refresh, config]
-    if: always() && needs.refresh.result == 'success'
+    needs: [archive-date, refresh, score, config]
+    if: always() && needs.score.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/reddit-life-wechat.yml
@@ -184,6 +197,7 @@ jobs:
       upstream_workflow_run: ${{ github.run_id }}
       ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
       force_rebuild: ${{ inputs.force || false }}
+      skip_scoring: true
     secrets: inherit
 
   # 视频选卡只从评分完成的 SparkHub 素材池领取；按最终文章提交 sha 检出。

@@ -4,7 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { writeJson } from "./committed_handoff.ts";
-import { dateStringInTimeZone, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { dateStringInTimeZone, envPositiveInt, mapWithConcurrency, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
 import {
   getRedditLifeScoringCandidates,
@@ -64,9 +64,9 @@ async function main(): Promise<void> {
     const posts = (await getRedditLifeScoringCandidates(archiveDate)).filter(post => !selectedIds || selectedIds.has(post.id));
     const scored: string[] = [];
     const skipped: Array<{ post_id: string; reason: string }> = [];
-    // Manual backfills isolate each post, so a model/report failure cannot block its neighbours.
+    // Refresh batches isolate each post, so a model/report failure cannot block its neighbours.
     const batches = refreshed ? posts.map(post => [post]) : posts.length ? [posts] : [];
-    for (const batch of batches) {
+    await mapWithConcurrency(batches, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async batch => {
       try {
         const items = await scoreBatch(batch, archiveDate, model, refreshed && artifactsDir ? path.join(artifactsDir, String(batch[0].id)) : artifactsDir);
         const report = await reportRedditLifeScores(items);
@@ -75,10 +75,21 @@ async function main(): Promise<void> {
       } catch (error) {
         if (!refreshed) throw error;
         const reason = error instanceof Error ? error.message : String(error);
-        skipped.push({ post_id: batch[0].post_id, reason });
+        const post = batch[0];
+        skipped.push({ post_id: post.post_id, reason });
+        // Keep failed scoring visible without allowing a stale hash to overwrite a newer refresh.
+        if (post.content_sha256) {
+          try {
+            await reportRedditLifeScores([{ post_id: post.post_id, content_sha256: post.content_sha256, error: reason }]);
+          } catch (reportError) {
+            writeStderr(
+              `[reddit-life-score] ${post.post_id}: failure report rejected: ${reportError instanceof Error ? reportError.message : String(reportError)}\n`
+            );
+          }
+        }
         writeStderr(`[reddit-life-score] ${batch[0].post_id}: ${reason}\n`);
       }
-    }
+    });
     writeStderr(`[reddit-life-score] ${archiveDate}: ${scored.length} scored, ${skipped.length} skipped\n`);
     results.push({ date: archiveDate, candidates: posts.length, scored, skipped });
   }

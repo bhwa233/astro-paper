@@ -30,6 +30,11 @@ on:
         required: false
         default: false
         type: boolean
+      skip_scoring:
+        description: "Reuse scores accepted by the parent scoring job."
+        required: false
+        default: false
+        type: boolean
       record_candidates_only:
         description: "Record first-crawl metadata without scoring or generating articles."
         required: false
@@ -96,6 +101,7 @@ jobs:
           UPSTREAM_WORKFLOW_RUN: ${{ inputs.upstream_workflow_run }}
           INPUT_DATE: ${{ inputs.date || '' }}
           INPUT_FORCE_REBUILD: ${{ inputs.force_rebuild || false }}
+          INPUT_SKIP_SCORING: ${{ inputs.skip_scoring || false }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
           AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
@@ -110,6 +116,7 @@ jobs:
           args=(--upstream-sha "$UPSTREAM_GENERATED_SHA" --upstream-workflow-run "$UPSTREAM_WORKFLOW_RUN" --artifacts-dir reddit-life-wechat-artifacts)
           if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
           if [ "$INPUT_FORCE_REBUILD" = "true" ]; then args+=(--force); fi
+          if [ "$INPUT_SKIP_SCORING" = "true" ]; then args+=(--skip-scoring); fi
           node --import tsx scripts/generate_reddit_life_wechat.ts "${args[@]}" | tee reddit-life-wechat-result.json
           node --input-type=module <<'NODE'
           import fs from "node:fs";

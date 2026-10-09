@@ -82,10 +82,10 @@ jobs:
             echo "::error::SPARKHUB_DASHBOARD_TOKEN is required for the refresh and scoring pipeline."
             exit 1
           fi
-          args=(--artifacts-dir reddit-life-refresh-artifacts)
+          args=(--result-file reddit-life-refresh-result.json --artifacts-dir reddit-life-refresh-artifacts)
           if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
           if [ -n "$INPUT_POST_IDS" ]; then args+=(--post-ids "$INPUT_POST_IDS"); fi
-          node --import tsx scripts/refresh_reddit_life_sparkhub.ts "${args[@]}" | tee reddit-life-refresh-result.json
+          node --import tsx scripts/refresh_reddit_life_sparkhub.ts "${args[@]}" | tee reddit-life-refresh.log
       - id: head
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Upload refresh artifacts
@@ -95,6 +95,7 @@ jobs:
           name: reddit-life-refresh
           path: |
             reddit-life-refresh-result.json
+            reddit-life-refresh.log
             reddit-life-refresh-artifacts/
           if-no-files-found: ignore
           retention-days: 7

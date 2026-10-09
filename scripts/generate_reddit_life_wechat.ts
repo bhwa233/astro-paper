@@ -510,6 +510,7 @@ async function main(): Promise<void> {
     model: stringArg(args, "model", process.env.AI_MODEL || "gemini-3.8-flash"),
     promptDir: stringArg(args, "prompt-dir"),
     force: booleanArg(args, "force"),
+    scorePending: !booleanArg(args, "skip-scoring"),
   });
   writeStdout(`${JSON.stringify({ date, ...result })}\n`);
 }

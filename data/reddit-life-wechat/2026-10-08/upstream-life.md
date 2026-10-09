@@ -1,15 +1,6 @@
 ---
-author: bhwa233
-pubDatetime: 2026-10-07T16:00:00Z
-modDatetime: 2026-10-09T05:00:36Z
-title: "Reddit 每日精选｜问答精选"
-featured: false
-draft: false
-tags:
-  - 社区
-  - Reddit热门
-description: "Reddit 问答精选，内容来自刷新后的评论与回答。"
-timezone: Asia/Shanghai
+archiveDate: 2026-10-08
+source: SparkHub refreshed Reddit answers
 ---
 
 ## 1. 谁是你心中最具代表性的积极男性气质（positive masculinity）典范？

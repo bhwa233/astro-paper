@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-08",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "b5b7e00139a6b5b6788f4362ced64b0b4be2169d8866dd40add5d800bc91c3e5",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "多数人不会把微小的增幅浪费在财富上，而是倾向用来兑现健康、真爱或亲人的生存希望。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

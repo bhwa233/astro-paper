@@ -1,0 +1,3583 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-09",
+  "target": 20,
+  "readyBefore": {
+    "douyin": 0,
+    "wechat_channels": 0,
+    "wechat_mp": 0
+  },
+  "gap": 20,
+  "model": "gemini-3.8-flash",
+  "items": [
+    {
+      "id": 122,
+      "postId": "1wszlg7",
+      "contentSha256": "cd1ce6b20cacf3ddeb596b941ee04f961acb730e402d80de1b089bc318d44eb6",
+      "question": "如果能把你人生的任意一项数值提升4%，你会选哪项？",
+      "title": "人生数值任选一项提升4%",
+      "summary": "比起直接换算财富，多数人更倾向提升自律、健康上限或触发好运的绝对概率。",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "身心健康",
+        "灵魂拷问"
+      ],
+      "answerCount": 14,
+      "cards": [
+        {
+          "index": 1,
+          "body": "别把4%浪费在现有资产上。如果算力允许，利用规则漏洞在人生面板里给自己加一个平掷的「4%绝对暴击幸运率」，不管现实里干任何事情，都有4%的概率直接触发极端好运，这才是最无解的现实外挂。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "选每年股票投资回报率。在现有市场年化收益的基础上稳定高出4个百分点，没有任何基金经理能长期做到这一点。好年景里能从8%飙到12%以上，大跌的年份也能少亏很多。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "精准指定为「在任何一天遇到一生真爱的概率」。正常情况下绝大多数人一辈子都碰不到，但如果每天都有4%的几率相遇，用不了多久就必然能撞见对方。比起天天多赚4%的钱，真爱要珍贵得多。",
+          "sourceIndex": 9,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "基础代谢率。每天白白多消耗80大卡左右的热量，相当于这辈子每天晚上都能心安理得地多吃一块巧克力曲奇而不用担心发胖。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "提高执行功能。日常自律和办事能力哪怕只提升4%，滚雪球效应也能彻底改变人生。或者微调神经递质水平，生物体内的化学平衡非常精细，跨越4%的阈值可能就足以显著改善焦虑并提高专注力。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "哪怕全世界都觉得该选钱，我也会选基础快乐值。按照目前的成就和拥有的爱，我本该比现在快乐得多；如果无法真正享受生活，其他外在数值涨再多也毫无意义，基础幸福感才是终极目标。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "身高长4%。如果原本是175厘米，涨4%就能直接越过180厘米的门槛，彻底跨入高个子行列。不过也有身高超过2米的人吐槽，长得太高在飞机、汽车里全受罪，恨不得反向缩水。",
+          "sourceIndex": 8,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "把这4%全押在亲人身上，比如让母亲心脏瓣膜置换手术的成功率提升4%，或者让患有心肌病的家人心脏健康度好转一点。在生死关头，这几个百分点比任何财富都管用。",
+          "sourceIndex": 12,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "选癌症或重大疾病的生存率。如果能把这类致命疾病的存活几率拔高4%，不管是对自己还是对整个世界来说，都是实打实的救命恩惠。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "选寿命。按平均76岁左右的寿命算，增加4%相当于多活大约3年。不过也有人担忧，多出来的三年如果是躺在看护病房里受老年痴呆折磨，那多活这几年反而成了纯粹的受罪。",
+          "sourceIndex": 13,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-00.png",
+          "sha256": "6884b2ec8e5030bd3141e744078c0b8f274bac937d41305da00ac01d5494ea88"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-01.png",
+          "sha256": "ebb13401b448c4a5887fe836cb2b8b395f44f5f9d17739acfcadea08d6380f0b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-02.png",
+          "sha256": "21e197903ba0e379449e5ed06707a88ae455c5dad4e2b2603f038d8faa896c45"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-03.png",
+          "sha256": "b7ad552ad07d1460e1568195d4722a53f24137ad0967be4c73d87f229c93a5eb"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-04.png",
+          "sha256": "2a6f7fc64beb96f44b80434da5d88686c28585a8f1cb82c639ee5f6052f0ea65"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-05.png",
+          "sha256": "91f4aaed9e803d4bd911d266838844644b1672ff0508ecfc9072f87a263a3dc8"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-06.png",
+          "sha256": "dc361c89d72ae252ff9fd7c7d2836ec79c6f3b53529a3751865c1e3837f93165"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-07.png",
+          "sha256": "88dea9fd02cf09023c99c3a4b0860628414bd9adab93eefc00748cab91437e17"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-08.png",
+          "sha256": "b05b067655a27501dcaa46e1be6f8a1ee71d839f0e676e78c7db88b31fd329c6"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-09.png",
+          "sha256": "43fc41ffd4b93a97d1c7fdebdeb3f43ecb6b2e9f204f6a73e3e76ea600a62398"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/122/card-10.png",
+          "sha256": "8241d0ba44f8951cf6fbe23402674515ec236859fecd808b633f6b34c7d24fa9"
+        }
+      ]
+    },
+    {
+      "id": 193,
+      "postId": "1wv02fz",
+      "contentSha256": "8221c8079a0ba32a1ee52f0b62742ddfbab265c4adfd2f383a2349a18a2041dd",
+      "question": "有哪些东西本打着「升级改良」的旗号，实际用起来却远不如老版本？",
+      "title": "打着升级旗号却越改越烂的东西",
+      "summary": "所谓的升级往往以牺牲耐用度、直觉操作和掌控感为代价，本质是在转嫁成本收割用户。",
+      "tags": [
+        "金钱消费",
+        "社会变迁",
+        "避坑指南",
+        "反常识"
+      ],
+      "answerCount": 13,
+      "cards": [
+        {
+          "index": 1,
+          "body": "汽车中控台上的实体按键被触控屏取代。开车时在屏幕多层菜单里调温度毫无盲操反馈，一旦点偏还要分心撤回，逼得司机视线离开路面，极其危险。触控部件甚至更容易坏，维修费比残值还高。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "无处不在的二维码替代了极简物理交互。去餐馆必须扫码看排版稀烂的网页；路边停车以前塞硬币就能走，现在得下载专属应用、注册、双重认证还要绑定银行卡，极其繁琐且伴随数据泄露风险。",
+          "sourceIndex": 8,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "智能手机取消 3.5 毫米耳机口、砍掉存储卡槽和可拆卸电池。厂商宣称为了轻薄防水，代价却是用户必须带转接头或伺候无线耳机；电池一旦老化换新成本高昂，变相逼迫消费者提前换新机。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "各类家电强行智能化与联网。冰箱坏了照明灯不能单换灯泡，要换整块电路板；热水器换上触控屏还要固件更新，死机就全屋断暖。大家不需要在手机里看冰箱温度，只想它默默制冷三十年。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "汽车功能被软件化与订阅制裹挟。开暖风要等系统升级，座椅加热变成了按月付费的订阅服务，车辆还在源源不断上传驾驶数据倒卖。买了一辆车，却感觉只是租用了一个被远程监控的巨型终端。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "必须强制联网才能启动的游戏。过去塞进光盘就能玩，如今买实体盘只相当于一张下载凭证，不仅要腾出巨大硬盘空间忍受几十G的首日补丁，单人模式断网都可能无法运行，买来的根本不是所有权。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "有线电视被流媒体拆分后的观看体验。从前开机按数字键就能看直播，换台只需单键轮播；如今要在各应用间来回切换，忍受数额不菲的多重订阅费用，即便付费了往往依然要看插播广告。",
+          "sourceIndex": 10,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "衣服、玩具和日用品普遍偷工减料。过去的东西做工扎实耐用，如今消费品充斥着脆弱的塑料件，连家用缝纫机内部的齿轮都从金属换成了三五年必坏的塑料，价格越卖越贵，质量却全面退化。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "内容平台的推荐机制。以前展示用户真正关注的内容，现在首页全被算法推测的眼球内容、旧视频和低质AI拼接垃圾塞满。就连搜索翻不到一屏也强插无关推荐，只能被迫把订阅页当主页用。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "全天候联网让人随时处于待命状态。固定电话时代家里没人，打不通就是打不通；现在即便在非工作时间，如果不秒回即时通讯消息，也会承受巨大的心理压力与无形的社交越界。",
+          "sourceIndex": 13,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-00.png",
+          "sha256": "020b98b43277e590dd3f5626b41421ff100758d6f50a14c0c5db6faf20b1cf1b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-01.png",
+          "sha256": "421c51afbe9858d439258997ece14dc8aaafd6a9436bcafcae8ea4fcf1b7bc22"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-02.png",
+          "sha256": "28bbcbf763b9a65a5afaa3869d91354c4ae9e3843ba528f7677c44e5d13001f1"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-03.png",
+          "sha256": "f1aeeb8f829de211d925e685ceba27524b0cf1cb1c838cd900658b85af0eb096"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-04.png",
+          "sha256": "1df3dc84a20ffb70d002c2ff003a1dff824c9ccbd5c731dd7ab7d639bb12b285"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-05.png",
+          "sha256": "fc303d61f3b59ededc6714db6639f3da9dfb830cd2b080fce133bc7f38abd19e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-06.png",
+          "sha256": "85e9a18ed3a0933d15fb944a3cde6500214dae194bf5e1c2096ff488842226b8"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-07.png",
+          "sha256": "fcd18d0ab3188e0a0357ebb238c790bb3fd47a804d22da604b74c5fb54941d1a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-08.png",
+          "sha256": "5cf25a118ab424fb301f9765e6a7aa27fe190193102e784facd68ffc92656a06"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-09.png",
+          "sha256": "925a10e250d69929de6bdf3adef4e275866df70ad8ad8ea7d5e818472408c8fb"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/193/card-10.png",
+          "sha256": "66c6e99006efedd978e7513d58f01e0b83d7d73e410295746f08c3cbf1d44220"
+        }
+      ]
+    },
+    {
+      "id": 213,
+      "postId": "1wv6qv0",
+      "contentSha256": "016c430d596bd96a095ec3707053136618828a53299ae395b9e5a1a3bccfd0be",
+      "question": "你在恋爱里踩过哪些再也不会犯的坑？",
+      "title": "亲身试错换来的恋爱避坑清单",
+      "summary": "亲密关系里最危险的错觉，是以爱之名试图拯救、改变对方，并无视早已暴露的人格缺陷。",
+      "tags": [
+        "婚姻情感",
+        "人性观察",
+        "避坑指南",
+        "相处之道"
+      ],
+      "answerCount": 23,
+      "cards": [
+        {
+          "index": 1,
+          "body": "仅仅因为太喜欢对方就无视危险信号。火花和化学反应再强烈，也无法消除根本上的性格不合。更别以为自己会成为例外，对方过去怎么对待别人，最终也会同样对待你。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "爱上一个人的“潜力”，而不是爱上当下的他。一定要看对方的实际行动而非嘴上承诺。当下暴露出的微小问题，随时间推移必定演变成致命缺陷，成年人能发生改变的程度远比想象中要小得多。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "试图去拯救或改变一个人。总以为能感化伴侣，最后不仅自己精疲力竭，还会招致对方怨恨。有些人只是想在恋爱里找个改造项目，而不是平等的伴侣；这本质上是在否定对方，充斥着挑剔与操控。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "原谅出轨的人，或者与曾有出轨前科的人交往。总以为“那都是很多年前的事了，他已经改了”，甚至对方在谈及过去时表现出强烈的愧疚与焦虑，但事实证明，习惯背叛的人绝大多数还会再犯。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "在见识过对方如何处理冲突之前就匆忙结婚。如果日常顺风顺水时相处很和谐，但一旦遇到矛盾就无法沟通、冷暴力或大肆爆发，婚姻注定会变成一场灾难。",
+          "sourceIndex": 21,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "容忍对方明显的缺乏尊重。千万不要当面咽下去，必须挑明沟通。真正珍惜你的人会感到抱歉并努力改正；如果提出对方不尊重人反而引发一场争吵，那就说明对方心里根本不在乎你。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "单方面乞求对方在乎自己，或者把冷漠当成证明自己“值得被爱”的挑战。在亲密关系里把对方需求置于自我之上；成熟平等的恋爱绝不该是一个人拼命追逐、另一个人高高在上地等着被讨好。",
+          "sourceIndex": 14,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "把时间浪费在临时取消约会、却把重新安排的责任甩给自己的人身上。如果有人临时爽约，理应由取消的一方主动提出下次见面的时间和地点，否则说明他们对浪费别人的时间和心血毫无愧疚感。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "玩各种无聊的心机游戏，比如“故意等几个小时再回消息”。如果对彼此感兴趣就坦诚回复，不感兴趣就直接说再见；拖延消息和试探不仅愚蠢，也是在消耗彼此的时间。",
+          "sourceIndex": 12,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "与有严重成瘾问题（特别是酗酒）或未经治疗的双相情感障碍患者约会。成瘾或未经妥善治疗的心理失调所带来的混乱生活与情绪风暴，绝不该由另一半来长期买单。",
+          "sourceIndex": 22,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-00.png",
+          "sha256": "9d5148aa5b5b59b68b20e9202ea7f12651da054ce9766cf1287a2ff423e41730"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-01.png",
+          "sha256": "43ee394049d8bfd43e3e29192f2ebd9a4147bcfa948f3a5f1c48c447e940e440"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-02.png",
+          "sha256": "45b459ba4345136e4b0864543f10628b7062c2184c3ea1c20f7c1704ef97de70"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-03.png",
+          "sha256": "a436feef69b70cfd5e18e95d2496f1381c039f694937bbab6b046a89633dc95a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-04.png",
+          "sha256": "aabb5bd7991d1da4f35c7f467b3ef056e3f869556166c1c62ed26713b8140538"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-05.png",
+          "sha256": "feb4f3f571e9d5236294e2f63343e83bb0af9359839871e38d5ea3ff657a691e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-06.png",
+          "sha256": "56fad85fbf47b4fb83283993ca1bd239f85fc3f50f192e965dc1133d175c9b3c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-07.png",
+          "sha256": "3b51448ff88b654c1f18bdaff8d9ff9f77fd18f6d9273e5ab5b85e518a146b52"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-08.png",
+          "sha256": "371d5d03b76d7bc7994df969b63c84cd380bd2c65994b8f43dbe575b1b3f6148"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-09.png",
+          "sha256": "db2eb79470bf8a7e997cc08b41b028376a5e8a59a3bd737b150a261bc5d04097"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/213/card-10.png",
+          "sha256": "22905928505aaa7968422aef769565d624a18a91dd5d155990437d5fcd5fb3b1"
+        }
+      ]
+    },
+    {
+      "id": 195,
+      "postId": "1wuuj5g",
+      "contentSha256": "a3fa1d70c021bd185738a9b81fdb586d056a87674e415fbda95ba5871af8fcc7",
+      "question": "“憋到发颤后释放的那一秒”：你体验过最极致的身体快感是什么？",
+      "title": "憋到极致后释放的生理快感",
+      "summary": "身体最极致的快感往往不是享乐本身，而是极度痛苦与压抑被瞬间清空后的彻底解脱。",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "亲身经历",
+        "意想不到"
+      ],
+      "answerCount": 31,
+      "cards": [
+        {
+          "index": 1,
+          "body": "生完孩子那一刻身体瞬间“不再怀孕”的空前解脱。胎盘排出的刹那、婴儿滑出体外的瞬间，整个人如同卸下万斤重担，甚至有人在产后一周兴奋得在床上翻跟头，终于能重新趴着睡觉。",
+          "sourceIndex": 4,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "肾结石剧痛后被推入一针氢吗啡酮。短短几秒内，血压从爆表的200/100骤降回120/80，浑身上下撕心裂肺的剧痛荡然无存，让人瞬间理解为什么有人会对阿片类药物成瘾。",
+          "sourceIndex": 10,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "肚子剧烈绞痛、整个人疼得蜷缩成一团时，突然放出一个长达三十秒、惊天动地的长屁。放完之后腹痛瞬间消失得无影无踪，整个人从“觉得自己快疼死了”瞬间切换回原地复活。",
+          "sourceIndex": 5,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "抠出彻底堵塞鼻孔的硬鼻涕块。用纸巾捏住一点慢慢往外拽，能清晰感觉到它顺着鼻窦深处一路滑出，仿佛是从大脑里抽出来一样，瞬间带来颅内高潮般的通气感。类似感觉还有咳出一颗巨大的扁桃体结石。",
+          "sourceIndex": 8,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "回家后解开穿了一整天的文胸，尤其是大罩杯的人，摘下后在后背狠狠挠上几下，那种如释重负感直击灵魂。",
+          "sourceIndex": 18,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "碰到毒藤引发极度奇痒后，终于忍不住用指甲去狠狠挠破它，或者用滚烫的热水直接冲洗患处。虽然对皮肤不好，但那种神经直冲脊椎的爽快感几乎堪比高潮，并且能让止痒效果维持好几个小时。",
+          "sourceIndex": 25,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "鼻中隔偏曲手术后，医生把塞在鼻腔深处的填塞棉条一把抽出来，能清清楚楚感觉到冷空气直接灌进大脑深处。",
+          "sourceIndex": 29,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "长时间严重恶心之后，终于一股脑吐了出来的那一秒解脱。",
+          "sourceIndex": 20,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "彻底长进肉里、甚至从脚趾侧面穿出来的嵌甲，被医生顺着导管从肉里硬生生拔出来的那一刻。",
+          "sourceIndex": 28,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "憋了极长时间之后终于能尿出来的瞬间，最初一秒的释放感简直不真实；有人术后发生尿潴留，膀胱胀到几乎爆裂，最后插上导尿管引流排空的那一刻，成了这辈子体会过最极致的解脱。",
+          "sourceIndex": 1,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-00.png",
+          "sha256": "c463b32b79730f135f896b30e58d0bbd2dffb47f5f7390364b3774c836c9cdbe"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-01.png",
+          "sha256": "1ecafba5a7bd6f05df18b51fccaf0726f6cf525a0e596ebc3ab3e8031172ad74"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-02.png",
+          "sha256": "6d1db277b7bf1a75157953a7e95b5558966ecc63c82ad34a65ce46e9d0027bac"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-03.png",
+          "sha256": "2b17193d4d6a809f0e4eaf9af50012f9cbee7a857f401ce3d21e1e57e2de0b37"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-04.png",
+          "sha256": "2b5bae9b3fe23a4dc24912368e8e4bfb5c6298510564c69d7a2253fec9fded63"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-05.png",
+          "sha256": "1d89e77b4ddaff8e23bf7a6ab3bade37a43e4ffcc3649fcf7d48f64fa38ddf1a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-06.png",
+          "sha256": "f673fc366bf02a16d04dbb7dd45a6fc534eceea96fd75dbc29d2ffa56ac52da9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-07.png",
+          "sha256": "030c29ea02f568344dc6c88d36774ed5b22ff362a457551d9c918bfbf3a40ea3"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-08.png",
+          "sha256": "645a3f6f787a9af683effc0fa55b4d96111ba987755f86496d03be3f0623647f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-09.png",
+          "sha256": "235c03a2d14b5b29f65c46b592ef361682e3056ece2d4474f250a203755dede7"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/195/card-10.png",
+          "sha256": "02022724e64d63fb6efd0d2e2fd5aacd65642863efa909e7f8edbec3cd924d49"
+        }
+      ]
+    },
+    {
+      "id": 300,
+      "postId": "1wynh5v",
+      "contentSha256": "fa28153b29a7357c453efa9599980be22ded0b949aa817c620c972fcc98b81cd",
+      "question": "教育工作者们，你们教过最聪明的学生后来都怎样了？",
+      "title": "老师教过最聪明的学生后来怎样了",
+      "summary": "天才并不总走向世俗成功，他们有的转行寻找快乐，有的被现实拖垮，人生走向各异。",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "亲身经历",
+        "普通人故事"
+      ],
+      "answerCount": 16,
+      "cards": [
+        {
+          "index": 1,
+          "body": "他靠着纯粹天赋一路混日子，直到大学把他彻底撞翻。如今他以修复老式意式浓缩咖啡机为生，整个人凶猛而纯粹地快乐着。其实高端商用咖啡机维修需要专业资质，如果接单稳定加出差，一年能挣二十万美元以上。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "读到博士并成为神经免疫学学者后，我极度厌恶科研体制，最终毅然转行成为全职消防员兼急救员。当年深造仅仅是因为擅长考试和做实验，并不代表喜欢。从世俗眼光看我偏离了轨道，但我热爱现在的工作，绝不后悔。",
+          "sourceIndex": 15,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "上次联系时，她正在渥太华大学操作一台 3 兆伏串列粒子加速器。当年她学术考试考了 1596 分，却拒绝了顶尖名校。其实我当年教她的是烹饪课，至于粒子加速器到底是干什么的，我至今完全没搞懂。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "在亚洲教理工专业，最痛心的是看着一届届最聪明有才华的女学生，毕业后成为全职主妇，精力耗在做家务和讨好婆婆上。即使她们丈夫资质远不如她们，社会与家庭的无形规训依然把顶尖女性彻底困在了灶台旁。",
+          "sourceIndex": 12,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "我带过一个 14 岁就能徒手拆装化油器的孩子，但他坐不住连考卷都写不完，老师都觉得他废了。十多年后他在三十多岁拿到证书，当上轮胎中心主管。他从来不笨，全靠汽修老师允许他动手，是我们用错了尺子。",
+          "sourceIndex": 9,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "我教重度与极重度特殊教育。我教过最聪明的女孩，现在在折扣百货当销售店员。她能独立上完一整班，帮顾客挑衣服、把货架整理得井井有条。虽然她算不了收银机，但我打心底里为她感到无比骄傲。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "以前在重度行为障碍班任教，当时觉得班上最严重的孩子归宿不是监狱就是照料机构。我帮他转介确诊了早发性精神分裂症。前几天偶遇他，他正在规范用药，还在专科学校读医学检验技师，过得生机勃勃。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "绝大多数聪明孩子的故事，结局取决于他们溺水时家里有没有人拉一把。我见过能心算微积分的孩子，因母亲打两份工，他不得不拉扯弟妹，到了高三就无声无息断了作业。他不是笨不是懒，只是把心力耗尽了。",
+          "sourceIndex": 16,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "我身边曾经最聪明的朋友，在名校攻读数学物理双学位，大家都觉得他前途无量。结果一天晚上他在公寓门前练习滑板脚尖翻板，摔裂头骨当场去世。大家在外玩滑板千万记得戴好头盔。",
+          "sourceIndex": 10,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "换学校任教后，学校招来接替我原来岗位的人，正是我当年带过的学生。成功把火炬亲手传给自己培养出来的孩子，大概是教师生涯里最值得炫耀的一件事。",
+          "sourceIndex": 8,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-00.png",
+          "sha256": "fe44b4b71fce16d442e9be22332420aef9e31ccf5fa1685233434694147707d4"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-01.png",
+          "sha256": "8ec7b62358bab9cce607c5eca2ebca02986bc430cb516202796fc2bdd7665930"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-02.png",
+          "sha256": "187c8efffb4b10464c95a86f89a274052c8bfa7cb19bbebccf45d31d8e06a595"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-03.png",
+          "sha256": "e2c18ac739a90e3bdb008845a26968f7616cb551d963950f67f3eed0e162fe81"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-04.png",
+          "sha256": "1cf37d30d6056cd99f89e09a8f0fd6aefdccdc2d90d4571ce5749016359c1476"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-05.png",
+          "sha256": "32c168014a7df4f44f9fcb1b253f6a66301819b7a39190bf9011f3bf2e2d35a6"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-06.png",
+          "sha256": "0c75b575492a3cbc4aadb517acc44962e350da23acde57e1ea02c382801b2ba2"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-07.png",
+          "sha256": "3ab1c94e6eb086435dd8784bd3fdc28af0792324ee592a610ec439de85163213"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-08.png",
+          "sha256": "1f192fbc8a6bdf94c07d5daf5a957ed80d2d17679c3d99ed9eaf1c14d3a05e3d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-09.png",
+          "sha256": "d04388631d198d7c1a825383bcc760e8510049f72c60f5f91341bf0ec703741f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/300/card-10.png",
+          "sha256": "10f5ae6e675685fcbd126b5a4e06c112a6c93adac64896b01bc7ceaccd2bc7c9"
+        }
+      ]
+    },
+    {
+      "id": 271,
+      "postId": "1wx1gla",
+      "contentSha256": "f5ec12f555e2ed8b357b5b7a512e25afeb6d5943f69e87c0f3f36421c508a570",
+      "question": "40岁以后才懂的生活真相：有哪些现实是年轻时完全没准备好的？",
+      "title": "40岁后让人措手不及的生活真相",
+      "summary": "身体机能与社会角色会在某天断崖式骤降，但真正的成熟是学会接受衰老并彻底为自己而活。",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "家庭关系",
+        "中年人生",
+        "破防瞬间"
+      ],
+      "answerCount": 24,
+      "cards": [
+        {
+          "index": 1,
+          "body": "内心总觉得自己只有二十来岁，但外表已经老了。不经意照镜子时常会吓一跳，心想镜子里满脸风霜的人到底是谁。问过九十岁的老人，对方也说心态跟五十年前毫无区别，只是当想做某些动作时，才发现躯壳已不听使唤。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "身体会出现各种来去无踪的神秘疼痛。睡姿稍微不对，脖子就能酸痛两周；检查后医生只会说“上了年纪很正常”。有些酸痛出现后甚至永远不再离开，你只能被迫习惯把肩膀或手腕的长期隐痛当成生活新常态。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "老花眼是避无可避的生理关卡。就像某天突然被人关掉了视力开关，昨天的视力还一切正常，今天就发现连药瓶上的小标签都变得模糊不清，不得不把日常眼镜推到头顶，或者必须随身携带老花镜才能看清手机屏幕。",
+          "sourceIndex": 12,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "当父母离开后，你会震惊地发现自己内心深处依然是个不知所措的小孩。哪怕年过四十，在遇到变故的脆弱时刻，每天依然会冒出至少一次“我现在急需一个真正的大人来帮我拿主意”的无助感。",
+          "sourceIndex": 8,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "很多人没准备好面对给父母换成人纸尿裤的现实，也没准备好承受看着至亲在漫长时间里一点点被阿尔茨海默病侵蚀成空壳的钝痛。那种看着至亲丧失记忆与自理能力的漫长告别，比突然失去亲人更折磨心智。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "在四十岁以下的人群眼里，你彻底隐形了。你会迅速与流行文化脱节，搞不懂现在年轻人在听什么歌、讨论哪个网红演员，也完全无法理解当下社交网络上的流行俚语。与此同时，后辈可能会把你当成不谙世事的过气老古董。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "你苦练数十年的看家本领，可能会在一夜之间被时代彻底淘汰。不仅是一家公司倒闭，而是你所在的整个工种或技术类别都被直接扫进历史垃圾堆，这种无力感在中年尤为残酷。",
+          "sourceIndex": 15,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "身体对酒精的耐受度断崖式下跌。年轻时通宵宿醉第二天还能照常晨跑上班，四十岁后喝上一两杯酒就能让人难受整整两天。身体对酒精的代谢彻底失去规律，与其苦苦硬撑，不如尽早戒酒保护肝脏。",
+          "sourceIndex": 18,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "年轻时的雄心壮志悄然冷却，“我要当上首席执行官”的抱负，到了中年大多会演变成“我要想尽一切办法在五十几岁时提前退休”。",
+          "sourceIndex": 20,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "四十岁后那种“老子不在乎了”的心态是一种前所未有的自由。年轻时的无所谓往往是掩饰自卑，内心极度在意别人的眼光。而到了中年，身材走样或秃顶不再让人焦虑，你终于明白不需要去讨好任何人，完全为自己而活。",
+          "sourceIndex": 5,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-00.png",
+          "sha256": "110483185157195dcc7fe983a70c4011a02ff6309e6f921c915252d12e8af7a8"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-01.png",
+          "sha256": "553ea7dfe0b66b7a6016bf8ebea85c852ba8982e8846cecbe15f0fec33ca2a22"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-02.png",
+          "sha256": "963add0db91e429c5ee9e938f99b1873b2c365898958594df8c48cc595bc7535"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-03.png",
+          "sha256": "bf5519a7d7f668346afc7b4bbaf08843c25caa0b620486909f7514acc1139513"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-04.png",
+          "sha256": "75e6b394dd7681ab78ff1324f060f29a47dd8cae99b9bbe01f63f7bd57f8b3b0"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-05.png",
+          "sha256": "067a1bc6e3350a53b96c810fe6e96124e687eb74b3fe6657ce43752912b93276"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-06.png",
+          "sha256": "c79e8ce25a835ca4f47f72ad685208d5a506da575261f799253eeb0f3a0ec746"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-07.png",
+          "sha256": "ab167e7ff1d5742d47a6d568e8279abae9a2afb6fb828a6551f2862ea2edc61d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-08.png",
+          "sha256": "33740886809421fea5c4e14a7b4e67cc74c465472820b56406cb07119cf100bc"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-09.png",
+          "sha256": "1a893a1d801eb5af2fd44abb70f580ff0e5ad595548ce5f2471503f9c8e279b4"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/271/card-10.png",
+          "sha256": "9c1a35f891662e98b72449153c13ccba9cd50ac31ebf7204b097f6a3799d49ab"
+        }
+      ]
+    },
+    {
+      "id": 210,
+      "postId": "1wvohlz",
+      "contentSha256": "f964dab9310df5f0d4e6640ebcef7fa9280fabc50f76bae5de6e3a3f6e531482",
+      "question": "那个你曾以为会做一辈子朋友的人，后来怎么样了？",
+      "title": "以为能做一辈子的朋友后来怎样了",
+      "summary": "多数挚友并没发生激烈争吵，往往只是某一方停止主动或悄然退场，关系便无疾而终。",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "相处之道",
+        "破防瞬间",
+        "普通人故事"
+      ],
+      "answerCount": 40,
+      "cards": [
+        {
+          "index": 1,
+          "body": "他只是某一天睡醒，突然决定不再做我的朋友了。没有任何激烈的争吵，也没有明确的由头，一个人就这么平白无故地彻底消失，留下另一个人在原地反反复复复盘过去，永远得不到一句解释或释怀的终局。",
+          "sourceIndex": 35,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "交流越来越少，我意识到每次都是我主动。我决定停下来试探看是不是多心了，结果从那以后再也没见过他，也没听到任何消息。听说他现在过得很好，我也为他高兴。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "他直接把我拉黑了。我是英国人，他住在美国，我曾两次飞去美国看他。原本以为我们是相识十五年、几乎每天都要聊天的挚友，后来我才意识到，对他而言，我或许自始至终不过是个笔友。",
+          "sourceIndex": 10,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "家里的猫咪刚刚去世，我整个人陷入崩溃。当我把悲痛告诉最好的朋友时，她甚至没有一句关心和安慰，发来的下一条消息竟然是向我兜售的二手笔记本电脑疯狂砍价，而她明明知道我刚为了救猫花光了积蓄。",
+          "sourceIndex": 38,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "残疾恶化后我必须靠轮椅，曾经生死与共的朋友开始避而不见，追问下竟说：“既然你不能再一起看演出，我们也没共同语言了。”二十年扶持换来一句看着我很让人抑郁。我最终把他们全部拉黑，这种人不配告别。",
+          "sourceIndex": 13,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "后来我才发现，他们需要的不过是一个听众。只要他们在说你就必须听着，轮到你开口，他们立刻掏出手机玩字谜游戏，毫无愧疚地告诉你游戏比你重要。你在他们眼里不是朋友，只是免费的情绪垃圾桶。",
+          "sourceIndex": 20,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "我们曾是铁三角。婚礼成了最后一次见他，没有争吵他就彻底断联。后来听说他离婚搬走，我去联系他母亲，对方只回复：“他永远不会再联系你们了，那是过去，他再也不想回顾过去。”挚友关系就此成了谜。",
+          "sourceIndex": 40,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "是我辜负了他。经历严重抑郁时，他一次次喊我聚会打游戏，我却一次次把他推开，直到他最终离开。我现在好多了，无比想念他，却不知道该不该重新联系，毕竟换作是我也不一定能重新建立信任。",
+          "sourceIndex": 14,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "两年前，我最好的朋友在乌克兰东部牺牲了。我们从五岁就认识，做了整整四十三年的挚友。随着他的离去，我身体的一部分也永远死去了。",
+          "sourceIndex": 31,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "他现在依然是我最好的朋友。五岁那年我搬到他住的那条街，当时三岁的他主动跑过来向我做自我介绍。如今我已经五十三岁了，我们认识了整整半个世纪，依然无话不谈。",
+          "sourceIndex": 6,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-00.png",
+          "sha256": "755b45ed4676c8fa166763f4b45f1398360d65c7a34e3143921ceaeac822fb71"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-01.png",
+          "sha256": "7764f689d61c077615c70ae4ed7df5c34e33cb4566bf9f5703cf5d4311bd85ef"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-02.png",
+          "sha256": "69c3c27b67486fc0b22dd5d916db25261187e2994138daf6c83373ad84e628cd"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-03.png",
+          "sha256": "10a712a988f3477423b8455a37badcbc974ca221fcc2cd3e950bcb13118e747a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-04.png",
+          "sha256": "265bde85f59060bc7fc61ec60a048278ecdfcf0281e4b25381c17f8bb7b19694"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-05.png",
+          "sha256": "4555db2f0bdd5f8b778a0c4946e83950137cf5a563ad4ae5021eba1d6b94f6ef"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-06.png",
+          "sha256": "c7aecdceb80977cb7b2ea1e4a04c84814a9a02fb5385a566ae81b1fbe945f586"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-07.png",
+          "sha256": "4abc347def64e6e9487fa0694b8bd1d3da3a4a1e88b88d37025752e89a65a03a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-08.png",
+          "sha256": "426fd6c0d7ef5794738b265e08615383405bc7f5ddcf12b6cf106a57cea2c490"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-09.png",
+          "sha256": "531e263c5a9566465159cff2d488afa90856cad234e993369fa023953211e53d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/210/card-10.png",
+          "sha256": "7669eb2b41bd5c0fec5a7c62455a4d3f88beae16e24d4be2e5ea67d8351f0cad"
+        }
+      ]
+    },
+    {
+      "id": 181,
+      "postId": "1wukwwx",
+      "contentSha256": "de357ecc43cc501bf3b87fcc1e926b53e1ead4c1d6c6f3c4fe5c5c4cef2d090d",
+      "question": "有哪些毫无证据却让人深信不疑的事？",
+      "title": "拿不出证据却让人深信不疑的真相",
+      "summary": "看似捕风捉影的民间直觉，往往精准戳中了资本操控、人际博弈与动物行为的真实底层逻辑。",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "意想不到",
+        "离谱见闻"
+      ],
+      "answerCount": 43,
+      "cards": [
+        {
+          "index": 1,
+          "body": "天气预报软件在每周一二会故意调高紧接着的周末降雨概率，以此诱导人们整个星期都频繁打开应用查看更新，从而大幅刷高广告曝光收益。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "猫完全清楚自己在干什么，把桌上的东西推下去根本是处心积虑。它们甚至会跳上书桌死死盯住你的眼睛，等你与它对视的瞬间当面把东西扒拉下去，纯粹就是在观察人类的反应。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "行人交通事故死亡率在持续下降多年后于 2009 年突然掉头反弹，根本原因就是智能手机的全面普及。司机在驾驶途中低头刷手机造成的伤亡与事故，数量远远超出官方记录的统计数字。",
+          "sourceIndex": 12,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "我坚信父亲过去每次得知我回家探望，都会特意在家里发明出一些「需要修理」的物件，好让我能多陪他呆一会儿。每次回去我们有大半时间都在合力修理那些根本就没坏的东西，修完后大家心照不宣。",
+          "sourceIndex": 6,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "标准普尔 500 指数企业的高管中至少有一半具备真正的心理变态特质。现代商业体制本身就是冷血机器，唯有那些能面带微笑撒谎握手、随手裁员几千人却不会失眠一分钟的冷酷之辈，才能顺利爬上权力的顶端。",
+          "sourceIndex": 22,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "在超市选购商品时，总会有原本根本不需要买那件东西的顾客偏偏走到你正站立的货架前装模作样地端详，逼得你不得不退让开来。",
+          "sourceIndex": 30,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "人类长期逃避和压抑的所有心理创伤与负面情绪，最终都必然会演变成真实的生理病痛。哪怕天天吃健康餐、做严苛的体能训练，只要心理的死结没有解开，身体早晚会替大脑买单。",
+          "sourceIndex": 19,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "大学和前女友分手时她顺走了电视遥控器。四年后她来我新住处喝咖啡，走后我新电视的遥控器离奇失踪，却在沙发缝里找到了当年那台旧电视的遥控器。我百分之百确定是她偷天换日，把旧的还回来顺走了新的。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "美国迟迟无法推行全民医疗，根本原因在于资方需要用公司捆绑的企业医保来钳制员工，让工人因为不敢中断医疗保障而无法轻易辞职、组建工会或发起罢工。",
+          "sourceIndex": 23,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "加拿大人之所以普遍待人谦和温厚，是因为他们把自己内心的所有暴躁与戾气全转移到了加拿大鹅身上，然后再把这群暴躁凶狠的飞禽向南驱赶释放。",
+          "sourceIndex": 33,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-00.png",
+          "sha256": "9edfac6f7e9ebc3310bd8cfdd4af57d01067fa4b62d5faa061487b22ca93c3bc"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-01.png",
+          "sha256": "514168339c87a5cbf3299dde93c1ff71a86ba3100f2f9592156b1727eaa3a8d8"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-02.png",
+          "sha256": "3223d588f14aa5a3968d60919da87c0010c016793dbe642d37efcedd0c28a338"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-03.png",
+          "sha256": "ef4b416374c71a31e13f1c05eafdc428c6f2d136205ee6c590a446625537e54e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-04.png",
+          "sha256": "3a8b7b54a8e7df294f1adcac4aea9cdb2a28bfd83181b8ca9b5b3463664edead"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-05.png",
+          "sha256": "40b99e64de2c3e3f7b3ba7f8ca968f5f7db99c25d0d68342cd6b1797d8b177cf"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-06.png",
+          "sha256": "b3af88e36c2ced11984810c449aa96adc0cc3d198166f2f0ced35b83d7fb7af6"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-07.png",
+          "sha256": "129a45cb4146fff1a03350c7a8c45173d4078f334119d1246aaae717b1f5a8da"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-08.png",
+          "sha256": "e322c9338e7cc7dce7453b813ddf18b95a8361b505d15ad86778077a014046a9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-09.png",
+          "sha256": "27b049a94a58e86aa01c47936e5138396cf967c01159dfde697799533482310a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/181/card-10.png",
+          "sha256": "93be7565e9a1e80a06867727220276cdf29af33bf80ed78c5ed2680a97f9c4ed"
+        }
+      ]
+    },
+    {
+      "id": 168,
+      "postId": "1wu1ukc",
+      "contentSha256": "075b0b5f13701b9a96490a18b49df0c6eaaaef0a75b81c1dff9d95f43e002b9b",
+      "question": "如果宠物能开口说十分钟话，你第一句会问什么？",
+      "title": "宠物若能开口主人最想确认的事",
+      "summary": "比起满足好奇，主人们最想确认的是它身体痛不痛，并告诉它自己总会回家、它彻底安全了。",
+      "tags": [
+        "家庭关系",
+        "人性观察",
+        "破防瞬间",
+        "相处之道"
+      ],
+      "answerCount": 16,
+      "cards": [
+        {
+          "index": 1,
+          "body": "抓紧这十分钟约定一套求救暗号：如果身体哪个部位痛或者胃里难受，就去平时绝不会待的特定墙角趴着。顺便核对几个困惑：你能听懂我平时说的话吗？抚摸力道合适吗？家里其他同类是真的喜欢还是在勉强容忍？",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "明确告诉它：你现在彻底安全了，每次我出门上班都一定会平安回家，不需要每次都那么害怕焦虑。",
+          "sourceIndex": 5,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "最想知道它心里到底给我取了什么名字。我知道自己怎么叫它，却不知道它怎么称呼我。搞不好它背地里只会管我叫“饭票奴隶”或者“那个兜里装满零食的胖子”；在猫狗的世界里，人类的名字大概只是一团气味标记。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "别再吃那该死的塑料包装袋和硬纸板箱了！",
+          "sourceIndex": 8,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "为什么今天还爱得要命的浓汁鸡肉块罐头，到了明天就碰都不碰一眼？这种挑食谜题折磨了无数铲屎官。有人每顿饭同时撬开两个不同口味的罐头，先拿到它鼻子底下闻，看它开始舔哪个就喂哪个。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "想知道从收容所领养回来的毛孩子在上一任主人那里遭遇了什么。为什么在这个充满爱的家里生活了整整11年，每次伸手想揉揉它的脑袋，它还是会瞬间把耳朵压平、浑身紧绷摆出一副随时准备挨打的防御姿态？",
+          "sourceIndex": 10,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "想问问家里天生残疾被摘除了一只眼睛的仓鼠：笼子住得还满意吗？平时照顾你的方式有没有让你不舒服的地方？当年小小的身体经历那场眼部手术时，到底疼不疼、心里害怕吗？",
+          "sourceIndex": 15,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "家里朝夕相伴的两只狗，其中一只在三周前不幸离世。主人最想利用这十分钟向留下的那只好好解释清楚：你的姐姐到底去了哪里，并不是谁抛弃了它，它只是永远换了个地方沉睡。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "高龄宠物正面临化疗或宣判生死的血液报告，主人最想看着它的眼睛问一句：你身上还难受吗，如果觉得太累了随时可以安心离开；但只要你还想继续撑下去，我就算拼命加班多打几份工，也一定会陪你战斗到底。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "想问问已经去往天国的毛孩子在那边过得好不好，有没有人天天负责给它扔网球、陪它玩耍，并郑重告诉它：你知不知道你曾经救过我的命？",
+          "sourceIndex": 9,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-00.png",
+          "sha256": "f4a6dbb9295cf4b91f5b5b29a2203597ff4812d6d81d9cb0eb23d3aaa0200527"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-01.png",
+          "sha256": "8d8864433e3a252db95c212e4cf8848f37bb4fe112bac216dd150e60b7ed94b5"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-02.png",
+          "sha256": "7a8a70eaeaed26ee4bdae206d6d28f514d087d19ea40364a2e0df73aee7d4d54"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-03.png",
+          "sha256": "7b6707a4ccb2197465d47b4c967604dff9df69cb6e9ef41d40511a7092a7d78b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-04.png",
+          "sha256": "3f961818ed102d039cbdb492b9893caac9c4263241506901e176b6c56968dcc3"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-05.png",
+          "sha256": "40fb7fd78a2a17a6340b0664d0f28ee097ee4f02e0487b86bc2a950df94a8ce8"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-06.png",
+          "sha256": "d84eec8a3b0d4057100233065bdbf6e763a354a9e0768507e2235c65cc40a21b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-07.png",
+          "sha256": "1994da73f617337cdb971c0da8d1fef689d93662770fbfe9e87963d613440e4f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-08.png",
+          "sha256": "629c4933f84313dbe627934e8d6b0e73572d31150c6ac0b33461adec18c497fa"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-09.png",
+          "sha256": "c0a087792609b628873bd88758c4695166463164961b4f65f3b114d24b8bad6d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/168/card-10.png",
+          "sha256": "726a97e7214430984318de2d16c20c4f23a7d6167ccc47d81990c43fa2ca6266"
+        }
+      ]
+    },
+    {
+      "id": 130,
+      "postId": "1wt8okt",
+      "contentSha256": "92d32dd4bc77e2fb464337783632622d5a315082986600345f3659a1c66d821f",
+      "question": "有哪些值得每个人至少体验一次的人生活动？",
+      "title": "一生至少体验一次的顶级瞬间",
+      "summary": "最高级的体验往往不是昂贵消费，而是彻底卸下责任的平静与突破极限后的释然。",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "人性观察",
+        "普通人故事",
+        "高赞问答"
+      ],
+      "answerCount": 30,
+      "cards": [
+        {
+          "index": 1,
+          "body": "拿到录用通知到正式入职之间的空档期。手里有了确定的下家，既不用查工作邮件，也不用焦虑生计，未来还没开始，眼下没人对你抱有任何期待，比普通度假轻松十倍，能彻底清空前一份工作积累的精神内耗。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "全家人尽兴出游后在返程车上全部熟睡，只有你一人清醒地握着方向盘穿过夜色。看着后座安稳幸福的家人，那种身处驾驶座上、默默为所爱之人遮风挡雨的平静胜任感，有一种难以言喻的魔力。",
+          "sourceIndex": 19,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "抱一只毛茸茸、软乎乎的小狗，或者让一只脆弱幼小的动物在你的怀里安心睡去。那一刻就仿佛整座宇宙都在告诉你：你是一个安全、温柔且值得托付的存在。",
+          "sourceIndex": 27,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "星期一早晨猛然惊醒、满心惊慌以为上班要迟到了，紧接着突然意识到今天其实是周日。",
+          "sourceIndex": 20,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "日全食带来的震撼。正午天空突然变成黑夜，太阳在天幕中缩成一个泛着光晕的黑色空洞，周围鸟类惊慌失措。那种超现实的荒诞感会直接触发战栗，瞬间就能理解远古人类为何会以为世界末日降临。",
+          "sourceIndex": 9,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "在经历了一整天筋疲力尽的重体力劳动后，喝下一大口冰凉透心、沁人心脾的冷饮。或者在热气腾腾的淋浴下喝上一罐冰啤酒，那种从感官到生理层面的舒爽近乎神圣。",
+          "sourceIndex": 12,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "从一次原本以为永远走不出来的心理创伤中彻底痊愈。无论那场创伤具体是什么，在外人眼里看起来有多琐碎或可笑，只要自己真正跨过了那道坎，整个人都会脱胎换骨。",
+          "sourceIndex": 24,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "在没有光污染的荒漠或高山深处露营，在刺骨的寂静中仰望夜空。亲眼目睹满天繁星与银河横跨苍穹时，人类对宇宙尺度的认知会被彻底颠覆，体会到一种令人心安的渺小。",
+          "sourceIndex": 26,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "在暴风雨交加、电闪雷鸣的昏暗天气里，独自开着车行驶在空旷无人的公路上，把最喜欢的音乐开到最大声，任凭雨刮器跟着节拍疯狂摆动。",
+          "sourceIndex": 13,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "拼尽全力去完成一件原本以为自己做不到的事。无论是从零摸索修好发动机，还是独自徒步走出大山、攻克极难的考试。那种突破自身极限的瞬间，成就感是无与伦比的。",
+          "sourceIndex": 8,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-00.png",
+          "sha256": "4fcfcb20a1254eae2e15737140a04dbc5a8da6b62d508cfa2584c5cea3383667"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-01.png",
+          "sha256": "ce060a60bdab48829ee490a509c0528d06466ac2781244c841e21cb4ce90f9cf"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-02.png",
+          "sha256": "c82369fc607c1fe0a646b41b9609d4e45e80b0f255fb94bdf608a5c5c6b018d6"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-03.png",
+          "sha256": "afcf6e1dff2558e2ba168debdc75d9d36d67531ee2521239f3c7d4de55ad8120"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-04.png",
+          "sha256": "d303fa582307afc20a31107aad0ccb09e4e26479e7d11e1783d547f960583ce8"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-05.png",
+          "sha256": "36399fb2b78d2643bc2c0f1c04ad543e232ab2b74b0a0637179d921dfe750e3d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-06.png",
+          "sha256": "437bf0d55b5ce4b1514d1b47c57aa191b3dc6b3036ca4b66f1954b2ada72eaed"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-07.png",
+          "sha256": "aae0c2a4c5d0486b6ad2261799f298a1c364d156a7e7efa945809383290a401b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-08.png",
+          "sha256": "193b6ea8b06cf6393f3d5bf14f15a225bd7e1a5cfe85e054a49b4984ce50ed0d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-09.png",
+          "sha256": "ff3922331de9cbbea1c9d156d4e0021db908e1da739c2220fad06c15247d40e1"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/130/card-10.png",
+          "sha256": "04f8fb4f2bc63625ca1a1a455bf6a670ece665c707721b9dcdd82a2ff4608e56"
+        }
+      ]
+    },
+    {
+      "id": 120,
+      "postId": "1ws6jfw",
+      "contentSha256": "01afcb99ab051b8c0db97108adcd45e0b59eec98fce4a3237db21f940bff582b",
+      "question": "二三十岁失去父母是怎样熬过来的？随着时间过去真的会变容易吗？",
+      "title": "二三十岁失去父母如何熬过来",
+      "summary": "时间不会减轻悲痛的重量，人不会真正走出来，只是学会了背负着这份空缺继续生活。",
+      "tags": [
+        "家庭关系",
+        "身心健康",
+        "破防瞬间",
+        "普通人故事"
+      ],
+      "answerCount": 22,
+      "cards": [
+        {
+          "index": 1,
+          "body": "悲痛就像你无法扔下的重担，重量永远不会减轻，像三十磅的哑铃永远是三十磅，但锻炼后你会更擅长背负它。我反感“彻底放下”的说法，现实中你只是找到了背负着悲痛继续生活的方法。",
+          "sourceIndex": 13,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "作为重症监护室护士，每天面对死亡甚至觉得是解脱。但唯一破防的时刻，是去农场或动物园，总忍不住想母亲要是能来该有多开心。看到好看的风景都想带他们看，想分享却再也无法分享，最让人心碎。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "这是成长的一部分。它会变成那种永远不会消失、但你余生每天都必须面对的事情，就像年纪大了之后得上的某种无法根治的慢性病一样。走在街上的大部分人，其实身上都背负着你看不到的重担，所以要时刻对人保持友善。",
+          "sourceIndex": 1,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "父亲在二十四岁生日前三天去世。每天都会想他，但最难过的是他错过了我后来整个人生的里程碑：没能看到我赚到体面收入，缺席了我的婚礼，也永远见不到我的孩子。这种缺席带来的遗憾格外深切。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "刺痛感会钝化，但在结婚生子或活到他们当年离世的岁数时冲击依然剧烈。母亲二十三岁时离世，三十多年过去我看关于妈妈的电影依然会痛哭。你永远无法彻底走出来，只是学会绕着他们留下的空缺继续生活。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "二十三岁时九个月内连失三位至亲长辈。十二年过去，人虽在往前走，但内心深处渴望有人无条件爱自己、求助时能随时打电话倾诉的空缺，永远不会彻底消失。生活还得继续，只是有些日子确实比平时更难挨。",
+          "sourceIndex": 11,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "最难熬的是身边人表现出“你怎么还没走出来”。后来我接受了永远不可能走出来：失去的不只是那个人，更是期待共度的未来。过去很多动力是想让父母骄傲，他们不在后，往往要迷茫很久才能找到新的生活支点。",
+          "sourceIndex": 21,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "事情不会变容易，只是你变坚强了。二十八岁失去父亲，如今每逢他生日，我都会特意去做一件原本会陪他一起做的事，用这种小小的仪式感，把丧亲之痛转化为重温他所给予的一切，在风景与音乐里感受他的影子。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "猛然发觉再无长辈为你指路，或高光时刻他们无法见证。当这些领悟击中你时，任由自己痛哭一场再继续前行。周一在办公室突然想为父亲哭一场完全正常，允许自己感受痛苦，是带着回忆走下去的必经之路。",
+          "sourceIndex": 18,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "拥有一位亲密到让你离别时痛彻心扉的至亲，本身或许也是一种幸运。母亲去世时如果关系疏远，生活可能不受影响，但那份剧烈的痛楚，恰恰是曾经拥有珍贵爱与记忆的印记。",
+          "sourceIndex": 22,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-00.png",
+          "sha256": "d12a232e5eef5973afdd056dc39d85a648cc8b7ce7efeada2c6d8f477dd5da79"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-01.png",
+          "sha256": "f125f19d78d1a35a9094fe24b75bc5bb77c348ba86804ddc078c6116e24c3e1e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-02.png",
+          "sha256": "9ad16800fd65e8db4696183a9f43f4e00935ceaff96e2a91d617fed4fb7fd884"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-03.png",
+          "sha256": "f1767b9450691479d4aab427ccaae8235f3d0094cd9145ccf091149e89a5ad71"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-04.png",
+          "sha256": "a6230d5968477077f1448029af0ec40af170e32847869fb84918a11ba57aa1ab"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-05.png",
+          "sha256": "a44a99328bc6188a75261c6e4e2988cbdba79241b0540a4d3be8f4c3313f31b6"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-06.png",
+          "sha256": "b90760b9c96ccbbd88b6e292381bce2a52b3a0d31e9d22e5457ad8480bfebde9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-07.png",
+          "sha256": "872f93846facea234294a3953c3eeca8b26acbc918b35064a37ff467197ce229"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-08.png",
+          "sha256": "bc384a1c09e860a30999bb74d1aa4a5256976fc1396548bb05bead6b5d6d7693"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-09.png",
+          "sha256": "8723b33123ebd75f37f55f14eab864a3c32df574fb88b524adb5d8ff9f4180a0"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/120/card-10.png",
+          "sha256": "d9b2313de469df93a582b02352aa7aa77ad4d145d7261ecefb7589e78bb8de18"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "postId": "1wqaqte",
+      "contentSha256": "60f8fbc9eb93bbc06dc3a94e3500b1f663873b3a1e99de8ae490896956f8523b",
+      "question": "过了25岁后，大家都是靠什么运动或健身项目来维持健康的？",
+      "title": "25岁后大家靠什么运动维持健康",
+      "summary": "大家不再盲目追求大重量和体型，而是转向护关节、练核心、保腿力与低门槛可持续项目。",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "健康常识",
+        "中年人生"
+      ],
+      "answerCount": 17,
+      "cards": [
+        {
+          "index": 1,
+          "body": "20 多岁单身时往往只顾练胸和手臂，到了 30 多岁，重心全变成了背部、腿部和核心力量。年纪渐长才发现体态和核心稳定性有多重要。如果害怕恢复不过来，可以把练腿拆成隔天进行，既不逃练也不影响正常走路。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "衰老最先击垮的往往是腿脚，许多长辈六七十岁爬不了五级台阶；而坚持几十年每周去高山重装徒步的长辈，82 岁依然稳稳住在多层楼房里。重装徒步能长久维持腿脚机能，腿部力量决定了晚年的行动自由。",
+          "sourceIndex": 16,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "匹克球。门槛低、趣味性强，有人靠它减掉了 40 磅甚至 120 磅，还结识了一大批球友。但千万别以为它完全没有运动风险，不少人在刚接触时就因为急停变向而撕裂了前交叉韧带。",
+          "sourceIndex": 8,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "攀岩和抱石。不仅是全身锻炼，能练出功能性腹肌与倒三角身材，还像在墙上解谜。许多人成家后放弃按固定时间组织的球队，转而在晚上孩子睡下后每周去一两次岩馆，既能社交，又达到了人生中最强健的身体状态。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "35 岁之后练拳击让人后悔没更早接触。但在 30 岁之后千万不要轻易尝试实战对练，哪怕普通头部对抗对大脑健康的潜在损伤也严重被低估。新手出拳没轻没重更危险，如果真想切磋，只打身体或者练习移动即可。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "每天坚持拉伸。这是最容易养成习惯的锻炼方式，对于改善体态和保持身体舒展非常有帮助。不过要想防止随着年龄增长而发生的骨质流失，光靠拉伸远远不够，依然需要搭配抗阻训练或负重练习。",
+          "sourceIndex": 10,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "彻底把自行车融入日常生活。单程 8 英里的通勤距离，加上顺路去办各种琐事，每周不知不觉就能骑上 100 英里，既解决了交通问题，又保证了充足的有氧运动量。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "健步走是门槛最低的健康投资。有人曾经极度肥胖、几乎伤残，戒酒并每天走路，从走几十步就剧烈咳嗽喘气，逐步推进到每天走 1.5 英里，累计减重 100 多磅。去动物收容所当志愿者遛狗也能轻松走满万步。",
+          "sourceIndex": 14,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "约场足球。这本质上就是一种纯粹的奔跑，完全不用去焦虑配速、心率或者跑了多少英里。极限飞盘也是同理。不过也有人提醒，业余球场上总会遇到一些急于证明自己的高中或大学前校队老爹，往往更容易导致受伤。",
+          "sourceIndex": 4,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "团体健身课。和同伴一起在课堂上受罪反而能激发额外的动力，把瑜伽、普拉提和动感单车结合起来，再偶尔进力量房做针对性抗阻，能兼顾平衡、核心、力量与柔韧性。",
+          "sourceIndex": 13,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-00.png",
+          "sha256": "3144ff94c9afdbe5d10d40b9d36cf9866befbda41164652ef46e66ef9e3275a9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-01.png",
+          "sha256": "e6293132d4663dc40eeda3526d907dd1add8bb4283b58bedc8ddf09212b7da69"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-02.png",
+          "sha256": "3d6a47f7a1d92fe81f2d43bb16fab71b7dfb5020db532c5be6a9e4d6ce16f20a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-03.png",
+          "sha256": "42d4f42bc8ea50651297f5fbffac86ca4ddcc27dc063561056bdca8afc3615bd"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-04.png",
+          "sha256": "7dc3b0105d3e993795b8493324eeed3d032c666594b1990cd3d4b6d7c628d9f8"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-05.png",
+          "sha256": "e1db2687e24ebb160d64fc39efd9d7096e1ed2b6c522bca925f6603f9813ae65"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-06.png",
+          "sha256": "06d8e45b0ad40e19e6763cd1c7d4cb64759397b3200b2ea9cf5143c41e73284c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-07.png",
+          "sha256": "07ff2cfb47d8e6637f7cd8e2b5df98da2d4c2c8f7d7d1cb1b22f9200fb2e920d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-08.png",
+          "sha256": "a41ef6ce9091ccf65652836c292f222a0714741fa8df3a60a79aa7d6f15d4a8c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-09.png",
+          "sha256": "c2b5368cf5fd16151dbb82c74ae9f8a51aef321a814a8671b01e33b0f6fb6e45"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/36/card-10.png",
+          "sha256": "543c84926901c703fed36f6cf24567ca70d7e1cf33340596ab95620363231d11"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "postId": "1wpc4vb",
+      "contentSha256": "6fb90737ed4d2eb5615c8b319aad9f66ce8098662eeff17ff88f5dfa4556f70f",
+      "question": "有哪些大学专业实际学起来远比外人想象的更折磨？",
+      "title": "远比外人想象更折磨的大学专业",
+      "summary": "它们要么披着浪漫外衣却全靠硬核数理支撑，要么在心理和肉体上带来超乎想象的消耗。",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "反常识",
+        "年轻人困境"
+      ],
+      "answerCount": 14,
+      "cards": [
+        {
+          "index": 1,
+          "body": "建筑学项目永远没有做完的一刻，模型能耗尽所有时间。期末当众答辩，评审把几十小时心血批得一文不值是家常便饭。有学生极度缺觉，用美工刀做模型时直接切开手掌，还有人因高压转去计算机系，反而觉得轻松得多。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "天文学常吸引只想浪漫看星星的人，直到高等数学、量子力学和广义相对论劈头盖脸砸下来。课程极其硬核，真正在这门学科拔尖的学生，可能连月亮平时打哪边升起都不知道，所有精力都在算公式、写代码和建物理模型。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "社会工作的难处在于心理重压。很多学生还没走出校门，就得去面对向患者通报绝症死讯、电话劝阻自杀倾向者、安抚情绪失控乃至持有武器的精神分裂症患者，或是向幼童解释父母在手术台上离世的现实。",
+          "sourceIndex": 10,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "纯数学有道绝望的抽象之墙。到了大三接触实分析和拓扑学，整门课连一个阿拉伯数字都见不到，全是形式化证明。残酷在理解上的断层：一旦抽象思维撞了墙，不管请多少家教、刷多少小时题，都无法真正开窍。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "气象学常被误以为是培养天气预报员，实际上是硬核的物理、数学和化学专业。数学量大到先修课就够辅修数学。天气系统变量极多，学深入后不仅不会因预报不准生气，反而觉得人类能预测到这个水准简直是奇迹。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "音乐专业偏重分析，理论复杂堪比高数。肉体消耗更折磨：为肌肉控制每天独练五小时以上，导致严重劳损，学校甚至要开课教学生科学站立以减少受伤。还要面对淘汰制考评与导师严厉训斥，高压程度让人心力交瘁。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "哲学真正的淘汰课是数理逻辑。很多人以为读哲学是高谈阔论，结果第一学期就被真值表、模态逻辑公式整得头皮发麻，本质更像硬核抽象代数。顶尖哲学文本晦涩严密，稍有逻辑漏洞就会被击溃，根本无法靠鸡汤混过去。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "游戏设计与编程劝退率极高。大批因喜欢打游戏入学的学生，很快被硬核代码与三维建模打垮。游戏物理引擎全在和数学公式与物理法则较劲，角色往前走一步穿模或弹飞，背后都是大量代数和数值逻辑的试错调试。",
+          "sourceIndex": 13,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "地质学看似爬山看风景，实则是数理化混合体。除了背矿物特征与搞定复杂投影，它还极其考验对模糊性的容忍度：岩层数据永远不完整，无法做确定性对照实验，只能在海量残缺线索中建立多种假说来反复权衡推演。",
+          "sourceIndex": 12,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "电气工程在工科内部也是公认的硬仗。许多人以为它跟机械工程一样直观有趣，结果一接触电磁场、信号处理和繁杂电路理论，立刻被极度抽象且肉眼无法观察的物理现象折磨，深奥到连资深电工都对其理论深度望而生畏。",
+          "sourceIndex": 14,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-00.png",
+          "sha256": "e46b4e1c5fdca42b1eb50a2f17302885555182988c578238a57fccc6a566904b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-01.png",
+          "sha256": "f5e8c7500649f7e6f6b1b8a4ac1c7f31142baa22a78c43eae16071699050c09c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-02.png",
+          "sha256": "2c56a5e8e72361b34b58bd9bdcc2932b79d4ba1f7d9cbf6e3dabde75f1ee0431"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-03.png",
+          "sha256": "ee803a9c61126f5655faea945c0268095152cd34db67f487c7558ac2c41e9bd9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-04.png",
+          "sha256": "bb4b3a74e5f3514622530343e00e04d8ec2e269f653e804c25294560e970b74e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-05.png",
+          "sha256": "a5a18f56c28e3ba0ecce5795f82a5c3552dd2b08f98e2a23b71c7010f01294d4"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-06.png",
+          "sha256": "2223f0d50a11b268f888858b7d64bcbaad34862feeeea6099c706663cc0547eb"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-07.png",
+          "sha256": "ef0508038c3b4cd29a6468e0f0621185d34464602f9f19fe27a7b7de173d6fe7"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-08.png",
+          "sha256": "8528dce4d6554e8db7de0200ac798133aa344b951412d561cef044bd11fcec2a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-09.png",
+          "sha256": "7ed521555764390bd425af2f052b49ca51f66715132605415d833248573cd343"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/2/card-10.png",
+          "sha256": "a329ad624a8bc2289403e093439187562be4e90cae982d9b38f2d65fed5306d9"
+        }
+      ]
+    },
+    {
+      "id": 330,
+      "postId": "1wzbc6m",
+      "contentSha256": "443becaa2507fe7eb78174d318d73aee7385b3b6f1ecfa8b187ec2e419acb340",
+      "question": "日常瞬间沦为绝境：完全真实却令人毛骨悚然的事故与遭遇",
+      "title": "日常瞬间沦为绝境的真实事故",
+      "summary": "致命危机往往藏在疏忽与未知的缝隙中，看似寻常的一步却已让人置身绝境。",
+      "tags": [
+        "人性观察",
+        "身心健康",
+        "细思极恐",
+        "反常识"
+      ],
+      "answerCount": 19,
+      "cards": [
+        {
+          "index": 1,
+          "body": "1983年拜福德海豚号潜水钟操作失误，舱门在减压前被打开，气压瞬间从9降至1。门边的潜水员遭遇爆炸性减压，体内流体瞬间汽化爆裂，残肢内脏被强压从门缝喷射出去。死亡发生在千分之一秒内，现场惨烈。",
+          "sourceIndex": 13,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "坦帕电厂为省钱未停机就派五人疏通管道，不知千度熔渣已在上体积聚。管道一通熔渣倾泻而下，最年轻的工人仅21岁，入职第四天，死前给母亲留言：“妈！救我！我被烧着了！”背景伴随着蒸汽声，直到哭喊停止。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "2022年帕里亚输油管事故中，突发爆炸将五名潜水员吸进直径仅80厘米的管道。一人侥幸逃出求救，但石油公司全力阻止外部人员施救。剩下的四人只能在逼仄漆黑的管道里互相祈祷，直到空气耗尽死亡。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "调查证实挑战者号机组在解体后并未当场死亡。乘员舱完整坠落了近三分钟，打捞出的应急供氧设备有三个被手动开启，仪表盘开关也有复位痕迹。机组人员极可能在清醒失控的恐惧中，全力挽救飞船近三分钟直至坠海。",
+          "sourceIndex": 17,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "1987年巴西两名小偷从废弃诊所拆出放射性氯化铯。它在黑暗中散发蓝光，人们误当成魔法矿石相互传看，甚至涂抹在儿童皮肤上玩耍。致命辐射在人体毫无痛觉预警下摧毁细胞，最终造成数人惨死和严重污染。",
+          "sourceIndex": 18,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "康涅狄格建造天然气电厂时，为图省事直接开阀把天然气吹进建筑物内扫除杂物。溅起的火花引爆整个空间，当场炸死约9人。惨剧发生后，安全监管机构才明令禁止用天然气吹扫管道。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "狂犬病发病后几乎必死。蝙蝠牙齿极其细小，咬痕在睡眠中难以察觉，很多人在卧室发现蝙蝠却因没觉出被咬而不打疫苗。只要在密闭卧室发现蝙蝠，或接触了反常温顺的野生动物，就必须立刻接种疫苗。",
+          "sourceIndex": 16,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "1986年温哥华世博会设计了旋转剧场转盘。施工方以这是联邦建筑为由，强行取消了安检员要求的自动安全停机装置。当转盘旋转与天花板隔墙咬合时，一名小女孩被活活挤压死在移动墙壁与横梁之间。",
+          "sourceIndex": 12,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "朊病毒极其绝望。有位身体强健、前一个月还在跑马拉松的病人，突发散发性克雅氏病。再见到她时，她虽睁着眼却已无法交流，任何声响都会让她发出凄厉尖叫并惊跳。该病发病后百分之百致命且无法逆转。",
+          "sourceIndex": 11,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "约会软件上曾有个和善的老人断断续续发了三年问候并邀约见面。直到新闻爆出，那人正是连环杀手Bruce McArthur。他在多伦多诱杀受害者并分尸埋入花盆。一次随手答应的邀约，差一点就是万劫不复。",
+          "sourceIndex": 15,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-00.png",
+          "sha256": "96fee0b60ba5e9c9409db590e69f142d6bd822ba408203335a66283fbcbd7956"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-01.png",
+          "sha256": "3f5e91315079dbc1b5dedb85c67e74b58d6c9d53668605fb30c4a1c7faa7bc1e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-02.png",
+          "sha256": "31198268c31eab7509d893a2307cdbf9610002e0e56c9c73556946340d9cfffe"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-03.png",
+          "sha256": "70dca29cf13e2e6195a158048b308390b410023677510ccc8522487c65cdde1b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-04.png",
+          "sha256": "9f50e3b7405cbd4216b59fe2da51d9c7e612b8b808ce91f06309d6ca5eb34c60"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-05.png",
+          "sha256": "2774947e2235873c59e61b5227bfa4f2e243a643df12cccfb35a6a1228e65746"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-06.png",
+          "sha256": "008879a7fd4b9c77ee8f87983835bc38d0bc491d41552b2c570717d04f8f874a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-07.png",
+          "sha256": "f584436f25bd64d987aee22447cae61fb46f00713f32ff874234786f98aca79f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-08.png",
+          "sha256": "0824ad7358860905db9ecd9b22f5b45b340bb347c7dadf399ad166680d550c61"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-09.png",
+          "sha256": "e5f79645fd6b9337b6597edbe8882c46861ca9345f2954dfc8f0eea9800d92af"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/330/card-10.png",
+          "sha256": "83654ece11599f9672311e607f1268030a3f7e1e89105c17d2098d32ae8dae32"
+        }
+      ]
+    },
+    {
+      "id": 303,
+      "postId": "1wysyu9",
+      "contentSha256": "eae6db7cf64ffe95e8d92cbef6ec17eaf926facb8098880579f34fa486373586",
+      "question": "女生对男生心动时，有哪些男生根本察觉不到的隐蔽举动？",
+      "title": "女生暗恋时男生看不懂的信号",
+      "summary": "女生心动往往表现为极度紧绷、假装无视甚至反向挑刺，常被男生误判为冷漠与拒绝。",
+      "tags": [
+        "婚姻情感",
+        "人性观察",
+        "相处之道",
+        "反常识"
+      ],
+      "answerCount": 15,
+      "cards": [
+        {
+          "index": 1,
+          "body": "对喜欢的人假装对方根本不存在，甚至当场退化到忘记怎么走路和站立。男生以为被彻底无视是讨厌自己的信号，甚至自觉退避三舍像遵守限制令一样；但女生其实只是在极度紧绷地掩饰尴尬，暗自祈祷别被看出破绽。",
+          "sourceIndex": 5,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "只要对方走进房间，第一反应就是立刻挺直腰板。这种从弓背如虾瞬间切换成人形的状态，堪称最真实的暗送秋波；而且为了不显得太刻意，接下来二十分钟还得咬牙硬撑着保持挺拔。",
+          "sourceIndex": 1,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "牢牢记住对方几个月前随口提过的微小细节，比如讨厌同事的后续、狗的名字或喝咖啡的偏好，并在后续闲聊中看似随意地提起。男生往往以为对方只是记性好，其实那是当时拿出了听天书般的专注度。",
+          "sourceIndex": 15,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "找各种借口把对话延续下去：问完全不需要问的废话、发“看到这个让我想起你”的随手拍，或突然翻出几天前聊过的话题。很多男生在傻等一个巨大的、直白的告白信号，却没发现女生一直在偷偷递台阶。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "面对真正喜欢的人反而完全不会聊天，但在普通朋友面前却谈笑风生。因为太在乎对方对自己的看法，生怕说错话显得无聊或尴尬，大脑疯狂内耗导致外在表现得极度僵硬冷淡，常常被男生误以为对自己毫无兴趣。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "刻意表现出“我绝对没有在看你”，却对你在房间里的每一个动向了如指掌；或者在健身房里总是恰好停留在离你不远的地方，视线永远落在你身边半米处却从不与你对视。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "夸男生的宠物“太可爱了肯定随爸爸”。男生以为只是在正经聊猫，还实诚地回答猫是领养的没见过猫爸；几年后半夜惊醒才意识到那是句丝滑的撩人话，而女生当时大概以为自己被体面地拒绝了。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "毫无原则地开启损人模式，只对自己中意的人疯狂毒舌。虽然很多男生会觉得这种无休止的挑刺让人心累甚至像暗藏敌意，但有些女生就是习惯把互损打趣当成表达爱意的方式。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "脸部神经突然紧绷甚至抽搐，为了不当场丢脸只能慌乱地完全移开视线。男生以为对方厌恶自己的存在而默默走开，殊不知女生只是在拼命克制自己不要露出傻笑。",
+          "sourceIndex": 9,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "反复暗示男方去自己的私人空间。婚礼派对上一位伴娘不断向男生安利新公寓，反复念叨“就在转角处、换了新家电、视野特别好”，男生还以为对方只是单纯热爱乔迁，直到女性朋友把他拉到旁边骂他是笨蛋。",
+          "sourceIndex": 10,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-00.png",
+          "sha256": "e99a75c100f24e48de1368c2043fb875bce9938631fe46daa6be234bdb027c9f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-01.png",
+          "sha256": "22e5d59435083b99084910fe18707bb4895508c988703a9ce4e0e874f3b4afbb"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-02.png",
+          "sha256": "18f244df14d852f8f245e2f64fffe5b56b84b705018f88359486313e4663a41d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-03.png",
+          "sha256": "9fa8d37615689905fba2b9da9ed6a88ea4bf4c1063766dd44d6bd2d2b81dd7ea"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-04.png",
+          "sha256": "bd2d0b6301da0ffcba64fc8b92555eece66ec24d3eed2c057dacb95b91e5229d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-05.png",
+          "sha256": "3e5b0b825baa4d7b5f9735a892ed3625fe4a337b36b3f93009bcd9eba5d6a6fd"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-06.png",
+          "sha256": "3d1af9e7e05d9c025656b4aa0847d40952f8964613a7e8430a6afa9c6504e431"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-07.png",
+          "sha256": "023334ef2b1aff42c6c33f9b26ebee2b055803e45d246b566ba1a0d4ab07138d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-08.png",
+          "sha256": "7dfab63c05b25912513ac3a325086fd95b1d33d981edb7e9132469d2d1d2e098"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-09.png",
+          "sha256": "33455a41ae521afa60b94f6cfb566aa529715c931d5431d04ceeba8974fa4e98"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/303/card-10.png",
+          "sha256": "49722dde9c42e361f78f41e96c8dcb7e9b17d8f36c5504af7efbf4528633ad9b"
+        }
+      ]
+    },
+    {
+      "id": 292,
+      "postId": "1wx8wwq",
+      "contentSha256": "d57b9105c3fcabe4bfef9b88e70e9bd2f2ead3d1770264390a44ec005b00b2d7",
+      "question": "两个人不再相爱时，最先浮现的是哪些无法掩饰的细微痕迹？",
+      "title": "不再相爱时最先露出的痕迹",
+      "summary": "真正的离开从不是歇斯底里的争吵，而是分享欲归零、连架都懒得吵的彻底麻木。",
+      "tags": [
+        "婚姻情感",
+        "人性观察",
+        "相处之道",
+        "破防瞬间"
+      ],
+      "answerCount": 43,
+      "cards": [
+        {
+          "index": 1,
+          "body": "开车回到家门口，看到对方的车不在车道上，心里竟然由衷地松了一口气。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "当遇到天大的好事时，他们不再是你第一个想要奔走相告的人。",
+          "sourceIndex": 17,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "亲吻的感觉变了。具体哪里不对劲很难用言语说清，但你心里很清楚，那绝不是从前的吻了。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "曾经为之抓狂的生活琐事升级成了彻底的麻木。洗碗槽里堆满脏盘子、脏衣服扔得到处都是，对方不再冲你发火吼叫，而是面无表情、眼神空洞地自己默默收拾干净。",
+          "sourceIndex": 39,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "答案全在眼神里。只要看一眼他们注视你的方式，你就什么都明白了。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "过去会让你抓狂生气的那些事，现在发生时你内心毫无波澜。从“这让我很难受”滑向“我根本不在乎”的转变，说明底层的感情已经彻底瓦解。",
+          "sourceIndex": 43,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "在糟糕疲惫的一天结束后，彼此之间再也得不到任何安慰与支撑。",
+          "sourceIndex": 40,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "就算彼此分开很长一段时间，你的心里也泛不起一丝一毫的想念。",
+          "sourceIndex": 21,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "两个人明明是伴侣，过得却和合租室友毫无分别。",
+          "sourceIndex": 6,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "愤怒至少说明你还在乎；当争吵彻底停止，取而代之的是纯粹的冷漠时，才是真正的大局已定。当你连架都懒得吵、一句多余的话都不想争辩，爱就已经不复存在了。",
+          "sourceIndex": 13,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-00.png",
+          "sha256": "3c286c089106ad73f1b050f1c80b8f161fdb693dd9e22c399663b48c89ab4336"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-01.png",
+          "sha256": "c266d6684cad12585cd42544a085389dd862804c49a37ee4d3b17fb30a01ed71"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-02.png",
+          "sha256": "ec69d7310003a91f4b818de4016121c70bcc3f95a972c09cda6e337b2be7eaf1"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-03.png",
+          "sha256": "f259aba42f16cc5b494787e541a5ce93582dd6247d783f7299d48f374491d551"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-04.png",
+          "sha256": "441045bbdb3984a7675d584a86ad2a3fa92f5404c40b484b96de1ccbe4628413"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-05.png",
+          "sha256": "77447d0cae7717ff91232a0e268a47c6102f434fd5ee8b4af259a53df037b7d0"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-06.png",
+          "sha256": "e6a403b4efa543969c7497681e1c914d5d01419d6dbfcf57f3a411a8bc0641a8"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-07.png",
+          "sha256": "24275455f9541b97ed42c64b49ba4f86bccdabf5ffa789ff58dfb79c1121770b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-08.png",
+          "sha256": "9883a085994901bb6aaa001c061d5a0876cf02b2c3f34312da7c390af48974e0"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-09.png",
+          "sha256": "f3a4683bdea75dc011e34f789992053226f2950d9cf0befc60a4748dea393a94"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/292/card-10.png",
+          "sha256": "1fd904643a4581267923eba86146ef8360a806ec6b52abe3bf186555e4030084"
+        }
+      ]
+    },
+    {
+      "id": 249,
+      "postId": "1ww092e",
+      "contentSha256": "ea2a3307f6bbc5881ccac9c4b07342b83d46dc0aefebe0eca84e624a2e664960",
+      "question": "如果能永久禁止求职面试里的一个问题，你最想删掉哪一句？",
+      "title": "求职面试最该禁止的荒谬提问",
+      "summary": "职场人最反感逼问薪资预期和虚伪套话，这些套路除了逼人撒谎毫无招人价值",
+      "tags": [
+        "职场生存",
+        "认知思维",
+        "避坑指南",
+        "破防瞬间"
+      ],
+      "answerCount": 13,
+      "cards": [
+        {
+          "index": 1,
+          "body": "「你的期望薪资是多少？」直接把岗位开多少钱说清楚，别再浪费时间。求职者报高了显得贪婪，报低了又贱卖自己，完全在玩猜心思的游戏。加州立法强制写明薪资范围后，不仅没负面影响，反而大幅降低了离职率。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "「你为什么想来应聘这份工作？」把面具摘下来吧，大家都是为了糊口，选这个岗位只是因为能胜任。计算机专业面软件开发，电工来修这栋楼而不是对面的楼，问为什么纯属多此一举。普通小公司真不用摆出非你不可的姿态。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "「相比其他候选人，我们为什么要录用你？」我又不认识其他人，甚至都不知道谁在竞争，横向对比候选人难道不是面试官领工资该干的活吗？问出来只会让求职者在心里怀疑是不是真有比自己强得多的人。",
+          "sourceIndex": 9,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "「你认为自己五年后会在哪里？」我连今晚会发生什么都不知道。如果回答留在贵公司，公司敢承诺五年不裁员且加薪跑赢通胀吗？在初创科技公司被问尤其好笑，诚实的回答通常是「反正绝不会还在你们这」。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "「你最大的缺点是什么？」这个问题纯粹是在测试求职者的撒谎水平，回答的人只能硬把缺点包装成优点，比如「经常在工作中多线程处理导致有点杂乱」。这种虚伪的套路对谁都没好处，完全是在浪费时间。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "盘问简历上的「职业空窗期」。如果每年换一次工作担心稳定性能理解，但单次较长的空缺几乎都只是生活遇到了变故：生病、照顾家人、遇到低谷或单纯想休息。这些是人之常情，说明不了专业能力问题，没必要刨根问底。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "任何涉及家庭或个人生活的问题都该被永久禁止，比如「你有没有孩子」，这只会导致就业歧视。即使法律明令禁止，面试官还是会换着花样打擦边球，比如问「有什么情况会导致无法加班」或「业余时间喜欢做什么」。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "「为什么离开上一家公司？」现在大环境动辄裁员，上一份工作被裁和这几百个同时投递的人没区别。如实说往往担心被扣上坏员工的帽子，最后只能千篇一律地背诵套话：「之前的角色没有上升空间，想寻求新的挑战。」",
+          "sourceIndex": 11,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "「请举一个在工作中遇到冲突并如何化解的例子。」基层岗位大部分冲突都是直接被上级否决，谁会在面试里讲自己犯错或说同事坏话？高压岗位矛盾来得快去得也快，为了应付这种模板问题，大家最后只能编一套假故事。",
+          "sourceIndex": 8,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "「如果你是一种动物，你会是什么？」这种心理测验极其傲慢和主观。有主管问候选人是哪种动物，对方随口答了「狼」，主管就主观臆断对方是缺乏合作精神的「独狼」直接淘汰。这除了满足面试官的筛选欲毫无价值。",
+          "sourceIndex": 10,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-00.png",
+          "sha256": "ca09c4d3226876dab2faef9ccd7a7a5f0434cfe0fc413fe7b3462f62b3bf7a6f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-01.png",
+          "sha256": "96ce2c6f22e06816226afce2b7ebe66809e0c7a8bfb5845d17a50d558660081b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-02.png",
+          "sha256": "e071df0ff875b01535b7e5c5a3d8a7204080307923c44743adc9a34ab9fa0693"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-03.png",
+          "sha256": "12d07223681a39a99be4455a015e4852e19456ed5f0bd31123abfe3fa3ff0559"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-04.png",
+          "sha256": "77d9216614c2b08635f7c815d37e0d2cc4ab52f9bcea95c0c57a1aa8f5f4b72d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-05.png",
+          "sha256": "3824e4831d4b886a184dfe2b305137ccd6d73e28b2702d013fdfbbb5e4179172"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-06.png",
+          "sha256": "dba13bc396776ded630b661c1b5a100149749f1615fe8ee6e169335efcfaa58a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-07.png",
+          "sha256": "4235a2165e9b7e765d0327723c08ef2fc22a5da2d009bdca955f2514a376884f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-08.png",
+          "sha256": "69f961914f2b4099e5957013bcfd3e48eed7491f9b049e7cdb8f1bd9b2d8429d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-09.png",
+          "sha256": "a9a09429c6e09b4ac9e973054501d863aad3402447e910bfc55e91be0ec158cd"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/249/card-10.png",
+          "sha256": "c27814af9ce4846f2612dc80967712ad8c8fb4e372030ea46b520613db55c9b8"
+        }
+      ]
+    },
+    {
+      "id": 236,
+      "postId": "1wvarjl",
+      "contentSha256": "c79e761ada57bc69dd5c3d8b900931011d9b64244f431ed318d224202bcb803a",
+      "question": "当大脑疯狂胡思乱想停不下来时，怎么才能让它彻底“强制关机”？",
+      "title": "脑子疯狂胡思乱想时如何强制关机",
+      "summary": "强制关机靠的不是硬扛，而是用微小机械动作、极度专注或外部刺激强行打断反刍。",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "生活妙招",
+        "反常识"
+      ],
+      "answerCount": 17,
+      "cards": [
+        {
+          "index": 1,
+          "body": "去看一部恐怖片。把内在那种无处安放的心理焦虑转化为针对屏幕的外部惊吓，反而不会一直困在自己的小脑瓜里胡思乱想，看完反而能安稳入睡。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "心理咨询师教过一个极管用的招数：找一根鞋带或者长毛线，坐在那儿不停地在上面打结。把全神贯注放在打结这种极度琐碎无聊的小动作上，大脑不知不觉就被重置了。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "去做那种必须全神贯注、稍微分心就会遭殃的高强度运动。比如大重量硬拉、间歇高心率冲刺，或者对抗性球类运动和山地骑行——在这种路上你敢走神一秒，整个人就直接栽在石头堆里了，大脑根本没空去焦虑。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "玩字母接龙来骗过大脑：随机挑一个较长的英文单词，比如“SOMETHING”，然后依次按每个字母开头去想词，直到把自己想晕睡着。这能欺骗大脑，让它以为眼下根本没有发生任何重要的大事。",
+          "sourceIndex": 13,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "把插头拔掉，扔到另一个房间去。一旦脑子停不下来，我就换个地方，直接搬去沙发或者客卧睡；如果是工作上的破事缠在脑子里，我就从书房转移到卧室躺会儿，甚至溜达五分钟去附近的沿街商铺喝杯啤酒。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "学会“观察”而不是“思考”。闭上眼睛，抛给自己一个极度无聊的问题，比如“太阳为什么是黄色的？”，然后闭着眼静静“看”答案浮现，不要用力去推理或逼自己思考。只管看下去，不知不觉就能像婴儿一样睡着。",
+          "sourceIndex": 8,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "逼自己去听书或者有声书。每晚睡前放上一本，强迫注意力跟着朗读者的声音走，给大脑找点事情做，听着听着不知不觉就睡过去了。",
+          "sourceIndex": 4,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "找无脑搞笑的经典动画片来看，比如《兔八哥》或《猫和老鼠》，或者看老牌情景喜剧。只要能把人逗乐，原本纠结的思维模式瞬间就被打断了。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "给脑子里跳出来的每一个想法按顺序编一个数字，然后强迫自己把这串数字按顺序死记硬背下来。",
+          "sourceIndex": 17,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "练呼吸。可以用“4-6-8 呼吸法”：吸气四秒、憋气六秒、呼气八秒，重复做上五分钟；也可以做盒式呼吸法，把全副心思钉在呼吸的一进一出上，一旦脑子又开始跑偏，就立刻拉回呼吸。放下手机，给自己断联几分钟。",
+          "sourceIndex": 5,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-00.png",
+          "sha256": "ff64fb027299a478b8af706433718447a93f2ca2ac3b214e698319ec9b2a9adb"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-01.png",
+          "sha256": "df9c4b2f328bf9e872f161a90fe0d2499cd3d5442321243606fe230e568b611b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-02.png",
+          "sha256": "f4281633d571cc6a3094ad84e4e94b415449779ba51cac090eb8e5d71f319eb5"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-03.png",
+          "sha256": "77882a40afa54bed15576304c61e4b962bff91089dbf17a0c7843ee9143fee6e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-04.png",
+          "sha256": "10f5fcbd33a85458a0d06b733fb7d24f6f1f38a46adb18cb41dd8095f94cdbd5"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-05.png",
+          "sha256": "f6fa95fe11e90d8997825591186eb7d852caf3de6b78ae8038208fcfe25eb93f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-06.png",
+          "sha256": "88e42b8c0d2de1ac62c483e35597c613b95627ac04a6c53c42f46cb9c4d3e909"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-07.png",
+          "sha256": "0ab55bea83beb3bfe91749c03ee8018af2f1349075a1f8bb971af27cdd23dda6"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-08.png",
+          "sha256": "0c8ccc399744274f29c3a85f43c822e316f270a051350a90f3595f40c2104614"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-09.png",
+          "sha256": "cdceff640cd75aa14d4b51caefde6a1e1c406185d1219a7fcbb4ac3f86712268"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/236/card-10.png",
+          "sha256": "0a5222acb26ec15b7efef838187b4e5a1de403a0cc6b53a332ea9633c34dff9e"
+        }
+      ]
+    },
+    {
+      "id": 209,
+      "postId": "1wuvk15",
+      "contentSha256": "19a264bc8b177f0cb15269d74c0662c4ccc12373dc901dfe82e850829936d0cd",
+      "question": "什么声音能让你瞬间警觉并拉满注意力？",
+      "title": "瞬间让人神经紧绷的声音",
+      "summary": "最让人本能惊醒的不是巨响，而是幼儿突然的死寂、宠物的干呕与手机摔落的脆响。",
+      "tags": [
+        "人性观察",
+        "家庭关系",
+        "身心健康",
+        "意想不到"
+      ],
+      "answerCount": 35,
+      "cards": [
+        {
+          "index": 1,
+          "body": "四岁大的孩子突然安静超过六十秒。在带娃的日常里，这种死寂往往意味着灾难即将发生。",
+          "sourceIndex": 2,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "家里的狗开始发出要呕吐的干呕声，或者突发癫痫的动静。哪怕是深更半夜睡得正香，听到那阵熟悉的节奏也能瞬间惊醒跳下床。",
+          "sourceIndex": 6,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "手机正面朝下砸在地上的声音。不管当时有多困或者在干嘛，都会瞬间爆发出短跑选手的速度冲过去，只为了看一眼屏幕到底碎没碎。",
+          "sourceIndex": 5,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "老婆长长地叹了一口气。那一瞬间脑子里只会跳出两个念头：是我做错了什么，还是孩子们又干了什么好事？要是她的脚步声变得沉重，叹气声格外清晰，那就意味着批评、指责或指令马上要砸过来了。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "家里不该漏水的地方突然传来了滴水声。",
+          "sourceIndex": 22,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "手术进行到一半时，高频电刀设备突然发出不规律的警报蜂鸣声。",
+          "sourceIndex": 28,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "曾经用来当上学闹钟的那首歌。只要把一首歌设成起床闹铃，日后无论何时何地听到，都会产生强烈的厌恶和应激反应。",
+          "sourceIndex": 26,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "猫在猫砂盆边缘疯狂扒拉的声音，或者是疑似猫把尿尿在猫砂盆外面的墙上的动静。只要那道怪声一响，整个人会像猫鼬一样瞬间直立起来，拼命分辨这到底是尿声还是环境杂音。",
+          "sourceIndex": 21,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "Outlook 收到新邮件的提示音。",
+          "sourceIndex": 3,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "餐厅厨房里的出单机吐出点菜单时的打印声，意味着新的订单又砸进来了。",
+          "sourceIndex": 34,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-00.png",
+          "sha256": "52ab163da9961813aa4b9ed174dcb25c2bb356fff133fa40b6d72e632ceb8130"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-01.png",
+          "sha256": "9162d5862ebc9355f95df08774e9c359faf4c6a9161938caa930978cfbb35932"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-02.png",
+          "sha256": "b77b5d24452956f7e48c44afdb9a1505bf98d20f86fd4cee99765d1426f78752"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-03.png",
+          "sha256": "d40ffe570b31040c739ec98fb98f47b44a1c9b4365ab1733d84ee2fec061a5fe"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-04.png",
+          "sha256": "3c816acabaa1c978d3777180578e8ae9bc1fcb1128b21c93add412cc7a2a1b4f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-05.png",
+          "sha256": "d38000187d85998bbe935b2f31e2e81db124e1465df98f22a0f153f700ccc388"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-06.png",
+          "sha256": "c1cd6a27fbb8d10fa86e520f427771adb023274efb33c447b32eef25822bd0af"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-07.png",
+          "sha256": "fb8900bf45856b05fe8deefee76c3b5e6eefcded65ca11ab8c25967bbc2e785f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-08.png",
+          "sha256": "038b3acac7e65ef7d8ece37ffb13c10d96599d946a3e1c1b597076f1b63821cd"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-09.png",
+          "sha256": "13c79f3953647d1027923c2768dc3324654e0fab09b1b755e02f638d0b65d6c8"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/209/card-10.png",
+          "sha256": "53208f8a683cda1721ca1d428b3de78a4d82adfc83ab0fe3b41581d778df6d71"
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "postId": "1wsb8fl",
+      "contentSha256": "7e0faabf5ab5ccb1984df394e90708cf2c5b640015371e816075e83b165b0b59",
+      "question": "从一次性买断软件到免于被拍摄的隐私：千禧一代盘点2000年代习以为常如今却成奢侈的体验",
+      "title": "2000年代习以为常如今成奢侈的体验",
+      "summary": "当所有物品都被改造成按月付费与全天候监控，随时离线与真正拥有成了回不去的特权。",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "年轻人困境",
+        "反常识"
+      ],
+      "answerCount": 20,
+      "cards": [
+        {
+          "index": 1,
+          "body": "当年出门疯玩、丢人，完全不用担心路人举着手机把你拍成短视频发上网。“像无人注视一样跳舞”在智能手机普及后彻底死了，如今不仅随处有人拍视频，智能门铃和监控更是无处不在，连在街区走动都逃不掉。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "买断制软件是一次性交易，买完后一辈子都不用再跟开发公司打交道。当年软件开箱即用，更新极少且非必须；Photoshop 买了就是你的，而不是现在这样按月付费买一份随时可能被取消的访问授权。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "拥有一部手机，但周围人不会默认你必须随时保持联络。那时发短信按条收费，社交媒体也得坐在电脑前特意登录，一天只看一两次。现在的手机成了永远在线的焦虑来源，大家连放空几分钟独处的时间都没有了。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "当年 5 美元能买 5 个牛肉汉堡，或 2 美元买两个双层吉士汉堡当穷人套餐。现在快餐价格翻了几倍，一家四口吃顿汉堡王要超 40 美元，且除非掐着手机优惠券点单否则根本吃不起，味道反而缩水严重。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "真正耐用、坏了能自己修、能扣开后盖换电池的电子设备。当年的硬件做出来不是为了几年就报废，现在的产品全被胶水封死，电池老化就只能整机扔掉，包装盒上却还假惺惺地印着环保可回收。",
+          "sourceIndex": 20,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "注册网络账号不需要绑定真实手机号，也不用动不动就跳出双重认证（2FA）。当年的互联网允许你拥有多个互不相干的匿名身份，而不是干什么都强制关联现实身份。",
+          "sourceIndex": 12,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "聚在同一个房间里玩本地合作游戏。以前大家为了局域网派对可以扛着电脑互相串门，或四个人挤在小电视前玩分屏游戏。现在的联机全变成各自孤独地坐在屏幕前上网，实体游戏盒里甚至只有一张数字下载代码纸。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "现实生活里的安宁。现在的世界太吵闹紧绷，走到公园、海滩或徒步小径，到处有人带蓝牙音箱大声外放音乐甚至互相对飙。想找一个不被打扰的安静角落，如今往往需要花钱或专门做复杂的出行计划。",
+          "sourceIndex": 14,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "只要装一根天线看几个免费频道，就能看全本地球队一整季的所有比赛。现在的体育赛事转播权被拆得稀烂，分散在各大付费流媒体平台上，不买一堆订阅根本看不起。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "靠普通薪水就能买房。2000 年代末，夫妻俩拿着几万美元普通年收入、几千美元存款，就能付首付买下小房子，月供比租房还便宜。而现在即便是高收入人群，也很难靠正常工作承担当年的同款房产。",
+          "sourceIndex": 5,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-00.png",
+          "sha256": "3767fc63ca5f676228951bedae657bbf37be4e0d6b5f2d8a6880b57b9fc09730"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-01.png",
+          "sha256": "084391b6078f4d1191c42687cceb05587c0e07a7261ef91cba57971a4cccdf1f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-02.png",
+          "sha256": "22af352823571aaee4c1ea50b3f09840127f224700f34d15b6dff77a2679d11b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-03.png",
+          "sha256": "9ecd621bf87d7369c4d922466c51ccebfc89603907083b99fa26f358eedb788e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-04.png",
+          "sha256": "545388ee94f153fce0886c2d980adb2a0387ea094796e474ef68766821f183fa"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-05.png",
+          "sha256": "391e31a10eda4d0162494467ce893a4edbdadcb116beb9808571b28e79f9ef43"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-06.png",
+          "sha256": "413e2102d35ef6d0cfce43d82ac30b14e85989a0d7d1fa9a4f24b8eb0dcd0c03"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-07.png",
+          "sha256": "5dc0b0f99869000a4b4a4f04acfd53e8c7138eda9750a7e299d8f11f3f8959f3"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-08.png",
+          "sha256": "f989dd657fb613b4e882fdb57f397091c578f2f53c983c905afd76d22821e0de"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-09.png",
+          "sha256": "644c859da38c56a0e4e21bfec51a5165f2457bc12501dc72b2e011ced6d657d2"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-09/95/card-10.png",
+          "sha256": "12fbf4027840375353b410e6745d2728ce456e51bb305011c4ed54dc67842b99"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "release": {
+    "tag": "reddit-life-cards-2026-10-09",
+    "assets": [
+      {
+        "asset": "122-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-00.png",
+        "sha256": "6884b2ec8e5030bd3141e744078c0b8f274bac937d41305da00ac01d5494ea88"
+      },
+      {
+        "asset": "122-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-01.png",
+        "sha256": "ebb13401b448c4a5887fe836cb2b8b395f44f5f9d17739acfcadea08d6380f0b"
+      },
+      {
+        "asset": "122-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-02.png",
+        "sha256": "21e197903ba0e379449e5ed06707a88ae455c5dad4e2b2603f038d8faa896c45"
+      },
+      {
+        "asset": "122-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-03.png",
+        "sha256": "b7ad552ad07d1460e1568195d4722a53f24137ad0967be4c73d87f229c93a5eb"
+      },
+      {
+        "asset": "122-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-04.png",
+        "sha256": "2a6f7fc64beb96f44b80434da5d88686c28585a8f1cb82c639ee5f6052f0ea65"
+      },
+      {
+        "asset": "122-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-05.png",
+        "sha256": "91f4aaed9e803d4bd911d266838844644b1672ff0508ecfc9072f87a263a3dc8"
+      },
+      {
+        "asset": "122-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-06.png",
+        "sha256": "dc361c89d72ae252ff9fd7c7d2836ec79c6f3b53529a3751865c1e3837f93165"
+      },
+      {
+        "asset": "122-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-07.png",
+        "sha256": "88dea9fd02cf09023c99c3a4b0860628414bd9adab93eefc00748cab91437e17"
+      },
+      {
+        "asset": "122-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-08.png",
+        "sha256": "b05b067655a27501dcaa46e1be6f8a1ee71d839f0e676e78c7db88b31fd329c6"
+      },
+      {
+        "asset": "122-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-09.png",
+        "sha256": "43fc41ffd4b93a97d1c7fdebdeb3f43ecb6b2e9f204f6a73e3e76ea600a62398"
+      },
+      {
+        "asset": "122-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/122/card-10.png",
+        "sha256": "8241d0ba44f8951cf6fbe23402674515ec236859fecd808b633f6b34c7d24fa9"
+      },
+      {
+        "asset": "193-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-00.png",
+        "sha256": "020b98b43277e590dd3f5626b41421ff100758d6f50a14c0c5db6faf20b1cf1b"
+      },
+      {
+        "asset": "193-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-01.png",
+        "sha256": "421c51afbe9858d439258997ece14dc8aaafd6a9436bcafcae8ea4fcf1b7bc22"
+      },
+      {
+        "asset": "193-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-02.png",
+        "sha256": "28bbcbf763b9a65a5afaa3869d91354c4ae9e3843ba528f7677c44e5d13001f1"
+      },
+      {
+        "asset": "193-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-03.png",
+        "sha256": "f1aeeb8f829de211d925e685ceba27524b0cf1cb1c838cd900658b85af0eb096"
+      },
+      {
+        "asset": "193-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-04.png",
+        "sha256": "1df3dc84a20ffb70d002c2ff003a1dff824c9ccbd5c731dd7ab7d639bb12b285"
+      },
+      {
+        "asset": "193-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-05.png",
+        "sha256": "fc303d61f3b59ededc6714db6639f3da9dfb830cd2b080fce133bc7f38abd19e"
+      },
+      {
+        "asset": "193-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-06.png",
+        "sha256": "85e9a18ed3a0933d15fb944a3cde6500214dae194bf5e1c2096ff488842226b8"
+      },
+      {
+        "asset": "193-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-07.png",
+        "sha256": "fcd18d0ab3188e0a0357ebb238c790bb3fd47a804d22da604b74c5fb54941d1a"
+      },
+      {
+        "asset": "193-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-08.png",
+        "sha256": "5cf25a118ab424fb301f9765e6a7aa27fe190193102e784facd68ffc92656a06"
+      },
+      {
+        "asset": "193-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-09.png",
+        "sha256": "925a10e250d69929de6bdf3adef4e275866df70ad8ad8ea7d5e818472408c8fb"
+      },
+      {
+        "asset": "193-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/193/card-10.png",
+        "sha256": "66c6e99006efedd978e7513d58f01e0b83d7d73e410295746f08c3cbf1d44220"
+      },
+      {
+        "asset": "213-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-00.png",
+        "sha256": "9d5148aa5b5b59b68b20e9202ea7f12651da054ce9766cf1287a2ff423e41730"
+      },
+      {
+        "asset": "213-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-01.png",
+        "sha256": "43ee394049d8bfd43e3e29192f2ebd9a4147bcfa948f3a5f1c48c447e940e440"
+      },
+      {
+        "asset": "213-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-02.png",
+        "sha256": "45b459ba4345136e4b0864543f10628b7062c2184c3ea1c20f7c1704ef97de70"
+      },
+      {
+        "asset": "213-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-03.png",
+        "sha256": "a436feef69b70cfd5e18e95d2496f1381c039f694937bbab6b046a89633dc95a"
+      },
+      {
+        "asset": "213-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-04.png",
+        "sha256": "aabb5bd7991d1da4f35c7f467b3ef056e3f869556166c1c62ed26713b8140538"
+      },
+      {
+        "asset": "213-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-05.png",
+        "sha256": "feb4f3f571e9d5236294e2f63343e83bb0af9359839871e38d5ea3ff657a691e"
+      },
+      {
+        "asset": "213-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-06.png",
+        "sha256": "56fad85fbf47b4fb83283993ca1bd239f85fc3f50f192e965dc1133d175c9b3c"
+      },
+      {
+        "asset": "213-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-07.png",
+        "sha256": "3b51448ff88b654c1f18bdaff8d9ff9f77fd18f6d9273e5ab5b85e518a146b52"
+      },
+      {
+        "asset": "213-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-08.png",
+        "sha256": "371d5d03b76d7bc7994df969b63c84cd380bd2c65994b8f43dbe575b1b3f6148"
+      },
+      {
+        "asset": "213-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-09.png",
+        "sha256": "db2eb79470bf8a7e997cc08b41b028376a5e8a59a3bd737b150a261bc5d04097"
+      },
+      {
+        "asset": "213-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/213/card-10.png",
+        "sha256": "22905928505aaa7968422aef769565d624a18a91dd5d155990437d5fcd5fb3b1"
+      },
+      {
+        "asset": "195-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-00.png",
+        "sha256": "c463b32b79730f135f896b30e58d0bbd2dffb47f5f7390364b3774c836c9cdbe"
+      },
+      {
+        "asset": "195-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-01.png",
+        "sha256": "1ecafba5a7bd6f05df18b51fccaf0726f6cf525a0e596ebc3ab3e8031172ad74"
+      },
+      {
+        "asset": "195-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-02.png",
+        "sha256": "6d1db277b7bf1a75157953a7e95b5558966ecc63c82ad34a65ce46e9d0027bac"
+      },
+      {
+        "asset": "195-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-03.png",
+        "sha256": "2b17193d4d6a809f0e4eaf9af50012f9cbee7a857f401ce3d21e1e57e2de0b37"
+      },
+      {
+        "asset": "195-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-04.png",
+        "sha256": "2b5bae9b3fe23a4dc24912368e8e4bfb5c6298510564c69d7a2253fec9fded63"
+      },
+      {
+        "asset": "195-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-05.png",
+        "sha256": "1d89e77b4ddaff8e23bf7a6ab3bade37a43e4ffcc3649fcf7d48f64fa38ddf1a"
+      },
+      {
+        "asset": "195-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-06.png",
+        "sha256": "f673fc366bf02a16d04dbb7dd45a6fc534eceea96fd75dbc29d2ffa56ac52da9"
+      },
+      {
+        "asset": "195-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-07.png",
+        "sha256": "030c29ea02f568344dc6c88d36774ed5b22ff362a457551d9c918bfbf3a40ea3"
+      },
+      {
+        "asset": "195-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-08.png",
+        "sha256": "645a3f6f787a9af683effc0fa55b4d96111ba987755f86496d03be3f0623647f"
+      },
+      {
+        "asset": "195-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-09.png",
+        "sha256": "235c03a2d14b5b29f65c46b592ef361682e3056ece2d4474f250a203755dede7"
+      },
+      {
+        "asset": "195-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/195/card-10.png",
+        "sha256": "02022724e64d63fb6efd0d2e2fd5aacd65642863efa909e7f8edbec3cd924d49"
+      },
+      {
+        "asset": "300-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-00.png",
+        "sha256": "fe44b4b71fce16d442e9be22332420aef9e31ccf5fa1685233434694147707d4"
+      },
+      {
+        "asset": "300-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-01.png",
+        "sha256": "8ec7b62358bab9cce607c5eca2ebca02986bc430cb516202796fc2bdd7665930"
+      },
+      {
+        "asset": "300-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-02.png",
+        "sha256": "187c8efffb4b10464c95a86f89a274052c8bfa7cb19bbebccf45d31d8e06a595"
+      },
+      {
+        "asset": "300-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-03.png",
+        "sha256": "e2c18ac739a90e3bdb008845a26968f7616cb551d963950f67f3eed0e162fe81"
+      },
+      {
+        "asset": "300-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-04.png",
+        "sha256": "1cf37d30d6056cd99f89e09a8f0fd6aefdccdc2d90d4571ce5749016359c1476"
+      },
+      {
+        "asset": "300-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-05.png",
+        "sha256": "32c168014a7df4f44f9fcb1b253f6a66301819b7a39190bf9011f3bf2e2d35a6"
+      },
+      {
+        "asset": "300-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-06.png",
+        "sha256": "0c75b575492a3cbc4aadb517acc44962e350da23acde57e1ea02c382801b2ba2"
+      },
+      {
+        "asset": "300-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-07.png",
+        "sha256": "3ab1c94e6eb086435dd8784bd3fdc28af0792324ee592a610ec439de85163213"
+      },
+      {
+        "asset": "300-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-08.png",
+        "sha256": "1f192fbc8a6bdf94c07d5daf5a957ed80d2d17679c3d99ed9eaf1c14d3a05e3d"
+      },
+      {
+        "asset": "300-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-09.png",
+        "sha256": "d04388631d198d7c1a825383bcc760e8510049f72c60f5f91341bf0ec703741f"
+      },
+      {
+        "asset": "300-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/300/card-10.png",
+        "sha256": "10f5ae6e675685fcbd126b5a4e06c112a6c93adac64896b01bc7ceaccd2bc7c9"
+      },
+      {
+        "asset": "271-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-00.png",
+        "sha256": "110483185157195dcc7fe983a70c4011a02ff6309e6f921c915252d12e8af7a8"
+      },
+      {
+        "asset": "271-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-01.png",
+        "sha256": "553ea7dfe0b66b7a6016bf8ebea85c852ba8982e8846cecbe15f0fec33ca2a22"
+      },
+      {
+        "asset": "271-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-02.png",
+        "sha256": "963add0db91e429c5ee9e938f99b1873b2c365898958594df8c48cc595bc7535"
+      },
+      {
+        "asset": "271-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-03.png",
+        "sha256": "bf5519a7d7f668346afc7b4bbaf08843c25caa0b620486909f7514acc1139513"
+      },
+      {
+        "asset": "271-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-04.png",
+        "sha256": "75e6b394dd7681ab78ff1324f060f29a47dd8cae99b9bbe01f63f7bd57f8b3b0"
+      },
+      {
+        "asset": "271-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-05.png",
+        "sha256": "067a1bc6e3350a53b96c810fe6e96124e687eb74b3fe6657ce43752912b93276"
+      },
+      {
+        "asset": "271-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-06.png",
+        "sha256": "c79e8ce25a835ca4f47f72ad685208d5a506da575261f799253eeb0f3a0ec746"
+      },
+      {
+        "asset": "271-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-07.png",
+        "sha256": "ab167e7ff1d5742d47a6d568e8279abae9a2afb6fb828a6551f2862ea2edc61d"
+      },
+      {
+        "asset": "271-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-08.png",
+        "sha256": "33740886809421fea5c4e14a7b4e67cc74c465472820b56406cb07119cf100bc"
+      },
+      {
+        "asset": "271-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-09.png",
+        "sha256": "1a893a1d801eb5af2fd44abb70f580ff0e5ad595548ce5f2471503f9c8e279b4"
+      },
+      {
+        "asset": "271-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/271/card-10.png",
+        "sha256": "9c1a35f891662e98b72449153c13ccba9cd50ac31ebf7204b097f6a3799d49ab"
+      },
+      {
+        "asset": "210-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-00.png",
+        "sha256": "755b45ed4676c8fa166763f4b45f1398360d65c7a34e3143921ceaeac822fb71"
+      },
+      {
+        "asset": "210-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-01.png",
+        "sha256": "7764f689d61c077615c70ae4ed7df5c34e33cb4566bf9f5703cf5d4311bd85ef"
+      },
+      {
+        "asset": "210-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-02.png",
+        "sha256": "69c3c27b67486fc0b22dd5d916db25261187e2994138daf6c83373ad84e628cd"
+      },
+      {
+        "asset": "210-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-03.png",
+        "sha256": "10a712a988f3477423b8455a37badcbc974ca221fcc2cd3e950bcb13118e747a"
+      },
+      {
+        "asset": "210-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-04.png",
+        "sha256": "265bde85f59060bc7fc61ec60a048278ecdfcf0281e4b25381c17f8bb7b19694"
+      },
+      {
+        "asset": "210-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-05.png",
+        "sha256": "4555db2f0bdd5f8b778a0c4946e83950137cf5a563ad4ae5021eba1d6b94f6ef"
+      },
+      {
+        "asset": "210-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-06.png",
+        "sha256": "c7aecdceb80977cb7b2ea1e4a04c84814a9a02fb5385a566ae81b1fbe945f586"
+      },
+      {
+        "asset": "210-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-07.png",
+        "sha256": "4abc347def64e6e9487fa0694b8bd1d3da3a4a1e88b88d37025752e89a65a03a"
+      },
+      {
+        "asset": "210-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-08.png",
+        "sha256": "426fd6c0d7ef5794738b265e08615383405bc7f5ddcf12b6cf106a57cea2c490"
+      },
+      {
+        "asset": "210-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-09.png",
+        "sha256": "531e263c5a9566465159cff2d488afa90856cad234e993369fa023953211e53d"
+      },
+      {
+        "asset": "210-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/210/card-10.png",
+        "sha256": "7669eb2b41bd5c0fec5a7c62455a4d3f88beae16e24d4be2e5ea67d8351f0cad"
+      },
+      {
+        "asset": "181-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-00.png",
+        "sha256": "9edfac6f7e9ebc3310bd8cfdd4af57d01067fa4b62d5faa061487b22ca93c3bc"
+      },
+      {
+        "asset": "181-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-01.png",
+        "sha256": "514168339c87a5cbf3299dde93c1ff71a86ba3100f2f9592156b1727eaa3a8d8"
+      },
+      {
+        "asset": "181-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-02.png",
+        "sha256": "3223d588f14aa5a3968d60919da87c0010c016793dbe642d37efcedd0c28a338"
+      },
+      {
+        "asset": "181-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-03.png",
+        "sha256": "ef4b416374c71a31e13f1c05eafdc428c6f2d136205ee6c590a446625537e54e"
+      },
+      {
+        "asset": "181-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-04.png",
+        "sha256": "3a8b7b54a8e7df294f1adcac4aea9cdb2a28bfd83181b8ca9b5b3463664edead"
+      },
+      {
+        "asset": "181-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-05.png",
+        "sha256": "40b99e64de2c3e3f7b3ba7f8ca968f5f7db99c25d0d68342cd6b1797d8b177cf"
+      },
+      {
+        "asset": "181-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-06.png",
+        "sha256": "b3af88e36c2ced11984810c449aa96adc0cc3d198166f2f0ced35b83d7fb7af6"
+      },
+      {
+        "asset": "181-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-07.png",
+        "sha256": "129a45cb4146fff1a03350c7a8c45173d4078f334119d1246aaae717b1f5a8da"
+      },
+      {
+        "asset": "181-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-08.png",
+        "sha256": "e322c9338e7cc7dce7453b813ddf18b95a8361b505d15ad86778077a014046a9"
+      },
+      {
+        "asset": "181-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-09.png",
+        "sha256": "27b049a94a58e86aa01c47936e5138396cf967c01159dfde697799533482310a"
+      },
+      {
+        "asset": "181-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/181/card-10.png",
+        "sha256": "93be7565e9a1e80a06867727220276cdf29af33bf80ed78c5ed2680a97f9c4ed"
+      },
+      {
+        "asset": "168-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-00.png",
+        "sha256": "f4a6dbb9295cf4b91f5b5b29a2203597ff4812d6d81d9cb0eb23d3aaa0200527"
+      },
+      {
+        "asset": "168-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-01.png",
+        "sha256": "8d8864433e3a252db95c212e4cf8848f37bb4fe112bac216dd150e60b7ed94b5"
+      },
+      {
+        "asset": "168-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-02.png",
+        "sha256": "7a8a70eaeaed26ee4bdae206d6d28f514d087d19ea40364a2e0df73aee7d4d54"
+      },
+      {
+        "asset": "168-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-03.png",
+        "sha256": "7b6707a4ccb2197465d47b4c967604dff9df69cb6e9ef41d40511a7092a7d78b"
+      },
+      {
+        "asset": "168-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-04.png",
+        "sha256": "3f961818ed102d039cbdb492b9893caac9c4263241506901e176b6c56968dcc3"
+      },
+      {
+        "asset": "168-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-05.png",
+        "sha256": "40fb7fd78a2a17a6340b0664d0f28ee097ee4f02e0487b86bc2a950df94a8ce8"
+      },
+      {
+        "asset": "168-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-06.png",
+        "sha256": "d84eec8a3b0d4057100233065bdbf6e763a354a9e0768507e2235c65cc40a21b"
+      },
+      {
+        "asset": "168-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-07.png",
+        "sha256": "1994da73f617337cdb971c0da8d1fef689d93662770fbfe9e87963d613440e4f"
+      },
+      {
+        "asset": "168-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-08.png",
+        "sha256": "629c4933f84313dbe627934e8d6b0e73572d31150c6ac0b33461adec18c497fa"
+      },
+      {
+        "asset": "168-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-09.png",
+        "sha256": "c0a087792609b628873bd88758c4695166463164961b4f65f3b114d24b8bad6d"
+      },
+      {
+        "asset": "168-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/168/card-10.png",
+        "sha256": "726a97e7214430984318de2d16c20c4f23a7d6167ccc47d81990c43fa2ca6266"
+      },
+      {
+        "asset": "130-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-00.png",
+        "sha256": "4fcfcb20a1254eae2e15737140a04dbc5a8da6b62d508cfa2584c5cea3383667"
+      },
+      {
+        "asset": "130-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-01.png",
+        "sha256": "ce060a60bdab48829ee490a509c0528d06466ac2781244c841e21cb4ce90f9cf"
+      },
+      {
+        "asset": "130-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-02.png",
+        "sha256": "c82369fc607c1fe0a646b41b9609d4e45e80b0f255fb94bdf608a5c5c6b018d6"
+      },
+      {
+        "asset": "130-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-03.png",
+        "sha256": "afcf6e1dff2558e2ba168debdc75d9d36d67531ee2521239f3c7d4de55ad8120"
+      },
+      {
+        "asset": "130-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-04.png",
+        "sha256": "d303fa582307afc20a31107aad0ccb09e4e26479e7d11e1783d547f960583ce8"
+      },
+      {
+        "asset": "130-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-05.png",
+        "sha256": "36399fb2b78d2643bc2c0f1c04ad543e232ab2b74b0a0637179d921dfe750e3d"
+      },
+      {
+        "asset": "130-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-06.png",
+        "sha256": "437bf0d55b5ce4b1514d1b47c57aa191b3dc6b3036ca4b66f1954b2ada72eaed"
+      },
+      {
+        "asset": "130-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-07.png",
+        "sha256": "aae0c2a4c5d0486b6ad2261799f298a1c364d156a7e7efa945809383290a401b"
+      },
+      {
+        "asset": "130-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-08.png",
+        "sha256": "193b6ea8b06cf6393f3d5bf14f15a225bd7e1a5cfe85e054a49b4984ce50ed0d"
+      },
+      {
+        "asset": "130-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-09.png",
+        "sha256": "ff3922331de9cbbea1c9d156d4e0021db908e1da739c2220fad06c15247d40e1"
+      },
+      {
+        "asset": "130-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/130/card-10.png",
+        "sha256": "04f8fb4f2bc63625ca1a1a455bf6a670ece665c707721b9dcdd82a2ff4608e56"
+      },
+      {
+        "asset": "120-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-00.png",
+        "sha256": "d12a232e5eef5973afdd056dc39d85a648cc8b7ce7efeada2c6d8f477dd5da79"
+      },
+      {
+        "asset": "120-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-01.png",
+        "sha256": "f125f19d78d1a35a9094fe24b75bc5bb77c348ba86804ddc078c6116e24c3e1e"
+      },
+      {
+        "asset": "120-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-02.png",
+        "sha256": "9ad16800fd65e8db4696183a9f43f4e00935ceaff96e2a91d617fed4fb7fd884"
+      },
+      {
+        "asset": "120-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-03.png",
+        "sha256": "f1767b9450691479d4aab427ccaae8235f3d0094cd9145ccf091149e89a5ad71"
+      },
+      {
+        "asset": "120-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-04.png",
+        "sha256": "a6230d5968477077f1448029af0ec40af170e32847869fb84918a11ba57aa1ab"
+      },
+      {
+        "asset": "120-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-05.png",
+        "sha256": "a44a99328bc6188a75261c6e4e2988cbdba79241b0540a4d3be8f4c3313f31b6"
+      },
+      {
+        "asset": "120-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-06.png",
+        "sha256": "b90760b9c96ccbbd88b6e292381bce2a52b3a0d31e9d22e5457ad8480bfebde9"
+      },
+      {
+        "asset": "120-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-07.png",
+        "sha256": "872f93846facea234294a3953c3eeca8b26acbc918b35064a37ff467197ce229"
+      },
+      {
+        "asset": "120-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-08.png",
+        "sha256": "bc384a1c09e860a30999bb74d1aa4a5256976fc1396548bb05bead6b5d6d7693"
+      },
+      {
+        "asset": "120-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-09.png",
+        "sha256": "8723b33123ebd75f37f55f14eab864a3c32df574fb88b524adb5d8ff9f4180a0"
+      },
+      {
+        "asset": "120-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/120/card-10.png",
+        "sha256": "d9b2313de469df93a582b02352aa7aa77ad4d145d7261ecefb7589e78bb8de18"
+      },
+      {
+        "asset": "36-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-00.png",
+        "sha256": "3144ff94c9afdbe5d10d40b9d36cf9866befbda41164652ef46e66ef9e3275a9"
+      },
+      {
+        "asset": "36-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-01.png",
+        "sha256": "e6293132d4663dc40eeda3526d907dd1add8bb4283b58bedc8ddf09212b7da69"
+      },
+      {
+        "asset": "36-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-02.png",
+        "sha256": "3d6a47f7a1d92fe81f2d43bb16fab71b7dfb5020db532c5be6a9e4d6ce16f20a"
+      },
+      {
+        "asset": "36-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-03.png",
+        "sha256": "42d4f42bc8ea50651297f5fbffac86ca4ddcc27dc063561056bdca8afc3615bd"
+      },
+      {
+        "asset": "36-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-04.png",
+        "sha256": "7dc3b0105d3e993795b8493324eeed3d032c666594b1990cd3d4b6d7c628d9f8"
+      },
+      {
+        "asset": "36-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-05.png",
+        "sha256": "e1db2687e24ebb160d64fc39efd9d7096e1ed2b6c522bca925f6603f9813ae65"
+      },
+      {
+        "asset": "36-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-06.png",
+        "sha256": "06d8e45b0ad40e19e6763cd1c7d4cb64759397b3200b2ea9cf5143c41e73284c"
+      },
+      {
+        "asset": "36-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-07.png",
+        "sha256": "07ff2cfb47d8e6637f7cd8e2b5df98da2d4c2c8f7d7d1cb1b22f9200fb2e920d"
+      },
+      {
+        "asset": "36-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-08.png",
+        "sha256": "a41ef6ce9091ccf65652836c292f222a0714741fa8df3a60a79aa7d6f15d4a8c"
+      },
+      {
+        "asset": "36-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-09.png",
+        "sha256": "c2b5368cf5fd16151dbb82c74ae9f8a51aef321a814a8671b01e33b0f6fb6e45"
+      },
+      {
+        "asset": "36-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/36/card-10.png",
+        "sha256": "543c84926901c703fed36f6cf24567ca70d7e1cf33340596ab95620363231d11"
+      },
+      {
+        "asset": "2-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-00.png",
+        "sha256": "e46b4e1c5fdca42b1eb50a2f17302885555182988c578238a57fccc6a566904b"
+      },
+      {
+        "asset": "2-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-01.png",
+        "sha256": "f5e8c7500649f7e6f6b1b8a4ac1c7f31142baa22a78c43eae16071699050c09c"
+      },
+      {
+        "asset": "2-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-02.png",
+        "sha256": "2c56a5e8e72361b34b58bd9bdcc2932b79d4ba1f7d9cbf6e3dabde75f1ee0431"
+      },
+      {
+        "asset": "2-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-03.png",
+        "sha256": "ee803a9c61126f5655faea945c0268095152cd34db67f487c7558ac2c41e9bd9"
+      },
+      {
+        "asset": "2-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-04.png",
+        "sha256": "bb4b3a74e5f3514622530343e00e04d8ec2e269f653e804c25294560e970b74e"
+      },
+      {
+        "asset": "2-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-05.png",
+        "sha256": "a5a18f56c28e3ba0ecce5795f82a5c3552dd2b08f98e2a23b71c7010f01294d4"
+      },
+      {
+        "asset": "2-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-06.png",
+        "sha256": "2223f0d50a11b268f888858b7d64bcbaad34862feeeea6099c706663cc0547eb"
+      },
+      {
+        "asset": "2-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-07.png",
+        "sha256": "ef0508038c3b4cd29a6468e0f0621185d34464602f9f19fe27a7b7de173d6fe7"
+      },
+      {
+        "asset": "2-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-08.png",
+        "sha256": "8528dce4d6554e8db7de0200ac798133aa344b951412d561cef044bd11fcec2a"
+      },
+      {
+        "asset": "2-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-09.png",
+        "sha256": "7ed521555764390bd425af2f052b49ca51f66715132605415d833248573cd343"
+      },
+      {
+        "asset": "2-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/2/card-10.png",
+        "sha256": "a329ad624a8bc2289403e093439187562be4e90cae982d9b38f2d65fed5306d9"
+      },
+      {
+        "asset": "330-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-00.png",
+        "sha256": "96fee0b60ba5e9c9409db590e69f142d6bd822ba408203335a66283fbcbd7956"
+      },
+      {
+        "asset": "330-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-01.png",
+        "sha256": "3f5e91315079dbc1b5dedb85c67e74b58d6c9d53668605fb30c4a1c7faa7bc1e"
+      },
+      {
+        "asset": "330-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-02.png",
+        "sha256": "31198268c31eab7509d893a2307cdbf9610002e0e56c9c73556946340d9cfffe"
+      },
+      {
+        "asset": "330-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-03.png",
+        "sha256": "70dca29cf13e2e6195a158048b308390b410023677510ccc8522487c65cdde1b"
+      },
+      {
+        "asset": "330-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-04.png",
+        "sha256": "9f50e3b7405cbd4216b59fe2da51d9c7e612b8b808ce91f06309d6ca5eb34c60"
+      },
+      {
+        "asset": "330-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-05.png",
+        "sha256": "2774947e2235873c59e61b5227bfa4f2e243a643df12cccfb35a6a1228e65746"
+      },
+      {
+        "asset": "330-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-06.png",
+        "sha256": "008879a7fd4b9c77ee8f87983835bc38d0bc491d41552b2c570717d04f8f874a"
+      },
+      {
+        "asset": "330-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-07.png",
+        "sha256": "f584436f25bd64d987aee22447cae61fb46f00713f32ff874234786f98aca79f"
+      },
+      {
+        "asset": "330-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-08.png",
+        "sha256": "0824ad7358860905db9ecd9b22f5b45b340bb347c7dadf399ad166680d550c61"
+      },
+      {
+        "asset": "330-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-09.png",
+        "sha256": "e5f79645fd6b9337b6597edbe8882c46861ca9345f2954dfc8f0eea9800d92af"
+      },
+      {
+        "asset": "330-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/330/card-10.png",
+        "sha256": "83654ece11599f9672311e607f1268030a3f7e1e89105c17d2098d32ae8dae32"
+      },
+      {
+        "asset": "303-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-00.png",
+        "sha256": "e99a75c100f24e48de1368c2043fb875bce9938631fe46daa6be234bdb027c9f"
+      },
+      {
+        "asset": "303-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-01.png",
+        "sha256": "22e5d59435083b99084910fe18707bb4895508c988703a9ce4e0e874f3b4afbb"
+      },
+      {
+        "asset": "303-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-02.png",
+        "sha256": "18f244df14d852f8f245e2f64fffe5b56b84b705018f88359486313e4663a41d"
+      },
+      {
+        "asset": "303-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-03.png",
+        "sha256": "9fa8d37615689905fba2b9da9ed6a88ea4bf4c1063766dd44d6bd2d2b81dd7ea"
+      },
+      {
+        "asset": "303-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-04.png",
+        "sha256": "bd2d0b6301da0ffcba64fc8b92555eece66ec24d3eed2c057dacb95b91e5229d"
+      },
+      {
+        "asset": "303-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-05.png",
+        "sha256": "3e5b0b825baa4d7b5f9735a892ed3625fe4a337b36b3f93009bcd9eba5d6a6fd"
+      },
+      {
+        "asset": "303-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-06.png",
+        "sha256": "3d1af9e7e05d9c025656b4aa0847d40952f8964613a7e8430a6afa9c6504e431"
+      },
+      {
+        "asset": "303-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-07.png",
+        "sha256": "023334ef2b1aff42c6c33f9b26ebee2b055803e45d246b566ba1a0d4ab07138d"
+      },
+      {
+        "asset": "303-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-08.png",
+        "sha256": "7dfab63c05b25912513ac3a325086fd95b1d33d981edb7e9132469d2d1d2e098"
+      },
+      {
+        "asset": "303-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-09.png",
+        "sha256": "33455a41ae521afa60b94f6cfb566aa529715c931d5431d04ceeba8974fa4e98"
+      },
+      {
+        "asset": "303-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/303/card-10.png",
+        "sha256": "49722dde9c42e361f78f41e96c8dcb7e9b17d8f36c5504af7efbf4528633ad9b"
+      },
+      {
+        "asset": "292-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-00.png",
+        "sha256": "3c286c089106ad73f1b050f1c80b8f161fdb693dd9e22c399663b48c89ab4336"
+      },
+      {
+        "asset": "292-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-01.png",
+        "sha256": "c266d6684cad12585cd42544a085389dd862804c49a37ee4d3b17fb30a01ed71"
+      },
+      {
+        "asset": "292-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-02.png",
+        "sha256": "ec69d7310003a91f4b818de4016121c70bcc3f95a972c09cda6e337b2be7eaf1"
+      },
+      {
+        "asset": "292-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-03.png",
+        "sha256": "f259aba42f16cc5b494787e541a5ce93582dd6247d783f7299d48f374491d551"
+      },
+      {
+        "asset": "292-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-04.png",
+        "sha256": "441045bbdb3984a7675d584a86ad2a3fa92f5404c40b484b96de1ccbe4628413"
+      },
+      {
+        "asset": "292-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-05.png",
+        "sha256": "77447d0cae7717ff91232a0e268a47c6102f434fd5ee8b4af259a53df037b7d0"
+      },
+      {
+        "asset": "292-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-06.png",
+        "sha256": "e6a403b4efa543969c7497681e1c914d5d01419d6dbfcf57f3a411a8bc0641a8"
+      },
+      {
+        "asset": "292-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-07.png",
+        "sha256": "24275455f9541b97ed42c64b49ba4f86bccdabf5ffa789ff58dfb79c1121770b"
+      },
+      {
+        "asset": "292-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-08.png",
+        "sha256": "9883a085994901bb6aaa001c061d5a0876cf02b2c3f34312da7c390af48974e0"
+      },
+      {
+        "asset": "292-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-09.png",
+        "sha256": "f3a4683bdea75dc011e34f789992053226f2950d9cf0befc60a4748dea393a94"
+      },
+      {
+        "asset": "292-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/292/card-10.png",
+        "sha256": "1fd904643a4581267923eba86146ef8360a806ec6b52abe3bf186555e4030084"
+      },
+      {
+        "asset": "249-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-00.png",
+        "sha256": "ca09c4d3226876dab2faef9ccd7a7a5f0434cfe0fc413fe7b3462f62b3bf7a6f"
+      },
+      {
+        "asset": "249-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-01.png",
+        "sha256": "96ce2c6f22e06816226afce2b7ebe66809e0c7a8bfb5845d17a50d558660081b"
+      },
+      {
+        "asset": "249-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-02.png",
+        "sha256": "e071df0ff875b01535b7e5c5a3d8a7204080307923c44743adc9a34ab9fa0693"
+      },
+      {
+        "asset": "249-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-03.png",
+        "sha256": "12d07223681a39a99be4455a015e4852e19456ed5f0bd31123abfe3fa3ff0559"
+      },
+      {
+        "asset": "249-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-04.png",
+        "sha256": "77d9216614c2b08635f7c815d37e0d2cc4ab52f9bcea95c0c57a1aa8f5f4b72d"
+      },
+      {
+        "asset": "249-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-05.png",
+        "sha256": "3824e4831d4b886a184dfe2b305137ccd6d73e28b2702d013fdfbbb5e4179172"
+      },
+      {
+        "asset": "249-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-06.png",
+        "sha256": "dba13bc396776ded630b661c1b5a100149749f1615fe8ee6e169335efcfaa58a"
+      },
+      {
+        "asset": "249-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-07.png",
+        "sha256": "4235a2165e9b7e765d0327723c08ef2fc22a5da2d009bdca955f2514a376884f"
+      },
+      {
+        "asset": "249-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-08.png",
+        "sha256": "69f961914f2b4099e5957013bcfd3e48eed7491f9b049e7cdb8f1bd9b2d8429d"
+      },
+      {
+        "asset": "249-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-09.png",
+        "sha256": "a9a09429c6e09b4ac9e973054501d863aad3402447e910bfc55e91be0ec158cd"
+      },
+      {
+        "asset": "249-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/249/card-10.png",
+        "sha256": "c27814af9ce4846f2612dc80967712ad8c8fb4e372030ea46b520613db55c9b8"
+      },
+      {
+        "asset": "236-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-00.png",
+        "sha256": "ff64fb027299a478b8af706433718447a93f2ca2ac3b214e698319ec9b2a9adb"
+      },
+      {
+        "asset": "236-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-01.png",
+        "sha256": "df9c4b2f328bf9e872f161a90fe0d2499cd3d5442321243606fe230e568b611b"
+      },
+      {
+        "asset": "236-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-02.png",
+        "sha256": "f4281633d571cc6a3094ad84e4e94b415449779ba51cac090eb8e5d71f319eb5"
+      },
+      {
+        "asset": "236-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-03.png",
+        "sha256": "77882a40afa54bed15576304c61e4b962bff91089dbf17a0c7843ee9143fee6e"
+      },
+      {
+        "asset": "236-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-04.png",
+        "sha256": "10f5fcbd33a85458a0d06b733fb7d24f6f1f38a46adb18cb41dd8095f94cdbd5"
+      },
+      {
+        "asset": "236-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-05.png",
+        "sha256": "f6fa95fe11e90d8997825591186eb7d852caf3de6b78ae8038208fcfe25eb93f"
+      },
+      {
+        "asset": "236-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-06.png",
+        "sha256": "88e42b8c0d2de1ac62c483e35597c613b95627ac04a6c53c42f46cb9c4d3e909"
+      },
+      {
+        "asset": "236-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-07.png",
+        "sha256": "0ab55bea83beb3bfe91749c03ee8018af2f1349075a1f8bb971af27cdd23dda6"
+      },
+      {
+        "asset": "236-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-08.png",
+        "sha256": "0c8ccc399744274f29c3a85f43c822e316f270a051350a90f3595f40c2104614"
+      },
+      {
+        "asset": "236-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-09.png",
+        "sha256": "cdceff640cd75aa14d4b51caefde6a1e1c406185d1219a7fcbb4ac3f86712268"
+      },
+      {
+        "asset": "236-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/236/card-10.png",
+        "sha256": "0a5222acb26ec15b7efef838187b4e5a1de403a0cc6b53a332ea9633c34dff9e"
+      },
+      {
+        "asset": "209-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-00.png",
+        "sha256": "52ab163da9961813aa4b9ed174dcb25c2bb356fff133fa40b6d72e632ceb8130"
+      },
+      {
+        "asset": "209-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-01.png",
+        "sha256": "9162d5862ebc9355f95df08774e9c359faf4c6a9161938caa930978cfbb35932"
+      },
+      {
+        "asset": "209-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-02.png",
+        "sha256": "b77b5d24452956f7e48c44afdb9a1505bf98d20f86fd4cee99765d1426f78752"
+      },
+      {
+        "asset": "209-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-03.png",
+        "sha256": "d40ffe570b31040c739ec98fb98f47b44a1c9b4365ab1733d84ee2fec061a5fe"
+      },
+      {
+        "asset": "209-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-04.png",
+        "sha256": "3c816acabaa1c978d3777180578e8ae9bc1fcb1128b21c93add412cc7a2a1b4f"
+      },
+      {
+        "asset": "209-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-05.png",
+        "sha256": "d38000187d85998bbe935b2f31e2e81db124e1465df98f22a0f153f700ccc388"
+      },
+      {
+        "asset": "209-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-06.png",
+        "sha256": "c1cd6a27fbb8d10fa86e520f427771adb023274efb33c447b32eef25822bd0af"
+      },
+      {
+        "asset": "209-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-07.png",
+        "sha256": "fb8900bf45856b05fe8deefee76c3b5e6eefcded65ca11ab8c25967bbc2e785f"
+      },
+      {
+        "asset": "209-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-08.png",
+        "sha256": "038b3acac7e65ef7d8ece37ffb13c10d96599d946a3e1c1b597076f1b63821cd"
+      },
+      {
+        "asset": "209-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-09.png",
+        "sha256": "13c79f3953647d1027923c2768dc3324654e0fab09b1b755e02f638d0b65d6c8"
+      },
+      {
+        "asset": "209-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/209/card-10.png",
+        "sha256": "53208f8a683cda1721ca1d428b3de78a4d82adfc83ab0fe3b41581d778df6d71"
+      },
+      {
+        "asset": "95-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-00.png",
+        "sha256": "3767fc63ca5f676228951bedae657bbf37be4e0d6b5f2d8a6880b57b9fc09730"
+      },
+      {
+        "asset": "95-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-01.png",
+        "sha256": "084391b6078f4d1191c42687cceb05587c0e07a7261ef91cba57971a4cccdf1f"
+      },
+      {
+        "asset": "95-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-02.png",
+        "sha256": "22af352823571aaee4c1ea50b3f09840127f224700f34d15b6dff77a2679d11b"
+      },
+      {
+        "asset": "95-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-03.png",
+        "sha256": "9ecd621bf87d7369c4d922466c51ccebfc89603907083b99fa26f358eedb788e"
+      },
+      {
+        "asset": "95-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-04.png",
+        "sha256": "545388ee94f153fce0886c2d980adb2a0387ea094796e474ef68766821f183fa"
+      },
+      {
+        "asset": "95-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-05.png",
+        "sha256": "391e31a10eda4d0162494467ce893a4edbdadcb116beb9808571b28e79f9ef43"
+      },
+      {
+        "asset": "95-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-06.png",
+        "sha256": "413e2102d35ef6d0cfce43d82ac30b14e85989a0d7d1fa9a4f24b8eb0dcd0c03"
+      },
+      {
+        "asset": "95-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-07.png",
+        "sha256": "5dc0b0f99869000a4b4a4f04acfd53e8c7138eda9750a7e299d8f11f3f8959f3"
+      },
+      {
+        "asset": "95-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-08.png",
+        "sha256": "f989dd657fb613b4e882fdb57f397091c578f2f53c983c905afd76d22821e0de"
+      },
+      {
+        "asset": "95-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-09.png",
+        "sha256": "644c859da38c56a0e4e21bfec51a5165f2457bc12501dc72b2e011ced6d657d2"
+      },
+      {
+        "asset": "95-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-09/95/card-10.png",
+        "sha256": "12fbf4027840375353b410e6745d2728ce456e51bb305011c4ed54dc67842b99"
+      }
+    ]
+  }
+}

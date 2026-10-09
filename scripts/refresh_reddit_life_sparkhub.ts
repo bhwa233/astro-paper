@@ -13,6 +13,7 @@
 // 单帖失败（帖子被删或锁、没有顶层评论、模型判定排除主题、重试后仍不合格）只回报 error，旧回答不动，
 // 下次运行会再挑到它。整个脚本在 workflow 里是旁路步骤，失败不挡领题。
 import path from "node:path";
+import { writeJson } from "./committed_handoff.ts";
 import { dateStringInTimeZone, envPositiveInt, mapWithConcurrency, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { readPromptTemplate } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries } from "./ai_json_stage.ts";
@@ -127,6 +128,7 @@ async function main(): Promise<void> {
   if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
 
   const rawIds = stringArg(args, "post-ids");
+  const resultFile = stringArg(args, "result-file");
   const requestedIds = rawIds ? [...new Set(rawIds.split(",").map(value => Number(value.trim())))] : undefined;
   if (requestedIds && (requestedIds.length > 20 || requestedIds.some(id => !Number.isSafeInteger(id) || id <= 0))) {
     throw new Error("--post-ids must contain 1–20 positive pool IDs");
@@ -143,7 +145,9 @@ async function main(): Promise<void> {
     `${LABEL} run #${run.id}: ${run.manual_count} manual + ${run.auto_count} auto (K=${run.top_k}, N=${run.stale_days}d): ${run.items.map(item => item.reddit_post_id).join(", ") || "nothing to refresh"}\n`
   );
   if (!run.items.length) {
-    writeStdout(`${JSON.stringify({ runId: run.id, refreshed: 0, failed: 0, rejected: 0, items: [] })}\n`);
+    const result = { runId: run.id, refreshed: 0, failed: 0, rejected: 0, items: [] };
+    if (resultFile) writeJson(resultFile, result);
+    writeStdout(`${JSON.stringify(result)}\n`);
     return;
   }
 
@@ -206,9 +210,16 @@ async function main(): Promise<void> {
     writeStderr(
       `${LABEL} run #${run.id} ${finished.status}: ${finished.refreshed_count} refreshed, ${finished.failed_count} failed, ${finished.rejected_count} skipped\n`
     );
-    writeStdout(
-      `${JSON.stringify({ runId: run.id, status: finished.status, refreshed: finished.refreshed_count, failed: finished.failed_count, rejected: finished.rejected_count, items: finished.items })}\n`
-    );
+    const result = {
+      runId: run.id,
+      status: finished.status,
+      refreshed: finished.refreshed_count,
+      failed: finished.failed_count,
+      rejected: finished.rejected_count,
+      items: finished.items,
+    };
+    if (resultFile) writeJson(resultFile, result);
+    writeStdout(`${JSON.stringify(result)}\n`);
   }
 }
 

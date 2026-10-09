@@ -3,6 +3,7 @@
 // backfills cannot create replacement Markdown or WeChat drafts by accident.
 import fs from "node:fs";
 import path from "node:path";
+import { writeJson } from "./committed_handoff.ts";
 import { dateStringInTimeZone, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
 import {
@@ -81,7 +82,10 @@ async function main(): Promise<void> {
     writeStderr(`[reddit-life-score] ${archiveDate}: ${scored.length} scored, ${skipped.length} skipped\n`);
     results.push({ date: archiveDate, candidates: posts.length, scored, skipped });
   }
-  writeStdout(JSON.stringify(refreshed ? { archive_dates: dates, results } : results[0]) + "\n");
+  const result = refreshed ? { archive_dates: dates, results } : results[0];
+  const outputFile = stringArg(parseArgs(), "result-file");
+  if (outputFile) writeJson(outputFile, result);
+  writeStdout(JSON.stringify(result) + "\n");
 }
 
 if (import.meta.url === `file://${process.argv[1]}`)

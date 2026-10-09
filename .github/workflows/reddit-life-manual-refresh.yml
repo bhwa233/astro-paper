@@ -55,12 +55,14 @@ jobs:
           test -n "$SPARKHUB_DASHBOARD_TOKEN"
           node --import tsx scripts/refresh_reddit_life_sparkhub.ts \
             --post-ids "$POST_IDS" \
+            --result-file reddit-life-historical-refresh-result.json \
             --artifacts-dir reddit-life-historical-refresh-artifacts \
-            | tee reddit-life-historical-refresh-result.json
+            | tee reddit-life-historical-refresh.log
           node --import tsx scripts/score_reddit_life_sparkhub.ts \
             --refresh-result reddit-life-historical-refresh-result.json \
+            --result-file reddit-life-historical-score-result.json \
             --artifacts-dir reddit-life-historical-score-artifacts \
-            | tee reddit-life-historical-score-result.json
+            | tee reddit-life-historical-score.log
       - name: Resolve scoring outcome
         id: score-result
         run: |
@@ -98,8 +100,10 @@ jobs:
           name: reddit-life-historical-refresh
           path: |
             reddit-life-historical-refresh-result.json
+            reddit-life-historical-refresh.log
             reddit-life-historical-refresh-artifacts/
             reddit-life-historical-score-result.json
+            reddit-life-historical-score.log
             reddit-life-historical-score-artifacts/
           if-no-files-found: ignore
           retention-days: 7

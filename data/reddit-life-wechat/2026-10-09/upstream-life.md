@@ -1,15 +1,6 @@
 ---
-author: bhwa233
-pubDatetime: 2026-10-08T16:00:00Z
-modDatetime: 2026-10-09T17:42:10Z
-title: "Reddit 每日精选｜问答精选"
-featured: false
-draft: false
-tags:
-  - 社区
-  - Reddit热门
-description: "Reddit 问答精选，内容来自刷新后的评论与回答。"
-timezone: Asia/Shanghai
+archiveDate: 2026-10-09
+source: SparkHub refreshed Reddit answers
 ---
 
 ## 1. 给你两万美元，代价是穿三天女仆装并对人喵喵叫且不能透露原因，你干不干？

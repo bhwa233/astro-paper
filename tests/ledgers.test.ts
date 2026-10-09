@@ -9,7 +9,7 @@ import test from "node:test";
 import { normalizePodcastUrl } from "../scripts/foreign_tech_podcast_dedupe.ts";
 import { appendMdblistRecommendations, loadMdblistRecommendationKeys } from "../scripts/mdblist_weekly_ledger.ts";
 import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprints } from "../scripts/podcast_ledger.ts";
-import { tempDir, tempFile } from "./helpers/mocks.ts";
+import { tempDir, tempFile, withMocks } from "./helpers/mocks.ts";
 import { generateRedditLifeWechat, loadRedditLifeRunManifest } from "../scripts/generate_reddit_life_wechat.ts";
 import { shouldRebuildRedditLifeNewspicManifest } from "../scripts/generate_reddit_life_newspic.ts";
 import { loadWeiboTrendingWechatRunManifest, shouldRebuildWeiboTrendingWechatManifest } from "../scripts/generate_weibo_trending_wechat.ts";
@@ -73,30 +73,45 @@ test("mdblist ledger persists successful selections and replaces same-post rerun
 });
 
 test("Reddit life generator reuses a normal rerun but force rebuilds a backfill", async () => {
-  const repo = tempDir("reddit-life-upstream-empty");
-  const upstreamSha = commitFixtureRepo(repo);
-  const result = await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "123456789" });
-  assert.equal(result.status, "upstream-empty");
-  assert.deepEqual(result.generatedPaths, []);
-  const manifest = loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`);
-  assert.deepEqual(manifest?.posts, []);
-  assert.equal(manifest?.upstream.generatedSha, upstreamSha);
-  assert.equal(manifest?.upstream.workflowRun, "123456789");
-  assert.equal(fs.existsSync(path.join(repo, "data/reddit-life-wechat/2099-01-02/qr.png")), false);
+  await withMocks(
+    {
+      env: { SPARKHUB_API_URL: "https://sparkhub.test", SPARKHUB_DASHBOARD_TOKEN: "test-token" },
+      fetch: input => {
+        const url = String(input);
+        assert.match(url, /\/(scoring-candidates\?|archive\/)/);
+        return Response.json({ success: true, data: [] });
+      },
+    },
+    async () => {
+      const repo = tempDir("reddit-life-upstream-empty");
+      const upstreamSha = commitFixtureRepo(repo);
+      const result = await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "123456789", articleEnabled: false });
+      assert.equal(result.status, "upstream-empty");
+      assert.deepEqual(result.generatedPaths, []);
+      const manifest = loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`);
+      assert.deepEqual(manifest?.posts, []);
+      assert.equal(manifest?.upstream.generatedSha, upstreamSha);
+      assert.equal(manifest?.upstream.workflowRun, "123456789");
+      assert.equal(fs.existsSync(path.join(repo, "data/reddit-life-wechat/2099-01-02/qr.png")), false);
 
-  execFileSync("git", ["-C", repo, "add", "."]);
-  execFileSync("git", ["-C", repo, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--quiet", "-m", "archive"]);
-  const archiveSha = execFileSync("git", ["-C", repo, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+      execFileSync("git", ["-C", repo, "add", "."]);
+      execFileSync("git", ["-C", repo, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--quiet", "-m", "archive"]);
+      const archiveSha = execFileSync("git", ["-C", repo, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 
-  await assert.rejects(generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "234567890" }), /does not match --upstream-sha/);
+      await assert.rejects(
+        generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha, workflowRun: "234567890", articleEnabled: false }),
+        /does not match --upstream-sha/
+      );
 
-  await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: archiveSha, workflowRun: "234567890" });
-  assert.equal(loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`)?.upstream.workflowRun, "123456789");
+      await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: archiveSha, workflowRun: "234567890", articleEnabled: false });
+      assert.equal(loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`)?.upstream.workflowRun, "123456789");
 
-  await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: archiveSha, workflowRun: "234567890", force: true });
-  const rebuilt = loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`);
-  assert.equal(rebuilt?.upstream.generatedSha, archiveSha);
-  assert.equal(rebuilt?.upstream.workflowRun, "234567890");
+      await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: archiveSha, workflowRun: "234567890", articleEnabled: false, force: true });
+      const rebuilt = loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`);
+      assert.equal(rebuilt?.upstream.generatedSha, archiveSha);
+      assert.equal(rebuilt?.upstream.workflowRun, "234567890");
+    }
+  );
 });
 
 test("Weibo WeChat generator rebuilds for a new handoff or an explicit force", () => {

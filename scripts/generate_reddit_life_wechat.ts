@@ -280,6 +280,7 @@ export async function generateRedditLifeWechat({
   promptDir = "",
   force = false,
   articleEnabled,
+  scorePending = true,
 }: {
   repo?: string;
   date: string;
@@ -292,6 +293,8 @@ export async function generateRedditLifeWechat({
   force?: boolean;
   /** Build the article draft too. Omitted = the SparkHub config's wechat_article_enabled. */
   articleEnabled?: boolean;
+  /** Manual orchestration already scored its selected posts; do not score unrelated candidates. */
+  scorePending?: boolean;
 }): Promise<{ manifestPath: string; generatedPaths: string[]; status: RedditLifeRunManifest["status"] }> {
   if (!upstreamSha) throw new Error("--upstream-sha is required; Reddit life WeChat must read the committed parent handoff");
   if (!/^\d+$/.test(workflowRun)) throw new Error("--upstream-workflow-run is required and must be a GitHub Actions run ID");
@@ -312,7 +315,7 @@ export async function generateRedditLifeWechat({
   // article itself is always rebuilt from SparkHub, so a missing/old source body cannot leak into
   // the post-refresh output.
   const lifeArticlePath = taskPostRelPath("reddit-top20", date.replace(/$/, "-life"));
-  const scoringPosts = await getRedditLifeScoringCandidates(date);
+  const scoringPosts = scorePending ? await getRedditLifeScoringCandidates(date) : [];
   if (scoringPosts.length) {
     const scoringCandidates: RedditLifeCandidate[] = scoringPosts.map((post, index) => {
       if (!post.permalink || !post.content_sha256) throw new Error(`scoring candidate ${post.post_id} has no permalink or answer hash`);

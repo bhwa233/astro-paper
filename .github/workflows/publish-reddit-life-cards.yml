@@ -24,6 +24,11 @@ on:
         description: "Answer and title selection model. Empty = Gemini 3.8 Flash."
         required: false
         type: string
+      force:
+        description: "Regenerate the batch from the current ready queue gap."
+        required: false
+        default: false
+        type: boolean
   workflow_dispatch:
     inputs:
       date:

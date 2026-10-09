@@ -1,10 +1,17 @@
 // Score already refreshed Reddit life posts without generating or archiving articles.
 // This is intentionally separate from generate_reddit_life_wechat.ts so historical
 // backfills cannot create replacement Markdown or WeChat drafts by accident.
+import fs from "node:fs";
 import path from "node:path";
 import { dateStringInTimeZone, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
-import { getRedditLifeScoringCandidates, reportRedditLifeScores, sparkhubEndpoint, type SparkhubRedditLifePost } from "./sparkhub_client.ts";
+import {
+  getRedditLifeScoringCandidates,
+  reportRedditLifeScores,
+  sparkhubEndpoint,
+  type SparkhubRedditLifePost,
+  type SparkhubRefreshItem,
+} from "./sparkhub_client.ts";
 import { selectRedditLifeWechatCandidates, type RedditLifeWechatScoredPost } from "./reddit_life_wechat_selection.ts";
 import type { RedditLifeCandidate } from "./reddit_life_wechat_compose.ts";
 
@@ -45,15 +52,36 @@ async function scoreBatch(posts: SparkhubRedditLifePost[], date: string, model: 
 async function main(): Promise<void> {
   const { date, model, artifactsDir } = args();
   if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
-  const posts = await getRedditLifeScoringCandidates(date);
-  if (!posts.length) {
-    writeStdout(JSON.stringify({ date, candidates: 0, scored: [], skipped: [] }) + "\n");
-    return;
+  const resultFile = stringArg(parseArgs(), "refresh-result");
+  const refreshed: SparkhubRefreshItem[] | undefined = resultFile
+    ? (JSON.parse(fs.readFileSync(resultFile, "utf8")) as { items: SparkhubRefreshItem[] }).items.filter(item => item.status === "ok")
+    : undefined;
+  const dates = refreshed ? [...new Set(refreshed.map(item => item.archive_date))] : [date];
+  const results = [];
+  for (const archiveDate of dates) {
+    const selectedIds = refreshed ? new Set(refreshed.filter(item => item.archive_date === archiveDate).map(item => item.post_id)) : undefined;
+    const posts = (await getRedditLifeScoringCandidates(archiveDate)).filter(post => !selectedIds || selectedIds.has(post.id));
+    const scored: string[] = [];
+    const skipped: Array<{ post_id: string; reason: string }> = [];
+    // Manual backfills isolate each post, so a model/report failure cannot block its neighbours.
+    const batches = refreshed ? posts.map(post => [post]) : posts.length ? [posts] : [];
+    for (const batch of batches) {
+      try {
+        const items = await scoreBatch(batch, archiveDate, model, refreshed && artifactsDir ? path.join(artifactsDir, String(batch[0].id)) : artifactsDir);
+        const report = await reportRedditLifeScores(items);
+        scored.push(...report.scored);
+        skipped.push(...report.skipped);
+      } catch (error) {
+        if (!refreshed) throw error;
+        const reason = error instanceof Error ? error.message : String(error);
+        skipped.push({ post_id: batch[0].post_id, reason });
+        writeStderr(`[reddit-life-score] ${batch[0].post_id}: ${reason}\n`);
+      }
+    }
+    writeStderr(`[reddit-life-score] ${archiveDate}: ${scored.length} scored, ${skipped.length} skipped\n`);
+    results.push({ date: archiveDate, candidates: posts.length, scored, skipped });
   }
-  const items = await scoreBatch(posts, date, model, artifactsDir);
-  const report = await reportRedditLifeScores(items);
-  writeStderr(`[reddit-life-score] ${date}: ${report.scored.length} scored, ${report.skipped.length} skipped\n`);
-  writeStdout(JSON.stringify({ date, candidates: posts.length, scored: report.scored, skipped: report.skipped }) + "\n");
+  writeStdout(JSON.stringify(refreshed ? { archive_dates: dates, results } : results[0]) + "\n");
 }
 
 if (import.meta.url === `file://${process.argv[1]}`)

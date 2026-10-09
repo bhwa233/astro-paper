@@ -74,9 +74,7 @@ export function parseRedditLifeNewspicSelections(raw: unknown, expectedDate: str
     throw new Error(`Reddit life newspic selection needs at least ${expectedAdditionalIssues} additional issues`);
   }
 
-  const selections = [value, ...value.additionalIssues]
-    .slice(0, count)
-    .map((issue, index) => parseIssue(issue, expectedDate, index + 1));
+  const selections = [value, ...value.additionalIssues].slice(0, count).map((issue, index) => parseIssue(issue, expectedDate, index + 1));
   if (new Set(selections.map(selection => selection.question)).size !== selections.length) {
     throw new Error("Reddit life newspic daily issues must use different questions");
   }

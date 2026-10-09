@@ -20,13 +20,7 @@ import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
 import { type RedditEvidenceComment, type RedditPostEvidence, REDDIT_TRENDING_MAX_DETAIL_POSTS, fetchRedditPostDetail } from "./reddit_trending_api.ts";
 import { parseRedditItemOutcome, redditCategoryByKey } from "./reddit_top20_compose.ts";
 import { loadRedditLifeConfig } from "./reddit_life_config.ts";
-import {
-  finishRedditLifeRefreshRun,
-  reportRedditLifeRefreshItem,
-  requestRedditLifeRefresh,
-  sparkhubEndpoint,
-  startRedditLifeRefreshRun,
-} from "./sparkhub_client.ts";
+import { finishRedditLifeRefreshRun, reportRedditLifeRefreshItem, sparkhubEndpoint, startRedditLifeRefreshRun } from "./sparkhub_client.ts";
 
 const LABEL = "[reddit-life-refresh]";
 const SOURCE_TIME_ZONE = "America/Los_Angeles";
@@ -132,23 +126,24 @@ async function main(): Promise<void> {
   const artifactsDir = stringArg(args, "artifacts-dir");
   if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
 
-  const requestedIds = (stringArg(args, "post-ids") || "")
-    .split(",")
-    .map(value => Number(value.trim()))
-    .filter(value => Number.isInteger(value) && value > 0);
-  if (requestedIds.length) {
-    for (const id of requestedIds) await requestRedditLifeRefresh(id);
-    writeStderr(`${LABEL} requested ${requestedIds.length} historical post refresh(es)\n`);
+  const rawIds = stringArg(args, "post-ids");
+  const requestedIds = rawIds ? [...new Set(rawIds.split(",").map(value => Number(value.trim())))] : undefined;
+  if (requestedIds && (requestedIds.length > 20 || requestedIds.some(id => !Number.isSafeInteger(id) || id <= 0))) {
+    throw new Error("--post-ids must contain 1–20 positive pool IDs");
   }
 
   const repo = repoRoot();
   const template = readPromptTemplate(path.join(repo, "prompts/blog"), PROMPT_NAME, REDDIT_PROMPT_FRAGMENTS);
-  const run = await startRedditLifeRefreshRun(githubRun());
+  const run = await startRedditLifeRefreshRun({ ...githubRun(), ids: requestedIds });
+  if (requestedIds && run.items.some(item => !requestedIds.includes(item.post_id))) {
+    await finishRedditLifeRefreshRun(run.id, "API did not honour explicit pool IDs; no posts were refreshed");
+    throw new Error("Refresh API must support explicit pool IDs before running a manual backfill");
+  }
   writeStderr(
     `${LABEL} run #${run.id}: ${run.manual_count} manual + ${run.auto_count} auto (K=${run.top_k}, N=${run.stale_days}d): ${run.items.map(item => item.reddit_post_id).join(", ") || "nothing to refresh"}\n`
   );
   if (!run.items.length) {
-    writeStdout(`${JSON.stringify({ runId: run.id, refreshed: 0, failed: 0, rejected: 0 })}\n`);
+    writeStdout(`${JSON.stringify({ runId: run.id, refreshed: 0, failed: 0, rejected: 0, items: [] })}\n`);
     return;
   }
 
@@ -180,23 +175,27 @@ async function main(): Promise<void> {
       }
       const byPostId = new Map(evidence.map(post => [post.postId, post]));
       await mapWithConcurrency(batch, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async item => {
-        const post = byPostId.get(item.reddit_post_id);
-        const outcome: Outcome = !item.permalink
-          ? { error: "Post has no Reddit permalink" }
-          : fetchError
-            ? { error: fetchError }
-            : await refreshItem(post, context);
-        if ("error" in outcome) writeStderr(`WARN: ${LABEL} ${item.reddit_post_id}: ${outcome.error}\n`);
-        const reported = await reportRedditLifeRefreshItem(
-          run.id,
-          item.post_id,
-          "content" in outcome
-            ? { content_md: outcome.content, fetched_at: post?.fetchedAt ?? null }
-            : { error: outcome.error, fetched_at: post?.fetchedAt ?? null }
-        );
-        writeStderr(
-          `${LABEL} ${item.reddit_post_id} (${item.source}): ${reported.status}, replies ${reported.reply_count_before} -> ${reported.reply_count_after ?? "-"}${reported.error && reported.status !== "failed" ? ` (${reported.error})` : ""}\n`
-        );
+        try {
+          const post = byPostId.get(item.reddit_post_id);
+          const outcome: Outcome = !item.permalink
+            ? { error: "Post has no Reddit permalink" }
+            : fetchError
+              ? { error: fetchError }
+              : await refreshItem(post, context);
+          if ("error" in outcome) writeStderr(`WARN: ${LABEL} ${item.reddit_post_id}: ${outcome.error}\n`);
+          const reported = await reportRedditLifeRefreshItem(
+            run.id,
+            item.post_id,
+            "content" in outcome
+              ? { content_md: outcome.content, fetched_at: post?.fetchedAt ?? null }
+              : { error: outcome.error, fetched_at: post?.fetchedAt ?? null }
+          );
+          writeStderr(
+            `${LABEL} ${item.reddit_post_id} (${item.source}): ${reported.status}, replies ${reported.reply_count_before} -> ${reported.reply_count_after ?? "-"}${reported.error && reported.status !== "failed" ? ` (${reported.error})` : ""}\n`
+          );
+        } catch (error) {
+          writeStderr(`WARN: ${LABEL} ${item.reddit_post_id}: ${error instanceof Error ? error.message : String(error)}\n`);
+        }
       });
     }
   } catch (error) {
@@ -208,7 +207,7 @@ async function main(): Promise<void> {
       `${LABEL} run #${run.id} ${finished.status}: ${finished.refreshed_count} refreshed, ${finished.failed_count} failed, ${finished.rejected_count} skipped\n`
     );
     writeStdout(
-      `${JSON.stringify({ runId: run.id, status: finished.status, refreshed: finished.refreshed_count, failed: finished.failed_count, rejected: finished.rejected_count })}\n`
+      `${JSON.stringify({ runId: run.id, status: finished.status, refreshed: finished.refreshed_count, failed: finished.failed_count, rejected: finished.rejected_count, items: finished.items })}\n`
     );
   }
 }

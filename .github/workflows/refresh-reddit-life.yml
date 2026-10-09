@@ -32,10 +32,6 @@ on:
         description: "Optional comma-separated pool IDs to refresh."
         required: false
         type: string
-      post_ids:
-        description: "Optional comma-separated pool IDs to refresh; requests these before starting the run."
-        required: false
-        type: string
   # 手动入口：后台点了「重新抓取评论」又不想等到第二天时，在这里补跑一次。
   workflow_dispatch:
     inputs:

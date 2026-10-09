@@ -158,7 +158,11 @@ export type SparkhubRefreshRun = {
  * 开一次评论刷新任务。SparkHub 按后台配置选出要刷的帖子（人工请求全部 + 按领取顺序的前 K 个待用帖），
  * 每帖记一条 pending 明细连同初次爬取时间一起返回；没有要刷的也会记一次、直接结束。
  */
-export function startRedditLifeRefreshRun(input: { github_run_id?: string | null; github_run_url?: string | null }): Promise<SparkhubRefreshRun> {
+export function startRedditLifeRefreshRun(input: {
+  ids?: number[];
+  github_run_id?: string | null;
+  github_run_url?: string | null;
+}): Promise<SparkhubRefreshRun> {
   return call("POST", "/refresh/runs", input);
 }
 

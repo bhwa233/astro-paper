@@ -22,6 +22,8 @@ if (!defaultTranslations) {
 
 /** Returns UI strings for the given locale, falling back to the default locale. */
 export function useTranslations(locale: string = DEFAULT_LOCALE): UIStrings {
-  return (LOCALES.includes(locale) ? translations[locale] : undefined) ??
-    defaultTranslations;
+  return (
+    (LOCALES.includes(locale) ? translations[locale] : undefined) ??
+    defaultTranslations
+  );
 }

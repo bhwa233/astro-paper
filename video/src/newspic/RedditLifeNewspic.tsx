@@ -14,7 +14,7 @@ export type RedditLifeNewspicProps = { manifest: VideoManifest; cardIndex: numbe
 
 const Masthead: React.FC = () => (
   <div style={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
-    <div style={{ fontSize: 24, lineHeight: 1, fontWeight: 700, color: THEME.accent }}>REDDIT</div>
+    <div style={{ fontSize: 34, lineHeight: 1, fontWeight: 700, color: THEME.accent, whiteSpace: "nowrap" }}>国外知乎 reddit</div>
     <div style={{ marginTop: 10, fontSize: 46, lineHeight: 1, fontWeight: 700, color: "#191919" }}>精选问答</div>
     <div style={{ marginTop: 18, width: 64, height: 6, background: THEME.accent }} />
   </div>

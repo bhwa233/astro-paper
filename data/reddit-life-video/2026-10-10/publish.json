@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-10",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "153a51d17c9018f0b294fd8f0a7d50d50eae3a3d8e9d1fae2e3c79a79df612ad",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "比起单纯堆砌金钱，人们更倾向于用微小增益换取稳定的幸福感、健康生存率与人生底层复利。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

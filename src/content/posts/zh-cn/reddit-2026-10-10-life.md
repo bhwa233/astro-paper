@@ -946,7 +946,7 @@ timezone: Asia/Shanghai
 
 39\. 任何真人版歌舞片。
 
-40\. 《我们到底懂个毛线》（What the #$*! Do We (K)now!?），堪称见过最离谱的新纪元运动（New Age）伪科学大杂烩。
+40\. 《我们到底懂个毛线》（What the #$\*! Do We (K)now!?），堪称见过最离谱的新纪元运动（New Age）伪科学大杂烩。
 
 41\. 《我唾弃你的坟墓》（I Spit On Your Grave），听到这名字就必须立刻离场。
 

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-11",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "7b2ca293cf5a130aa28222ec2768f45032ec4f33d7eddb03cdb841f620f0a690",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "比起单纯增加财富，大家更倾向微调神经递质、健康几率或底层运气来撬动整个人生",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

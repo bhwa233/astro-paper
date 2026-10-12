@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-12",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "a78e47a7febd99dc76d11387655b7bb69a9659dabc0fd92cf5fffc16a647bd3d",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "意想不到",
+        "反常识"
+      ],
+      "summary": "比起微不足道的金钱增长，大家更倾向给自律、快乐或触发绝对好运加点复利",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

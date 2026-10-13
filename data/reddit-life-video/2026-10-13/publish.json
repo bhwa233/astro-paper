@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-13",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "80a5b647d4471d3dc320a65160b1c1852c83edd78006e110b7da807a7fc567ef",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "社会变迁",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "很多升级只是厂商制造消费痛点的手段，牺牲了耐用与直观，换来频繁故障与持续收费。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

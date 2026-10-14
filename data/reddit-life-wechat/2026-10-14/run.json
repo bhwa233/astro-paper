@@ -1,0 +1,12 @@
+{
+  "version": 6,
+  "archiveDate": "2026-10-14",
+  "timeZone": "America/Los_Angeles",
+  "status": "upstream-empty",
+  "upstream": {
+    "generatedSha": "b4fe6a9f2d2f384a7fec7f9c5a0ebaf1884855c3",
+    "workflowRun": "38587342396",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-10-14-life.md"
+  },
+  "posts": []
+}

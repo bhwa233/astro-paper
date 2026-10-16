@@ -2,6 +2,7 @@
 // 中间阶段和最终成文一样会拿到截断的 JSON，因此每次尝试的响应、重试提示词和错误都要落盘，
 // 让 CI 产物能直接指认是哪一阶段、第几次尝试失败的。
 import fs from "node:fs";
+import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { ensureDir, envPositiveInt, sleep, writeStderr } from "./blog_common.ts";
 import { type AiCallResult, callBlogAiWithFailover, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
@@ -67,6 +68,27 @@ export async function generateJsonStageWithRetries<T>({
   onExhausted,
 }: JsonStageOptions<T>): Promise<T> {
   const attempts = retryAttempts();
+  // Reuse the existing stage parser and artifact writer: only validated responses are
+  // cached. Substack's translation cache has a different article contract; no new
+  // cache dependency is needed for these small, immutable JSON responses.
+  const cacheDir = process.env.AI_SUCCESS_CACHE_DIR?.trim();
+  const primary = envAiConfig({ model });
+  const fallback = envFallbackAiConfig();
+  const cacheKey = createHash("sha256")
+    .update(JSON.stringify([1, task, primary.baseUrl, primary.model, primary.apiStyle, fallback.baseUrl, fallback.model, fallback.apiStyle, prompt]))
+    .digest("hex");
+  const cacheFile = cacheDir ? path.join(cacheDir, `${cacheKey}.json`) : "";
+  if (cacheFile && fs.existsSync(cacheFile)) {
+    try {
+      const content = fs.readFileSync(cacheFile, "utf8");
+      const value = parse(content);
+      writeAiArtifact(artifactsDir, task, `${artifactPrefix}-response-cached.json`, content);
+      writeStderr(`[ai-cache] ${stage}: reused validated response`);
+      return value;
+    } catch (error) {
+      writeStderr(`WARN: [ai-cache] ${stage}: cached response rejected: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
   let lastError = "";
   let attemptPrompt = prompt;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
@@ -75,7 +97,16 @@ export async function generateJsonStageWithRetries<T>({
     try {
       const response = await callAi(attemptPrompt, model, true);
       writeAiArtifact(artifactsDir, task, `${artifactPrefix}-response-attempt-${attempt}.json`, response.content);
-      return parse(response.content);
+      const value = parse(response.content);
+      if (cacheFile) {
+        try {
+          const temporary = writeAiArtifact(path.dirname(cacheFile), cacheKey, `${randomUUID()}.tmp`, response.content);
+          fs.renameSync(temporary, cacheFile);
+        } catch (error) {
+          writeStderr(`WARN: [ai-cache] ${stage}: could not save response: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+      return value;
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error);
       writeAiArtifact(artifactsDir, task, `${artifactPrefix}-error-attempt-${attempt}.txt`, lastError);

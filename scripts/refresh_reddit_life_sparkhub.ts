@@ -1,17 +1,16 @@
 // 给 SparkHub 素材池里待用的问题重抓一次评论，补充回答。
 //
-// 池里的回答是上游 reddit-top20 当天抓热帖时的快照：帖子刚上热门，评论区还没沉淀，而且一题往往要在池里
-// 排几天才会被领走。所以每天入库之后、视频选卡领题之前，先让 SparkHub 开一次刷新任务：它按后台配置
-// 选出要刷的帖子（人工请求的全部，再加按领取顺序的前 K 个、从没刷过或上次刷新早于 N 天的待用帖），
+// 初次只入库题目元数据。每天入库之后、视频选卡领题之前，先让 SparkHub 开一次刷新任务：
+// 人工请求之外，只自动选择从未成功刷新的待用帖；已经生成好的素材不会按天过期。
 // 这里深抓评论、用上游 life 栏目同一份提示词（reddit-item-summary，numbered 口径）重写回答，逐帖回报。
-// 回报的正文整体替换池里的旧回答，标题保持池里原样；帖子在这期间被领走、或卡片已经发出去的，SparkHub 拒收、不改正文。
+// 回报中文标题与正式回答；帖子在这期间被领走、或卡片已经发出去的，SparkHub 拒收、不改正文。
 // 已有卡片但还没发出去的帖子，SparkHub 换回答的同时撤下卡片，排在后面的卡片批次当天按新回答重新出卡。
 //
 // SparkHub 接受（ok）之后不直接改博客文章。下一步的生成脚本从 SparkHub 读取这批刷新后的正文，
 // 一次性生成 upstream-life.md 与 Astro Paper 文章，保证两个产物来自同一份内容。
 //
 // 单帖失败（帖子被删或锁、没有顶层评论、模型判定排除主题、重试后仍不合格）只回报 error，旧回答不动，
-// 下次运行会再挑到它。整个脚本在 workflow 里是旁路步骤，失败不挡领题。
+// 下次运行会再挑到它。逐帖回报并写交接文件，超时也保留已成功的结果供评分继续。
 import path from "node:path";
 import { writeJson } from "./committed_handoff.ts";
 import { dateStringInTimeZone, envPositiveInt, mapWithConcurrency, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
@@ -30,7 +29,7 @@ const REDDIT_PROMPT_FRAGMENTS = { reddit_translation_rules: "_reddit-translation
 // 每帖单独一次模型调用，提示词里的排名固定为 1。
 const PROMPT_RANK = 1;
 
-type Outcome = { content: string } | { error: string };
+type Outcome = { title: string; content: string } | { error: string };
 
 /**
  * 把单帖深抓证据拼成 reddit-top20 v7 source block 的形状，这样上游的 reddit-item-summary 提示词不用改就能读。
@@ -88,11 +87,13 @@ async function rewrite(post: RedditPostEvidence, template: string, date: string,
     jitterMs: 1_000,
     parse: raw => {
       const item = parseRedditItemOutcome(raw, PROMPT_RANK, category.summaryMinChars, category.summaryFormat);
-      return item ? { content: redditLifeRefreshedContent(item.summary) } : { error: "Model excluded this post by topic" };
+      if (!item) return { error: "Model excluded this post by topic" };
+      const content = redditLifeRefreshedContent(item.summary);
+      if (!/^\d+\\\.\s/m.test(content)) throw new Error("Rewritten replies have no numbered items");
+      return { title: item.title_zh, content };
     },
     onExhausted: error => ({ error }),
   });
-  if ("content" in outcome && !/^\d+\\\.\s/m.test(outcome.content)) return { error: "Rewritten replies have no numbered items" };
   return outcome;
 }
 
@@ -142,8 +143,10 @@ async function main(): Promise<void> {
     throw new Error("Refresh API must support explicit pool IDs before running a manual backfill");
   }
   writeStderr(
-    `${LABEL} run #${run.id}: ${run.manual_count} manual + ${run.auto_count} auto (K=${run.top_k}, N=${run.stale_days}d): ${run.items.map(item => item.reddit_post_id).join(", ") || "nothing to refresh"}\n`
+    `${LABEL} run #${run.id}: ${run.manual_count} manual + ${run.auto_count} auto (K=${run.top_k}, automatic refresh once): ${run.items.map(item => item.reddit_post_id).join(", ") || "nothing to refresh"}\n`
   );
+  const progress = { runId: run.id, status: "running", items: [...run.items] };
+  if (resultFile) writeJson(resultFile, progress);
   if (!run.items.length) {
     const result = { runId: run.id, refreshed: 0, failed: 0, rejected: 0, items: [] };
     if (resultFile) writeJson(resultFile, result);
@@ -185,15 +188,17 @@ async function main(): Promise<void> {
             ? { error: "Post has no Reddit permalink" }
             : fetchError
               ? { error: fetchError }
-              : await refreshItem(post, context);
+              : await refreshItem(post, { ...context, date: item.archive_date });
           if ("error" in outcome) writeStderr(`WARN: ${LABEL} ${item.reddit_post_id}: ${outcome.error}\n`);
           const reported = await reportRedditLifeRefreshItem(
             run.id,
             item.post_id,
             "content" in outcome
-              ? { content_md: outcome.content, fetched_at: post?.fetchedAt ?? null }
+              ? { title: outcome.title, content_md: outcome.content, fetched_at: post?.fetchedAt ?? null }
               : { error: outcome.error, fetched_at: post?.fetchedAt ?? null }
           );
+          progress.items[progress.items.findIndex(entry => entry.post_id === item.post_id)] = reported;
+          if (resultFile) writeJson(resultFile, progress);
           writeStderr(
             `${LABEL} ${item.reddit_post_id} (${item.source}): ${reported.status}, replies ${reported.reply_count_before} -> ${reported.reply_count_after ?? "-"}${reported.error && reported.status !== "failed" ? ` (${reported.error})` : ""}\n`
           );

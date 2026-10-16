@@ -1,10 +1,10 @@
 // 初次抓取只把问题元数据写入 SparkHub。回答要等刷新后才回写，AI 评分也只读刷新后的回答。
-// 不创建 upstream-life.md 快照：源文章只在这一步作为临时元数据输入。
-import fs from "node:fs";
-import path from "node:path";
-import { parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { taskPostRelPath } from "./blog_tasks.ts";
-import { parseRedditLifeCandidates } from "./reddit_life_wechat_compose.ts";
+// 直接读取经过契约校验的来源数据，不先调用模型生成一篇随后会被覆盖的临时文章。
+import { dateStringInTimeZone, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { assertCommittedHandoff, writeJson } from "./committed_handoff.ts";
+import { configuredRedditCategory } from "./reddit_life_config.ts";
+import { fetchRedditSourceFromApi, redditSourceFetchedAt } from "./reddit_source_api.ts";
+import { parseSourceFacts, redditCategoryByKey, redditSourceBlocks, type RedditCategory } from "./reddit_top20_compose.ts";
 import { ingestRedditLifeDay, sparkhubEndpoint } from "./sparkhub_client.ts";
 
 const LABEL = "[reddit-life-sparkhub]";
@@ -23,45 +23,46 @@ export type RedditLifeIngestPayload = {
   }>;
 };
 
-export function upstreamSourceFetchedAt(markdown: string): string | null {
-  const frontmatter = markdown.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
-  const value = frontmatter.match(/^sourceFetchedAt:\s*"?([^"\n]+)"?\s*$/m)?.[1]?.trim() ?? "";
-  return value && !Number.isNaN(Date.parse(value)) ? value : null;
-}
-
-export function buildRedditLifeIngestPayload(repo: string, date: string, upstreamSha: string): RedditLifeIngestPayload {
-  const articleRel = taskPostRelPath("reddit-top20", `${date}-life`);
-  const articleFile = path.join(repo, articleRel);
-  if (!fs.existsSync(articleFile)) throw new Error(`life article not found: ${articleFile}`);
-  const markdown = fs.readFileSync(articleFile, "utf8");
-  const candidates = parseRedditLifeCandidates(markdown);
+export function buildRedditLifeIngestPayload(source: string, date: string, upstreamSha: string, category: RedditCategory): RedditLifeIngestPayload {
+  const blocks = redditSourceBlocks(source);
+  const facts = parseSourceFacts(source, category);
   return {
     archive_date: date,
     upstream_sha: upstreamSha,
-    source_fetched_at: upstreamSourceFetchedAt(markdown),
-    posts: candidates.map(candidate => ({
-      post_id: candidate.postId,
-      subreddit: candidate.subreddit,
-      title: candidate.title,
-      permalink: candidate.permalink,
-      num_comments: candidate.numComments,
-      source_rank: candidate.rank,
-    })),
+    source_fetched_at: redditSourceFetchedAt(source) || null,
+    posts: facts.map((fact, index) => {
+      const block = blocks[index]!;
+      const title = block.match(/^\d+\.\s*\[r\/[^\]]+\]\s+(.+)$/m)?.[1]?.trim();
+      const postId = fact.url.match(/\/comments\/([a-z0-9]+)(?:\/|$)/i)?.[1]?.toLowerCase();
+      if (!title || !postId) throw new Error(`Reddit life source item ${fact.rank} is missing its title or post ID`);
+      return {
+        post_id: postId,
+        subreddit: fact.subreddit,
+        title,
+        permalink: fact.url,
+        num_comments: Number((block.match(/·\s*([\d,]+)\s*评论/)?.[1] || "0").replaceAll(",", "")),
+        source_rank: fact.rank,
+      };
+    }),
   };
 }
 
 async function main(): Promise<void> {
   const args = parseArgs();
-  const date = stringArg(args, "date");
+  const date = stringArg(args, "date") || dateStringInTimeZone(new Date(), "America/Los_Angeles");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("--date YYYY-MM-DD is required");
-  const repo = path.resolve(stringArg(args, "repo", repoRoot()));
   const upstreamSha = stringArg(args, "upstream-sha", process.env.UPSTREAM_GENERATED_SHA || "");
-  const payload = buildRedditLifeIngestPayload(repo, date, upstreamSha);
-
   if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
+  assertCommittedHandoff(repoRoot(), upstreamSha, "Reddit life candidates");
+  const category = await configuredRedditCategory(redditCategoryByKey("life"));
+  const source = await fetchRedditSourceFromApi(date, category);
+  const payload = buildRedditLifeIngestPayload(source, date, upstreamSha, category);
   const result = await ingestRedditLifeDay(payload);
   writeStderr(`${LABEL} ${date}: recorded ${result.received} unscored candidates; answers and scores are deferred until after refresh`);
-  writeStdout(`${JSON.stringify({ date, received: result.received })}\n`);
+  const output = { date, received: result.received };
+  const resultFile = stringArg(args, "result-file");
+  if (resultFile) writeJson(resultFile, output);
+  writeStdout(`${JSON.stringify(output)}\n`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

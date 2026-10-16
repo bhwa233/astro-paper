@@ -194,3 +194,52 @@ test("JSON generation stages retry malformed output with JSON mode and retain di
   assert.match(artifact("error-attempt-1.txt"), /Unterminated string/);
   assert.match(artifact("retry-prompt-attempt-2.md"), /完整、合法且字段齐全/);
 });
+
+test("JSON stage resumes validated successes, excludes failures and invalidates changed prompts", async () => {
+  const cacheDir = tempDir("ai-success-cache");
+  let calls = 0;
+  await withMocks(
+    {
+      env: {
+        AI_API_KEY: "test-key",
+        AI_BASE_URL: "https://api.example.com/v1",
+        AI_API_STYLE: "chat",
+        AI_FALLBACK_ENABLED: "false",
+        AI_RETRY_ATTEMPTS: "1",
+        AI_SUCCESS_CACHE_DIR: cacheDir,
+      },
+      fetch: async () => {
+        calls += 1;
+        const content = calls === 1 ? "invalid JSON" : JSON.stringify({ answer: calls });
+        return new Response(JSON.stringify({ choices: [{ index: 0, message: { content } }] }), { headers: JSON_HEADERS });
+      },
+    },
+    async () => {
+      const options = {
+        task: "reddit-life",
+        stage: "refresh",
+        artifactPrefix: "refresh",
+        prompt: "original evidence",
+        model: "test-model",
+        artifactsDir: "",
+        parse: (content: string) => JSON.parse(content) as { answer: number },
+      };
+      await assert.rejects(() => generateJsonStageWithRetries(options), /failed after 1 attempts/);
+      assert.deepEqual(fs.readdirSync(cacheDir), []);
+      const accepted = await generateJsonStageWithRetries(options);
+      assert.equal(accepted.answer, 2);
+      // A later upload/report may fail; the next invocation must reuse the paid result.
+      assert.deepEqual(await generateJsonStageWithRetries(options), accepted);
+      assert.equal(calls, 2);
+      assert.equal((await generateJsonStageWithRetries({ ...options, prompt: "new evidence" })).answer, 3);
+      const rejectedCache = {
+        ...options,
+        parse: () => {
+          throw new Error("new validation rule");
+        },
+      };
+      await assert.rejects(() => generateJsonStageWithRetries(rejectedCache), /new validation rule/);
+      assert.equal(calls, 4);
+    }
+  );
+});

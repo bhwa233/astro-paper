@@ -1,7 +1,7 @@
 # Reddit 人生精选竖屏视频技术方案
 
 状态：选卡在用，渲染与 Release 自 2026-09-26 起暂停
-最后更新：2026-10-07
+最后更新：2026-10-16
 
 > **2026-10-07 起的变化。**
 >
@@ -14,12 +14,12 @@
 >
 > **刷新与评分先于所有下游产物。** `publish-reddit-life.yml` 在元数据入库之后调用 `refresh-reddit-life.yml`；默认 K=100，首页轮的新候选全部刷新。刷新后的回答由后续生成步骤统一写入文章与 `upstream-life.md`，并完成 hash 绑定的 AI 评分。
 >
-> - 向 SparkHub `POST /refresh/runs` 开一次任务，由 SparkHub 按后台配置选帖：人工请求最多 20 条，再加按领取顺序的前 K 个待用帖。K 保留上限，默认 100；N 仍控制旧内容的再次刷新。
+> - 向 SparkHub `POST /refresh/runs` 开一次任务，由 SparkHub 按后台配置选帖：人工请求最多 20 条，再加按领取顺序的前 K 个从未成功刷新的待用帖。K 保留上限，默认 100；历史成功素材复用，不再按 N 天重复刷新。
 > - 对这些帖子调用来源服务 `reddit-post-detail-source.v1`（`fetchRedditPostDetail`，每次最多 10 帖，超过分批）深抓评论，拼成 v7 source block 的形状，用上游 life 栏目同一份提示词 `reddit-item-summary`（numbered 口径）逐帖重写回答，逐帖回报 `POST /refresh/runs/{run}/items/{id}`，最后 `finish`。
-> - 回报的回答**整体替换**池里的 `content_md`（标题沿用池里原样，`reply_count` 由 SparkHub 重算），不保留旧版本，也不设条数下限保护。帖子在回报前已被领走（reserved / used）的，SparkHub 记为 rejected、不改正文。
+> - 回报中文标题并**整体替换**池里的 `content_md`（`reply_count` 由 SparkHub 重算），不保留旧版本，也不设条数下限保护。帖子在回报前已被领走（reserved / used）的，SparkHub 记为 rejected、不改正文。
 > - SparkHub 接受之后，refresh 脚本不直接编辑文章。生成脚本重新读取最终 archive，用同一份刷新正文生成 `src/content/posts/zh-cn/reddit-<date>-life.md` 与 `data/reddit-life-wechat/<date>/upstream-life.md`。
 > - 单帖失败（帖子被删或锁、没有顶层评论、模型判定排除主题、重试后仍不合格）只回报 error，旧回答不动，下次运行会再挑到它。刷新任务失败时不允许后续生成阶段绕过门槛。
-> - 每次运行在 SparkHub 记一条任务、每帖一条明细，含初次爬取时间（上游来源服务的 `fetched_at`，经文章 frontmatter `sourceFetchedAt` 与入库传入；2026-09-27 之前入库的帖子没有，后台显示入库时间并标「≈」）、上次刷新时间与本次二次爬取时间，后台「评论刷新」标签页可查。
+> - 每次运行在 SparkHub 记一条任务、每帖一条明细，含初次爬取时间（来源服务的 `fetched_at` 在元数据入库时直接传入；2026-09-27 之前入库的帖子没有，后台显示入库时间并标「≈」）、上次刷新时间与本次二次爬取时间，后台「评论刷新」标签页可查。
 > - 同一 `source.json` 复用逻辑不变：刷新只影响还没被领走的题。
 
 ## 1. 背景

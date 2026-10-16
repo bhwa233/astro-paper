@@ -12,7 +12,7 @@ import path from "node:path";
 import { booleanArg, dateStringInTimeZone, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
 import { sha256, writeJson, type ArchivedFile } from "./committed_handoff.ts";
-import { buildReleaseManifest, type ReleaseManifest } from "./release_assets.ts";
+import { buildReleaseManifest, restoreReleaseAssets, type ReleaseManifest } from "./release_assets.ts";
 import { redditLifeNewspicCardFile } from "./reddit_life_newspic_compose.ts";
 import { renderRedditLifeNewspicCards } from "./reddit_life_newspic_cards.ts";
 import { selectRedditLifeCards } from "./reddit_life_video_cards.ts";
@@ -53,19 +53,15 @@ export type RedditLifeCardsRunManifest = {
   /** 生成前各平台 ready 的条数。 */
   readyBefore: Record<string, number>;
   gap: number;
+  /** Absent in legacy manifests, which represent finished batches. */
+  complete?: boolean;
   model: string;
   items: RedditLifeCardsItem[];
   failures: Array<{ id: number; postId: string; error: string }>;
   release?: ReleaseManifest;
 };
 
-type Result = { date: string; status: "processed" | "full" | "reused"; manifestPath: string; generated: number; failed: number; rendered: boolean };
-
-function failureLimit(gap: number): number {
-  // A few bad model responses should be skipped, but a broad failure indicates
-  // that the batch is not healthy enough to publish silently.
-  return Math.max(3, Math.ceil(gap / 2));
-}
+type Result = { date: string; status: "processed" | "partial" | "full" | "reused"; manifestPath: string; generated: number; failed: number; rendered: boolean };
 
 function postMarkdown(post: SparkhubRedditLifePost): string {
   return `\n## ${post.title}\n${post.content_md.trim()}\n`;
@@ -93,8 +89,8 @@ export async function generateRedditLifeCards({
   const manifestFile = path.join(repo, manifestRel);
 
   // 同一天重跑不换内容：卡片可能已经发出去了。补回报交给 attach 那一步。
-  if (!force && fs.existsSync(manifestFile)) {
-    const existing = JSON.parse(fs.readFileSync(manifestFile, "utf8")) as RedditLifeCardsRunManifest;
+  const existing = !force && fs.existsSync(manifestFile) ? (JSON.parse(fs.readFileSync(manifestFile, "utf8")) as RedditLifeCardsRunManifest) : undefined;
+  if (existing && existing.complete !== false) {
     writeStderr(`[reddit-life-cards] ${date}: reusing ${manifestRel} (${existing.items.length} posts); pass --force to regenerate`);
     return { date, status: "reused", manifestPath: manifestRel, generated: existing.items.length, failed: existing.failures.length, rendered: false };
   }
@@ -103,12 +99,24 @@ export async function generateRedditLifeCards({
   writeStderr(
     `[reddit-life-cards] ${date}: ready ${JSON.stringify(backlog.ready)}, target ${target}, gap ${backlog.gap}, candidates ${backlog.candidates.length}`
   );
-  if (backlog.gap === 0) return { date, status: "full", manifestPath: "", generated: 0, failed: 0, rendered: false };
+  if (backlog.gap === 0) {
+    if (!existing) return { date, status: "full", manifestPath: "", generated: 0, failed: 0, rendered: false };
+    writeJson(manifestFile, { ...existing, complete: true });
+    return { date, status: "reused", manifestPath: manifestRel, generated: existing.items.length, failed: 0, rendered: false };
+  }
 
-  const items: RedditLifeCardsItem[] = [];
+  const currentHashes = new Map(backlog.candidates.map(post => [post.id, post.content_sha256]));
+  const items: RedditLifeCardsItem[] = (existing?.items ?? []).filter(item => !currentHashes.has(item.id) || currentHashes.get(item.id) === item.contentSha256);
+  const completedIds = new Set(items.map(item => item.id));
+  const previousCount = items.length;
+  // A previous batch may already have been attached, or still await its report.
+  // Only completed posts still in the backlog count towards today's remaining gap.
+  const needed = Math.max(0, backlog.gap - backlog.candidates.filter(post => completedIds.has(post.id)).length);
+  if (existing?.release && needed > 0) restoreReleaseAssets(repo, existing.release);
   const failures: RedditLifeCardsRunManifest["failures"] = [];
   for (const post of backlog.candidates) {
-    if (items.length >= backlog.gap) break;
+    if (items.length - previousCount >= needed) break;
+    if (completedIds.has(post.id)) continue;
     try {
       const [question] = parseRedditLifeVideoQuestions([postMarkdown(post)]);
       if (!question) throw new Error("post has no answers");
@@ -155,12 +163,14 @@ export async function generateRedditLifeCards({
     }
   }
 
+  const complete = items.length - previousCount >= needed;
   const manifest: RedditLifeCardsRunManifest = {
     version: MANIFEST_VERSION,
     archiveDate: date,
     target,
     readyBefore: backlog.ready,
-    gap: backlog.gap,
+    gap: previousCount + needed,
+    complete,
     model,
     items,
     failures,
@@ -173,12 +183,22 @@ export async function generateRedditLifeCards({
     }),
   };
   writeJson(manifestFile, manifest);
-  writeStderr(`[reddit-life-cards] ${date}: ${items.length} of gap ${backlog.gap} generated, ${failures.length} failed`);
-  // 有候选却一条都没做成，多半是模型或渲染整体坏了，要让 job 变红；做成一部分只告警。
-  if (failures.length >= failureLimit(backlog.gap) || items.length < backlog.gap) {
+  writeStderr(
+    `[reddit-life-cards] ${date}: ${items.length - previousCount}/${needed} remaining cards generated, ${previousCount} reused, ${failures.length} failed`
+  );
+  // Commit/attach successful cards before flagging an incomplete batch in CI.
+  // A rerun resumes this manifest and never asks the model to redo accepted cards.
+  if (items.length === 0) {
     throw new Error(`${failures.length} card candidates failed and ${items.length}/${backlog.gap} were generated; see ${manifestRel}`);
   }
-  return { date, status: "processed", manifestPath: manifestRel, generated: items.length, failed: failures.length, rendered: items.length > 0 };
+  return {
+    date,
+    status: complete ? "processed" : "partial",
+    manifestPath: manifestRel,
+    generated: items.length,
+    failed: failures.length,
+    rendered: items.length > previousCount,
+  };
 }
 
 async function main(): Promise<void> {

@@ -163,7 +163,7 @@ function redditCategory(value: string, subreddit: string, preferred?: RedditCate
 }
 
 export function parseSourceFacts(source: string, preferred?: RedditCategory): RedditSourceFact[] {
-  return sourceBlocks(source).map((block, index) => {
+  return redditSourceBlocks(source).map((block, index) => {
     const bullets = extractBullets(block);
     const subreddit = block.match(/^\d+\.\s*\[r\/([^\]]+)\]/)?.[1] ?? "";
     return {
@@ -277,7 +277,7 @@ export function parseRedditTitleTranslation(raw: string, expectedRank: number): 
   return { rank, title_zh: titleZh };
 }
 
-function sourceBlocks(source: string): string[] {
+export function redditSourceBlocks(source: string): string[] {
   const markerIndex = source.indexOf(ARCHIVE_PAYLOAD_MARKER);
   const body = markerIndex >= 0 ? source.slice(0, markerIndex) : source;
   return body
@@ -287,7 +287,7 @@ function sourceBlocks(source: string): string[] {
 }
 
 export function parseRedditItemSummaries(source: string, minChars = SUMMARY_MIN_CHARS, summaryFormat: RedditSummaryFormat = "numbered"): RedditModelItem[] {
-  const blocks = sourceBlocks(source);
+  const blocks = redditSourceBlocks(source);
   if (!blocks.length) throw new Error("Reddit combined source has no item blocks");
   return blocks.map((block, index) => {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);
@@ -351,7 +351,7 @@ function composeRedditTitleOnlyBody(items: RedditTitleTranslation[], facts: Redd
 }
 
 function parseRedditTitleTranslations(source: string): RedditTitleTranslation[] {
-  const blocks = sourceBlocks(source);
+  const blocks = redditSourceBlocks(source);
   if (!blocks.length) throw new Error("Reddit combined source has no item blocks");
   return blocks.map((block, index) => {
     const rank = Number(block.match(/^(\d+)\.\s*\[r\//)?.[1]);

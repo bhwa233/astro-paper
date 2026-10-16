@@ -4,7 +4,17 @@
 import fs from "node:fs";
 import path from "node:path";
 import { writeJson } from "./committed_handoff.ts";
-import { dateStringInTimeZone, envPositiveInt, mapWithConcurrency, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import {
+  booleanArg,
+  dateStringInTimeZone,
+  envPositiveInt,
+  mapWithConcurrency,
+  parseArgs,
+  repoRoot,
+  stringArg,
+  writeStderr,
+  writeStdout,
+} from "./blog_common.ts";
 import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
 import {
   getRedditLifeScoringCandidates,
@@ -54,26 +64,37 @@ async function main(): Promise<void> {
   const { date, model, artifactsDir } = args();
   if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
   const resultFile = stringArg(parseArgs(), "refresh-result");
+  const resumePending = booleanArg(parseArgs(), "resume-pending");
   const refreshed: SparkhubRefreshItem[] | undefined = resultFile
     ? (JSON.parse(fs.readFileSync(resultFile, "utf8")) as { items: SparkhubRefreshItem[] }).items.filter(item => item.status === "ok")
     : undefined;
-  const dates = refreshed ? [...new Set(refreshed.map(item => item.archive_date))] : [date];
+  // A prior run may have accepted answers and then timed out before scoring.
+  // The server returns only missing/stale scores, so successful rows are reused
+  // while unfinished work is recovered even when absent from this refresh artifact.
+  const isolated = resumePending || refreshed !== undefined;
+  const selectedIds = refreshed && !resumePending ? new Set(refreshed.map(item => item.post_id)) : undefined;
+  const dates = resumePending ? [] : refreshed ? [...new Set(refreshed.map(item => item.archive_date))] : [date];
+  const pending = resumePending
+    ? await getRedditLifeScoringCandidates()
+    : (await Promise.all(dates.map(archiveDate => getRedditLifeScoringCandidates(archiveDate))))
+        .flat()
+        .filter(post => !selectedIds || selectedIds.has(post.id));
+  if (resumePending) dates.push(...new Set(pending.map(post => post.archive_date)));
   const results = [];
   for (const archiveDate of dates) {
-    const selectedIds = refreshed ? new Set(refreshed.filter(item => item.archive_date === archiveDate).map(item => item.post_id)) : undefined;
-    const posts = (await getRedditLifeScoringCandidates(archiveDate)).filter(post => !selectedIds || selectedIds.has(post.id));
+    const posts = pending.filter(post => post.archive_date === archiveDate);
     const scored: string[] = [];
     const skipped: Array<{ post_id: string; reason: string }> = [];
     // Refresh batches isolate each post, so a model/report failure cannot block its neighbours.
-    const batches = refreshed ? posts.map(post => [post]) : posts.length ? [posts] : [];
+    const batches = isolated ? posts.map(post => [post]) : posts.length ? [posts] : [];
     await mapWithConcurrency(batches, envPositiveInt("REDDIT_AI_CONCURRENCY", 3), async batch => {
       try {
-        const items = await scoreBatch(batch, archiveDate, model, refreshed && artifactsDir ? path.join(artifactsDir, String(batch[0].id)) : artifactsDir);
+        const items = await scoreBatch(batch, archiveDate, model, isolated && artifactsDir ? path.join(artifactsDir, String(batch[0].id)) : artifactsDir);
         const report = await reportRedditLifeScores(items);
         scored.push(...report.scored);
         skipped.push(...report.skipped);
       } catch (error) {
-        if (!refreshed) throw error;
+        if (!isolated) throw error;
         const reason = error instanceof Error ? error.message : String(error);
         const post = batch[0];
         skipped.push({ post_id: post.post_id, reason });
@@ -93,7 +114,7 @@ async function main(): Promise<void> {
     writeStderr(`[reddit-life-score] ${archiveDate}: ${scored.length} scored, ${skipped.length} skipped\n`);
     results.push({ date: archiveDate, candidates: posts.length, scored, skipped });
   }
-  const result = refreshed ? { archive_dates: dates, results } : results[0];
+  const result = isolated ? { archive_dates: dates, results } : results[0];
   const outputFile = stringArg(parseArgs(), "result-file");
   if (outputFile) writeJson(outputFile, result);
   writeStdout(JSON.stringify(result) + "\n");

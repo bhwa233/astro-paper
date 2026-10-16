@@ -12,6 +12,7 @@ import { buildMdblistWeeklySource } from "../scripts/mdblist_weekly_source.ts";
 import { appendMdblistRecommendations } from "../scripts/mdblist_weekly_ledger.ts";
 import { buildXyzRankTopEpisodesSource } from "../scripts/xyzrank_top_episodes_source.ts";
 import { redditCategoryByKey } from "../scripts/reddit_top20_compose.ts";
+import { buildRedditLifeIngestPayload } from "../scripts/ingest_reddit_life_sparkhub.ts";
 import {
   type RedditSourcePolicy,
   fetchRedditSourceFromApi,
@@ -450,6 +451,23 @@ function redditSourceItem(rank: number, { subreddit = "AskReddit", points = 101 
     "",
   ].join("\n");
 }
+
+test("Reddit life ingest reads candidate metadata without generated answers and rejects unusable identities", () => {
+  const category = redditCategoryByKey("life");
+  const source = redditSourceItem(1).replace("1 评论", "1,234 评论");
+  const payload = buildRedditLifeIngestPayload(source, "2099-01-02", "upstream", category);
+  assert.deepEqual(payload.posts, [
+    {
+      post_id: "fixture1",
+      subreddit: "AskReddit",
+      title: "Fixture post 1",
+      permalink: "https://www.reddit.com/r/AskReddit/comments/fixture1/",
+      num_comments: 1234,
+      source_rank: 1,
+    },
+  ]);
+  assert.throws(() => buildRedditLifeIngestPayload(source.replace("/comments/fixture1/", "/invalid/"), "2099-01-02", "upstream", category), /post ID/);
+});
 
 function redditStats(finalBySubreddit: Record<string, number>, category = redditCategoryByKey("life")) {
   return category.subreddits.map(subreddit => {

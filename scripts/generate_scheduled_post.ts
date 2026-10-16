@@ -39,17 +39,17 @@ import {
 import { buildHnSource } from "./hn_top10_source.ts";
 import { hnMarkdownFromModelJson } from "./hn_compose.ts";
 import {
+  redditSourceBlocks,
   parseRedditItemOutcome,
   parseRedditTitleOutcome,
   redditCategoryArticleFromSource,
   redditCategoryByKey,
-  withRedditCategorySource,
   type RedditCategory,
   type RedditModelItem,
   type RedditSummaryFormat,
   type RedditTitleTranslation,
 } from "./reddit_top20_compose.ts";
-import { loadRedditLifeConfig } from "./reddit_life_config.ts";
+import { configuredRedditCategory } from "./reddit_life_config.ts";
 import { githubTrendingMarkdownFromModelJson } from "./github_trending_compose.ts";
 import { mdblistMarkdownFromModelJson } from "./mdblist_compose.ts";
 import { dailyDigestMarkdownFromModelJson } from "./daily_digest_compose.ts";
@@ -561,15 +561,6 @@ async function buildCombinedTechDailySource({
   const combined = formatCombinedTechDailySource(date, summaries, sections, header.match(/^抓取失败源：.+$/m)?.[0] || "");
   writeArtifact(artifactsDir, "tech-daily", "source.dynamic.md", combined);
   return combined;
-}
-
-function redditSourceBlocks(source: string): string[] {
-  const markerIndex = source.indexOf("===ARCHIVE_PAYLOAD===");
-  const body = markerIndex >= 0 ? source.slice(0, markerIndex) : source;
-  return body
-    .split(/(?=^\d+\.\s*\[r\/)/gm)
-    .map(block => block.trim())
-    .filter(block => /^\d+\.\s*\[r\//.test(block));
 }
 
 type RedditItemSummaryOutcome = {
@@ -1415,24 +1406,6 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   if (appendToLedger && !result.skipped) appendToLedger(source, { archivedAt: date, postPath: result.path }, { task, repo });
   if (generation) result.generation = generation;
   return [result];
-}
-
-// 问答栏目（life）的版块与抓取参数来自 SparkHub 的 Reddit 问答配置；其他栏目仍按代码里的注册表。
-async function configuredRedditCategory(category: RedditCategory): Promise<RedditCategory> {
-  if (category.key !== "life") return category;
-  const { config, source } = await loadRedditLifeConfig();
-  writeStderr(
-    `[reddit-top20] life crawl (${source} config): r/${config.subreddits.join(", r/")}, ${config.crawl_max_posts} posts, comments ${config.crawl_top_level_comment_limit}/${config.crawl_direct_reply_limit}/${config.crawl_detail_comment_limit}`
-  );
-  return withRedditCategorySource(category, {
-    subreddits: config.subreddits,
-    maxDetailCandidates: config.crawl_max_posts,
-    limits: {
-      topLevelCommentLimit: config.crawl_top_level_comment_limit,
-      directReplyLimit: config.crawl_direct_reply_limit,
-      detailCommentLimit: config.crawl_detail_comment_limit,
-    },
-  });
 }
 
 async function main(): Promise<void> {

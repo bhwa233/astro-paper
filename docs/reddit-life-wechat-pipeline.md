@@ -3,7 +3,7 @@
 状态：初次抓取只记录元数据；评论刷新后统一评分并生成最新文章、`upstream-life.md` 与可选微信稿
 最后更新：2026-10-09
 
-> **新流程。** 初次抓取不保存回答、评分或 `upstream-life.md` 快照，只把帖子 id、标题、版块、链接、评论数和来源排名记录到 SparkHub。随后刷新任务按 K 选出全部首页新候选（默认 K=100，保留人工刷新入口），深抓评论并重写回答。正式每日链路在 refresh 后调用独立评分 workflow，读取该轮 refresh 的 JSON artifact，按各帖实际归档日评分，覆盖历史日期；随后当天文章生成显式跳过评分。评分结果绑定回答内容 hash；地区依赖明显的回答按规则降分。
+> **新流程。** 初次抓取直接读取来源服务返回的数据，不调用模型生成临时文章，只把帖子 id、原始标题、版块、链接、评论数和来源排名记录到 SparkHub。随后刷新任务按 K 选取从未成功刷新过的候选（默认 K=100），一次生成中文标题和正式回答。历史上已成功刷新的素材直接复用，不按天数重新加工；失败项可以重试，人工指定刷新仍保留。正式每日链路在 refresh 后调用独立评分 workflow，按实际归档日补齐已接受回答的缺失评分，包含之前中断留下的素材，每轮最多 99 帖；随后当天文章生成显式跳过评分。评分结果绑定回答内容 hash；地区依赖明显的回答按规则降分。手动指定帖子补跑时仍只评分指定范围。
 >
 > **文章生成时机。** 刷新和评分完成后，生成器从 SparkHub 重新读取已接受、已评分的当前正文，用同一批数据生成 `src/content/posts/zh-cn/reddit-<date>-life.md` 与 `data/reddit-life-wechat/<date>/upstream-life.md`。两者都不使用初次来源文章的回答快照；只有这一步成功后，微信稿、视频、图文和卡片才继续。
 
@@ -90,7 +90,9 @@ data/reddit-life-wechat/
 
 `run.json` 记录 manifest version、归档日期与时区、父任务提交 SHA / workflow run / 文章路径、刷新后 `upstream-life.md` 路径、运行状态，以及全部候选的 AI 分数、理由和当前回答 hash。入选帖同时记录 `sourceRank`、`selectionRank`、内部卷序号、产物路径和内容 hash。同一篇的各帖各占一条 `posts` 记录但共享同一个 `path`，发布前按 `path` 去重。旧 manifest 只用于读取历史归档。
 
-同一日期存在合法 manifest 时，重跑复用它而不重新转换正文。manifest 解析失败时抛错，不回退成空快照。刷新后没有已评分 archive 时写入 `status: upstream-empty` 的 manifest，不生成文章或草稿，也不把空结果当成有效候选。
+同一日期存在合法的 `processed` manifest 时，重跑复用它而不重新转换正文。manifest 解析失败时抛错，不回退成空快照。刷新后没有已评分 archive 时写入 `status: upstream-empty` 的 manifest，不生成文章或草稿；空结果不算完成，补跑时重新读取素材池。
+
+刷新回答逐帖回报并检查点保存进度；已接受的回答和评分留在 SparkHub，不随 CI artifact 的保留期消失。刷新、评分和卡片的已通过校验的模型响应还会写入 `AI_SUCCESS_CACHE_DIR`，CI 在成功或失败后保存缓存，下一次相同模型、提示词和证据可直接复用；缓存被清理时仍以 SparkHub 和已提交归档为准。模型请求重试和 JSON 校验重试次数保持原样。
 
 
 ## 7. 微信同步

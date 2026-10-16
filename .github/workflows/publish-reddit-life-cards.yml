@@ -68,6 +68,12 @@ jobs:
         uses: ./.github/actions/setup
         with:
           filter: "./**"
+      - name: Restore successful AI responses
+        uses: actions/cache/restore@v6
+        with:
+          path: .cache/reddit-life-ai
+          key: reddit-life-ai-v1-cards-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: reddit-life-ai-v1-cards-${{ github.ref_name }}-
       - name: Restore Remotion browser cache
         uses: actions/cache@v6
         with:
@@ -112,7 +118,9 @@ jobs:
           AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
+          AI_SUCCESS_CACHE_DIR: .cache/reddit-life-ai
           AI_TIMEOUT_MS: "600000"
+          GH_TOKEN: ${{ github.token }}
           SPARKHUB_API_URL: https://api.bhwa233.com
           SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
         run: |
@@ -127,6 +135,12 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `rendered=${result.rendered ? "true" : "false"}\n`);
           NODE
 
+      - name: Save successful AI responses
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: .cache/reddit-life-ai
+          key: reddit-life-ai-v1-cards-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Upload generation artifacts
         if: always()
         uses: actions/upload-artifact@v7
@@ -183,3 +197,14 @@ jobs:
           SPARKHUB_API_URL: https://api.bhwa233.com
           SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
         run: node --import tsx scripts/attach_reddit_life_cards_sparkhub.ts --date "$ARCHIVE_DATE"
+
+      - name: Check batch completion after preserving successful cards
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const result = JSON.parse(fs.readFileSync("reddit-life-cards-result.json", "utf8"));
+          if (result.status === "partial") {
+            console.error("Card batch is incomplete; successful cards were saved and attached. Rerun to resume.");
+            process.exit(1);
+          }
+          NODE

@@ -304,16 +304,15 @@ export async function generateRedditLifeWechat({
   const manifestFile = path.join(repo, manifestRel);
   if (fs.existsSync(manifestFile)) assertCommittedPath(repo, manifestRel, LABEL);
   const existing = loadRedditLifeRunManifest(manifestFile);
-  if (existing && !force) {
+  if (existing?.status === "processed" && !force) {
     const generated = existing.posts.filter(post => post.status === "generated");
     writeStderr(`[reddit-life-wechat] archive=${date}: reused manifest (${existing.status}), posts=${generated.length}`);
     // 收录的每一帖共享同一个 path，去重后才是「要发布几篇稿子」。
     return { manifestPath: manifestRel, generatedPaths: [...new Set(generated.map(post => post.path!).filter(Boolean))], status: existing.status };
   }
-  if (existing) writeStderr(`[reddit-life-wechat] archive=${date}: force rebuilding existing manifest (${existing.status})`);
-  // The parent life article is only a handoff for metadata and the public URL. The refreshed
-  // article itself is always rebuilt from SparkHub, so a missing/old source body cannot leak into
-  // the post-refresh output.
+  if (existing) writeStderr(`[reddit-life-wechat] archive=${date}: rebuilding existing manifest (${existing.status})`);
+  // Initial ingestion commits no article. Only accepted, scored SparkHub answers
+  // may populate this output; an earlier empty run is retried after recovery.
   const lifeArticlePath = taskPostRelPath("reddit-top20", date.replace(/$/, "-life"));
   const scoringPosts = scorePending ? await getRedditLifeScoringCandidates(date) : [];
   if (scoringPosts.length) {

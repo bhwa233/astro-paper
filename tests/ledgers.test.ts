@@ -12,6 +12,7 @@ import { appendSummarizedEpisode, isEpisodeSummarized, loadSummarizedFingerprint
 import { tempDir, tempFile, withMocks } from "./helpers/mocks.ts";
 import { generateRedditLifeWechat, loadRedditLifeRunManifest } from "../scripts/generate_reddit_life_wechat.ts";
 import { shouldRebuildRedditLifeNewspicManifest } from "../scripts/generate_reddit_life_newspic.ts";
+import { generateRedditLifeCards, type RedditLifeCardsRunManifest } from "../scripts/generate_reddit_life_cards.ts";
 import { loadWeiboTrendingWechatRunManifest, shouldRebuildWeiboTrendingWechatManifest } from "../scripts/generate_weibo_trending_wechat.ts";
 
 function commitFixtureRepo(repo: string): string {
@@ -20,6 +21,68 @@ function commitFixtureRepo(repo: string): string {
   execFileSync("git", ["-C", repo, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--quiet", "--allow-empty", "-m", "fixture"]);
   return execFileSync("git", ["-C", repo, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 }
+
+test("an interrupted card batch retains accepted cards and retries only its remaining gap", async () => {
+  const repo = tempDir("cards-resume");
+  const date = "2099-01-02";
+  const manifestPath = path.join(repo, "data/reddit-life-cards", date, "run.json");
+  const accepted = {
+    id: 1,
+    postId: "accepted",
+    contentSha256: "accepted-hash",
+    question: "已有问题",
+    title: "已有标题",
+    summary: null,
+    tags: [],
+    answerCount: 1,
+    cards: [],
+    images: [],
+  };
+  fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+  fs.writeFileSync(
+    manifestPath,
+    JSON.stringify({
+      version: 1,
+      archiveDate: date,
+      target: 2,
+      readyBefore: {},
+      gap: 2,
+      complete: false,
+      model: "test-model",
+      items: [accepted],
+      failures: [],
+    } satisfies RedditLifeCardsRunManifest)
+  );
+  let gap = 2;
+  const invoke = () => generateRedditLifeCards({ repo, date, target: 2, model: "test-model", promptDir: "unused" });
+  await withMocks(
+    {
+      env: { SPARKHUB_API_URL: "https://sparkhub.test", SPARKHUB_DASHBOARD_TOKEN: "test" },
+      fetch: async input => {
+        assert.match(String(input), /\/cards\/backlog\?/); // No paid AI request for accepted cards.
+        return Response.json({
+          success: true,
+          data: {
+            target: 2,
+            ready: {},
+            gap,
+            candidates: [{ id: 1, content_sha256: "accepted-hash" }, ...(gap === 2 ? [{ id: 2, post_id: "incomplete", title: "问题", content_md: "" }] : [])],
+          },
+        });
+      },
+    },
+    async () => {
+      assert.equal((await invoke()).status, "partial");
+      const partial = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as RedditLifeCardsRunManifest;
+      assert.deepEqual(partial.items, [accepted]);
+      assert.equal(partial.failures[0].id, 2);
+      gap = 1;
+      assert.equal((await invoke()).status, "processed");
+      assert.equal((JSON.parse(fs.readFileSync(manifestPath, "utf8")) as RedditLifeCardsRunManifest).complete, true);
+      assert.equal((await invoke()).status, "reused");
+    }
+  );
+});
 
 test("podcast fingerprints ignore tracking parameters and upsert by episode identity", () => {
   assert.equal(
@@ -72,7 +135,7 @@ test("mdblist ledger persists successful selections and replaces same-post rerun
   assert.deepEqual(loadMdblistRecommendationKeys(file), new Set(["show:21:season:1"]));
 });
 
-test("Reddit life generator reuses a normal rerun but force rebuilds a backfill", async () => {
+test("Reddit life generator retries an empty archive while enforcing committed handoffs", async () => {
   await withMocks(
     {
       env: { SPARKHUB_API_URL: "https://sparkhub.test", SPARKHUB_DASHBOARD_TOKEN: "test-token" },
@@ -104,12 +167,15 @@ test("Reddit life generator reuses a normal rerun but force rebuilds a backfill"
       );
 
       await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: archiveSha, workflowRun: "234567890", articleEnabled: false });
-      assert.equal(loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`)?.upstream.workflowRun, "123456789");
+      assert.equal(loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`)?.upstream.workflowRun, "234567890");
 
-      await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: archiveSha, workflowRun: "234567890", articleEnabled: false, force: true });
+      execFileSync("git", ["-C", repo, "add", "."]);
+      execFileSync("git", ["-C", repo, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--quiet", "-m", "retry archive"]);
+      const retrySha = execFileSync("git", ["-C", repo, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+      await generateRedditLifeWechat({ repo, date: "2099-01-02", upstreamSha: retrySha, workflowRun: "345678901", articleEnabled: false, force: true });
       const rebuilt = loadRedditLifeRunManifest(`${repo}/${result.manifestPath}`);
-      assert.equal(rebuilt?.upstream.generatedSha, archiveSha);
-      assert.equal(rebuilt?.upstream.workflowRun, "234567890");
+      assert.equal(rebuilt?.upstream.generatedSha, retrySha);
+      assert.equal(rebuilt?.upstream.workflowRun, "345678901");
     }
   );
 });

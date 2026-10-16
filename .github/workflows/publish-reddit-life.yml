@@ -83,30 +83,16 @@ jobs:
           SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
         run: node --import tsx scripts/reddit_life_config.ts --github-output > /dev/null
 
-  publish:
-    name: Publish Reddit Q&A
-    needs: [archive-date, config]
-    permissions:
-      contents: write
-    uses: ./.github/workflows/blog-publish.yml
-    with:
-      task: reddit-top20
-      reddit_category: life
-      date: ${{ needs.archive-date.outputs.value }}
-      force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
-    secrets: inherit
-
-  # 初次抓取只记录问题元数据；此阶段不评分、不存答案快照，也不生成文章。
+  # 初次只抓取候选元数据；正式回答在唯一一次刷新中生成。
   candidates:
     name: Record Reddit Life Candidates
-    needs: [archive-date, publish, config]
+    needs: [archive-date, config]
     permissions:
       contents: write
     uses: ./.github/workflows/reddit-life-wechat.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}
-      upstream_sha: ${{ needs.publish.outputs.generated_sha }}
+      upstream_sha: ${{ github.sha }}
       upstream_workflow_run: ${{ github.run_id }}
       ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
       record_candidates_only: true
@@ -170,30 +156,30 @@ jobs:
       ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
-  # 每次刷新可能跨多个归档日；只评分这一轮成功刷新的帖，不能只评分今天。
+  # 每次刷新可能跨多个归档日；补齐所有已接受回答的缺失评分，也恢复之前中断的运行。
   score:
     name: Score All Refreshed Reddit Life Posts
-    needs: [refresh, config]
-    if: always() && needs.refresh.result == 'success'
+    needs: [refresh, candidates, config]
+    if: always() && needs.candidates.result == 'success' && needs.refresh.result != 'skipped'
     permissions:
       contents: read
     uses: ./.github/workflows/score-reddit-life.yml
     with:
-      refresh_artifact: reddit-life-refresh
+      resume_pending: true
       ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
     secrets: inherit
 
   # 复用已接受的评分，只生成当天文章；历史日期只评分，不重建历史文章。
   wechat:
     name: Generate Refreshed Reddit Life Articles
-    needs: [archive-date, refresh, score, config]
+    needs: [archive-date, candidates, refresh, score, config]
     if: always() && needs.score.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/reddit-life-wechat.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}
-      upstream_sha: ${{ needs.refresh.outputs.generated_sha }}
+      upstream_sha: ${{ needs.refresh.outputs.generated_sha || needs.candidates.outputs.generated_sha }}
       upstream_workflow_run: ${{ github.run_id }}
       ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
       force_rebuild: ${{ inputs.force || false }}

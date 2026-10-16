@@ -129,6 +129,9 @@ jobs:
         env:
           INPUT_DATE: ${{ inputs.date || '' }}
           UPSTREAM_GENERATED_SHA: ${{ inputs.upstream_sha }}
+          REDDIT_SOURCE_API_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
+          REDDIT_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
+          REDDIT_SOURCE_POLL_TIMEOUT_MS: "1500000"
           SPARKHUB_API_URL: https://api.bhwa233.com
           SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
         run: |
@@ -137,9 +140,9 @@ jobs:
             echo "::error::SPARKHUB_DASHBOARD_TOKEN is required to record candidates."
             exit 1
           fi
-          args=(--upstream-sha "$UPSTREAM_GENERATED_SHA")
+          args=(--upstream-sha "$UPSTREAM_GENERATED_SHA" --result-file reddit-life-ingest-result.json)
           if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
-          node --import tsx scripts/ingest_reddit_life_sparkhub.ts "${args[@]}" | tee reddit-life-ingest-result.json
+          node --import tsx scripts/ingest_reddit_life_sparkhub.ts "${args[@]}"
       # 供 sync-wechat 用：按 manifest 算出要发布的稿件路径，一行一个。
       - name: Collect WeChat draft paths
         id: wechat-paths
@@ -198,7 +201,7 @@ jobs:
 
   sync-wechat:
     needs: generate-and-archive
-    if: ${{ needs.generate-and-archive.outputs.generated_count != '0' && vars.ENABLE_REDDIT_LIFE_WECHAT_SYNC == 'true' }}
+    if: ${{ !inputs.record_candidates_only && needs.generate-and-archive.outputs.generated_count != '0' && vars.ENABLE_REDDIT_LIFE_WECHAT_SYNC == 'true' }}
     permissions:
       contents: write
     uses: ./.github/workflows/wechat-sync.yml

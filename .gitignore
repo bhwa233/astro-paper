@@ -64,3 +64,6 @@ video/out/
 data/reddit-life-newspic/*/*/card-*.png
 data/reddit-life-cards/*/*/card-*.png
 data/weibo-trending-wechat/*/card-*.png
+
+# Validated AI stage responses; CI restores these across retries.
+.cache/reddit-life-ai/

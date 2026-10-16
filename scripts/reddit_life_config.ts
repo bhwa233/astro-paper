@@ -10,7 +10,7 @@
 import fs from "node:fs";
 import { booleanArg, parseArgs, writeStderr, writeStdout } from "./blog_common.ts";
 import { getRedditLifeConfigValues, sparkhubEndpoint } from "./sparkhub_client.ts";
-import { REDDIT_CATEGORIES } from "./reddit_top20_compose.ts";
+import { REDDIT_CATEGORIES, withRedditCategorySource, type RedditCategory } from "./reddit_top20_compose.ts";
 import { REDDIT_LIFE_DAILY_NEWSPIC_COUNT, REDDIT_LIFE_DAILY_VIDEO_COUNT, REDDIT_LIFE_WECHAT_ARTICLE_ENABLED } from "../src/utils/redditLifePublishing.ts";
 
 const LABEL = "[reddit-life-config]";
@@ -95,6 +95,24 @@ export function loadRedditLifeConfig(): Promise<LoadedRedditLifeConfig> {
     }
   })();
   return cached;
+}
+
+// 问答栏目（life）的版块与抓取参数来自 SparkHub 的 Reddit 问答配置；其他栏目仍按代码里的注册表。
+export async function configuredRedditCategory(category: RedditCategory): Promise<RedditCategory> {
+  if (category.key !== "life") return category;
+  const { config, source } = await loadRedditLifeConfig();
+  writeStderr(
+    `[reddit-top20] life crawl (${source} config): r/${config.subreddits.join(", r/")}, ${config.crawl_max_posts} posts, comments ${config.crawl_top_level_comment_limit}/${config.crawl_direct_reply_limit}/${config.crawl_detail_comment_limit}`
+  );
+  return withRedditCategorySource(category, {
+    subreddits: config.subreddits,
+    maxDetailCandidates: config.crawl_max_posts,
+    limits: {
+      topLevelCommentLimit: config.crawl_top_level_comment_limit,
+      directReplyLimit: config.crawl_direct_reply_limit,
+      detailCommentLimit: config.crawl_detail_comment_limit,
+    },
+  });
 }
 
 /** 视频与图文共用一次选题：选题组数取两者较大者。 */

@@ -63,8 +63,8 @@ export function ingestRedditLifeDay(payload: unknown): Promise<{ archive_date: s
   return call("POST", "/ingest", payload);
 }
 
-export function getRedditLifeScoringCandidates(archiveDate: string): Promise<SparkhubRedditLifePost[]> {
-  return call("GET", `/scoring-candidates?archive_date=${encodeURIComponent(archiveDate)}`);
+export function getRedditLifeScoringCandidates(archiveDate?: string): Promise<SparkhubRedditLifePost[]> {
+  return call("GET", `/scoring-candidates${archiveDate ? `?archive_date=${encodeURIComponent(archiveDate)}` : ""}`);
 }
 
 export function reportRedditLifeScores(
@@ -174,7 +174,7 @@ export function requestRedditLifeRefresh(id: number): Promise<{ id: number; refr
 export function reportRedditLifeRefreshItem(
   runId: number,
   postId: number,
-  input: { content_md?: string; fetched_at?: string | null; error?: string | null }
+  input: { title?: string; content_md?: string; fetched_at?: string | null; error?: string | null }
 ): Promise<SparkhubRefreshItem> {
   return call("POST", `/refresh/runs/${runId}/items/${postId}`, input);
 }

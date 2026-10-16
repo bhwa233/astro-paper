@@ -1,0 +1,47 @@
+{
+  "version": 6,
+  "archiveDate": "2026-10-16",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "0f13a8eb94735e6356f0bc77b9b87b6151ee2d29",
+    "workflowRun": "38919585780",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-10-16-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-10-16/upstream-life.md"
+  },
+  "selection": {
+    "model": "gemini-3.8-flash",
+    "candidateCount": 5,
+    "minScore": 60,
+    "scores": [
+      {
+        "rank": 5,
+        "score": 92,
+        "reason": "直击大众普遍好奇的身材与食欲痛点，回答从心理机制、童年习惯到生理设定点提供了多元且极具说服力的观察，毫无文化与地区门槛，长尾共鸣极强。"
+      },
+      {
+        "rank": 2,
+        "score": 88,
+        "reason": "探讨全球普遍面临的高房价困境，回答从资本商品化、代际财富分化、独居化及金融机制等多角度剖析，国内读者极易代入共鸣且兼具跨国视野与长期价值。"
+      },
+      {
+        "rank": 1,
+        "score": 86,
+        "reason": "推荐书目跨越经典与通俗，多数在国内知名度极高且能引发情感共鸣与人生思考，长尾价值突出且极易激发收藏与讨论"
+      },
+      {
+        "rank": 3,
+        "score": 85,
+        "reason": "打破了对发达国家的刻板滤镜，回答提供了真实生动的居住细节与反差痛点，极具长尾好奇心且大众代入感强。"
+      },
+      {
+        "rank": 4,
+        "score": 35,
+        "reason": "触及过度专业扣分项：核心属于身体突发异常的症状求助与疾病诊断，回答涉及癫痫、脑动脉瘤、心梗等病理分析及处方药排查，不适合大众科普收录。"
+      }
+    ]
+  },
+  "posts": []
+}

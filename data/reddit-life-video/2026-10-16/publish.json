@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-16",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "60ec3fd6411c215da844cb7a34df36cb16c4c52cd76323695234f4a2cd1217fb",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "相比直接求财，大家更愿意用微小增幅换取极难获得的绝对运气、基础幸福与健康。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "认知思维",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "真正的倒退往往包装成智能化与环保，剥夺了掌控感并增加了隐性使用成本。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

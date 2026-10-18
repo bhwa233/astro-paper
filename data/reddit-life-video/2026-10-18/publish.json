@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-18",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "8524390c1ed14e49c4c10a2e3956fe26f61b7a74dfd0a95c0f5c2617f5542416",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "身心健康",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "相比于直接加钱，更多人倾向于选择基础快乐值、代谢率或无解的概率暴击外挂",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "认知思维",
+        "反常识",
+        "避坑指南",
+        "离谱见闻"
+      ],
+      "summary": "强行智能化与触控化剥夺了用户的控制权，反而制造出高昂的维护成本与操作麻烦",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

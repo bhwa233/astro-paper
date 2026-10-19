@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-19",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "733680b63567aa5dc15af7d1d5f0efd2f4b3dcabdd0cdf5b9869792b5df93a18",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "反常识"
+      ],
+      "summary": "比起直接加钱，多数人更想把这微小的增幅投给运气、健康和基础快乐值",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "认知思维",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "强行智能化、订阅制与触控屏不仅没带来便利，反而剥夺了用户的控制权",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

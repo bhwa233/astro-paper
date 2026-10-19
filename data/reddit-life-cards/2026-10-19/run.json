@@ -1,0 +1,2501 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-19",
+  "target": 20,
+  "readyBefore": {
+    "douyin": 6,
+    "wechat_channels": 11,
+    "wechat_mp": 21
+  },
+  "gap": 14,
+  "complete": true,
+  "model": "gemini-3.8-flash",
+  "items": [
+    {
+      "id": 693,
+      "postId": "1x8padk",
+      "contentSha256": "327a9519424b21d73800d8b9e72ed080db582b7298405cf23cbcf98fc2f57098",
+      "question": "为什么在沙发上看电视秒睡，躺进又黑又静的床上反而清醒了？",
+      "title": "为何沙发秒睡进被窝就清醒",
+      "summary": "床被大脑标记成了必须入睡的考场与焦虑区，而沙发没有表现压力反而是放松的安全区",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "健康常识",
+        "反常识"
+      ],
+      "answerCount": 12,
+      "cards": [
+        {
+          "index": 1,
+          "body": "看电视时大脑被塞进低刺激目标，没有算力胡思乱想；一旦置身漆黑安静的卧室，没有外界信息竞争注意力，大脑就会调出档案库，开始逐秒重放你做过的尴尬事，顺便把待办清单和人生焦虑翻个底朝天。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "睡觉只能被动发生，越用力越清醒，这被称为努力悖论。看电视时没有入睡目标，大脑毫无防备直接掉线；而一旦走完流程躺进被窝，大脑便收到必须睡着的指标，这种表现压力会立刻把睡眠变成考试，让你神经紧绷。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "认知行为疗法强调刺激控制。若你曾无数次在床上辗转反侧，大脑就会建立条件反射，把床标记为清醒和焦虑的场所；相反，沙发没有背负任何睡眠预期，反而在潜意识里被训练成了能彻底放松、随时打瞌睡的安全区。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "这其实存在感知偏差。在沙发上哪怕耗了四十分钟才睡着，你的体验也是「电影还没播完我就不小心睡着了」；但躺在床上花四十分钟入睡，你就会死盯着天花板数着时间，痛苦地认定自己「又失眠了整整四十分钟」。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "人类对声音有演化层面的安全感知。电视的人声模拟了同伴在周围活动，潜意识会感到有人守望从而放松戒备；但独处黑暗密闭的静室，原始本能会误以为落单孤立，听觉神经反而变得极度敏锐，时刻警惕着未知的危险。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "白天神经高速运转，没有独处消化的时间。看剧时多巴胺相对满足；深夜关掉设备钻进被窝，感官瞬间陷入真空，过度兴奋的大脑抗议这种断崖式的刺激匮乏，只能疯狂调动焦虑和杂念来搜寻任何能刺激大脑的信息。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "睡前洗脸、刷牙、护肤等动作本身就会给身体降温并重新唤醒神经。有人索性在睡前把整套洗漱流程全部做完，再回到客厅沙发上看电视，直到整个人困到只剩最后一口气，才晕晕乎乎地挪回卧室倒头就睡。",
+          "sourceIndex": 9,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "为关掉内部独白，很多人摸索出低认知负荷方案：戴眼罩听语调平缓的有声书；睡前低音量单曲循环同一段科普视频；或在脑海中做固定思维练习平复杏仁核，比如从地基开始一砖一瓦盖房子，或玩特定规律的词语接龙。",
+          "sourceIndex": 8,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "整晚开着电视其实是很多注意缺陷障碍患者的救命稻草。有人三十年来从不关电视睡觉，因为听觉过于敏锐，电视背景音反而像一层均匀的白噪音掩盖了所有突发异响；若没有这层掩护，任何微小的杂音都会让人瞬间惊醒。",
+          "sourceIndex": 11,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "整天坐着不动，身体没有积累足够的生理疲劳，仅靠精神内耗很难自然入眠。睡眠卫生理论认为，解决这问题的根本方法是强行打破沙发睡眠的习惯，绝不在沙发上打盹，严格做到只在床上就寝，重新把床和深度睡眠绑定。",
+          "sourceIndex": 12,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-00.png",
+          "sha256": "40911667ec52184b8e898e08b7a656117406833fa565241c6d4407a4d28ea78f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-01.png",
+          "sha256": "0e6de9f8457cf5b69626a562032fde7027a77cdfc270ee44c91ff5e61fe4a075"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-02.png",
+          "sha256": "dbc372d344f94a7601bb938fe9640b98d48aab8d6b32d684bdde2f3dd1b17b73"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-03.png",
+          "sha256": "db1977be9989251d1bdb1977357bd2af1ee79a8eaa81f6677ee02091110ed01a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-04.png",
+          "sha256": "b577fd2cd354a123c03f6752df8864c755dc0b1f3bc087470658b336ae5c62d0"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-05.png",
+          "sha256": "b7c101fd229f81a527052d1f6d1697673c1f0d1002079c32817fb3e55a0f362d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-06.png",
+          "sha256": "616ef8ab324d61efbe486040bec8042d2c5c36deb0e13131f65aca8ad3a29c40"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-07.png",
+          "sha256": "fce7b930da5344933375046b84fb0bd8d9c4bffddc79cd0088491eec5450bdf4"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-08.png",
+          "sha256": "e9069c7517bcb08717a62ac2c5b73aa4b43b8be5ba5cc9eb44d1d7b9b99601fe"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-09.png",
+          "sha256": "2944699768e415b7b67cdfdd20768233f5cc1a3b37abe3a4126fe200a0702ad9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/693/card-10.png",
+          "sha256": "fa031f652c8a338a2dacd0b894c33bb90202839e29628ca072a1063212bee814"
+        }
+      ]
+    },
+    {
+      "id": 692,
+      "postId": "1x8foly",
+      "contentSha256": "bbe2740adcebdb699da55060c808630ea560dd2593739cf7576ac4943b00bbec",
+      "question": "经历过艰难生活的人，身上往往有哪些藏不住的痕迹？",
+      "title": "吃过大苦的人藏不住的隐形痕迹",
+      "summary": "长期苦难把危机变成了本能，让他们在平静中紧绷，却将最纯粹的温柔留给了别人。",
+      "tags": [
+        "人性观察",
+        "身心健康",
+        "破防瞬间",
+        "反常识"
+      ],
+      "answerCount": 18,
+      "cards": [
+        {
+          "index": 1,
+          "body": "他们是突发危机中最冷静的人，却在风平浪静的日常里最为焦虑。紧急状况目标明确能立刻得到反馈；而平静日常充满了不可控变量。在风平浪静的每一秒，他们脑内都在演练灾难，时刻为最坏的情况做防备。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "在大风大浪面前稳如泰山，却可能因为微不足道的小事彻底崩溃。长年累月绷紧神经硬撑着生活，委屈和绝望都在暗中累积，直到某个忙碌且兜里没钱的日子，鞋带突然断掉，那一根稻草就足以让整个人彻底失控。",
+          "sourceIndex": 8,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "笑着把童年遭遇当成“好玩的段子”讲给别人听，换来的却是听众满脸惊恐的死寂。直到心理医生严肃地打断说“你明白这完全不正常对吧”，才突然意识到自己习以为常的经历在普通人眼里有多么荒唐。",
+          "sourceIndex": 9,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "当别人对自己好时，会感到极其别扭甚至心生愧疚。长期习惯了焦虑的人，往往会把平静误认为是陷阱。哪怕只是提出了最基本的需求也会反复道歉，接受善意时总觉得欠了天大的人情，必须立刻还清才安心。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "即使到了走投无路的地步，也绝不主动开口求助。生活早就教会了他们没有人会赶来救援；当别人强行伸出援手时，他们往往还要拼命推脱，一旦被迫接受，就会立刻为自己“成了别人的负担”而疯狂道歉。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "就算内心痛到碎裂，表面上也强撑着保持体面。这并非因为坚强是一种天赋，而是因为生活从未给过他们崩溃的特权，正如一句流传很广的话所说：“我学会了优雅地承受重压，并不意味着它就变得轻盈。”",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "对外界刺激表现出明显创伤反应：听到巨响会剧烈惊跳；在房间里必须背靠墙面朝大门坐着才觉得安全；无法忍受浪费食物，吃饭时本能用手臂护住盘子、极快吞咽，因为童年记忆里吃慢一步就会被抢走。",
+          "sourceIndex": 13,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "习惯为完全不在自己掌控之中的事情道歉。许多经历过创伤的人会将外部所有的过错内化为自己的罪责；而另一些人则走向反面，因为深知认错的危险性而极力推卸责任，甚至在琐事上疯狂道歉，却在大事上绝不认错。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "无法理解别人可以“无缘无故地感到快乐”。看到他人无事也能自在微笑，会困惑地追问为什么高兴，因为在他们的认知里平静从不是默认状态；直到长大后才猛然惊觉，原来在正常家庭中，打翻牛奶并不算灭顶之灾。",
+          "sourceIndex": 18,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "展现出无条件的纯粹善良。他们不希望任何人再体会到自己经历过的孤独、恐惧、愤怒与无助，因此会有意识地去包容、鼓励和共情他人，哪怕自己已经精疲力竭，也依然会不求回报地向别人施以援手。",
+          "sourceIndex": 15,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-00.png",
+          "sha256": "90a6932ebe7003a9298b61dfa0aea4a13c3fde417ba4cfae3a5fb80282c5ba74"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-01.png",
+          "sha256": "53e3d6d97e0713a956bbc79ef520dab63348107da50bbb95b95d3df454a0cb6c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-02.png",
+          "sha256": "9d3f7c60324f12d7ef000264b7bbcb594a5b5faab7e0e639a4030c54e5f465b7"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-03.png",
+          "sha256": "dd2947385350a586115431efec7d3c429f99d8b81cf9fdc64ab77549193782f9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-04.png",
+          "sha256": "8558d1553aefe7669e71616060956d31e0f20c87f0d55e136c9e90642351a1a5"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-05.png",
+          "sha256": "bb4009270739965240c1ed38195a8797ef66459ca4ba2e34d35dd363f5344fed"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-06.png",
+          "sha256": "cc0486a0b1ffe359c5d2b414e5e2af8880fa75771c1a1c76bbdaba8f510b1559"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-07.png",
+          "sha256": "d5801045ac94bd2470952da9fa4bdc50e43bdb0dd41234dd0b6e455098d32efb"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-08.png",
+          "sha256": "0a5cdacc4e6f33dd3669132178d5b3c4f2c278817b592168a07739cbec62a530"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-09.png",
+          "sha256": "ed9a30329803e8577c9c31e41ddce9f2dd552ea258f146e903cb4459f624fc18"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/692/card-10.png",
+          "sha256": "c1993427953910595ed69c93953affab7d3087c0392e06b184ea7118d10666f2"
+        }
+      ]
+    },
+    {
+      "id": 707,
+      "postId": "1x8sazb",
+      "contentSha256": "04394a545fe1c479dac0f3ea45ea30861aa5464687c3fcfb9cc46cd752d132f1",
+      "question": "花费不到100美元的物品里，你最珍爱的是哪一件？",
+      "title": "那些不到百元却珍爱多年的物品",
+      "summary": "真正长久陪伴的生活幸福感，往往来自低成本的日常刚需与无意间获得的情感寄托。",
+      "tags": [
+        "金钱消费",
+        "身心健康",
+        "生活妙招",
+        "普通人故事"
+      ],
+      "answerCount": 17,
+      "cards": [
+        {
+          "index": 1,
+          "body": "加装在马桶上的坐浴盆喷枪配件。自从装上它，出门遇到没有冲洗功能的卫生间，上厕所都觉得自己像个未开化的原始人；单用纸擦简直像用餐巾纸擦沾满泥的汽车。这东西堪称性价比巅峰，大热天放水降温都舒服得不行。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "妹夫十二年前送我的保温杯。他当年只是随便挑了个毫无个性的敷衍礼物，结果整整十二年我几乎每天都在用，彻底告别了反复把凉掉的咖啡塞进微波炉的日子；有时候最不用心的礼物，反而成了十几年里最合心意的存在。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "妻子当凑数小礼物送我的毛绒水獭。它穿着印有“情绪支持水獭”的小背心，小鼻子的弧度刚好嵌在手心。收到瞬间我哭得稀里哗啦，此后几乎每晚抱着它入睡，对一个中年男人来说，它成了不可或缺的心灵寄托。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "结婚对戒。帮未婚妻改尺寸时挑中了一枚老板只要50美元的男士素圈，还附带终身免费清洗；也有人在跳蚤市场花7美元买简易银戒当婚戒。那些承载着彼此故事的廉价戒圈，戴在手上比任何奢侈珠宝都更有分量。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "只要15美元的冬日润肤乳加热器。配有可以更换的小托盘，冬天洗完澡把温热香润的乳液涂在皮肤上，那份瞬间驱散寒意的舒适感让人觉得无比奢侈。",
+          "sourceIndex": 12,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "心理治疗师在休假前手写给我的“情感恒常性卡片”。过去常常因为治疗师休假而陷入被抛弃的恐慌与自我攻击，这张卡片成了随时提醒自己“被接纳与被关心并未消失”的安全锚点，比世上任何贵重物品都珍贵。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "某天主动溜达到我家后门的小猫。流浪猫配送机制找上门的宠物绝对是百元以内最划算的收获，虽然“免费”往往伴随着去急诊处理伤口的账单，但现在它已经是全家当之无愧的女王，舒舒服服吹着空调享福。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "几十年前花二十几美元买的瑞士军刀。款式特意选了用指甲锉替代备用小刀片的“运动家”型号，在身边随身携带了四十年，至今依然灵活好用。",
+          "sourceIndex": 15,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "2007年花7美元买的一件打折夹克。在廉价超市随手买下的抓绒外套，穿了近二十年依然蓬松暖和，陪着自己度过了一个又一个寒冬。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "挂在后院树上的平躺式大秋千。六七十美元就能买到一张足以承托几个孩子或两个成年人的平躺吊床秋千，在忙碌生活的间隙躺在上面看云、听风、发呆，能以最低的成本买到最奢侈的宁静。",
+          "sourceIndex": 17,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-00.png",
+          "sha256": "c754975ad569a2d04ee0389274ce1488c68611c2c79508051a6d520451508ae0"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-01.png",
+          "sha256": "075fd9bf1d16468ceb06a74077abb6173c119d38400b908569ce3f46a884abfe"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-02.png",
+          "sha256": "5b432cfc674a2b688c3178b5833c21aa9d8ae87280865a7a7e0ae55c5a80f00f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-03.png",
+          "sha256": "656055f6136a2a31c37538b37d73a8fa857df287f4f9f49c61965823eee0b13d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-04.png",
+          "sha256": "ef0b04ca10e57f47fa9a908b52835e0c90549f1ee97db2788695f279811e6e71"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-05.png",
+          "sha256": "7c67bf20e52e899b7add232a72f03bc2685894836b42db7addb65e138bb806ae"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-06.png",
+          "sha256": "f91cd8afbd70d9a61bb4cd7d385149a071558db85d9829adbb96d49eb4850d39"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-07.png",
+          "sha256": "3c18bbf47efcd86fbecdc1c75de921f7f528e2d80a88a68cc69559c361e8f0ad"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-08.png",
+          "sha256": "bcaa0cd12e85919ba5331aabb79c6d86138396511202f34fcf536178c826e912"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-09.png",
+          "sha256": "fb9ec089acf1ed1e1371c5f4127a27801f710691d4ba2adb97272ffe9f7aee0d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/707/card-10.png",
+          "sha256": "4b18df4c797092b34700eb5338c4e084c303431643fb9db567fef0a0fc12472d"
+        }
+      ]
+    },
+    {
+      "id": 711,
+      "postId": "1x8ps4k",
+      "contentSha256": "aa838ac03e9604328ba628b654c4257bce90812ff98c2401f19c7ab4bf714352",
+      "question": "做饭时有哪些常见操作其实毫无用处？厨房里的无效讲究与代代相传的玄学",
+      "title": "厨房里代代相传的无效操作",
+      "summary": "冲洗生鸡肉和给水倒油等祖传习惯大多无科学依据，不仅徒增麻烦甚至适得其反。",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "反常识",
+        "避坑指南",
+        "生活妙招"
+      ],
+      "answerCount": 17,
+      "cards": [
+        {
+          "index": 1,
+          "body": "绝对没必要洗生鸡肉，甚至根本不该洗。水流根本杀不死细菌，反而会把附着在生肉上的沙门氏菌化作微小水花，溅到水槽和料理台周围。烹饪高温才能彻底杀菌，表面湿滑用厨房纸擦干即可。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "煮意面时往水里倒油完全是浪费。油比水轻只会浮在水面上，沥水时直接被冲走；面条防粘靠下锅时充分搅拌，沾了油反而会导致酱汁挂不住。想防溢锅，在锅口横搭一根木勺或稍微调小火候同样有效。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "把碗碟放进洗碗机前不必在水槽彻底手洗。现代洗碗机配备过滤与粉碎结构，机用洗涤块中的酶也需要依附在食物残渣上发挥作用。日常只需刮掉大块骨头剩菜即可，提前洗得一尘不染不仅浪费水还毫无意义。",
+          "sourceIndex": 13,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "煎牛排前拿出来「室温回温二十分钟」纯属心理安慰。食品温度计实测显示，厚切牛排在常温厨房放二十分钟，核心温度顶多只升一到两度。这种静置毫无物理意义，根本无法缩短内外生熟温差。",
+          "sourceIndex": 17,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "煎牛排把锅烧到滚烫冒烟且发誓「只翻一次」，往往换来外焦里生。家庭用铸铁锅煎牛排，只要烧到中高火并根据需要频繁翻面，不仅能形成漂亮的焦褐外壳且不烧焦，肉质内部的受热也会均匀得多。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "加一小撮盐能让水更快烧开纯属错觉。水中加盐会提高沸点，且家常加盐量对沸点和升温时间的影响顶多一两秒。煮面加盐唯一的价值是给淀粉食材入味，而且加盐量必须足够多、尝出咸度才管用。",
+          "sourceIndex": 10,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "现代洗洁精不含强碱，做完饭用海绵沾少许洗洁精刷洗铸铁锅完全没问题。养锅涂油时也不该用初榨橄榄油，其烟点太低极易发烟变质，使用菜籽油或鳄梨油等高烟点油脂才更稳定耐用。",
+          "sourceIndex": 15,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "切洋葱碎时非要多来一刀水平横切纯属多余。洋葱本身由内向外天然分层，切掉半球贴着根部纵切后再横向切落，掉下来的自然是均匀小丁；在侧面补刀极易划伤手指，对切出的碎丁大小也没实质区别。",
+          "sourceIndex": 14,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "做意式烩饭不必守在锅边一勺勺加汤并疯狂搅拌。实验证实大米释放淀粉不靠机械摩擦，只要开始时直接加足大部分热高汤加盖焖煮，同样能做出米粒弹牙、酱汁浓稠绵密的烩饭，无需在炉灶前受刑。",
+          "sourceIndex": 16,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "许多厨房规矩是代代相传的玄学：有位母亲炖牛肉总要切掉右侧两英寸，只因祖辈当年就是这么教的；直到问了姨婆才道出真相——「因为当年那口炖锅太小，放不下」。做饭别死守没有科学依据的盲从习惯。",
+          "sourceIndex": 1,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-00.png",
+          "sha256": "ad52a6323acca39725d62ad4f77efef7170191b967243c15dbd1f09c391dc9df"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-01.png",
+          "sha256": "d09c7773b3d4644d9ed854a509e9544571b38ba448ef37ff421b87cc65925092"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-02.png",
+          "sha256": "bcbfb2f34a0e05d09647f51beae4528bf45a0c3d7118194156aa134756d2b5be"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-03.png",
+          "sha256": "974dbc0d12b832e19cabe5c7996c8e8ca2c9a1a2dcc5882be794f3e74952b6ec"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-04.png",
+          "sha256": "07baef13b10eebfc5241c201af5443290d24c5e6ab3bda7d0bf8ce58ba30f19d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-05.png",
+          "sha256": "d5918f5e3e689d9b0f64bb37036afbea57deecd1e3d0601b8227613ae202f005"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-06.png",
+          "sha256": "0bfa8025107dcb3c44d53ac5d4cbc1f2e59a121f226058fb38246426028c2bc3"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-07.png",
+          "sha256": "393e6f3c65292213e5d8fc7c80e59ecba1e422e0be8372184bc697deb97fa141"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-08.png",
+          "sha256": "655ebb356b499f4916825fb3bb33a860af9037c29a773e9b6811e66fe8b6d7d1"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-09.png",
+          "sha256": "2e9e31e66e6422d9ded041ef6dd69e7c913c630e1887fd6b44eaa639e0d75fd7"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/711/card-10.png",
+          "sha256": "0fd84c273811d80eb52495c7e3dc8588a10bd28d0b4da1616fe7d0d0c42316e7"
+        }
+      ]
+    },
+    {
+      "id": 714,
+      "postId": "1x8n59i",
+      "contentSha256": "532f3f4b81f07baff889bbeffa8395dfcefe28b662a302b49ea1a9263a0ae8d0",
+      "question": "你手头拥有一件仍在使用、但年代最久远的物品是什么？",
+      "title": "手头仍在服役的高龄老物件",
+      "summary": "真正经得起时间考验的往往是结构极简的机械与金属器物，即便跨越数代依然运转如初。",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "普通人故事",
+        "意想不到",
+        "高赞问答"
+      ],
+      "answerCount": 25,
+      "cards": [
+        {
+          "index": 1,
+          "body": "一把用了185年的老式直剃刀，如今依然锋利好用，用来刮胡子毫无压力。",
+          "sourceIndex": 10,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "一个制作于1650年至1655年间的古董啤酒杯，每年都会特意拿出来倒酒喝上几次。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "家里最古老的日用品是一口大概有150年历史的铸铁煎锅，从高祖母手里一代代传下来；还有人一直用着太爷爷生日时买的扁平铁煎盘，算下来整整137年，市面上早已找不到同款造型。",
+          "sourceIndex": 3,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "每周开上路兜风的座驾已经有98年车龄，属于1928年的产物；还有人开着一辆44年车龄的老车，自己摸透了整套机械结构，学会了淘老零件和日常养护。",
+          "sourceIndex": 8,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "每天住的房子建于1794年，至今依然坚挺。",
+          "sourceIndex": 6,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "一台1947年产的福特8N拖拉机，日常主要负责扫雪和打理庄园，结构简单耐操又极好修理，计划一直用到它满100岁再考虑要不要送进英灵殿。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "外婆在70年代留下的食物料理机，开动起来噪音震天响，盖子甚至裂了缝，但马力强劲碾压市面上各种新机器，用起来格外顺手。",
+          "sourceIndex": 22,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "父母在1976年出生前买的一把摇椅，当年母亲在上面哺乳、安抚幼年发作的哮喘，现在它被搬进了自己的公寓，成了两只猫争抢的专属宝座。",
+          "sourceIndex": 23,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "1983年买的Kenmore缝纫机，结实得像辆坦克，当年跟着妈妈学会操作，到现在轧线依然顺畅无比。",
+          "sourceIndex": 15,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "居然还有一台首发版的Xbox 360游戏机至今没有触发三红故障，顽强运行到现在。",
+          "sourceIndex": 20,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-00.png",
+          "sha256": "53e0b7e46892bf6a63fa1bcaf531d5a738f9be56b2e56fa278c40c0f47cc28a2"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-01.png",
+          "sha256": "559b04d657be3ac5f1245c25800f4f76100f6bd3014633c9d3b42fe32ff077c5"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-02.png",
+          "sha256": "c8ac9b27b9241a66f9e23ab37f9d9a4d5164ec4e020d793969a8cc2a481d3076"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-03.png",
+          "sha256": "8eb3bb35cfdbd3355dd6a6be3b654d1675225da0b242c2a451c0cfccf3e464b6"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-04.png",
+          "sha256": "1ae962e664762a9a757d6ae296f785d1f679b042dd70eaacd53e30f8f525af6c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-05.png",
+          "sha256": "960c36fdb7d1be3bd3733ef2418055bc34bb250d4bf77ea649970915fe2e1f60"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-06.png",
+          "sha256": "429aaa9e4bcec75cc42d8ddbbcfb4c2715be7d6b33fde28a892f9b944f90da67"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-07.png",
+          "sha256": "1846d9f71b7a43d5471464227d60cc5549e8db3b564b41d4e95bd7130180b54c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-08.png",
+          "sha256": "92e3db40535a8da285cacde63da02738e846a362c85647550c962ed802a8afd1"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-09.png",
+          "sha256": "c16308f7ef165313c553ca6a07d478baa2b5099b4fd44169e01989b7eb8a710b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/714/card-10.png",
+          "sha256": "f1f9109803e0b42bd683b216a18fee0ef4894b9b7296939eb061c93536bbeb22"
+        }
+      ]
+    },
+    {
+      "id": 672,
+      "postId": "1x8127e",
+      "contentSha256": "812769dce430f413a2dbb39c4292c0b8564ba2dec1bf07866fb8fe0089cf4a34",
+      "question": "一个人彻底放弃生活时，会有哪些容易被忽视的细微迹象？",
+      "title": "一个人彻底放弃生活的细微迹象",
+      "summary": "他们往往不是大哭大闹，而是语言抹去将来时、对厄运麻木顺从，连洗漱打扫等琐事都彻底停摆。",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "细思极恐",
+        "破防瞬间"
+      ],
+      "answerCount": 9,
+      "cards": [
+        {
+          "index": 1,
+          "body": "面对足以打破生活的大事，表现出反常的平静与麻木。车半路抛锚，不发火也不叫拖车，直接下车往前走；被公司开除，一言不发收拾东西离开。他们不再产生任何情绪反应，因为连抗议都觉得毫无意义。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "变卖或无偿赠予最珍视的私人物品。另一种极具欺骗性的信号，是长期绝望的人突然变得异常轻松、快乐且充满活力。这往往不是变好了，而是内心做出了最终决断，因感到痛苦即将终结而获得解脱感。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "语言中彻底抹去将来时态，停止了与生活争执。抱怨和愤怒说明还在乎现实；彻底放弃的人面对混乱只剩冷漠耸肩。词汇全部收缩在当下，不再做长远打算，不再提“以后”，因为明天对他们而言已经不存在了。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "不再想洗澡，不是因为没条件，而是彻底丧失了清洗自己的意愿，连站在花洒下都像在攀登高山。生活里的崩溃很少源于惊天动地的大事，往往是无数件日常琐事一件接着一件变得不再值得付出精力。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "对好坏事全无反应。最让人冰冷的细节，是对方开始记不住你刚兴奋讲过的心事。当你再次热情提起，他们眼神一片空洞，就像事情从未发生过。这种悄无声息的遗忘与游离，比剧烈的争吵还要让人感到绝望。",
+          "sourceIndex": 9,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "居家环境维护彻底停摆。垃圾不扔，碗碟在水槽里发霉长毛，脏衣服任由堆积。不再为未来的自己做任何规划，而是把遭遇的每一件破败与不便，都当成房间里永久摆设的家具一样全盘忍受。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "卫生底线全面崩溃。连每天早晚刷牙、修剪指甲等基本打理都彻底消失，严重的口臭和散发的气味自己早已闻惯并完全无视。这通常意味着一个人连最基本的自我保全和自尊底线都已经彻底放弃。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "极端状态是任由自己腐烂：快两年没在床上睡过觉，吃东西只为不饿；几天不洗澡、穿同一套衣服，上网抬杠成了唯一活动。内心深处只懦弱地盼着身体早点垮掉，好过主动结束一切。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "一位乳腺癌康复者提到，战胜重病后陷入孤立无援，如今整天瘫躺着，靠暴饮暴食垃圾食品度日，完全断绝社交。活着仅是觉得对孩子和猫还有被动的责任，对自己本身的处境早已毫无眷恋与期待。",
+          "sourceIndex": 8,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-00.png",
+          "sha256": "4cc408359724219c96572c74ea088e69348ceb619c634050b72c15605db6012b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-01.png",
+          "sha256": "e197738ec2f97796fa5979685249e535a1882c6a5ecc7bbfcc204ef2391d2f52"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-02.png",
+          "sha256": "7061e1a6d0db4873028be2b20f8580ec98e2ae33b91634039f7d49027b42aa7a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-03.png",
+          "sha256": "b77d7384f5eea03abd0b3a2fed19f1f7f90832574c9388f75df69813279569be"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-04.png",
+          "sha256": "7bb7fc40931577345d4398047b41ed0820b395a98d7cec1fe1c734df89c01a4a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-05.png",
+          "sha256": "cd754430042444ec0dccca95809afaa63c46748accd6aa8dfb87c42a84ab47b3"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-06.png",
+          "sha256": "f78ef4178c66e8caa3164636c584b55a7644cfae53f3001a346a190805e1dd3f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-07.png",
+          "sha256": "1eea832b698554eab290b66f2faf24e157a9a9a29bc37dea18a3977106dc89ec"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-08.png",
+          "sha256": "ebebba3a5376f087e8edb06a2da20b8c84cdfff09fe3e6224b0c273189a6c885"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/672/card-09.png",
+          "sha256": "2c869d2b185bb2d2c37659faef19041510456654f1b0f00f9d11b4d33a571ac7"
+        }
+      ]
+    },
+    {
+      "id": 677,
+      "postId": "1x7jdq9",
+      "contentSha256": "d32499e56bbbdab8b469bdde5ef635944f65ffe25238a725bf27790c85f293fb",
+      "question": "不是香水，但有哪些气味一闻就让人上瘾？",
+      "title": "比香水还让人上瘾的生活气味",
+      "summary": "让人欲罢不能的气味往往无关昂贵配方，而是与安全感、食欲及演化本能绑定的生活痕迹。",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "意想不到",
+        "普通人故事"
+      ],
+      "answerCount": 13,
+      "cards": [
+        {
+          "index": 1,
+          "body": "把整张脸直接埋进猫咪肚子里猛吸一口。有人形容那股味道像甜甜的肉桂，有人觉得像刚烘烤出来的饼干，尤其是在小猫晒完太阳之后，闻起来简直就像纯粹的阳光。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "刚研磨好的咖啡豆。对于习惯喝咖啡的人来说，光是闻到咖啡豆研磨出来的香气，大脑就会瞬间清醒，简直像是一种巴甫洛夫条件反射。许多人甚至觉得，咖啡闻起来其实比喝起来还要香得多。",
+          "sourceIndex": 3,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "某些机械与工业场所的气味，比如地下车库里轮胎橡胶与微量汽油的混合气味，或是接近机场时空气中弥漫的航空煤油味——对许多人来说，那股煤油味就像是一场新冒险即将启程的信号。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "正在锅里慢炒的大蒜和洋葱。即便你完全不会做饭，只要学会这一步就像拿到了厨艺作弊码，能瞬间让屋子里充满大厨的气场；而且只要你掌握了炒大蒜和洋葱，基本也就掌握了大半的家常烹饪。",
+          "sourceIndex": 4,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "另一半身上的体味。对方下班回家时身上带着的一点体温与汗意，在别人闻起来可能只是普通的汗味，但在相爱的人鼻子里却像是某种天然的费洛蒙，让人忍不住想一直靠上去闻。",
+          "sourceIndex": 10,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "新书的气味。走进一家好书店深吸一口气的感觉无可替代。有人回忆自己二十出头不上班的日子，经常整个下午泡在 Barnes & Noble 翻书，那种纸墨香气至今都能让人瞬间穿越回年轻无忧的时光。",
+          "sourceIndex": 1,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "走过麦当劳时闻到的麦乐鸡香气。哪怕明知道现在吃起来的味道可能并不如闻着那么惊艳，但那股浓郁的油炸肉香依然百试百灵，总能一次次把路人骗进店里排队。",
+          "sourceIndex": 9,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "刚下完雨时树林里的空气。每次下雨都让人怀疑树木是不是凭空制造了更多氧气，树叶、泥土与雨水混合的初雨尘香，总是能触动人类某种深入骨髓的本能。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "刚出炉的面包香，尤其是在路过面包店、原本没打算买东西的时候。通常五秒后你就会站在收银台前买下一个可颂；不过真正的面包师坦言自己恨透了它，因为闻起来纯粹就是加班打卡的味道。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "刚出生婴儿身上的奶香与体香。父母总对此欲罢不能，但这可能纯粹是人类演化中用来操控新手父母的生物机制——换成毫无血缘的外人来闻，往往只觉得是一股普通的口水与痱子粉味。",
+          "sourceIndex": 13,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-00.png",
+          "sha256": "b262c6c04efe453b9946b5a8ee21d12d243c43e1cf9d3d1e9d5b64cf05d99436"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-01.png",
+          "sha256": "563b69417dac8517651afecaed831f48e711b0836d4f1c3c631389a64d45d2f6"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-02.png",
+          "sha256": "38c620c735cd98f697383ed08bf2295523170596313a2943ad39601ba565e521"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-03.png",
+          "sha256": "9f9b6615780255c6f86d8f471c87a1f67ca8eef3c293d821ef15104a5c984124"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-04.png",
+          "sha256": "18e0617a2d73481327b738c8500019f975e1b147604134001b25c6a5681c572a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-05.png",
+          "sha256": "ca320d803a018919b817984474ae9379ea20b82952afd2bf804acbc8b43b8f93"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-06.png",
+          "sha256": "bf1ffe26b749ccc623220a9c0ec3a0a0f1f42e2728d3d10a5a6ec48c73e57af1"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-07.png",
+          "sha256": "ffbd981a741b18680d1a34aae010506e84a3be002444484e197fbdbbecd58b95"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-08.png",
+          "sha256": "356fe6e8d89544b455f11694486d55cffb90ec29f4c7faa426470a05db6a7b96"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-09.png",
+          "sha256": "5e41de080fabc0eefe7f619face75cbee0bacd9e445ed8ae41b909efb4eceeb5"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/677/card-10.png",
+          "sha256": "ffaa09303c9bb16a66b7fca729cdb80864e8a2ef1376fe4b83e39a4bd6c1c58b"
+        }
+      ]
+    },
+    {
+      "id": 624,
+      "postId": "1x6tfsy",
+      "contentSha256": "4c8b01bb04555b6fad6c6f9df5048a41c6e68510b8b1c3adfdea8f926494ce0a",
+      "question": "明明是每天只忙两小时的轻松办公室闲职，为什么下班后反而累到彻底抗拒社交？",
+      "title": "每天只忙两小时，下班为何累瘫",
+      "summary": "无所事事的装忙待命、强行社交以及极度无聊，比真正的体力劳动更能榨干人的心理能量。",
+      "tags": [
+        "职场生存",
+        "身心健康",
+        "认知思维",
+        "反常识",
+        "年轻人困境"
+      ],
+      "answerCount": 14,
+      "cards": [
+        {
+          "index": 1,
+          "body": "装作很忙的样子硬撑七个小时，比真正动手干活要累上十倍。每次有人路过工位时神魂颠倒地来回切换窗口，那套心理体操简直能把人的灵魂吸干。",
+          "sourceIndex": 5,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "等待本身就是一种劳动。哪怕一整天只有两小时在处理事务，剩下时间也相当于全天处于戒备状态，就像在公交车站干等到下午五点。加上身体维持僵硬坐姿、还要和不在乎你的同事维持虚假客套，对身体极其违背天性。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "职场上的表演性社交比工作内容更让人心力交瘁。白天在公司里费尽心思进行社交伪装会把精力榨干。只要去办公室坐班，下班那一刻就像刚从拳击擂台上被拖下来；而居家办公能自主调节节奏，终于能顺畅喘口气。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "多巴胺在白天为了抵抗极度无聊早已消耗殆尽，下班后大脑已经进入过载与枯竭状态，自然提不起任何干劲去社交。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "待在被迫前往的地方，精神和情绪内耗就足以压垮一个人。这种疲惫在高效搞定工作的人身上反而更严重：花两小时干完全天的事，接下来的时间不能做喜欢的事，只能坐牢般强行无聊刷手机，更容易陷进空虚与倦怠。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "即便不做体力劳动、手头事情不多，维持在线状态、随时待命准备接电话或回邮件，同样需要消耗巨大的心理能量。很多时候下班后的疲倦并不是想立刻睡觉，而是极度需要一两个小时的绝对安静，让神经系统重新复位校准。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "大脑疲劳和肉体疲劳虽然机理不同，但在主观感受上一样糟糕。做的事情越少，身体反而越不想动，整天久坐不动带来的疲惫和过度劳累的累截然不同。",
+          "sourceIndex": 8,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "极度无聊带来的杀伤力绝不亚于压力。如果在毫无成长空间的清闲岗位上日复一日做机械重复的事，闲职就会变成精神牢笼。那种漫无目的杀死时间的空耗感，往往比忙到脚不沾地的充实感更让人下班后缓不过神来。",
+          "sourceIndex": 13,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "人类进化的生理机制并不适应全天窝在荧光灯下的工作模式。身体习惯了坐着不动，会自动判定当前需要休眠节能。下班后逼自己散步或运动、注入外部刺激，反而能从这种死气沉沉的循环中挣脱出来。",
+          "sourceIndex": 14,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "身体如果缺乏运动、饮食营养不够，或者大脑处理了过多杂乱无效的信息，都会导致电量耗尽。大脑消耗了人体大约四分之一的能量，这种精神上的虚脱往往比纯粹的体力透支更难恢复。",
+          "sourceIndex": 10,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-00.png",
+          "sha256": "a539afd0ab6f03e8f4f50dd8e36a1a5210cd18543029df48bcb34e084d9f0023"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-01.png",
+          "sha256": "72aa6dc2379049e48d5830483fb6e392fbf531ce5eb97e1d52a27432133beca1"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-02.png",
+          "sha256": "20d32d1a6f0fe70db9ce22fa8023a445cbf5b5bdd49bdfbceb36a49293bb2e51"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-03.png",
+          "sha256": "2f5531b94c044152bb8058cbfde0e6b40a61186873d19e31a17681dac0704450"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-04.png",
+          "sha256": "d4a044e08261119d6e26fdd0b3a981a0d5d5d55e6661f258488c58cd5beb199f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-05.png",
+          "sha256": "b6d084c43be1c61c319dd2d91c8307cb2ffe4e440a334b4134f982a3de4c0803"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-06.png",
+          "sha256": "0ba5345f70e62ba735573721a228a3188805ba9adf02567bfdd210fd6fbad857"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-07.png",
+          "sha256": "41b544eb0b95b2e8583c1dcaf5c95618a63be0ea734934ec5148fd2a53b234dc"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-08.png",
+          "sha256": "d98c8c6335f0f215dfce29f6ff01e15dbd713eb253a85f2344f3e3b6a92c64bc"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-09.png",
+          "sha256": "7d42d64083a9a58c37c85cb05ae1566dc49fa52d82766d2cd0387cf1da2b6551"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/624/card-10.png",
+          "sha256": "9c4ff45dfe838dc6546b0a8e2c37591f6ce3e9ccaa6088c6575e4c9503149d2c"
+        }
+      ]
+    },
+    {
+      "id": 596,
+      "postId": "1x6f324",
+      "contentSha256": "f642c5c3a9eacd04080e5b5788afd8c75eca85083f555971984edf8d5b28c9d9",
+      "question": "有哪些看似人畜无害，却会悄悄蚕食整个人生的隐蔽习惯？",
+      "title": "看似无害却悄悄毁掉人生的习惯",
+      "summary": "自我犒赏与过度逃避看似温和无害，却在舒适圈里悄然透支健康、时间和人生控制权。",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "年轻人困境",
+        "避坑指南"
+      ],
+      "answerCount": 19,
+      "cards": [
+        {
+          "index": 1,
+          "body": "每天用“我配得上这顿犒赏”来安慰自己。为了应付糟糕疲惫的工作，每天都用吃大餐、喝高糖饮料或买东西来补偿自己，日积月累，钱包和腰围最终一起崩溃。",
+          "sourceIndex": 15,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "靠高密度的信息轰炸来压制负面情绪。只要一安静下来就立刻塞上耳机刷内容，拒绝直面内心的焦虑与创伤。负面念头被暂时压制却从未消失，逃避只会让问题滚雪球般积攒，直到中年遭遇彻底的精神崩溃。",
+          "sourceIndex": 11,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "完美主义。脑子里总有一个声音在说“如果做不到完美，那何必开始”。在这个念头的绑架下，重要的事情被一再拖延，几年过去什么也没干成，反而在现实中彻底落后于人。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "习惯答应所有微小的帮忙请求。单看每一次顺手帮忙都微不足道，直到某天猛然发现一整周的日程全被别人的事情填满，自己甚至记不起究竟是哪一刻交出了时间的主导权。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "生活方式通胀。随着收入增长同步提高消费水准，不知不觉升级各种开支，若不刻意储蓄，无论工资涨到多高，最终还是会陷入变相的“月光”状态。",
+          "sourceIndex": 13,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "在网上拿自己的日常去比别人的高光。随手刷网络动态，不知不觉就开始拿自己灰头土脸的真实生活，去对比别人精心修饰的外貌、收入、感情和成就，慢慢滋生出无休止的自我否定与不满。",
+          "sourceIndex": 17,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "别人一问就习惯性回答“我很好”。每次被问及状态时都敷衍一句没事，说得多了，久而久之连自己都会被骗过去，忽视了内心真正需要被救助的信号。",
+          "sourceIndex": 12,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "把人工智能聊天机器人当作朋友或心理医生。越来越多人习惯向 ChatGPT 倾诉、炫耀自己用它做心理咨询，甚至发展出虚拟情感关系，以此替代真实人际中的碰撞与沟通。",
+          "sourceIndex": 10,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "沉迷约炮文化。在社交软件的推动下，获得快感变得前所未有的廉价与容易，久而久之会让人彻底丧失建立正常情感连接的能力，只顾追求虚无的数字，到了中年依然困在即时刺激的死循环里无法自拔。",
+          "sourceIndex": 18,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "睡前躺在床上刷手机。这会悄无声息地侵蚀睡眠和精神。原本只想看眼时间，二十分钟后放下依然不知几点；或嘴上说着再刷五分钟表情包，不知不觉熬到凌晨两三点，第二天整个人疲惫不堪。",
+          "sourceIndex": 3,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-00.png",
+          "sha256": "639778ff57b1d6cf2396543e1f7b86632a2d167ac65d5a402ca18cc25474025c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-01.png",
+          "sha256": "2fa1a1aefe33d54665cb78953439ae1dfff08db5bf5e13524737200995faad11"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-02.png",
+          "sha256": "0ca1ee2fde1406e56015c32e3e7984dadf0e88988e60657aec0437ea696705c6"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-03.png",
+          "sha256": "d03e80301deb35cc9304e632a1ecb6b3ed52a23c784382e07ea414693495364f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-04.png",
+          "sha256": "08fb369fe3de4e83b272562108f7003f1f7fa6d9d350e6e35e3b73e765e5c87d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-05.png",
+          "sha256": "1daf1be1188dc2e515946b8ec99ae00c15d225d33cc725262585632611258cf7"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-06.png",
+          "sha256": "01e47e091d418e7055cbaa145b1dbd23a8264bb8eb0e0e64fd2c043d61bdd861"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-07.png",
+          "sha256": "ce27ca19f057f0a7d587a673ed5c687a6444bae5f426ed683d1a7f46622f72af"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-08.png",
+          "sha256": "e1137b708dcdaf96cf5bd3fc76755cda0ee438015a6a29c456c1b1da813966de"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-09.png",
+          "sha256": "f1ead2cd7023af5c47bae5a0d197fa75d437cbd8662459d1393851868224bd31"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/596/card-10.png",
+          "sha256": "b45278bbd06d314afb46216d1838f4631fff65593d12709acd591668665c7c33"
+        }
+      ]
+    },
+    {
+      "id": 563,
+      "postId": "1x5oabf",
+      "contentSha256": "5bbdf2ea86b4837c56359ac77533c1b3b27cd20a9d6fde55a5a4291abd45e547",
+      "question": "父母随口说过的哪些谎言，会在多年后给孩子的人生带来麻烦？",
+      "title": "父母随口说的谎言，成年后成了人生陷阱",
+      "summary": "看似保护的敷衍与管教，剥夺了孩子的边界感与真实认知，成年后变成难以治愈的心结。",
+      "tags": [
+        "家庭关系",
+        "认知思维",
+        "人性观察",
+        "避坑指南"
+      ],
+      "answerCount": 14,
+      "cards": [
+        {
+          "index": 1,
+          "body": "「有什么事都可以跟爸妈说，我们绝不生气。」然而当孩子吐露秘密后，父母却在下一次吵架时将其作为武器反刺孩子。经历过这种背刺，孩子会彻底关上心门，遇事宁愿硬扛也绝不再向家庭求助。",
+          "sourceIndex": 13,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "「别人欺负你是因为暗恋你。」这等于教孩子把虐待与侵犯误认为是爱意。对方或许想博取关注，但这绝不是容忍不当行为的借口。把「嘴贱」当深情，只会让孩子在未来的亲密关系里失去自我保护的底线。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "「毕竟是一家人，必须原谅。」血缘不代表别人拥有操控甚至虐待你的特权。从小被灌输这种观念，长大后面对恶劣亲戚试图划清界限也会产生极深的负罪感，甚至沦为盲目迎合家庭施暴者的受害者。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "「别理霸凌者，他们无聊了自然会停手。」现实往往相反，一味无视只会让对方觉得你好欺负，为了激起反应而变本加厉。很多时候唯有果断、正面地联合反击，才能让霸凌者真正收敛不敢找麻烦。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "「他们针对你只是因为嫉妒你。」把人际矛盾全推给嫉妒，会让孩子失去自省和调整社交行为的机会。长大后无论面对多客观的批评与摩擦，他们都会盲目认定是别人心怀嫉妒，从而陷入自欺欺人的认知盲区。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "「爷爷奶奶只是永远睡着了。」把死亡委婉地说成睡觉，经常让年幼的孩子产生巨大的误解，甚至由此患上严重的睡眠恐惧症，每天晚上害怕闭上眼睛就再也醒不过来。",
+          "sourceIndex": 9,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "「你是个天才，你非常特殊。」泛滥的「天才」标签，会让孩子在同龄人追赶上来时陷入严重自我怀疑。当必须靠努力才能跟上进度时，他们会误以为自己「变笨了」，因无法接受平庸而在压力前彻底崩溃。",
+          "sourceIndex": 10,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "「长辈永远是对的，天生值得尊敬。」年龄从不自动等同于智慧或品行。盲目顺从长辈，不仅会让孩子在遭遇越界侵犯时不敢反抗，更会在成年后剥夺他们的独立判断力，陷入习惯性依附权威的被动境地。",
+          "sourceIndex": 11,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "「只要足够努力，你就能成为任何人。」适度鼓励是好事，但绝对化的空话是脱离现实的幻想。缺乏天资往往无法单靠毅力弥补，认清客观现实、懂得及时止损并找到适合自己的赛道，远比盲目撞墙更有价值。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "「别哭，再哭就给你真正哭的理由！」教孩子压抑眼泪并不能让他们学会情绪调节。当这些孩子成年后彻底封闭内心、不再表露任何真实感受时，父母反而往往困惑地责怪他们为何变得如此冷漠疏离。",
+          "sourceIndex": 14,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-00.png",
+          "sha256": "72ff6bc5d6ceb30c167fbc0609cb8d048266749f762fad7b2b884e9d9f503fdb"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-01.png",
+          "sha256": "46bd05dd3db122f644574cb65cf4b3ee8c23efe3f0b22ebbe26fd692fa92f38f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-02.png",
+          "sha256": "a64caca6431e3fe1929e119fd445ef84d046950f9dbf8b5f507ba655db078eef"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-03.png",
+          "sha256": "cbb4fc57c91d39597ed28872a79150c4659a2b19d09cc8b0e8e509b58e8e6625"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-04.png",
+          "sha256": "51bdf92023f6bff24346d27a5a4fc5ef22f52836bcb0b733858e157a0319be5d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-05.png",
+          "sha256": "e5496c48cbb021a39c352ba145e78f15a3c6ea3a9a6f558e84eb9412da7a7051"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-06.png",
+          "sha256": "f22fe7d84b5f3c9159c20ec9d88b3e648fcf8f39b194e1899fbe329af59e3ea4"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-07.png",
+          "sha256": "db7f3a31c4fb0f178ba93150daa0ab78cc836ca39c6e7db0dea60959203a2876"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-08.png",
+          "sha256": "55edac13ff9665da87e7f3c32bf05f126e362a77f7f08b88ce7ccc764da29739"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-09.png",
+          "sha256": "d9c77d5393c8800b2e0b37667bb86afa78d3cb70d022ad5ff30885bbcc036207"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/563/card-10.png",
+          "sha256": "fa3142c1eca646d10a1f467177dd38c6f712eaaa12a6086ac975ea1f8aa6d917"
+        }
+      ]
+    },
+    {
+      "id": 388,
+      "postId": "1x14kw3",
+      "contentSha256": "5687dee4ba7dac13e01bd0361935f74ccc302e2125aa5d30fb1ac0c3e7b50b4d",
+      "question": "有哪些平时做着很正常、但被人撞见会显得像个疯子的举动？",
+      "title": "独处时很正常被撞见像疯子的举动",
+      "summary": "人在失去外界注视的绝对独处时，往往会为了极致省事或自娱自乐，彻底释放脱离社会规则的怪癖。",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "意想不到",
+        "离谱见闻"
+      ],
+      "answerCount": 20,
+      "cards": [
+        {
+          "index": 1,
+          "body": "摆弄光固化树脂 3D 打印时只按最低限度佩戴个人防护装备。因为只打算用手碰未固化的树脂，于是在大清早的书房里，整个人只穿着一条内裤，头上戴着防毒面具，双手套着丁腈手套，一丝不苟地站在那里清洗打印件。",
+          "sourceIndex": 12,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "在洗澡时或者对着镜子预演假想中的争吵辩论，甚至在自己脑补的攻防战里莫名其妙地把正反两方都吵输了，或者一个人手舞足蹈地大获全胜。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "下班累瘫后泡在浴缸里，整张脸完全沉在水底只露出鼻子用来呼吸，两条腿高高倒立架在瓷砖墙上，试图借重力让脚底淤积的血液回流。",
+          "sourceIndex": 17,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "在客厅里拼尽全力做熊爬等高强度健身动作，满头大汗、呼哧带喘地贴地爬行，冷不防被人看见简直像某种失去理智的人类异化现场。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "戴着耳机开不需要开摄像头的远程会议时百无聊赖，随手抓起桌上的自动铅笔、U盘或眼药水瓶，像小孩子玩玩具一样捏在手里在空中比划各种飞行翻滚特技。",
+          "sourceIndex": 20,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "在垃圾桶上方扎着马步剃除私处毛发，姿势滑稽又小心翼翼。",
+          "sourceIndex": 6,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "在不上班的休息日凌晨三点，整个人窝在床上的被窝里，用笔记本电脑在 Google 表格上兴致勃勃地分析各种乱七八糟的冷门数据。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "自娱自乐的一人多角即兴大戏。自己给自己换上各种滑稽声线，即兴演绎围绕离奇危机的长篇多角色对话，全方位沉浸在自己的脑内剧场里；要是有人突然推门进来，那场面简直尴尬得像剧场观众在中场休息前就闯进了后台。",
+          "sourceIndex": 1,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "不小心踩死了一只小昆虫后，神情肃穆地掏出念珠，当场用藏语念念有词为它超度。",
+          "sourceIndex": 18,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "像啃苹果一样若无其事地整只生啃大黄彩椒。",
+          "sourceIndex": 5,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-00.png",
+          "sha256": "b8d2de5971122460c230fa7505039a32e72dfc5a98bcc90bbdb1b38a538b289d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-01.png",
+          "sha256": "daa5f4104e655277e24b011fa10c53875938e9ad0c3147f848ec6bd118696133"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-02.png",
+          "sha256": "18aca417488ae285b33495269a189ff4b4a201fee38089d74454860e697a00d3"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-03.png",
+          "sha256": "01974fe9706b1d839ee73d49028330b497ebcc2ba9449d5cf32fb5b1d3380464"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-04.png",
+          "sha256": "7af2ada28c687cef90d78da645767ace2a6308b0728997846c08a5437e6fd9c2"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-05.png",
+          "sha256": "d8a33991131a128c44f8381fe49395234d70a58dc8cc59eb65b78447dd7c4578"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-06.png",
+          "sha256": "97291d4ace2c0b954d1862a11c4e429f2dfa2d05aab24be91f9d809f40c05f3d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-07.png",
+          "sha256": "aca31a6094b59b29606825245c244c1842d4ed0cf2a2a6f15c6e8ecf6c24feb2"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-08.png",
+          "sha256": "b27baeec1a4089d3d82898b5f9f2745cfd9be9ba576b09a7331cbc92b57db167"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-09.png",
+          "sha256": "e6e47c6e52ca4036e8d4e5c9c75a9e6f73b511c1ab1c1d894b68687334014d6e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/388/card-10.png",
+          "sha256": "c6e466f0387e34bcb2c09f75b2f2434f380836b9ae7f479544a6c07a3357ee67"
+        }
+      ]
+    },
+    {
+      "id": 387,
+      "postId": "1x0tvn8",
+      "contentSha256": "20c206819f099d6619c22de75a8600a19c1776b077828fa851194607344cbb36",
+      "question": "哪些微小却微妙的习惯，能瞬间看出一个人其实早已精疲力竭？",
+      "title": "看穿一个人精疲力竭的微妙习惯",
+      "summary": "真正累垮的人往往不声不响，而是靠车内发呆、半截咽回话头与频繁道歉强撑体面。",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "破防瞬间",
+        "普通人故事"
+      ],
+      "answerCount": 16,
+      "cards": [
+        {
+          "index": 1,
+          "body": "话说到一半突然不讲了，讲着讲着随口来一句“算了，反正也没那么有意思”。这不是中途走神，而是大脑彻底转不动了，甚至挤不出足够的精力来把自己的后半句话讲完。",
+          "sourceIndex": 3,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "独自开车回到家后，把车熄火停在车道上，在一片死寂中干坐十到十五分钟才推门下车。很多人是因为不能把一身疲惫直接带进家门，必须靠这十几分钟强行做好面对家人的心理准备。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "明明情况很糟糕，却以极快的速度抢着说“没事”。比如不小心摔碎盘子，双手还在发抖，却立刻连声念叨“没事没事我来收拾”，累透了的人往往像是在为自己的存在本身不断道歉。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "答应别人或者说出“行吧，挺好的”之前，会先发出一声极其微小的叹息——那声叹息沉重得仿佛它自己都有一份全职工作还买了医疗保险。",
+          "sourceIndex": 8,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "开口说话之前会习惯性地停顿一下或者深深吸一口气，仿佛仅仅是与人互动交流本身，就需要耗费巨大的力气。",
+          "sourceIndex": 7,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "曾经很介意、经常抱怨的事情，现在彻底不再抱怨了，因为人已经累到了根本懒得在乎的程度。",
+          "sourceIndex": 6,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "眼神会先直接穿透你的身体放空发呆好几秒钟，随后视线才真正聚焦并落在你的脸上。",
+          "sourceIndex": 13,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "频繁犯一些平时绝不可能犯的小错误。通常是那些原本顺手就能搞定的日常琐事，但由于现在毫无专注力和多余精力，会频繁漏掉细节、遗忘事情、随手弄丢实体物品。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "把日常发生的每一件小麻烦都当成十万火急的重大灾难，反应极度过激，而且在试图解决问题时大脑僵化，只能看到唯一一种甚至相当糟糕的应对办法。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "变得越来越沉默寡言，但在被问起时却更频繁地向别人保证“我很好”。",
+          "sourceIndex": 12,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-00.png",
+          "sha256": "87be22738cb49f43844fa10ebed7d8f433c1218e52628607bfc0455ea39d03c9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-01.png",
+          "sha256": "5055878198516df848dca4baa01f869d05624de4bd3761a29fa97821cce3bffe"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-02.png",
+          "sha256": "c6dc7e785b247f8929d006633433f2bb703695a911e29c25960f89f46f436a65"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-03.png",
+          "sha256": "58e207fd8506eec0aa05128abf43ebac7c4c003c171e7e347d0326d33f1e87a3"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-04.png",
+          "sha256": "614ece3e2ce53622e8cb6a1b492ab5b74b09385cb89b0f1718e5bbf4269a5070"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-05.png",
+          "sha256": "041f153a1bf1a9ddefb794ac9a25a3c722754e98b4c50b7f0fbc1c8869e4a82a"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-06.png",
+          "sha256": "97896fb233a71f16d93bf73ab020c6f77f025a87f6c4c3fad4cdeb73b077c12c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-07.png",
+          "sha256": "10b722651aff0ebf85cabb34bdddeafa66d7fb77f63ced2ab30cf9a765f2aa40"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-08.png",
+          "sha256": "f320fd50fd47a2404cd3984cb4870881ab7fb5bb7e72f9df842bdf67c03b702d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-09.png",
+          "sha256": "d5ae5f111755139ca7725fad56a2eac410c3aa868a2d250eac2793918f26841f"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/387/card-10.png",
+          "sha256": "de1068176dd0b8cd6aacc60dd5ade24f4b85b8c497051d88dac9ff330c5fc30b"
+        }
+      ]
+    },
+    {
+      "id": 389,
+      "postId": "1x19s7s",
+      "contentSha256": "b42c5fb7ee5a1092b4abd70e0c7dd1f2c73bc547f22d039fbbe0a240a74d6bf5",
+      "question": "有哪些你打算带进坟墓、却愿意匿名分享在网上的秘密？",
+      "title": "匿名说出带进坟墓的秘密",
+      "summary": "那些至死不说的秘密里，藏着的往往不是惊天罪恶，而是为了保护家人或自保而留下的善意与伪装",
+      "tags": [
+        "人性观察",
+        "家庭关系",
+        "亲身经历",
+        "意想不到"
+      ],
+      "answerCount": 17,
+      "cards": [
+        {
+          "index": 1,
+          "body": "1988年我还是个大一新生，在迈阿密抢劫了一家银行并且成功脱身，几十年来没有走漏一点风声，警方也从未找上门来。",
+          "sourceIndex": 13,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "疫情期间我从未感染过病毒，后来照顾所有人到崩溃，就用红笔在抗原试剂盒上伪造了红线发给公司和丈夫。我顺理成章享受了五天的居家隔离，窝在房间看电影、点外卖，终于好好喘了一口气。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "我爸去年继承了数百万美元并分给子女，我暗地里早已衣食无忧。但面对朋友聚会时，我依然习惯性说「得省点钱看预算」。这辈子就算被人拿枪指着头，我也绝不会让社交圈里的任何人知道我早就财富自由了。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "我父母当年离婚时，我妈一直以为是我爸不批准她把我带出国生活。真相其实是我主动跟爸爸说我想留在他身边，因为我从小就非常害怕妈妈那一点就着的暴脾气。",
+          "sourceIndex": 14,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "曾经有邻居极度蛮横惹毛了我，我后来偷偷往他们家院子里撒了整整十包蒲公英种子，还种了十棵极难清除的竹子。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "高中时我在餐厅辛苦打工，平时会故意把小费藏在特定地方，因为我知道妈妈和妹妹会偷偷拿走那些钱。我从来没戳破过，因为我知道她们当时比我更需要那笔钱生活。",
+          "sourceIndex": 12,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "年轻时我因贩卖可卡因惹上麻烦，转头把上线供了出来，直接免去十五年牢狱之灾。那次经历让我彻底意识到自己根本不是混道上的料，从此金盆洗手回归正途，对此我毫无悔意。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "买新车两个月后，我不小心把智能车钥匙扔进洗衣机洗了，事后我假装什么都没发生，我丈夫到现在都以为是钥匙本身质量有缺陷。其实不是车钥匙有缺陷，是我脑子有缺陷。",
+          "sourceIndex": 3,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "七岁夜里我摸黑踩死了一只小猫，吓得没敢说，全家都以为它是体弱夭折。四十年过去，这件事依然折磨着我。如今我救助了无数流浪动物，潜意识里可能全都是在为当年赎罪。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "以前我爸耍浑发脾气时，我总是故意装傻、搞出笨拙的失误逗妈妈和妹妹开心。直到今天她们还在拿糗事笑我是笨蛋，但我永远不会告诉她们真相，只要能让她们开心就够了。",
+          "sourceIndex": 2,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-00.png",
+          "sha256": "71b97fb81fb5c349f361830aba01aa31aa2f5dd4b180526d285eea6c3c068d74"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-01.png",
+          "sha256": "ae24922bfd7471c61bd02f5b39f60782b6d49b2d99c8b9fbd0502d5423a6d473"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-02.png",
+          "sha256": "950b3d3cf82dbf623311e47044f5584b7d2f755f4c882daae448c844d3515c70"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-03.png",
+          "sha256": "858a0bd6e37cb4048b86111c65437a8650c3600c20c86f6cefa4632f4c890ff2"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-04.png",
+          "sha256": "2127dd3a6cdfcb13bf001ca365b2126356301924bced18ac1953d31dd73dc7c7"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-05.png",
+          "sha256": "214a363cbd97e4dcc04f3b47af870d83f2d7e40a8be209cf94736a08c477aa0c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-06.png",
+          "sha256": "3eadb763e91d8d079812820a14e4a0c8d6cccda75a001c9f94d3910741225c45"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-07.png",
+          "sha256": "24a858989b0e5f07ecfd132cd78bcd1f7e2a3a34989b17b370fe07c8d0ba45cf"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-08.png",
+          "sha256": "bdd2f11d5ce55bb8fb688313857fb53cfd4363f1001925352161fa6441cfcd6e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-09.png",
+          "sha256": "77232f2c5aacb35b12fc7a4afd97d8be5ed78763e321c3aa3e99366f19012693"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/389/card-10.png",
+          "sha256": "b7b6c427f07fc082fbef14f95e7ea31ce36aa386f8015e5a335eaba66739e67c"
+        }
+      ]
+    },
+    {
+      "id": 341,
+      "postId": "1wzsmt3",
+      "contentSha256": "14026fd6af2d6f1d29e80ec31ae00a63e1403adce97f3dfa95c093eebe411c7f",
+      "question": "停掉哪件事，立刻让你的人生变轻松了？",
+      "title": "停掉这几件内耗小事，生活瞬间变轻松",
+      "summary": "最立竿见影的减负不是换工作或旅行，而是果断停止无效自证、讨好他人以及对数据的过度执念。",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "相处之道",
+        "反常识"
+      ],
+      "answerCount": 24,
+      "cards": [
+        {
+          "index": 1,
+          "body": "不再向打定主意要误解自己的人解释。停止无效自证之后，个人的精神续航立刻长了一大截。",
+          "sourceIndex": 23,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "摘掉佳明智能手表。每天早上一睁眼就对着心率变异性和静息心率等健康指标患得患失，不仅没有变得更健康，反而整天为数据波动而焦虑，甚至连放松喝杯啤酒都怕搞砸数据；摘掉手表后精神内耗彻底消失。",
+          "sourceIndex": 24,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "停止出于愧疚而答应别人。愧疚感转瞬即逝，但被浪费掉的空闲时间却再也回不来。养成“我先看一下日程再答复你”的默认习惯，能给自己留出缓冲空间，等内疚的条件反射过去后再决定要不要答应。",
+          "sourceIndex": 15,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "停止纠正父亲讲错的话。哪怕对方坚持一加一等于三，拿计算器证明他也只会恼羞成怒。面对自恋型人格根本不可能赢，意识到这点后不再搭理，事情不仅变顺了，丢脸的也只是对方。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "彻底戒酒。原本没有酗酒问题，只是下班喝两罐啤酒，停掉后睡眠变好、焦虑大幅下降，腹胀消失、专注力提升，周末时间全找了回来。随着年龄增长喝一杯第二天都会头痛，索性全戒了。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "停掉多邻国打卡。虽然对学德语有一点帮助，但维持连胜纪录带来的心理压力彻底毁了体验，后期加上的人工智能功能也很糟糕，每天为了打卡疲于应付简单的配对练习，完全本末倒置。",
+          "sourceIndex": 18,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "停止替家里成年人包办一切。以前总觉得只有自己能把家务做到极致，后来彻底撒手，让他们自己处理账单、预约和做饭。过度包办不仅让家人把自己当理所当然的保姆，也剥夺了他们承担自我责任的能力。",
+          "sourceIndex": 13,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "早起第一件事不再看手机。以前醒来在床上刷二三十分钟，还没下床心情就沉重压抑。后来把手机放在另一个房间过夜，这是带来最大改变的简单习惯，卧室里没有任何电子设备的感觉非常美妙。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "彻底停止看新闻。本身就容易焦虑多虑，糟糕的时事只会让情况恶化。换用定制阅读软件只看运动、营养、旅行、冥想和好消息，视野完全被积极的事物填满。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "问自己一句“这件事五年后还重要吗”。如果不重要，那就不值得花超过五分钟去为此焦虑，这个思维方式能彻底扭转一个人的心态。",
+          "sourceIndex": 21,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-00.png",
+          "sha256": "59238ce61a11961218798f8f2c7d8056239e3fd909f06a9080163cfb6b1a6e8b"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-01.png",
+          "sha256": "66f7edf4e40724a6da06545b9dafc0134bac1a2e6204c5735ec7fc5bcdb66a34"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-02.png",
+          "sha256": "abe404850b58022df51bbc6c6c82429834343e6f6f0fb4dac34ec82f7e45cf48"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-03.png",
+          "sha256": "335f2100e9ad8060af2fbe4c594e4089d085a569d6dffbc2144bc71847bd4ffa"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-04.png",
+          "sha256": "d3eff0666936ca7a8a19017e4da9c4a3a7f40e078fe35e617984a632bd27bff1"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-05.png",
+          "sha256": "ff1a8eda3ccb1c9a8b9f5bf8f41214241164fe0c4d49aab24742d34f54a2d5da"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-06.png",
+          "sha256": "ee7b42781c4ac4a1b856fba8769510b666af5cad4730739427bafb4be3500d22"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-07.png",
+          "sha256": "0d620aa34f2ebd24b406793669dfdff1d144350c3083572c8be9720dd9e59156"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-08.png",
+          "sha256": "713f49d64287695216199c131f07dca89a5db7349c94f286b1881a81143d08d0"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-09.png",
+          "sha256": "084f65c4047b7edd3563d2a74d5045579e00a3ed3e7a217bb2b0287323175833"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-10-19/341/card-10.png",
+          "sha256": "b475ead71c4060215f849ba8d053747d8207909c439d49629e5d138d99760955"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "release": {
+    "tag": "reddit-life-cards-2026-10-19",
+    "assets": [
+      {
+        "asset": "693-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-00.png",
+        "sha256": "40911667ec52184b8e898e08b7a656117406833fa565241c6d4407a4d28ea78f"
+      },
+      {
+        "asset": "693-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-01.png",
+        "sha256": "0e6de9f8457cf5b69626a562032fde7027a77cdfc270ee44c91ff5e61fe4a075"
+      },
+      {
+        "asset": "693-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-02.png",
+        "sha256": "dbc372d344f94a7601bb938fe9640b98d48aab8d6b32d684bdde2f3dd1b17b73"
+      },
+      {
+        "asset": "693-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-03.png",
+        "sha256": "db1977be9989251d1bdb1977357bd2af1ee79a8eaa81f6677ee02091110ed01a"
+      },
+      {
+        "asset": "693-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-04.png",
+        "sha256": "b577fd2cd354a123c03f6752df8864c755dc0b1f3bc087470658b336ae5c62d0"
+      },
+      {
+        "asset": "693-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-05.png",
+        "sha256": "b7c101fd229f81a527052d1f6d1697673c1f0d1002079c32817fb3e55a0f362d"
+      },
+      {
+        "asset": "693-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-06.png",
+        "sha256": "616ef8ab324d61efbe486040bec8042d2c5c36deb0e13131f65aca8ad3a29c40"
+      },
+      {
+        "asset": "693-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-07.png",
+        "sha256": "fce7b930da5344933375046b84fb0bd8d9c4bffddc79cd0088491eec5450bdf4"
+      },
+      {
+        "asset": "693-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-08.png",
+        "sha256": "e9069c7517bcb08717a62ac2c5b73aa4b43b8be5ba5cc9eb44d1d7b9b99601fe"
+      },
+      {
+        "asset": "693-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-09.png",
+        "sha256": "2944699768e415b7b67cdfdd20768233f5cc1a3b37abe3a4126fe200a0702ad9"
+      },
+      {
+        "asset": "693-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/693/card-10.png",
+        "sha256": "fa031f652c8a338a2dacd0b894c33bb90202839e29628ca072a1063212bee814"
+      },
+      {
+        "asset": "692-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-00.png",
+        "sha256": "90a6932ebe7003a9298b61dfa0aea4a13c3fde417ba4cfae3a5fb80282c5ba74"
+      },
+      {
+        "asset": "692-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-01.png",
+        "sha256": "53e3d6d97e0713a956bbc79ef520dab63348107da50bbb95b95d3df454a0cb6c"
+      },
+      {
+        "asset": "692-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-02.png",
+        "sha256": "9d3f7c60324f12d7ef000264b7bbcb594a5b5faab7e0e639a4030c54e5f465b7"
+      },
+      {
+        "asset": "692-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-03.png",
+        "sha256": "dd2947385350a586115431efec7d3c429f99d8b81cf9fdc64ab77549193782f9"
+      },
+      {
+        "asset": "692-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-04.png",
+        "sha256": "8558d1553aefe7669e71616060956d31e0f20c87f0d55e136c9e90642351a1a5"
+      },
+      {
+        "asset": "692-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-05.png",
+        "sha256": "bb4009270739965240c1ed38195a8797ef66459ca4ba2e34d35dd363f5344fed"
+      },
+      {
+        "asset": "692-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-06.png",
+        "sha256": "cc0486a0b1ffe359c5d2b414e5e2af8880fa75771c1a1c76bbdaba8f510b1559"
+      },
+      {
+        "asset": "692-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-07.png",
+        "sha256": "d5801045ac94bd2470952da9fa4bdc50e43bdb0dd41234dd0b6e455098d32efb"
+      },
+      {
+        "asset": "692-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-08.png",
+        "sha256": "0a5cdacc4e6f33dd3669132178d5b3c4f2c278817b592168a07739cbec62a530"
+      },
+      {
+        "asset": "692-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-09.png",
+        "sha256": "ed9a30329803e8577c9c31e41ddce9f2dd552ea258f146e903cb4459f624fc18"
+      },
+      {
+        "asset": "692-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/692/card-10.png",
+        "sha256": "c1993427953910595ed69c93953affab7d3087c0392e06b184ea7118d10666f2"
+      },
+      {
+        "asset": "707-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-00.png",
+        "sha256": "c754975ad569a2d04ee0389274ce1488c68611c2c79508051a6d520451508ae0"
+      },
+      {
+        "asset": "707-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-01.png",
+        "sha256": "075fd9bf1d16468ceb06a74077abb6173c119d38400b908569ce3f46a884abfe"
+      },
+      {
+        "asset": "707-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-02.png",
+        "sha256": "5b432cfc674a2b688c3178b5833c21aa9d8ae87280865a7a7e0ae55c5a80f00f"
+      },
+      {
+        "asset": "707-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-03.png",
+        "sha256": "656055f6136a2a31c37538b37d73a8fa857df287f4f9f49c61965823eee0b13d"
+      },
+      {
+        "asset": "707-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-04.png",
+        "sha256": "ef0b04ca10e57f47fa9a908b52835e0c90549f1ee97db2788695f279811e6e71"
+      },
+      {
+        "asset": "707-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-05.png",
+        "sha256": "7c67bf20e52e899b7add232a72f03bc2685894836b42db7addb65e138bb806ae"
+      },
+      {
+        "asset": "707-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-06.png",
+        "sha256": "f91cd8afbd70d9a61bb4cd7d385149a071558db85d9829adbb96d49eb4850d39"
+      },
+      {
+        "asset": "707-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-07.png",
+        "sha256": "3c18bbf47efcd86fbecdc1c75de921f7f528e2d80a88a68cc69559c361e8f0ad"
+      },
+      {
+        "asset": "707-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-08.png",
+        "sha256": "bcaa0cd12e85919ba5331aabb79c6d86138396511202f34fcf536178c826e912"
+      },
+      {
+        "asset": "707-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-09.png",
+        "sha256": "fb9ec089acf1ed1e1371c5f4127a27801f710691d4ba2adb97272ffe9f7aee0d"
+      },
+      {
+        "asset": "707-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/707/card-10.png",
+        "sha256": "4b18df4c797092b34700eb5338c4e084c303431643fb9db567fef0a0fc12472d"
+      },
+      {
+        "asset": "711-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-00.png",
+        "sha256": "ad52a6323acca39725d62ad4f77efef7170191b967243c15dbd1f09c391dc9df"
+      },
+      {
+        "asset": "711-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-01.png",
+        "sha256": "d09c7773b3d4644d9ed854a509e9544571b38ba448ef37ff421b87cc65925092"
+      },
+      {
+        "asset": "711-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-02.png",
+        "sha256": "bcbfb2f34a0e05d09647f51beae4528bf45a0c3d7118194156aa134756d2b5be"
+      },
+      {
+        "asset": "711-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-03.png",
+        "sha256": "974dbc0d12b832e19cabe5c7996c8e8ca2c9a1a2dcc5882be794f3e74952b6ec"
+      },
+      {
+        "asset": "711-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-04.png",
+        "sha256": "07baef13b10eebfc5241c201af5443290d24c5e6ab3bda7d0bf8ce58ba30f19d"
+      },
+      {
+        "asset": "711-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-05.png",
+        "sha256": "d5918f5e3e689d9b0f64bb37036afbea57deecd1e3d0601b8227613ae202f005"
+      },
+      {
+        "asset": "711-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-06.png",
+        "sha256": "0bfa8025107dcb3c44d53ac5d4cbc1f2e59a121f226058fb38246426028c2bc3"
+      },
+      {
+        "asset": "711-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-07.png",
+        "sha256": "393e6f3c65292213e5d8fc7c80e59ecba1e422e0be8372184bc697deb97fa141"
+      },
+      {
+        "asset": "711-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-08.png",
+        "sha256": "655ebb356b499f4916825fb3bb33a860af9037c29a773e9b6811e66fe8b6d7d1"
+      },
+      {
+        "asset": "711-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-09.png",
+        "sha256": "2e9e31e66e6422d9ded041ef6dd69e7c913c630e1887fd6b44eaa639e0d75fd7"
+      },
+      {
+        "asset": "711-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/711/card-10.png",
+        "sha256": "0fd84c273811d80eb52495c7e3dc8588a10bd28d0b4da1616fe7d0d0c42316e7"
+      },
+      {
+        "asset": "714-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-00.png",
+        "sha256": "53e0b7e46892bf6a63fa1bcaf531d5a738f9be56b2e56fa278c40c0f47cc28a2"
+      },
+      {
+        "asset": "714-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-01.png",
+        "sha256": "559b04d657be3ac5f1245c25800f4f76100f6bd3014633c9d3b42fe32ff077c5"
+      },
+      {
+        "asset": "714-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-02.png",
+        "sha256": "c8ac9b27b9241a66f9e23ab37f9d9a4d5164ec4e020d793969a8cc2a481d3076"
+      },
+      {
+        "asset": "714-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-03.png",
+        "sha256": "8eb3bb35cfdbd3355dd6a6be3b654d1675225da0b242c2a451c0cfccf3e464b6"
+      },
+      {
+        "asset": "714-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-04.png",
+        "sha256": "1ae962e664762a9a757d6ae296f785d1f679b042dd70eaacd53e30f8f525af6c"
+      },
+      {
+        "asset": "714-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-05.png",
+        "sha256": "960c36fdb7d1be3bd3733ef2418055bc34bb250d4bf77ea649970915fe2e1f60"
+      },
+      {
+        "asset": "714-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-06.png",
+        "sha256": "429aaa9e4bcec75cc42d8ddbbcfb4c2715be7d6b33fde28a892f9b944f90da67"
+      },
+      {
+        "asset": "714-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-07.png",
+        "sha256": "1846d9f71b7a43d5471464227d60cc5549e8db3b564b41d4e95bd7130180b54c"
+      },
+      {
+        "asset": "714-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-08.png",
+        "sha256": "92e3db40535a8da285cacde63da02738e846a362c85647550c962ed802a8afd1"
+      },
+      {
+        "asset": "714-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-09.png",
+        "sha256": "c16308f7ef165313c553ca6a07d478baa2b5099b4fd44169e01989b7eb8a710b"
+      },
+      {
+        "asset": "714-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/714/card-10.png",
+        "sha256": "f1f9109803e0b42bd683b216a18fee0ef4894b9b7296939eb061c93536bbeb22"
+      },
+      {
+        "asset": "672-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-00.png",
+        "sha256": "4cc408359724219c96572c74ea088e69348ceb619c634050b72c15605db6012b"
+      },
+      {
+        "asset": "672-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-01.png",
+        "sha256": "e197738ec2f97796fa5979685249e535a1882c6a5ecc7bbfcc204ef2391d2f52"
+      },
+      {
+        "asset": "672-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-02.png",
+        "sha256": "7061e1a6d0db4873028be2b20f8580ec98e2ae33b91634039f7d49027b42aa7a"
+      },
+      {
+        "asset": "672-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-03.png",
+        "sha256": "b77d7384f5eea03abd0b3a2fed19f1f7f90832574c9388f75df69813279569be"
+      },
+      {
+        "asset": "672-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-04.png",
+        "sha256": "7bb7fc40931577345d4398047b41ed0820b395a98d7cec1fe1c734df89c01a4a"
+      },
+      {
+        "asset": "672-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-05.png",
+        "sha256": "cd754430042444ec0dccca95809afaa63c46748accd6aa8dfb87c42a84ab47b3"
+      },
+      {
+        "asset": "672-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-06.png",
+        "sha256": "f78ef4178c66e8caa3164636c584b55a7644cfae53f3001a346a190805e1dd3f"
+      },
+      {
+        "asset": "672-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-07.png",
+        "sha256": "1eea832b698554eab290b66f2faf24e157a9a9a29bc37dea18a3977106dc89ec"
+      },
+      {
+        "asset": "672-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-08.png",
+        "sha256": "ebebba3a5376f087e8edb06a2da20b8c84cdfff09fe3e6224b0c273189a6c885"
+      },
+      {
+        "asset": "672-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/672/card-09.png",
+        "sha256": "2c869d2b185bb2d2c37659faef19041510456654f1b0f00f9d11b4d33a571ac7"
+      },
+      {
+        "asset": "677-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-00.png",
+        "sha256": "b262c6c04efe453b9946b5a8ee21d12d243c43e1cf9d3d1e9d5b64cf05d99436"
+      },
+      {
+        "asset": "677-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-01.png",
+        "sha256": "563b69417dac8517651afecaed831f48e711b0836d4f1c3c631389a64d45d2f6"
+      },
+      {
+        "asset": "677-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-02.png",
+        "sha256": "38c620c735cd98f697383ed08bf2295523170596313a2943ad39601ba565e521"
+      },
+      {
+        "asset": "677-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-03.png",
+        "sha256": "9f9b6615780255c6f86d8f471c87a1f67ca8eef3c293d821ef15104a5c984124"
+      },
+      {
+        "asset": "677-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-04.png",
+        "sha256": "18e0617a2d73481327b738c8500019f975e1b147604134001b25c6a5681c572a"
+      },
+      {
+        "asset": "677-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-05.png",
+        "sha256": "ca320d803a018919b817984474ae9379ea20b82952afd2bf804acbc8b43b8f93"
+      },
+      {
+        "asset": "677-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-06.png",
+        "sha256": "bf1ffe26b749ccc623220a9c0ec3a0a0f1f42e2728d3d10a5a6ec48c73e57af1"
+      },
+      {
+        "asset": "677-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-07.png",
+        "sha256": "ffbd981a741b18680d1a34aae010506e84a3be002444484e197fbdbbecd58b95"
+      },
+      {
+        "asset": "677-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-08.png",
+        "sha256": "356fe6e8d89544b455f11694486d55cffb90ec29f4c7faa426470a05db6a7b96"
+      },
+      {
+        "asset": "677-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-09.png",
+        "sha256": "5e41de080fabc0eefe7f619face75cbee0bacd9e445ed8ae41b909efb4eceeb5"
+      },
+      {
+        "asset": "677-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/677/card-10.png",
+        "sha256": "ffaa09303c9bb16a66b7fca729cdb80864e8a2ef1376fe4b83e39a4bd6c1c58b"
+      },
+      {
+        "asset": "624-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-00.png",
+        "sha256": "a539afd0ab6f03e8f4f50dd8e36a1a5210cd18543029df48bcb34e084d9f0023"
+      },
+      {
+        "asset": "624-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-01.png",
+        "sha256": "72aa6dc2379049e48d5830483fb6e392fbf531ce5eb97e1d52a27432133beca1"
+      },
+      {
+        "asset": "624-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-02.png",
+        "sha256": "20d32d1a6f0fe70db9ce22fa8023a445cbf5b5bdd49bdfbceb36a49293bb2e51"
+      },
+      {
+        "asset": "624-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-03.png",
+        "sha256": "2f5531b94c044152bb8058cbfde0e6b40a61186873d19e31a17681dac0704450"
+      },
+      {
+        "asset": "624-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-04.png",
+        "sha256": "d4a044e08261119d6e26fdd0b3a981a0d5d5d55e6661f258488c58cd5beb199f"
+      },
+      {
+        "asset": "624-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-05.png",
+        "sha256": "b6d084c43be1c61c319dd2d91c8307cb2ffe4e440a334b4134f982a3de4c0803"
+      },
+      {
+        "asset": "624-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-06.png",
+        "sha256": "0ba5345f70e62ba735573721a228a3188805ba9adf02567bfdd210fd6fbad857"
+      },
+      {
+        "asset": "624-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-07.png",
+        "sha256": "41b544eb0b95b2e8583c1dcaf5c95618a63be0ea734934ec5148fd2a53b234dc"
+      },
+      {
+        "asset": "624-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-08.png",
+        "sha256": "d98c8c6335f0f215dfce29f6ff01e15dbd713eb253a85f2344f3e3b6a92c64bc"
+      },
+      {
+        "asset": "624-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-09.png",
+        "sha256": "7d42d64083a9a58c37c85cb05ae1566dc49fa52d82766d2cd0387cf1da2b6551"
+      },
+      {
+        "asset": "624-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/624/card-10.png",
+        "sha256": "9c4ff45dfe838dc6546b0a8e2c37591f6ce3e9ccaa6088c6575e4c9503149d2c"
+      },
+      {
+        "asset": "596-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-00.png",
+        "sha256": "639778ff57b1d6cf2396543e1f7b86632a2d167ac65d5a402ca18cc25474025c"
+      },
+      {
+        "asset": "596-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-01.png",
+        "sha256": "2fa1a1aefe33d54665cb78953439ae1dfff08db5bf5e13524737200995faad11"
+      },
+      {
+        "asset": "596-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-02.png",
+        "sha256": "0ca1ee2fde1406e56015c32e3e7984dadf0e88988e60657aec0437ea696705c6"
+      },
+      {
+        "asset": "596-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-03.png",
+        "sha256": "d03e80301deb35cc9304e632a1ecb6b3ed52a23c784382e07ea414693495364f"
+      },
+      {
+        "asset": "596-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-04.png",
+        "sha256": "08fb369fe3de4e83b272562108f7003f1f7fa6d9d350e6e35e3b73e765e5c87d"
+      },
+      {
+        "asset": "596-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-05.png",
+        "sha256": "1daf1be1188dc2e515946b8ec99ae00c15d225d33cc725262585632611258cf7"
+      },
+      {
+        "asset": "596-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-06.png",
+        "sha256": "01e47e091d418e7055cbaa145b1dbd23a8264bb8eb0e0e64fd2c043d61bdd861"
+      },
+      {
+        "asset": "596-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-07.png",
+        "sha256": "ce27ca19f057f0a7d587a673ed5c687a6444bae5f426ed683d1a7f46622f72af"
+      },
+      {
+        "asset": "596-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-08.png",
+        "sha256": "e1137b708dcdaf96cf5bd3fc76755cda0ee438015a6a29c456c1b1da813966de"
+      },
+      {
+        "asset": "596-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-09.png",
+        "sha256": "f1ead2cd7023af5c47bae5a0d197fa75d437cbd8662459d1393851868224bd31"
+      },
+      {
+        "asset": "596-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/596/card-10.png",
+        "sha256": "b45278bbd06d314afb46216d1838f4631fff65593d12709acd591668665c7c33"
+      },
+      {
+        "asset": "563-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-00.png",
+        "sha256": "72ff6bc5d6ceb30c167fbc0609cb8d048266749f762fad7b2b884e9d9f503fdb"
+      },
+      {
+        "asset": "563-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-01.png",
+        "sha256": "46bd05dd3db122f644574cb65cf4b3ee8c23efe3f0b22ebbe26fd692fa92f38f"
+      },
+      {
+        "asset": "563-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-02.png",
+        "sha256": "a64caca6431e3fe1929e119fd445ef84d046950f9dbf8b5f507ba655db078eef"
+      },
+      {
+        "asset": "563-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-03.png",
+        "sha256": "cbb4fc57c91d39597ed28872a79150c4659a2b19d09cc8b0e8e509b58e8e6625"
+      },
+      {
+        "asset": "563-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-04.png",
+        "sha256": "51bdf92023f6bff24346d27a5a4fc5ef22f52836bcb0b733858e157a0319be5d"
+      },
+      {
+        "asset": "563-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-05.png",
+        "sha256": "e5496c48cbb021a39c352ba145e78f15a3c6ea3a9a6f558e84eb9412da7a7051"
+      },
+      {
+        "asset": "563-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-06.png",
+        "sha256": "f22fe7d84b5f3c9159c20ec9d88b3e648fcf8f39b194e1899fbe329af59e3ea4"
+      },
+      {
+        "asset": "563-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-07.png",
+        "sha256": "db7f3a31c4fb0f178ba93150daa0ab78cc836ca39c6e7db0dea60959203a2876"
+      },
+      {
+        "asset": "563-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-08.png",
+        "sha256": "55edac13ff9665da87e7f3c32bf05f126e362a77f7f08b88ce7ccc764da29739"
+      },
+      {
+        "asset": "563-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-09.png",
+        "sha256": "d9c77d5393c8800b2e0b37667bb86afa78d3cb70d022ad5ff30885bbcc036207"
+      },
+      {
+        "asset": "563-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/563/card-10.png",
+        "sha256": "fa3142c1eca646d10a1f467177dd38c6f712eaaa12a6086ac975ea1f8aa6d917"
+      },
+      {
+        "asset": "388-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-00.png",
+        "sha256": "b8d2de5971122460c230fa7505039a32e72dfc5a98bcc90bbdb1b38a538b289d"
+      },
+      {
+        "asset": "388-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-01.png",
+        "sha256": "daa5f4104e655277e24b011fa10c53875938e9ad0c3147f848ec6bd118696133"
+      },
+      {
+        "asset": "388-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-02.png",
+        "sha256": "18aca417488ae285b33495269a189ff4b4a201fee38089d74454860e697a00d3"
+      },
+      {
+        "asset": "388-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-03.png",
+        "sha256": "01974fe9706b1d839ee73d49028330b497ebcc2ba9449d5cf32fb5b1d3380464"
+      },
+      {
+        "asset": "388-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-04.png",
+        "sha256": "7af2ada28c687cef90d78da645767ace2a6308b0728997846c08a5437e6fd9c2"
+      },
+      {
+        "asset": "388-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-05.png",
+        "sha256": "d8a33991131a128c44f8381fe49395234d70a58dc8cc59eb65b78447dd7c4578"
+      },
+      {
+        "asset": "388-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-06.png",
+        "sha256": "97291d4ace2c0b954d1862a11c4e429f2dfa2d05aab24be91f9d809f40c05f3d"
+      },
+      {
+        "asset": "388-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-07.png",
+        "sha256": "aca31a6094b59b29606825245c244c1842d4ed0cf2a2a6f15c6e8ecf6c24feb2"
+      },
+      {
+        "asset": "388-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-08.png",
+        "sha256": "b27baeec1a4089d3d82898b5f9f2745cfd9be9ba576b09a7331cbc92b57db167"
+      },
+      {
+        "asset": "388-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-09.png",
+        "sha256": "e6e47c6e52ca4036e8d4e5c9c75a9e6f73b511c1ab1c1d894b68687334014d6e"
+      },
+      {
+        "asset": "388-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/388/card-10.png",
+        "sha256": "c6e466f0387e34bcb2c09f75b2f2434f380836b9ae7f479544a6c07a3357ee67"
+      },
+      {
+        "asset": "387-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-00.png",
+        "sha256": "87be22738cb49f43844fa10ebed7d8f433c1218e52628607bfc0455ea39d03c9"
+      },
+      {
+        "asset": "387-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-01.png",
+        "sha256": "5055878198516df848dca4baa01f869d05624de4bd3761a29fa97821cce3bffe"
+      },
+      {
+        "asset": "387-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-02.png",
+        "sha256": "c6dc7e785b247f8929d006633433f2bb703695a911e29c25960f89f46f436a65"
+      },
+      {
+        "asset": "387-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-03.png",
+        "sha256": "58e207fd8506eec0aa05128abf43ebac7c4c003c171e7e347d0326d33f1e87a3"
+      },
+      {
+        "asset": "387-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-04.png",
+        "sha256": "614ece3e2ce53622e8cb6a1b492ab5b74b09385cb89b0f1718e5bbf4269a5070"
+      },
+      {
+        "asset": "387-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-05.png",
+        "sha256": "041f153a1bf1a9ddefb794ac9a25a3c722754e98b4c50b7f0fbc1c8869e4a82a"
+      },
+      {
+        "asset": "387-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-06.png",
+        "sha256": "97896fb233a71f16d93bf73ab020c6f77f025a87f6c4c3fad4cdeb73b077c12c"
+      },
+      {
+        "asset": "387-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-07.png",
+        "sha256": "10b722651aff0ebf85cabb34bdddeafa66d7fb77f63ced2ab30cf9a765f2aa40"
+      },
+      {
+        "asset": "387-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-08.png",
+        "sha256": "f320fd50fd47a2404cd3984cb4870881ab7fb5bb7e72f9df842bdf67c03b702d"
+      },
+      {
+        "asset": "387-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-09.png",
+        "sha256": "d5ae5f111755139ca7725fad56a2eac410c3aa868a2d250eac2793918f26841f"
+      },
+      {
+        "asset": "387-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/387/card-10.png",
+        "sha256": "de1068176dd0b8cd6aacc60dd5ade24f4b85b8c497051d88dac9ff330c5fc30b"
+      },
+      {
+        "asset": "389-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-00.png",
+        "sha256": "71b97fb81fb5c349f361830aba01aa31aa2f5dd4b180526d285eea6c3c068d74"
+      },
+      {
+        "asset": "389-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-01.png",
+        "sha256": "ae24922bfd7471c61bd02f5b39f60782b6d49b2d99c8b9fbd0502d5423a6d473"
+      },
+      {
+        "asset": "389-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-02.png",
+        "sha256": "950b3d3cf82dbf623311e47044f5584b7d2f755f4c882daae448c844d3515c70"
+      },
+      {
+        "asset": "389-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-03.png",
+        "sha256": "858a0bd6e37cb4048b86111c65437a8650c3600c20c86f6cefa4632f4c890ff2"
+      },
+      {
+        "asset": "389-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-04.png",
+        "sha256": "2127dd3a6cdfcb13bf001ca365b2126356301924bced18ac1953d31dd73dc7c7"
+      },
+      {
+        "asset": "389-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-05.png",
+        "sha256": "214a363cbd97e4dcc04f3b47af870d83f2d7e40a8be209cf94736a08c477aa0c"
+      },
+      {
+        "asset": "389-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-06.png",
+        "sha256": "3eadb763e91d8d079812820a14e4a0c8d6cccda75a001c9f94d3910741225c45"
+      },
+      {
+        "asset": "389-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-07.png",
+        "sha256": "24a858989b0e5f07ecfd132cd78bcd1f7e2a3a34989b17b370fe07c8d0ba45cf"
+      },
+      {
+        "asset": "389-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-08.png",
+        "sha256": "bdd2f11d5ce55bb8fb688313857fb53cfd4363f1001925352161fa6441cfcd6e"
+      },
+      {
+        "asset": "389-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-09.png",
+        "sha256": "77232f2c5aacb35b12fc7a4afd97d8be5ed78763e321c3aa3e99366f19012693"
+      },
+      {
+        "asset": "389-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/389/card-10.png",
+        "sha256": "b7b6c427f07fc082fbef14f95e7ea31ce36aa386f8015e5a335eaba66739e67c"
+      },
+      {
+        "asset": "341-card-00.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-00.png",
+        "sha256": "59238ce61a11961218798f8f2c7d8056239e3fd909f06a9080163cfb6b1a6e8b"
+      },
+      {
+        "asset": "341-card-01.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-01.png",
+        "sha256": "66f7edf4e40724a6da06545b9dafc0134bac1a2e6204c5735ec7fc5bcdb66a34"
+      },
+      {
+        "asset": "341-card-02.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-02.png",
+        "sha256": "abe404850b58022df51bbc6c6c82429834343e6f6f0fb4dac34ec82f7e45cf48"
+      },
+      {
+        "asset": "341-card-03.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-03.png",
+        "sha256": "335f2100e9ad8060af2fbe4c594e4089d085a569d6dffbc2144bc71847bd4ffa"
+      },
+      {
+        "asset": "341-card-04.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-04.png",
+        "sha256": "d3eff0666936ca7a8a19017e4da9c4a3a7f40e078fe35e617984a632bd27bff1"
+      },
+      {
+        "asset": "341-card-05.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-05.png",
+        "sha256": "ff1a8eda3ccb1c9a8b9f5bf8f41214241164fe0c4d49aab24742d34f54a2d5da"
+      },
+      {
+        "asset": "341-card-06.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-06.png",
+        "sha256": "ee7b42781c4ac4a1b856fba8769510b666af5cad4730739427bafb4be3500d22"
+      },
+      {
+        "asset": "341-card-07.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-07.png",
+        "sha256": "0d620aa34f2ebd24b406793669dfdff1d144350c3083572c8be9720dd9e59156"
+      },
+      {
+        "asset": "341-card-08.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-08.png",
+        "sha256": "713f49d64287695216199c131f07dca89a5db7349c94f286b1881a81143d08d0"
+      },
+      {
+        "asset": "341-card-09.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-09.png",
+        "sha256": "084f65c4047b7edd3563d2a74d5045579e00a3ed3e7a217bb2b0287323175833"
+      },
+      {
+        "asset": "341-card-10.png",
+        "path": "data/reddit-life-cards/2026-10-19/341/card-10.png",
+        "sha256": "b475ead71c4060215f849ba8d053747d8207909c439d49629e5d138d99760955"
+      }
+    ]
+  }
+}

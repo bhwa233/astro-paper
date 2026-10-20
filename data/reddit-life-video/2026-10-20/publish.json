@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-20",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "dd4e3db9540cbf7f3c5b39e1e367fa38d480db13222ac451488689032631f070",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "健康常识",
+        "反常识",
+        "生活妙招"
+      ],
+      "summary": "睡眠越刻意越难发生，床被大脑标记成了焦虑考场，而沙发上的被动刺激反而让人卸下防备",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "家庭关系",
+        "金钱消费",
+        "后悔清单",
+        "破防瞬间"
+      ],
+      "summary": "比起买股票发财，更多人最想做的是带亲人早筛癌症，以及承受骨肉可能不再存在的巨大心痛",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-21",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "12733251a1f4545a3692cf8445c8a44a19e40dd7ca84413ec3225404acb4ebf2",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "相比赚钱或多活三年，大部分人更想提升基础代谢、幸运暴击和感受快乐的能力",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "社会变迁",
+        "认知思维",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "许多所谓的科技升级只是为了剥夺所有权并转嫁成本，反而剥夺了老物件的稳定与纯粹",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

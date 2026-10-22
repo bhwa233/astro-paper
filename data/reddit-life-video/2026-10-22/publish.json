@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-22",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "4fd4bc09cf327d3796e8bbb1ffe18c7dff281fdfc1d755674741acd38113d25f",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "反常识"
+      ],
+      "summary": "比起直接加钱，大家更倾向于把增益押在自律复利、基础快乐或致命疾病存活率上",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "社会变迁",
+        "避坑指南",
+        "反常识",
+        "破防瞬间"
+      ],
+      "summary": "强行智能化、触控屏和订阅制剥夺了用户的控制权，反而制造了无尽的繁琐与故障",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

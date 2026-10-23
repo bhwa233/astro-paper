@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-23",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "c049e52d9d5eca92a65023e0d092499cd1251c582c4291bc611bc608aa793d73",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "反常识",
+        "健康常识",
+        "生活妙招"
+      ],
+      "summary": "越想睡越睡不着是努力悖论，大脑把床绑定成了焦虑考场，沙发反而没有压力",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "家庭关系",
+        "破防瞬间",
+        "灵魂拷问",
+        "亲身经历"
+      ],
+      "summary": "除了买股票和囤积物资，多数人最迫切的是逼亲人做早癌筛查以及珍惜已故的至亲",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

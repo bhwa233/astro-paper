@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-24",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "4a8d026ca713c43bacbe8832bf4d32fa827ec1c6307c7f9201bda830ce7bcad0",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "身心健康",
+        "灵魂拷问"
+      ],
+      "summary": "比起直接加钱，多数人更愿意加基础快乐与自律，或是用微小概率撬动人生奇迹。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "所谓的现代升级往往只是厂商为了省成本与捆绑订阅，牺牲了原本的耐用与简单。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

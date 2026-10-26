@@ -254,7 +254,9 @@ export function parseMagazineEpub(buffer: Buffer, config: MagazineConfig): Magaz
       image = { data: imageEntry.getData(), extension };
       break;
     }
-    if (config.imageDirectory && !image) {
+    // Some complete Economist articles have no illustration; broken image references
+    // still fail rather than silently dropping an image that the EPUB promises.
+    if (config.imageDirectory && extracted.imageHrefs?.length && !image) {
       throw new Error(`${config.name} EPUB article image is missing or invalid: ${extracted.originalTitle || sourceFile}`);
     }
     articles.push({ originalTitle, text: extracted.text, ...(image ? { image } : {}) });
@@ -271,7 +273,7 @@ export function writeMagazineArticleImages(config: MagazineConfig, issueDate: st
   ensureDir(issueDirectory);
   const publicPaths = new Map<number, string>();
   for (const article of parsed.articles) {
-    if (!article.image) throw new Error(`${config.name} article ${article.rank} has no image to archive`);
+    if (!article.image) continue;
     const fileName = `${String(article.rank).padStart(2, "0")}${article.image.extension}`;
     fs.writeFileSync(path.join(issueDirectory, fileName), article.image.data);
     publicPaths.set(article.rank, path.posix.join("/images/magazine", imageDirectory, issueDate, fileName));

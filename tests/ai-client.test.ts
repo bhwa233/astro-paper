@@ -147,9 +147,12 @@ test("AI client sends Gemini through its native provider and fails over to OpenA
   assert.equal(new Headers(calls[0].headers).get("x-goog-api-key"), "primary-key");
 });
 
-test("JSON generation stages retry malformed output with JSON mode and retain diagnostics", async () => {
+// 2026-10-24: New Yorker item 17 returned non-JSON with HTTP 200. Invalid
+// output must regenerate on the primary even when a fallback is configured.
+test("JSON generation stages regenerate invalid output on the primary and retain diagnostics", async () => {
   const artifactsDir = tempDir("json-stage");
   const requestBodies: Record<string, unknown>[] = [];
+  const requestUrls: string[] = [];
   let calls = 0;
   const result = await withMocks(
     {
@@ -158,11 +161,17 @@ test("JSON generation stages retry malformed output with JSON mode and retain di
         AI_BASE_URL: "https://api.example.com/v1",
         AI_MODEL: "test-model",
         AI_API_STYLE: "chat",
-        AI_FALLBACK_ENABLED: "false",
+        AI_FALLBACK_ENABLED: "true",
+        AI_FALLBACK_API_KEY: "fallback-key",
+        AI_FALLBACK_BASE_URL: "https://fallback.example.com/v1",
+        AI_FALLBACK_MODEL: "fallback-model",
+        AI_FALLBACK_API_STYLE: "chat",
+        AI_SUCCESS_CACHE_DIR: undefined,
         AI_RETRY_ATTEMPTS: "2",
         AI_RETRY_DELAY_MS: "0",
       },
-      fetch: async (_input, init) => {
+      fetch: async (input, init) => {
+        requestUrls.push(String(input));
         requestBodies.push(JSON.parse(String(init?.body || "{}")) as Record<string, unknown>);
         calls += 1;
         const content = calls === 1 ? '{"summary":"unterminated}' : '{"summary":"valid"}';
@@ -183,6 +192,7 @@ test("JSON generation stages retry malformed output with JSON mode and retain di
 
   assert.deepEqual(result, { summary: "valid" });
   assert.equal(calls, 2);
+  assert.deepEqual(requestUrls, ["https://api.example.com/v1/chat/completions", "https://api.example.com/v1/chat/completions"]);
   assert.deepEqual(
     requestBodies.map(body => body.response_format),
     [{ type: "json_object" }, { type: "json_object" }]
@@ -240,6 +250,53 @@ test("JSON stage resumes validated successes, excludes failures and invalidates 
       };
       await assert.rejects(() => generateJsonStageWithRetries(rejectedCache), /new validation rule/);
       assert.equal(calls, 4);
+    }
+  );
+});
+
+// Exhausting the JSON retry budget must fail the task, even with fallback enabled.
+test("JSON stage fails after repeated invalid output without invoking the fallback", async () => {
+  const artifactsDir = tempDir("json-failover");
+  const calls: string[] = [];
+  await withMocks(
+    {
+      env: {
+        AI_API_KEY: "primary-key",
+        AI_BASE_URL: "https://primary.example.com/v1",
+        AI_API_STYLE: "chat",
+        AI_FALLBACK_API_KEY: "fallback-key",
+        AI_FALLBACK_BASE_URL: "https://fallback.example.com/v1",
+        AI_FALLBACK_MODEL: "fallback-model",
+        AI_FALLBACK_API_STYLE: "chat",
+        AI_FALLBACK_ENABLED: "true",
+        AI_PRIMARY_RETRY_ATTEMPTS: "1",
+        AI_RETRY_ATTEMPTS: "2",
+        AI_RETRY_DELAY_MS: "0",
+        AI_SUCCESS_CACHE_DIR: undefined,
+      },
+      fetch: async input => {
+        calls.push(String(input));
+        const content = String(input).includes("primary.example.com") ? "The prompt could not be submitted." : '{"summary":"完整的中文摘要"}';
+        return new Response(JSON.stringify({ choices: [{ index: 0, message: { content } }] }), { headers: JSON_HEADERS });
+      },
+    },
+    async () => {
+      const options = {
+        task: "new-yorker-weekly",
+        stage: "New Yorker item 17",
+        artifactPrefix: "item-17-summary",
+        prompt: "Summarize the article as JSON.",
+        model: "primary-model",
+        artifactsDir,
+        parse: (content: string) => {
+          const value = JSON.parse(content) as { summary?: string };
+          if (!value.summary) throw new Error("summary required");
+          return value;
+        },
+      };
+      await assert.rejects(() => generateJsonStageWithRetries(options), /failed after 2 attempts/);
+      assert.deepEqual(calls, ["https://primary.example.com/v1/chat/completions", "https://primary.example.com/v1/chat/completions"]);
+      assert.match(fs.readFileSync(path.join(artifactsDir, "new-yorker-weekly-item-17-summary-response-attempt-1.json"), "utf8"), /The prompt/);
     }
   );
 });

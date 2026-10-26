@@ -1377,7 +1377,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     };
   } else if (isMagazineTask(task)) {
     // The issue post is a deterministic aggregation of the per-article summaries; no issue-level AI call.
-    const composed = economistWeeklyMarkdown(source, { requireImages: task === "economist-weekly" });
+    const composed = economistWeeklyMarkdown(source);
     body = composed.markdown;
     description = composed.description;
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);

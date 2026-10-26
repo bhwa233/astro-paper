@@ -8,7 +8,7 @@ export type EconomistArticleSummary = {
   contentSummary: string;
 };
 
-export function parseEconomistArticleSummaries(source: string, { requireImages = false }: { requireImages?: boolean } = {}): EconomistArticleSummary[] {
+export function parseEconomistArticleSummaries(source: string): EconomistArticleSummary[] {
   const ranks = new Set<number>();
   return numberedBlocks(source).map((block, index) => {
     const rank = Number(block.match(/^##\s+(\d+)\./m)?.[1]);
@@ -20,7 +20,7 @@ export function parseEconomistArticleSummaries(source: string, { requireImages =
     if (!Number.isInteger(rank) || rank < 1 || ranks.has(rank)) throw new Error(`economist weekly article ${index + 1} has invalid or duplicate rank`);
     ranks.add(rank);
     if (!titleZh || !hasChinese(titleZh)) throw new Error(`economist weekly rank ${rank} needs a Chinese title`);
-    if (requireImages && !/^\/images\/magazine\/economist\/\d{4}-\d{2}-\d{2}\/\d{2,}\.(?:avif|gif|jpe?g|png|webp)$/.test(image)) {
+    if (image && !/^\/images\/magazine\/economist\/\d{4}-\d{2}-\d{2}\/\d{2,}\.(?:avif|gif|jpe?g|png|webp)$/.test(image)) {
       throw new Error(`economist weekly rank ${rank} needs a local article image`);
     }
     if ([corePoint, contentSummary].some(looksLowSignal)) throw new Error(`economist weekly rank ${rank} has empty or low-signal summary`);
@@ -37,11 +37,8 @@ function economistWeeklyDescription(articles: EconomistArticleSummary[]): string
 
 // The per-article summaries are already fully generated upstream; the issue post is a
 // deterministic aggregation of them — no issue-level model call, no overview/reading-route.
-export function economistWeeklyMarkdown(
-  source: string,
-  { requireImages = false }: { requireImages?: boolean } = {}
-): { markdown: string; description: string } {
-  const articles = parseEconomistArticleSummaries(source, { requireImages });
+export function economistWeeklyMarkdown(source: string): { markdown: string; description: string } {
+  const articles = parseEconomistArticleSummaries(source);
   if (articles.length < 3) throw new Error(`economist weekly source needs at least three articles, got ${articles.length}`);
   const renderedArticles = articles.map(article => {
     const lines = [`## ${article.titleZh}`, ""];

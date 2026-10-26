@@ -95,6 +95,8 @@ export async function generateJsonStageWithRetries<T>({
     await sleep(retryDelayMs(attempt, jitterMs));
     if (attempt > 1) writeAiArtifact(artifactsDir, task, `${artifactPrefix}-retry-prompt-attempt-${attempt}.md`, attemptPrompt);
     try {
+      // Validate outside provider failover: malformed output must regenerate on
+      // the primary with feedback, even when request-level fallback is enabled.
       const response = await callAi(attemptPrompt, model, true);
       writeAiArtifact(artifactsDir, task, `${artifactPrefix}-response-attempt-${attempt}.json`, response.content);
       const value = parse(response.content);

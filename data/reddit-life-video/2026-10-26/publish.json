@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-26",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "32263a37811d721c8ffb017ebff0565e9a9ee3c5c6bf449fbb020a7fb3fabf19",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "比起加薪或延寿，聪明人更倾向选绝对暴击率或基础快乐值，靠复利与内在感受改变人生。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "认知思维",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "厂商口中的升级多半是为了降低成本或捆绑订阅，牺牲了原本好用的物理交互与可靠性。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

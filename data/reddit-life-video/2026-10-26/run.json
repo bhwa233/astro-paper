@@ -1,0 +1,40 @@
+{
+  "version": 5,
+  "archiveDate": "2026-10-26",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "kind": "sparkhub",
+    "sourcePath": "data/reddit-life-video/2026-10-26/source.json",
+    "postIds": [
+      "1wszlg7",
+      "1wv02fz"
+    ],
+    "sha256": "2d19c21a5a90462667710154bdad0b2148885790917696545450eb4458a22728"
+  },
+  "model": "gemini-3.8-flash",
+  "selectionCount": 2,
+  "config": {
+    "source": "sparkhub",
+    "newspicPerDay": 2,
+    "videoPerDay": 2
+  },
+  "questionCount": 2,
+  "eligibleQuestionCount": 2,
+  "selectedQuestionIndexes": [
+    1,
+    2
+  ],
+  "titles": [
+    "人生数值提升4%怎么选收益最高",
+    "打着升级旗号却越改越难用的产品"
+  ],
+  "questions": [
+    "如果能把你人生的任意一项数值提升4%，你会选哪项？",
+    "有哪些东西本打着「升级改良」的旗号，实际用起来却远不如老版本？"
+  ],
+  "verbatimCounts": [
+    3,
+    0
+  ]
+}

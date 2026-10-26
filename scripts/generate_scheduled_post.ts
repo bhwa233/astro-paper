@@ -824,7 +824,6 @@ async function buildCombinedForumTop10Source({ source, date, repo, model, prompt
 type EconomistItemSummary = {
   rank: number;
   titleZh: string;
-  oneSentenceSummary: string;
   corePoint: string;
   contentSummary: string;
 };
@@ -835,20 +834,16 @@ export function parseMagazineItemSummary(raw: string, rank: number, label = "\u6
   const titleZh = String(payload.title_zh || "")
     .replace(/\s+/g, " ")
     .trim();
-  const oneSentenceSummary = String(payload.one_sentence_summary || "")
-    .replace(/\s+/g, " ")
-    .trim();
   const corePoint = String(payload.core_point || "")
     .replace(/\s+/g, " ")
     .trim();
   const contentSummary = normalizeMarkdownBlock(payload.content_summary);
   if (responseRank !== rank) throw new Error(`${label} item summary rank mismatch: ${responseRank} vs ${rank}`);
   if (!titleZh || !/[\u3400-\u9fff]/.test(titleZh)) throw new Error(`${label} item ${rank} needs a Chinese title`);
-  if (![oneSentenceSummary, corePoint, contentSummary].every(Boolean)) throw new Error(`${label} item ${rank} summary fields must not be empty`);
-  if (![oneSentenceSummary, corePoint, contentSummary].every(value => /[\u3400-\u9fff]/.test(value)))
-    throw new Error(`${label} item ${rank} summary must be Chinese`);
+  if (![corePoint, contentSummary].every(Boolean)) throw new Error(`${label} item ${rank} summary fields must not be empty`);
+  if (![corePoint, contentSummary].every(value => /[\u3400-\u9fff]/.test(value))) throw new Error(`${label} item ${rank} summary must be Chinese`);
   if (/^\s{0,3}#{1,6}\s/m.test(contentSummary)) throw new Error(`${label} item ${rank} content_summary must not use Markdown headings`);
-  return { rank, titleZh, oneSentenceSummary, corePoint, contentSummary };
+  return { rank, titleZh, corePoint, contentSummary };
 }
 
 // 整期导读少一篇就不成立，因此这里不给 onExhausted：重试用尽直接抛，由上层判定整个任务失败。
@@ -914,7 +909,6 @@ async function buildCombinedMagazineSource({
       return [
         ...factLines,
         `- 中文标题：${summary.titleZh}`,
-        `- 一句话摘要：${summary.oneSentenceSummary}`,
         `- 核心观点：${summary.corePoint}`,
         // content_summary is Markdown; JSON-encode so its newlines/lists survive the single-line bullet carrier.
         `- 内容总结：${JSON.stringify(summary.contentSummary)}`,

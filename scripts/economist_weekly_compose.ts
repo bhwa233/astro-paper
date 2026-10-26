@@ -4,7 +4,6 @@ export type EconomistArticleSummary = {
   rank: number;
   titleZh: string;
   image: string;
-  oneSentenceSummary: string;
   corePoint: string;
   contentSummary: string;
 };
@@ -16,7 +15,6 @@ export function parseEconomistArticleSummaries(source: string, { requireImages =
     const bullets = extractBullets(block);
     const titleZh = bulletValue(bullets, "中文标题");
     const image = bulletValue(bullets, "图片");
-    const oneSentenceSummary = bulletValue(bullets, "一句话摘要");
     const corePoint = bulletValue(bullets, "核心观点");
     const contentSummary = decodeMarkdownBlock(bulletValue(bullets, "内容总结"));
     if (!Number.isInteger(rank) || rank < 1 || ranks.has(rank)) throw new Error(`economist weekly article ${index + 1} has invalid or duplicate rank`);
@@ -25,16 +23,16 @@ export function parseEconomistArticleSummaries(source: string, { requireImages =
     if (requireImages && !/^\/images\/magazine\/economist\/\d{4}-\d{2}-\d{2}\/\d{2,}\.(?:avif|gif|jpe?g|png|webp)$/.test(image)) {
       throw new Error(`economist weekly rank ${rank} needs a local article image`);
     }
-    if ([oneSentenceSummary, corePoint, contentSummary].some(looksLowSignal)) throw new Error(`economist weekly rank ${rank} has empty or low-signal summary`);
-    if (![oneSentenceSummary, corePoint, contentSummary].every(hasChinese)) throw new Error(`economist weekly rank ${rank} summaries must be Chinese`);
+    if ([corePoint, contentSummary].some(looksLowSignal)) throw new Error(`economist weekly rank ${rank} has empty or low-signal summary`);
+    if (![corePoint, contentSummary].every(hasChinese)) throw new Error(`economist weekly rank ${rank} summaries must be Chinese`);
     if (/^\s{0,3}#{1,6}\s/m.test(contentSummary)) throw new Error(`economist weekly rank ${rank} content_summary must not use Markdown headings`);
-    return { rank, titleZh, image, oneSentenceSummary, corePoint, contentSummary };
+    return { rank, titleZh, image, corePoint, contentSummary };
   });
 }
 
-// Derive the frontmatter description from the first article's one-sentence summary.
+// Derive the frontmatter description from the first article's core point.
 function economistWeeklyDescription(articles: EconomistArticleSummary[]): string {
-  return (articles[0]?.oneSentenceSummary || "").replace(/\s+/g, " ").trim().slice(0, 30);
+  return (articles[0]?.corePoint || "").replace(/\s+/g, " ").trim().slice(0, 30);
 }
 
 // The per-article summaries are already fully generated upstream; the issue post is a
@@ -48,7 +46,7 @@ export function economistWeeklyMarkdown(
   const renderedArticles = articles.map(article => {
     const lines = [`## ${article.titleZh}`, ""];
     if (article.image) lines.push(`![${article.titleZh.replaceAll("]", "\\]")}](${article.image})`, "");
-    lines.push("### 一句话摘要", "", article.oneSentenceSummary, "", "### 核心观点", "", article.corePoint, "", "### 内容总结", "", article.contentSummary);
+    lines.push("### 核心观点", "", article.corePoint, "", "### 内容总结", "", article.contentSummary);
     return lines.join("\n");
   });
   return { markdown: `${renderedArticles.join("\n\n")}\n`, description: economistWeeklyDescription(articles) };

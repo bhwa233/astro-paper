@@ -396,7 +396,7 @@ function formatMagazineWeekly(text: string): { markdown: string; ogImage: string
   const normalized = stripLeadingTitleHeading(normalizeMarkdown(text));
   const articles = normalized.match(/^##\s+\S.+$/gm) || [];
   if (articles.length < 3) throw new Error(`economist weekly needs at least three articles, got ${articles.length}`);
-  for (const label of ["一句话摘要", "核心观点", "内容总结"]) {
+  for (const label of ["核心观点", "内容总结"]) {
     const count = (normalized.match(new RegExp(`^###\\s+${label}\\s*$`, "gm")) || []).length;
     if (count !== articles.length) throw new Error(`economist weekly needs ${label} for every article: ${count} vs ${articles.length}`);
   }

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-27",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "4a43c070866c3cc19ba86c5d67ae81420de683af764b8691d5b361e13c48d6aa",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "健康常识",
+        "反常识"
+      ],
+      "summary": "床背负了必须睡着的表现压力与焦虑记忆，而沙发提供了毫无目标的低刺激安全感。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "家庭关系",
+        "后悔清单",
+        "破防瞬间"
+      ],
+      "summary": "除了暴富买资产，人们最想做的是挽救患病亲人，却也恐惧会永久失去现实里的孩子。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

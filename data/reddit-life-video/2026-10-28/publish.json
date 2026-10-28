@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-28",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "9f6b3fb0e5eacb6e7611e00b799d1a2d637731f8991123a37d0a659c3651379d",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "比起直接加钱，大家更倾向微调执行力与快乐值，甚至用加算规则博取绝对幸运。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "金钱消费",
+        "认知思维",
+        "避坑指南",
+        "反常识",
+        "离谱见闻"
+      ],
+      "summary": "从车机触控屏到家电强行联网，所谓升级大多牺牲了直觉与耐用性，只为厂商创收。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

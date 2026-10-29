@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-29",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "87c7fde078a4f4a7b41bc9febbde1441d8bfe587e3a128f94ecdf0a869bd8abb",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "从复利暴富到基础快乐值与真爱概率，微小数值的加成往往能撬动整个命运走向",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "强行智能化、剥夺实体按键与订阅制绑架，让许多现代升级沦为倒退的伪需求",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

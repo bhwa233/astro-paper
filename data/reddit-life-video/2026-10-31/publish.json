@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-10-31",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "ad41451984395b81d57c5019536aad8c7539bff9b7b9526d0c8dcf55e6bbae92",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "身心健康",
+        "灵魂拷问",
+        "反常识"
+      ],
+      "summary": "比起直接增加财富，多数人更想把微小增幅押在快乐底色、执行力或亲人绝境逢生的概率上。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "认知思维",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "很多所谓升级牺牲了耐用性与即时可用性，只为厂商制造订阅垄断和数据控制权。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

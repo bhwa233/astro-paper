@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-01",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "eb3f2d074841686b8eefc69853cb7977eb4d5a961e59b22cb1c0eeeacb2c66fd",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "反常识"
+      ],
+      "summary": "相比直接加钱，大家更倾向选择基础快乐、执行力或绝对幸运这种底层外挂",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "强推触控屏、强制联网订阅和砍掉实用硬件，往往是在剥夺便利逼人让步",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

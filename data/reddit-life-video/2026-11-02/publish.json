@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-02",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "7a2067196be16814a54fe1df95e34950a603479244e227b630d60c470f97cb2a",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "很多人不选财富而押在执行力、基础快乐与重大疾病存活率等难以靠金钱买到的底层指标上。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "认知思维",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "所谓升级往往以剥夺实体控制权、强制联网和订阅制为代价，反而全面劣化了日常基础体验。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

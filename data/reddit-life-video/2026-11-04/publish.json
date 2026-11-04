@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-04",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "36148f21ed48f39618fccaf00aae7901c3f1a9d5f41b666ed7e799c571f5ed11",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "比起金钱或寿命，很多人更想提高基础快乐值、自律执行力或换取4%的绝对暴击幸运",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "社会变迁",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "触控屏取代物理按键、家电强行联网与订阅制盛行，让现代产品的体验与耐用度大幅倒退",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

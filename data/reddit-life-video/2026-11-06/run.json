@@ -1,0 +1,40 @@
+{
+  "version": 5,
+  "archiveDate": "2026-11-06",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "kind": "sparkhub",
+    "sourcePath": "data/reddit-life-video/2026-11-06/source.json",
+    "postIds": [
+      "1xl434b",
+      "1x8padk"
+    ],
+    "sha256": "0aadeca02d59de2305566443e78290c1e2379dcd0691b12416cdfb378ac419f7"
+  },
+  "model": "gemini-3.8-flash",
+  "selectionCount": 2,
+  "config": {
+    "source": "sparkhub",
+    "newspicPerDay": 2,
+    "videoPerDay": 2
+  },
+  "questionCount": 2,
+  "eligibleQuestionCount": 2,
+  "selectedQuestionIndexes": [
+    1,
+    2
+  ],
+  "titles": [
+    "醒来回到2020元旦你会做什么",
+    "为什么在沙发秒睡进卧室反而清醒"
+  ],
+  "questions": [
+    "如果一觉醒来发现时间回到2020年1月1日，你会做什么？",
+    "为什么在沙发上看电视秒睡，躺进又黑又静的床上反而清醒了？"
+  ],
+  "verbatimCounts": [
+    4,
+    0
+  ]
+}

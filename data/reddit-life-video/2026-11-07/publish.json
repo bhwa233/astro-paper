@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-07",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "4f29ebabf2a350bd23a9ce789e017706a6cb5c29c11d1a7a0bdcc0901c9c9673",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "金钱消费",
+        "灵魂拷问"
+      ],
+      "summary": "相比直接加钱，大家更倾向把微弱增益押在暴击好运、基础代谢或亲人生存率等质变杠杆上。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "人性观察",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "强推触屏、联网与订阅制并非为了用户体验，而是厂商在剥夺所有权并转移维护成本。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

@@ -40,6 +40,14 @@
       "epubSha256": "196269d1b3a994fa5c2da9f5cdba5a2301e0d7cdb4258973d67c64f9c0e989fc",
       "archivedAt": "2026-10-03",
       "postPath": "src/content/posts/zh-cn/连线-2026-10-02.md"
+    },
+    {
+      "key": "wired:2026-11-02:dd7687426163719f0079da5964ff443071cef664476993e36a8d3e89ac9c905b",
+      "issueDate": "2026-11-02",
+      "sourceCommit": "81c261cd9f2f75f4c9bf64557e0371e7fea77f74",
+      "epubSha256": "dd7687426163719f0079da5964ff443071cef664476993e36a8d3e89ac9c905b",
+      "archivedAt": "2026-11-07",
+      "postPath": "src/content/posts/zh-cn/连线-2026-11-02.md"
     }
   ]
 }

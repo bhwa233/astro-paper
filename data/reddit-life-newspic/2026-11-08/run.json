@@ -1,0 +1,241 @@
+{
+  "version": 4,
+  "archiveDate": "2026-11-08",
+  "timeZone": "America/Los_Angeles",
+  "issueCount": 2,
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "a1dafbe7478f9f863f57b90ff3374d00113d2a32",
+    "selection": {
+      "path": "data/reddit-life-video/2026-11-08/video.json",
+      "sha256": "9768d8fd2c30453cb4376be58025f6f274a3a88b6bc7e75f1c2b960d7537dcad"
+    }
+  },
+  "rawSources": {
+    "videoSelection": {
+      "path": "data/reddit-life-newspic/2026-11-08/video.json",
+      "sha256": "9768d8fd2c30453cb4376be58025f6f274a3a88b6bc7e75f1c2b960d7537dcad"
+    }
+  },
+  "drafts": [
+    {
+      "path": "data/reddit-life-newspic/2026-11-08/01/01.md",
+      "sha256": "d7de1739e06e07d0a35915b9d2577cbbccaa2b85930ce51ecee17f60a2f7688a",
+      "issueNumber": 1,
+      "answerCount": 10,
+      "cards": [
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-00.png",
+          "sha256": "b89db95a893fb5a559b3ce8a87cdc6d5b8f414bb0ea7c67bfb264fa287b0908f"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-01.png",
+          "sha256": "5a15f89f2bade305c578d8996d9cef95f662b4763e2f6f62a17475be474f688d"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-02.png",
+          "sha256": "4f947249e753f875139569ee1c9f305f62a36a796aaa25b11ca3a4db967c3ae0"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-03.png",
+          "sha256": "841c2f2c6f152b231379e2370858d669c39c46e156cb569d9d44827a5afee443"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-04.png",
+          "sha256": "1063afbe02720ee5ed23c2538b0c3a48f299a0777e2b036a0dedcc875fa8c39d"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-05.png",
+          "sha256": "92307e594655bdfce8ffd804631b5e8209e3011288ceff26c0f3ab46b0b968fa"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-06.png",
+          "sha256": "ad8c1cf6de73ffab0e4e9f598a09c3168985e11e47b8cd13e5ff4cf5362ce8ed"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-07.png",
+          "sha256": "52a20d99144fc313d8e5a035a5cb7dff2d5a3f564c456db9b11ddf803cd66d01"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-08.png",
+          "sha256": "1fddb3eaac3a8a07cebda7721d12c9d33940aa3b3f5cb3a396838db6a6d64e5e"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-09.png",
+          "sha256": "ab6a35278972aaba31bed852d3729e826c877cbd1b3574ca0b4ac066b2a0b7c3"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/01/card-10.png",
+          "sha256": "7a9eed6ebf1072da5633ce56fa37f98acd2fba5ca0da85d9c3c980dd1a8db206"
+        }
+      ]
+    },
+    {
+      "path": "data/reddit-life-newspic/2026-11-08/02/01.md",
+      "sha256": "9460b0fc14f7fbe76edd47b5452102b12b295e5f1afc6e88b852b42b4975a6f2",
+      "issueNumber": 2,
+      "answerCount": 10,
+      "cards": [
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-00.png",
+          "sha256": "bd82914da9b52c3e1a6c897f828753752f17c4e251a53d054ebb9926fb892b58"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-01.png",
+          "sha256": "5d24e9eed122bf02700668657842276977254018a093743c0d2efa5645db796d"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-02.png",
+          "sha256": "bf09f5f268d2cdd90e9511ca9bd779bf90c037acee14542ec796fa80ba5b9a8f"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-03.png",
+          "sha256": "3d10f37ae7de7e143bf1e8a450aed58dca991511f7bb3d8a97862ee9bbedc2ea"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-04.png",
+          "sha256": "f31c07dbf8f48a2a90bf7065acc8edf9ae3fd01169dd5b1bbe3ab02c73481ac1"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-05.png",
+          "sha256": "cac778ff69f52f16ab4c38e02853232e702f46c33223ea172b1c43e47384a415"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-06.png",
+          "sha256": "c71d62bf3e06e0116a7091f1207742de1bd18da24b115d34ecaceabcbc4f479a"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-07.png",
+          "sha256": "2361b5f60b434af2679eb18194f919b809610dc4f73ff0bfbcf982c296e5d92c"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-08.png",
+          "sha256": "27ca9437d067aba52327f8ca4da17609060307758bf468e0152421f31946623e"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-09.png",
+          "sha256": "4b7cab547b5ecbe429cb73ee02ea64db0074b6e3366f0e8a670e51468a320622"
+        },
+        {
+          "path": "data/reddit-life-newspic/2026-11-08/02/card-10.png",
+          "sha256": "debb91798c5682fd82ba547821b0bb2f26a161f0a3467777e3d6a5df1057075e"
+        }
+      ]
+    }
+  ],
+  "release": {
+    "tag": "reddit-life-newspic-2026-11-08",
+    "assets": [
+      {
+        "asset": "01-card-00.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-00.png",
+        "sha256": "b89db95a893fb5a559b3ce8a87cdc6d5b8f414bb0ea7c67bfb264fa287b0908f"
+      },
+      {
+        "asset": "01-card-01.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-01.png",
+        "sha256": "5a15f89f2bade305c578d8996d9cef95f662b4763e2f6f62a17475be474f688d"
+      },
+      {
+        "asset": "01-card-02.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-02.png",
+        "sha256": "4f947249e753f875139569ee1c9f305f62a36a796aaa25b11ca3a4db967c3ae0"
+      },
+      {
+        "asset": "01-card-03.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-03.png",
+        "sha256": "841c2f2c6f152b231379e2370858d669c39c46e156cb569d9d44827a5afee443"
+      },
+      {
+        "asset": "01-card-04.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-04.png",
+        "sha256": "1063afbe02720ee5ed23c2538b0c3a48f299a0777e2b036a0dedcc875fa8c39d"
+      },
+      {
+        "asset": "01-card-05.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-05.png",
+        "sha256": "92307e594655bdfce8ffd804631b5e8209e3011288ceff26c0f3ab46b0b968fa"
+      },
+      {
+        "asset": "01-card-06.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-06.png",
+        "sha256": "ad8c1cf6de73ffab0e4e9f598a09c3168985e11e47b8cd13e5ff4cf5362ce8ed"
+      },
+      {
+        "asset": "01-card-07.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-07.png",
+        "sha256": "52a20d99144fc313d8e5a035a5cb7dff2d5a3f564c456db9b11ddf803cd66d01"
+      },
+      {
+        "asset": "01-card-08.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-08.png",
+        "sha256": "1fddb3eaac3a8a07cebda7721d12c9d33940aa3b3f5cb3a396838db6a6d64e5e"
+      },
+      {
+        "asset": "01-card-09.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-09.png",
+        "sha256": "ab6a35278972aaba31bed852d3729e826c877cbd1b3574ca0b4ac066b2a0b7c3"
+      },
+      {
+        "asset": "01-card-10.png",
+        "path": "data/reddit-life-newspic/2026-11-08/01/card-10.png",
+        "sha256": "7a9eed6ebf1072da5633ce56fa37f98acd2fba5ca0da85d9c3c980dd1a8db206"
+      },
+      {
+        "asset": "02-card-00.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-00.png",
+        "sha256": "bd82914da9b52c3e1a6c897f828753752f17c4e251a53d054ebb9926fb892b58"
+      },
+      {
+        "asset": "02-card-01.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-01.png",
+        "sha256": "5d24e9eed122bf02700668657842276977254018a093743c0d2efa5645db796d"
+      },
+      {
+        "asset": "02-card-02.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-02.png",
+        "sha256": "bf09f5f268d2cdd90e9511ca9bd779bf90c037acee14542ec796fa80ba5b9a8f"
+      },
+      {
+        "asset": "02-card-03.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-03.png",
+        "sha256": "3d10f37ae7de7e143bf1e8a450aed58dca991511f7bb3d8a97862ee9bbedc2ea"
+      },
+      {
+        "asset": "02-card-04.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-04.png",
+        "sha256": "f31c07dbf8f48a2a90bf7065acc8edf9ae3fd01169dd5b1bbe3ab02c73481ac1"
+      },
+      {
+        "asset": "02-card-05.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-05.png",
+        "sha256": "cac778ff69f52f16ab4c38e02853232e702f46c33223ea172b1c43e47384a415"
+      },
+      {
+        "asset": "02-card-06.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-06.png",
+        "sha256": "c71d62bf3e06e0116a7091f1207742de1bd18da24b115d34ecaceabcbc4f479a"
+      },
+      {
+        "asset": "02-card-07.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-07.png",
+        "sha256": "2361b5f60b434af2679eb18194f919b809610dc4f73ff0bfbcf982c296e5d92c"
+      },
+      {
+        "asset": "02-card-08.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-08.png",
+        "sha256": "27ca9437d067aba52327f8ca4da17609060307758bf468e0152421f31946623e"
+      },
+      {
+        "asset": "02-card-09.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-09.png",
+        "sha256": "4b7cab547b5ecbe429cb73ee02ea64db0074b6e3366f0e8a670e51468a320622"
+      },
+      {
+        "asset": "02-card-10.png",
+        "path": "data/reddit-life-newspic/2026-11-08/02/card-10.png",
+        "sha256": "debb91798c5682fd82ba547821b0bb2f26a161f0a3467777e3d6a5df1057075e"
+      }
+    ]
+  }
+}

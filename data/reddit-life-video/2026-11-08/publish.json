@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-08",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "9768d8fd2c30453cb4376be58025f6f274a3a88b6bc7e75f1c2b960d7537dcad",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "比起直接增加财富，多数人更倾向提升绝对幸运、基础代谢或给健康加一层安全网。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "人性观察",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "所谓的智能化往往只是厂商转嫁成本与兜售订阅的手段，反而把原本极简可靠的体验彻底毁掉。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

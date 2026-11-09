@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-09",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "6b12aaa3bdc03ab8e0c7c374d8ea038f5bdd5bf35770a3ce7a549393890aa045",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "相比于直接加钱，大家更倾向微调基础代谢、执行力或幸福感等底层属性来撬动人生",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "强行联网、触控化和订阅制剥夺了物理交互的掌控感，反而把简单耐用搞成了复杂累赘",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

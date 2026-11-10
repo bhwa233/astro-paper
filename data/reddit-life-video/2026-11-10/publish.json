@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-10",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "e3016476950ee8da87b06caec439b1856d144a789405f9db4c7d37755ba944af",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "冷知识",
+        "反常识",
+        "意想不到"
+      ],
+      "summary": "露齿微笑与捶胸会被猛兽视作挑衅，而弱小奔跑的举动会直接激活捕杀本能。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "身心健康",
+        "认知思维",
+        "人性观察",
+        "年轻人困境",
+        "中年人生"
+      ],
+      "summary": "潜力不再被社会包容，你必须全权接盘自己的生活，并接受许多难题根本无法圆满。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

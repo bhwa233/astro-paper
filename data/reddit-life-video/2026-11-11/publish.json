@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-11",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "d52d0dff1551fca60109e4128a2d3e7373d051428d8164c5b40f950e3fd54809",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "灵魂拷问",
+        "反常识"
+      ],
+      "summary": "比起直接加钱，大家更倾向选择执行力、基础快乐值或每天碰见真爱的概率。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "许多升级本质上是厂商为了转嫁成本和推销订阅，反而剥夺了消费者的控制权与便利。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

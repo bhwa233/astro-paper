@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-12",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "f8b03bc8f2f81a512f787a6ec9370b679ee0506f64f727bad4e9a859389c5874",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "人性观察",
+        "反常识"
+      ],
+      "summary": "比起微调财富或寿命，人们更倾向于强化执行力、基础快乐值或日常触发极端好运的概率",
+      "droppedTags": [
+        "脑洞大开"
+      ],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "认知思维",
+        "避坑指南",
+        "反常识",
+        "普通人故事"
+      ],
+      "summary": "打着升级旗号的电子化与订阅制，不仅没有带来便利，反而剥夺了用户的控制权与使用体验",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

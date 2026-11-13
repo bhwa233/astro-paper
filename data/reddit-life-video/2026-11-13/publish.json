@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-13",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "63fcd1cbf4646e9cb873b3ffe59981b32141d6b09ff304649283bf9cf865c730",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "社会变迁",
+        "从业者爆料",
+        "反常识",
+        "离谱见闻"
+      ],
+      "summary": "动物对人类行为有着极强的敏锐度，所谓的友好互动常是误读，无知挑衅甚至会引发猛兽的报复。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "职场生存",
+        "中年人生",
+        "年轻人困境",
+        "亲身经历"
+      ],
+      "summary": "人生进入下半场，必须剥离掉对外界的幻想，正视身体衰退、社交萎缩与一切只能靠自己的残酷现实。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

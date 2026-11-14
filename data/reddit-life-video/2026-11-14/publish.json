@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-14",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "736052a8ab070a9fae7f477444febfb0f297f4f455d5f352968ee6d35ee77972",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "人性观察",
+        "认知思维",
+        "普通人故事",
+        "反常识"
+      ],
+      "summary": "比起盲目追求财富或寿命，人们更倾向于选择那些能带来杠杆效应的执行力、好运或能够救命的关键变量。",
+      "droppedTags": [],
+      "summaryOutOfBand": true,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "人性观察",
+        "避坑指南",
+        "离谱见闻"
+      ],
+      "summary": "产品升级往往将简单直接的物理交互替换为复杂的数字软件，这种以“智能”为名的改良实际上剥夺了用户对生活本该拥有的掌控力。",
+      "droppedTags": [],
+      "summaryOutOfBand": true,
+      "problems": []
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-15",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "03301b68d089424514cca0b795e2c30b952e9f5a90c433dcd7fa6f03153a4855",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "比起虚无的财富与寿命，人们更倾向给日常幸运、情绪健康和至亲生死加关键筹码",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "技术升级反而剥夺了原本极简的操控感，把维护成本与数据订阅风险转嫁给了用户",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

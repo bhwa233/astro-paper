@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-16",
+  "model": "gemini-4-hydrogen",
+  "sourceSha": "68c9a14bf3b58e6fe9a6a1a600c4158de43751626d01f9aaea8b404b30ad878f",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "failed",
+      "tags": [],
+      "summary": "",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": [
+        "summary is 63 characters, hard limit is 60"
+      ]
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "failed",
+      "tags": [],
+      "summary": "",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": [
+        "summary is 64 characters, hard limit is 60"
+      ]
+    }
+  ]
+}

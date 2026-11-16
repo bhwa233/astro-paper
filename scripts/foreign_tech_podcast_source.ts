@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+import { primaryTarget, logAiResult } from "./ai_runtime_config.ts";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
@@ -610,27 +611,31 @@ function transcriptionProviders(): string[] {
 }
 
 function geminiApiKey(): string {
-  return process.env.GEMINI_API_KEY || process.env.PODCAST_GEMINI_API_KEY || "";
+  return primaryTarget("blog-transcription").apiKey;
 }
 
 function geminiModel(): string {
-  return process.env.PODCAST_GEMINI_MODEL || "gemini-flash-latest";
+  return primaryTarget("blog-transcription").model;
 }
 
 function geminiBaseUrl(): string {
-  return (process.env.PODCAST_GEMINI_BASE_URL || "https://generativelanguage.googleapis.com").replace(/\/+$/, "");
+  return primaryTarget("blog-transcription")
+    .baseUrl.replace(/\/+$/, "")
+    .replace(/\/v1beta$/, "");
 }
 
 export function geminiArticleBaseUrl(): string {
-  return (process.env.PODCAST_GEMINI_ARTICLE_BASE_URL || "").replace(/\/+$/, "") || geminiBaseUrl();
+  return primaryTarget("blog-article")
+    .baseUrl.replace(/\/+$/, "")
+    .replace(/\/v1beta$/, "");
 }
 
 function geminiArticleApiKey(): string {
-  return process.env.PODCAST_GEMINI_ARTICLE_API_KEY || geminiApiKey();
+  return primaryTarget("blog-article").apiKey;
 }
 
 export function geminiArticleModel(): string {
-  return process.env.PODCAST_GEMINI_ARTICLE_MODEL || geminiModel();
+  return primaryTarget("blog-article").model;
 }
 
 function runFfmpeg(args: string[], timeoutMs: number): void {
@@ -706,7 +711,7 @@ function retryableGeminiStatus(status: number): boolean {
 
 class NonRetryableGeminiError extends Error {}
 
-type GeminiResponse = { candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[]; error?: { message?: string } };
+type GeminiResponse = { modelVersion?: string; candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[]; error?: { message?: string } };
 
 /**
  * 一次 Gemini generateContent 调用加重试。转写与成文以前各抄一份同样的循环，只差标签、payload
@@ -754,6 +759,8 @@ async function geminiGenerateContent({
         throw new NonRetryableGeminiError(lastError);
       }
       const json = JSON.parse(text) as GeminiResponse;
+      const selected = primaryTarget(label.includes("article") || label.includes("成文") ? "blog-article" : "blog-transcription");
+      if (selected) logAiResult(selected, (json as GeminiResponse & { modelVersion?: string }).modelVersion);
       const output = extract(json);
       if (!output && json.error?.message) throw new NonRetryableGeminiError(json.error.message);
       return output;

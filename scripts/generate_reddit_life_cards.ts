@@ -10,7 +10,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { booleanArg, dateStringInTimeZone, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
+import { envAiConfig } from "./blog_ai_client.ts";
 import { sha256, writeJson, type ArchivedFile } from "./committed_handoff.ts";
 import { buildReleaseManifest, restoreReleaseAssets, type ReleaseManifest } from "./release_assets.ts";
 import { redditLifeNewspicCardFile } from "./reddit_life_newspic_compose.ts";
@@ -213,7 +213,7 @@ async function main(): Promise<void> {
     repo,
     date,
     target,
-    model: stringArg(args, "model") || process.env.AI_MODEL || DEFAULT_AI_MODEL,
+    model: envAiConfig().model,
     promptDir: stringArg(args, "prompt-dir") || path.join(repo, "prompts/blog"),
     artifactsDir: stringArg(args, "artifacts-dir"),
     force: booleanArg(args, "force"),

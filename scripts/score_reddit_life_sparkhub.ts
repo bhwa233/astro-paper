@@ -15,7 +15,7 @@ import {
   writeStderr,
   writeStdout,
 } from "./blog_common.ts";
-import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
+import { envAiConfig } from "./blog_ai_client.ts";
 import {
   getRedditLifeScoringCandidates,
   reportRedditLifeScores,
@@ -32,7 +32,7 @@ function args(): { date: string; model: string; artifactsDir: string } {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`invalid --date: ${date}`);
   return {
     date,
-    model: stringArg(parsed, "model") || process.env.AI_MODEL || DEFAULT_AI_MODEL,
+    model: envAiConfig().model,
     artifactsDir: stringArg(parsed, "artifacts-dir") || "",
   };
 }

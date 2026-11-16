@@ -67,6 +67,15 @@ jobs:
 
       # 与 blog-publish.yml 同一套 key：这条流水线每天都要跑一次全量 build，之前没还原
       # cacheDir，增量构建和 OG 图缓存在这里等于不存在，每次都是冷构建。
+      - name: Pin Admin AI configuration
+        id: ai-config
+        env:
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+          AI_CONFIG_REVISION: ""
+          AI_CONFIG_SCOPE: blog
+        run: node --import tsx scripts/load_ai_config.ts > /dev/null
+
       - name: "Resolve build cache day"
         id: cache-day
         run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
@@ -90,23 +99,19 @@ jobs:
       - name: Generate translations
         id: generate
         env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COMMAND_AI_API_KEY: ${{ secrets.COMMAND_AI_API_KEY }}
+          PODCAST_GEMINI_API_KEY: ${{ secrets.PODCAST_GEMINI_API_KEY }}
+          PODCAST_GOOGLE_GEMINI_API_KEY: ${{ secrets.PODCAST_GOOGLE_GEMINI_API_KEY }}
+          PODCAST_GEMINI_ARTICLE_API_KEY: ${{ secrets.PODCAST_GEMINI_ARTICLE_API_KEY }}
+          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
           INPUT_PUBLICATION: ${{ inputs.publication || 'all' }}
           INPUT_FORCE: ${{ inputs.force || false }}
           INPUT_BACKFILL: ${{ inputs.backfill || '' }}
           INPUT_TOKEN_BUDGET: ${{ inputs.token_budget || '400000' }}
           SUBSTACK_FETCH_PROXY_URL: ${{ secrets.REDDIT_SOURCE_API_URL }}
           SUBSTACK_FETCH_PROXY_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
-          AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: gemini-4-hydrogen
-          AI_API_STYLE: gemini
-          # Disabled: the codex endpoint rejects the key with HTTP 401 (无效的API Key), so the
-          # fallback only masked the primary error. Re-enable once AI_FALLBACK_API_KEY is valid.
-          AI_FALLBACK_ENABLED: "false"
-          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY || secrets.AI_API_KEY }}
-          AI_FALLBACK_BASE_URL: https://rightapi.ai/codex/v1
-          AI_FALLBACK_MODEL: gpt-5.6-luna
-          AI_FALLBACK_API_STYLE: chat
           # gemini-3.7-flash intermittently returns unparsable JSON: the same
           # Marginalian article failed twice and then published unchanged on the
           # third attempt. One retry covers that without doubling the token bill

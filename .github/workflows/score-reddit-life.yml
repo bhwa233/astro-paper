@@ -15,8 +15,8 @@ on:
         required: false
         default: false
         type: boolean
-      ai_model:
-        description: "Optional scoring model override"
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
   workflow_dispatch:
@@ -25,8 +25,8 @@ on:
         description: "Archive date in America/Los_Angeles, YYYY-MM-DD"
         required: true
         type: string
-      ai_model:
-        description: "Optional scoring model override"
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
 
@@ -42,6 +42,15 @@ jobs:
       - uses: actions/checkout@v7
       - name: Set up Node and pnpm
         uses: ./.github/actions/setup
+      - name: Pin Admin AI configuration
+        id: ai-config
+        env:
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+          AI_CONFIG_REVISION: ${{ inputs.ai_revision || '' }}
+          AI_CONFIG_SCOPE: reddit
+        run: node --import tsx scripts/load_ai_config.ts > /dev/null
+
       - name: Restore successful AI responses
         uses: actions/cache/restore@v6
         with:
@@ -56,15 +65,16 @@ jobs:
           path: reddit-life-refresh-input
       - name: Score refreshed posts only
         env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COMMAND_AI_API_KEY: ${{ secrets.COMMAND_AI_API_KEY }}
+          PODCAST_GEMINI_API_KEY: ${{ secrets.PODCAST_GEMINI_API_KEY }}
+          PODCAST_GOOGLE_GEMINI_API_KEY: ${{ secrets.PODCAST_GOOGLE_GEMINI_API_KEY }}
+          PODCAST_GEMINI_ARTICLE_API_KEY: ${{ secrets.PODCAST_GEMINI_ARTICLE_API_KEY }}
+          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
           INPUT_DATE: ${{ inputs.archive_date || '' }}
           REFRESH_ARTIFACT: ${{ inputs.refresh_artifact || '' }}
           RESUME_PENDING: ${{ inputs.resume_pending || false }}
-          INPUT_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
-          AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
-          AI_API_STYLE: gemini
-          AI_FALLBACK_ENABLED: "false"
           AI_SUCCESS_CACHE_DIR: .cache/reddit-life-ai
           AI_TIMEOUT_MS: "600000"
           REDDIT_AI_CONCURRENCY: 3
@@ -73,7 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$SPARKHUB_DASHBOARD_TOKEN"
-          args=(--model "$INPUT_MODEL" --result-file reddit-life-score-result.json --artifacts-dir reddit-life-score-artifacts)
+          args=(--result-file reddit-life-score-result.json --artifacts-dir reddit-life-score-artifacts)
           if [ "$RESUME_PENDING" = "true" ]; then
             args+=(--resume-pending)
           elif [ -n "$REFRESH_ARTIFACT" ]; then

@@ -10,8 +10,8 @@ on:
         description: "Comma-separated pool IDs (pending only; use one or two per run)."
         required: true
         type: string
-      ai_model:
-        description: "Optional reply rewrite and scoring model."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
       generate_articles:
@@ -30,18 +30,30 @@ jobs:
     timeout-minutes: 180
     outputs:
       scored: ${{ steps.score-result.outputs.scored }}
+      ai_revision: ${{ steps.ai-config.outputs.ai_revision }}
     steps:
       - uses: actions/checkout@v7
       - name: Set up Node and pnpm
         uses: ./.github/actions/setup
+      - name: Pin Admin AI configuration
+        id: ai-config
+        env:
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+          AI_CONFIG_REVISION: ${{ inputs.ai_revision || '' }}
+          AI_CONFIG_SCOPE: reddit
+        run: node --import tsx scripts/load_ai_config.ts > /dev/null
+
       - name: Refresh and score selected historical posts
         env:
-          POST_IDS: ${{ inputs.post_ids }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
-          AI_API_STYLE: gemini
-          AI_FALLBACK_ENABLED: "false"
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COMMAND_AI_API_KEY: ${{ secrets.COMMAND_AI_API_KEY }}
+          PODCAST_GEMINI_API_KEY: ${{ secrets.PODCAST_GEMINI_API_KEY }}
+          PODCAST_GOOGLE_GEMINI_API_KEY: ${{ secrets.PODCAST_GOOGLE_GEMINI_API_KEY }}
+          PODCAST_GEMINI_ARTICLE_API_KEY: ${{ secrets.PODCAST_GEMINI_ARTICLE_API_KEY }}
+          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
+          POST_IDS: ${{ inputs.post_ids }}
           AI_TIMEOUT_MS: "600000"
           REDDIT_AI_CONCURRENCY: 1
           REDDIT_SOURCE_POLL_TIMEOUT_MS: "480000"
@@ -114,5 +126,5 @@ jobs:
     uses: ./.github/workflows/publish-reddit-life-cards.yml
     with:
       force: true
-      ai_model: ${{ inputs.ai_model }}
+      ai_revision: ${{ needs.refresh.outputs.ai_revision }}
     secrets: inherit

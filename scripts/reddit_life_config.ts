@@ -31,7 +31,6 @@ export type RedditLifeConfig = {
   refresh_top_level_comment_limit: number;
   refresh_direct_reply_limit: number;
   refresh_max_comment_chars: number;
-  ai_model: string;
 };
 
 export type LoadedRedditLifeConfig = {
@@ -56,7 +55,6 @@ export const REDDIT_LIFE_DEFAULT_CONFIG: RedditLifeConfig = {
   refresh_top_level_comment_limit: 40,
   refresh_direct_reply_limit: 10,
   refresh_max_comment_chars: 40_000,
-  ai_model: "gemini-3.8-flash",
 };
 
 /** 按默认值的类型逐项取值；类型不符的字段保留默认值。 */
@@ -135,7 +133,6 @@ async function main(): Promise<void> {
         `render_video=${config.render_video}`,
         `video_per_day=${config.video_per_day}`,
         `newspic_per_day=${config.newspic_per_day}`,
-        `ai_model=${config.ai_model}`,
         "",
       ].join("\n")
     );

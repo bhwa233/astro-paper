@@ -8,7 +8,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { booleanArg, dateStringInTimeZone, ensureDir, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
+import { envAiConfig } from "./blog_ai_client.ts";
 import { selectRedditLifeVideoCards } from "./reddit_life_video_cards.ts";
 import {
   eligibleRedditLifeVideoQuestions,
@@ -78,7 +78,7 @@ async function main(): Promise<void> {
   const date = stringArg(args, "date") || dateStringInTimeZone(new Date(), SOURCE_TIME_ZONE);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`invalid --date: ${date}`);
   const force = booleanArg(args, "force");
-  const model = stringArg(args, "model") || process.env.AI_MODEL || DEFAULT_AI_MODEL;
+  const model = envAiConfig().model;
   const artifactsDir = stringArg(args, "artifacts-dir");
   // 每天几组题由 SparkHub 配置决定：图文与视频共用一次选题，组数取两者较大者。
   const { config, source: configSource } = await loadRedditLifeConfig();

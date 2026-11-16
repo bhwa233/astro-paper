@@ -35,8 +35,8 @@ on:
         required: false
         type: boolean
         default: false
-      ai_model:
-        description: "Optional AI_MODEL override. Empty = SparkHub Reddit Q&A config (other categories use gemini-4-hydrogen)."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
 
@@ -62,26 +62,24 @@ jobs:
           [[ "$value" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]
           echo "value=$value" >> "$GITHUB_OUTPUT"
 
-  # 问答链路的模型来自 SparkHub 的 Reddit 问答配置（ai_model）；手动运行填了 ai_model 输入时以输入为准。
-  # 只作用于问答这几步（publish、wechat、refresh、video），其他 Reddit 栏目不跟配置走。
-  # 读不到配置时 ai_model 输出为默认值，链路照常跑。
+  # 整条链固定同一 Admin 配置版本；配置不可用时停止。
   config:
-    name: Read Reddit Q&A config
+    name: Pin Admin AI configuration
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      ai_model: ${{ steps.read.outputs.ai_model }}
+      ai_revision: ${{ steps.read.outputs.ai_revision }}
     steps:
       - uses: actions/checkout@v7
       - name: "Set up Node and pnpm"
         uses: ./.github/actions/setup
       - name: Read config
         id: read
-        continue-on-error: true
         env:
+          AI_CONFIG_REVISION: ${{ inputs.ai_revision || '' }}
           SPARKHUB_API_URL: https://api.bhwa233.com
           SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
-        run: node --import tsx scripts/reddit_life_config.ts --github-output > /dev/null
+        run: node --import tsx scripts/load_ai_config.ts > /dev/null
 
   # 初次只抓取候选元数据；正式回答在唯一一次刷新中生成。
   candidates:
@@ -94,7 +92,7 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ github.sha }}
       upstream_workflow_run: ${{ github.run_id }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
       record_candidates_only: true
     secrets: inherit
 
@@ -102,22 +100,22 @@ jobs:
   # life 失败不该把它们一起拖下水（近 13 天 life 失败过 3 次，那几天这三篇本来是正常的）。
   ama:
     name: Publish Reddit AMA
-    needs: [archive-date, candidates]
-    if: always() && needs.archive-date.result == 'success'
+    needs: [archive-date, candidates, config]
+    if: always() && needs.archive-date.result == 'success' && needs.config.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/publish-reddit-ama.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
     secrets: inherit
 
   # 2026-09-26 暂停市场与价值投资栏目，只保留 publish-reddit-markets.yml 的手动派发；恢复时改回
-  # always() && needs.archive-date.result == 'success'。跳过的 job 仍会等 ama 结束，discussions 的排队顺序不变。
+  # always() && needs.archive-date.result == 'success' && needs.config.result == 'success'。跳过的 job 仍会等 ama 结束，discussions 的排队顺序不变。
   markets:
     name: Publish Reddit Markets
-    needs: [archive-date, ama]
+    needs: [archive-date, ama, config]
     if: ${{ false }}
     permissions:
       contents: write
@@ -125,20 +123,20 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
     secrets: inherit
 
   discussions:
     name: Publish Reddit Life Discussions
-    needs: [archive-date, markets]
-    if: always() && needs.archive-date.result == 'success'
+    needs: [archive-date, markets, config]
+    if: always() && needs.archive-date.result == 'success' && needs.config.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/publish-reddit-life-discussions.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
     secrets: inherit
 
   # 刷新这一轮全部新候选后才评分、生成文章。K 默认 100，覆盖默认每天最多 30 个新候选。
@@ -153,7 +151,7 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.candidates.outputs.generated_sha }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
     secrets: inherit
 
   # 每次刷新可能跨多个归档日；补齐所有已接受回答的缺失评分，也恢复之前中断的运行。
@@ -166,7 +164,7 @@ jobs:
     uses: ./.github/workflows/score-reddit-life.yml
     with:
       resume_pending: true
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
     secrets: inherit
 
   # 复用已接受的评分，只生成当天文章；历史日期只评分，不重建历史文章。
@@ -181,7 +179,7 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.refresh.outputs.generated_sha || needs.candidates.outputs.generated_sha }}
       upstream_workflow_run: ${{ github.run_id }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
       force_rebuild: ${{ inputs.force || false }}
       skip_scoring: true
     secrets: inherit
@@ -198,13 +196,13 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.wechat.outputs.generated_sha }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
     secrets: inherit
 
   # 视频跳过选卡时不产出 generated_sha，图文没有可读的 video.json，据此跳过。
   newspic:
     name: Publish Reddit Life Image Message
-    needs: [archive-date, video]
+    needs: [archive-date, video, config]
     if: always() && needs.video.result == 'success' && needs.video.outputs.generated_sha != ''
     permissions:
       contents: write
@@ -226,20 +224,20 @@ jobs:
     uses: ./.github/workflows/publish-reddit-life-cards.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
     secrets: inherit
 
   # 排在链尾，微信草稿、视频、图文的产出时刻不受这个栏目影响。needs 只用来排队，
   # 而 newspic 会因视频跳过选卡而不产出，所以只看 archive-date 的结果。
   ask:
     name: Publish Reddit Ask
-    needs: [archive-date, newspic]
-    if: always() && needs.archive-date.result == 'success'
+    needs: [archive-date, newspic, config]
+    if: always() && needs.archive-date.result == 'success' && needs.config.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/publish-reddit-ask.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
+      ai_revision: ${{ needs.config.outputs.ai_revision }}
     secrets: inherit

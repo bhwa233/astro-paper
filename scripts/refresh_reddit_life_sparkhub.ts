@@ -16,7 +16,7 @@ import { writeJson } from "./committed_handoff.ts";
 import { dateStringInTimeZone, envPositiveInt, mapWithConcurrency, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { readPromptTemplate } from "./ai_blog_writer.ts";
 import { generateJsonStageWithRetries } from "./ai_json_stage.ts";
-import { DEFAULT_AI_MODEL } from "./blog_ai_client.ts";
+import { envAiConfig } from "./blog_ai_client.ts";
 import { type RedditEvidenceComment, type RedditPostEvidence, REDDIT_TRENDING_MAX_DETAIL_POSTS, fetchRedditPostDetail } from "./reddit_trending_api.ts";
 import { parseRedditItemOutcome, redditCategoryByKey } from "./reddit_top20_compose.ts";
 import { loadRedditLifeConfig } from "./reddit_life_config.ts";
@@ -124,7 +124,7 @@ async function main(): Promise<void> {
   const args = parseArgs();
   const date = stringArg(args, "date") || dateStringInTimeZone(new Date(), SOURCE_TIME_ZONE);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`invalid --date: ${date}`);
-  const model = stringArg(args, "model") || process.env.AI_MODEL || DEFAULT_AI_MODEL;
+  const model = envAiConfig().model;
   const artifactsDir = stringArg(args, "artifacts-dir");
   if (!sparkhubEndpoint()) throw new Error("SPARKHUB_API_URL and SPARKHUB_DASHBOARD_TOKEN are required");
 

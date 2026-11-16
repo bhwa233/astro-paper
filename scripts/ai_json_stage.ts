@@ -18,7 +18,7 @@ export function writeAiArtifact(artifactsDir: string, task: string, name: string
 export async function callAi(prompt: string, model: string, jsonMode = false): Promise<AiCallResult> {
   const result = await callBlogAiWithFailover({
     prompt,
-    primaryConfig: envAiConfig({ model }),
+    primaryConfig: envAiConfig(),
     fallbackConfig: envFallbackAiConfig(),
     jsonMode,
   });
@@ -72,10 +72,12 @@ export async function generateJsonStageWithRetries<T>({
   // cached. Substack's translation cache has a different article contract; no new
   // cache dependency is needed for these small, immutable JSON responses.
   const cacheDir = process.env.AI_SUCCESS_CACHE_DIR?.trim();
-  const primary = envAiConfig({ model });
+  const primary = envAiConfig();
   const fallback = envFallbackAiConfig();
   const cacheKey = createHash("sha256")
-    .update(JSON.stringify([1, task, primary.baseUrl, primary.model, primary.apiStyle, fallback.baseUrl, fallback.model, fallback.apiStyle, prompt]))
+    .update(
+      JSON.stringify([2, primary.revision, task, primary.baseUrl, primary.model, primary.apiStyle, fallback.baseUrl, fallback.model, fallback.apiStyle, prompt])
+    )
     .digest("hex");
   const cacheFile = cacheDir ? path.join(cacheDir, `${cacheKey}.json`) : "";
   if (cacheFile && fs.existsSync(cacheFile)) {

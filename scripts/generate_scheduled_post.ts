@@ -97,6 +97,7 @@ export type ResultItem = ReturnType<typeof archivePost> & {
   error?: string;
   generation?: {
     ai_model: string;
+    ai_revision?: number;
     ai_base_url: string;
     ai_fallback_used: boolean;
     source_artifact: string;
@@ -1100,7 +1101,7 @@ async function renderWithAi({
   const rendered = mockFile
     ? {
         ...contentToMarkdown(fs.readFileSync(mockFile, "utf8"), source, task),
-        ai: { content: "", config: envAiConfig({ model }), usedFallback: false },
+        ai: { content: "", config: { model: "mock", baseUrl: "", apiKey: "", revision: undefined }, usedFallback: false },
       }
     : await renderLiveAiMarkdownWithSourceValidation(prompt, model, task, date, artifactsDir, source, artifactKey);
   const responseArtifact = writeArtifact(artifactsDir, artifactKey, "ai-response.md", rendered.markdown);
@@ -1109,6 +1110,7 @@ async function renderWithAi({
     description: rendered.description,
     metadata: {
       ai_model: rendered.ai.config.model,
+      ai_revision: rendered.ai.config.revision,
       ai_base_url: rendered.ai.config.baseUrl,
       ai_fallback_used: rendered.ai.usedFallback,
       source_artifact: sourceArtifact,
@@ -1312,7 +1314,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   if (task === "reddit-top20" && useAi) {
     if (!redditCategory) throw new Error("reddit-top20 requires a Reddit category");
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
-    const itemConfig = envAiConfig({ model });
+    const itemConfig = envAiConfig();
     const article = redditCategoryArticleFromSource(source, redditCategory);
     if (!article) return [skippedLowQuality(task, date, `Reddit ${redditCategory.key} source has no publishable posts`)];
     // 初次爬取时间：reddit-life 素材池从 upstream-life.md 的 frontmatter 读它，和评论刷新的二次爬取时间对照。
@@ -1330,6 +1332,7 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     });
     result.generation = {
       ai_model: itemConfig.model,
+      ai_revision: itemConfig.revision,
       ai_base_url: itemConfig.baseUrl,
       ai_fallback_used: false,
       source_artifact: sourceArtifact,
@@ -1340,9 +1343,10 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     // 逐帖标题翻译已在 source combine 阶段完成；这里仅由规则层恢复榜单事实并组装文章。
     body = redditTrendingMarkdownFromTitleTranslations(source);
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
-    const itemConfig = envAiConfig({ model });
+    const itemConfig = envAiConfig();
     generation = {
       ai_model: itemConfig.model,
+      ai_revision: itemConfig.revision,
       ai_base_url: itemConfig.baseUrl,
       ai_fallback_used: false,
       source_artifact: sourceArtifact,
@@ -1356,9 +1360,10 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     wechatTitle = article.wechatTitle;
     description = article.wechatDescription;
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
-    const itemConfig = envAiConfig({ model });
+    const itemConfig = envAiConfig();
     generation = {
       ai_model: itemConfig.model,
+      ai_revision: itemConfig.revision,
       ai_base_url: itemConfig.baseUrl,
       ai_fallback_used: false,
       source_artifact: sourceArtifact,
@@ -1367,9 +1372,10 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
   } else if (task === "forum-top10" && useAi) {
     body = forumTop10MarkdownFromSummaries(source);
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
-    const itemConfig = envAiConfig({ model });
+    const itemConfig = envAiConfig();
     generation = {
       ai_model: itemConfig.model,
+      ai_revision: itemConfig.revision,
       ai_base_url: itemConfig.baseUrl,
       ai_fallback_used: false,
       source_artifact: sourceArtifact,
@@ -1381,9 +1387,10 @@ async function generateTask(options: GenerateTaskOptions): Promise<ResultItem[]>
     body = composed.markdown;
     description = composed.description;
     const sourceArtifact = writeArtifact(artifactsDir, task, "source.md", source);
-    const itemConfig = envAiConfig({ model });
+    const itemConfig = envAiConfig();
     generation = {
       ai_model: itemConfig.model,
+      ai_revision: itemConfig.revision,
       ai_base_url: itemConfig.baseUrl,
       ai_fallback_used: false,
       source_artifact: sourceArtifact,

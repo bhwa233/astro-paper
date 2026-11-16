@@ -64,8 +64,8 @@ on:
         required: false
         type: boolean
         default: false
-      ai_model:
-        description: "Optional AI_MODEL override. Empty = gemini-4-hydrogen."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
 
@@ -89,7 +89,7 @@ jobs:
       # 手动派发没有 cron；生成器会按 task 在 SCHEDULED_TASK_INPUTS 里反查时区与日期偏移。
       event_schedule: ${{ github.event.schedule || '' }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || '' }}
+      ai_revision: ${{ inputs.ai_revision || '' }}
       sync_wechat: ${{ inputs.task == 'nyt-books-weekly' || github.event.schedule == '47 2 * * 0' }}
     secrets: inherit
 

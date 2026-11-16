@@ -20,8 +20,8 @@ on:
         required: false
         default: 20
         type: number
-      ai_model:
-        description: "Answer and title selection model. Empty = gemini-4-hydrogen."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
       force:
@@ -40,8 +40,8 @@ on:
         required: false
         default: 20
         type: number
-      ai_model:
-        description: "Answer and title selection model. Empty = gemini-4-hydrogen."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
       force:
@@ -68,6 +68,15 @@ jobs:
         uses: ./.github/actions/setup
         with:
           filter: "./**"
+      - name: Pin Admin AI configuration
+        id: ai-config
+        env:
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+          AI_CONFIG_REVISION: ${{ inputs.ai_revision || '' }}
+          AI_CONFIG_SCOPE: reddit
+        run: node --import tsx scripts/load_ai_config.ts > /dev/null
+
       - name: Restore successful AI responses
         uses: actions/cache/restore@v6
         with:
@@ -110,14 +119,16 @@ jobs:
       - name: Generate cards
         id: generate
         env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COMMAND_AI_API_KEY: ${{ secrets.COMMAND_AI_API_KEY }}
+          PODCAST_GEMINI_API_KEY: ${{ secrets.PODCAST_GEMINI_API_KEY }}
+          PODCAST_GOOGLE_GEMINI_API_KEY: ${{ secrets.PODCAST_GOOGLE_GEMINI_API_KEY }}
+          PODCAST_GEMINI_ARTICLE_API_KEY: ${{ secrets.PODCAST_GEMINI_ARTICLE_API_KEY }}
+          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
           ARCHIVE_DATE: ${{ steps.archive-date.outputs.date }}
           TARGET: ${{ inputs.target || 20 }}
           INPUT_FORCE: ${{ inputs.force || false }}
-          AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
-          AI_API_STYLE: gemini
-          AI_FALLBACK_ENABLED: "false"
           AI_SUCCESS_CACHE_DIR: .cache/reddit-life-ai
           AI_TIMEOUT_MS: "600000"
           GH_TOKEN: ${{ github.token }}

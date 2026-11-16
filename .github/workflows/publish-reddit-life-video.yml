@@ -28,8 +28,8 @@ on:
         required: false
         default: false
         type: boolean
-      ai_model:
-        description: "Question, answer and title selection model. Empty = gemini-4-hydrogen."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
   # 手动入口：对着某个已归档提交补跑一次选卡与渲染，不必等父工作流的下一次定时执行。
@@ -48,8 +48,8 @@ on:
         required: false
         default: false
         type: boolean
-      ai_model:
-        description: "Question, answer and title selection model. Empty = gemini-4-hydrogen."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
 
@@ -81,6 +81,15 @@ jobs:
         with:
           # 根包提供选卡脚本，video 包提供 Remotion。这条链路两个都要。
           filter: "./**"
+
+      - name: Pin Admin AI configuration
+        id: ai-config
+        env:
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+          AI_CONFIG_REVISION: ${{ inputs.ai_revision || '' }}
+          AI_CONFIG_SCOPE: reddit
+        run: node --import tsx scripts/load_ai_config.ts > /dev/null
 
       - name: Resolve archive date
         id: date
@@ -125,13 +134,15 @@ jobs:
       - name: Select cards
         id: select
         env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COMMAND_AI_API_KEY: ${{ secrets.COMMAND_AI_API_KEY }}
+          PODCAST_GEMINI_API_KEY: ${{ secrets.PODCAST_GEMINI_API_KEY }}
+          PODCAST_GOOGLE_GEMINI_API_KEY: ${{ secrets.PODCAST_GOOGLE_GEMINI_API_KEY }}
+          PODCAST_GEMINI_ARTICLE_API_KEY: ${{ secrets.PODCAST_GEMINI_ARTICLE_API_KEY }}
+          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
           ARCHIVE_DATE: ${{ steps.date.outputs.value }}
           INPUT_FORCE: ${{ inputs.force || false }}
-          AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
-          AI_API_STYLE: gemini
-          AI_FALLBACK_ENABLED: "false"
           AI_TIMEOUT_MS: "600000"
           # 选题只从 SparkHub 素材池领取已刷新、已评分的候选；不可用时让任务失败，不能绕过流程。
           SPARKHUB_API_URL: https://api.bhwa233.com

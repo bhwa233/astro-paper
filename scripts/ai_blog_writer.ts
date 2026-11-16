@@ -2,15 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { avoidCloudflareEmailObfuscation, parseArgs, readStdin, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
-import {
-  DEFAULT_AI_BASE_URL,
-  DEFAULT_AI_MODEL,
-  DEFAULT_MAX_TOKENS,
-  callBlogAiWithFailover,
-  chatCompletionsUrl,
-  envAiConfig,
-  envFallbackAiConfig,
-} from "./blog_ai_client.ts";
+import { DEFAULT_MAX_TOKENS, callBlogAiWithFailover, chatCompletionsUrl, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
 
 export { chatCompletionsUrl };
 
@@ -90,11 +82,7 @@ export async function main(): Promise<void> {
   if (!mockFile) {
     const result = await callBlogAiWithFailover({
       prompt,
-      primaryConfig: envAiConfig({
-        apiKey: stringArg(args, "api-key", process.env.AI_API_KEY || ""),
-        baseUrl: stringArg(args, "base-url", process.env.AI_BASE_URL || DEFAULT_AI_BASE_URL),
-        model: stringArg(args, "model", process.env.AI_MODEL || DEFAULT_AI_MODEL),
-      }),
+      primaryConfig: envAiConfig(),
       fallbackConfig: envFallbackAiConfig(),
       timeoutMs: Number(stringArg(args, "timeout", "120")) * 1000,
       maxTokens: Number(stringArg(args, "max-tokens", String(DEFAULT_MAX_TOKENS))),

@@ -1,12 +1,9 @@
+import { configuredTarget, primaryTarget, logAiResult } from "./ai_runtime_config.ts";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { APICallError, generateText, NoObjectGeneratedError, Output } from "ai";
-import { clipText, envBool, envPositiveInt, envPositiveNumber, sleep, writeStderr } from "./blog_common.ts";
+import { clipText, envPositiveInt, envPositiveNumber, sleep, writeStderr } from "./blog_common.ts";
 
-export const DEFAULT_AI_BASE_URL = "https://rightapi.ai/codex/v1";
-export const DEFAULT_AI_MODEL = "gpt-5.6-luna";
-export const DEFAULT_FALLBACK_AI_BASE_URL = "https://api.deepseek.com";
-export const DEFAULT_FALLBACK_AI_MODEL = "deepseek-v4-flash";
 // 推理 token 也算在输出上限里，推理型模型很容易在几千 token 处被截断成半截 JSON。
 // 这个默认值只是防跑飞的护栏，不是配额。
 export const DEFAULT_MAX_TOKENS = 64_000;
@@ -23,6 +20,9 @@ export type AiConfig = {
   baseUrl: string;
   model: string;
   apiStyle?: AiApiStyle;
+  revision?: number;
+  scope?: string;
+  provider?: string;
 };
 
 const SYSTEM_PROMPT_JSON = "你是严格的中文技术编辑。只输出一个合法 JSON 对象，不要输出解释、Markdown、前后缀或代码围栏。";
@@ -94,11 +94,6 @@ function cooldownDelayMs(retryIndex: number, retryAfterMs: number): number {
 // an unbudgeted per-task wait would multiply across the run.
 let cooldownWaitedMs = 0;
 
-function envApiStyle(name: string, fallback: AiApiStyle): AiApiStyle {
-  const value = (process.env[name] || "").trim().toLowerCase();
-  return value === "responses" || value === "chat" || value === "gemini" ? value : fallback;
-}
-
 export function chatCompletionsUrl(baseUrl: string): string {
   const cleaned = baseUrl.replace(/\/+$/, "");
   return cleaned.endsWith("/chat/completions") ? cleaned : `${cleaned}/chat/completions`;
@@ -135,6 +130,9 @@ async function callBlogAiOnce({
   timeoutMs = envPositiveNumber("AI_TIMEOUT_MS", 120_000),
   maxTokens = envMaxTokens(),
   jsonMode = false,
+  revision,
+  scope,
+  provider,
 }: {
   prompt: string;
   apiKey: string;
@@ -144,6 +142,9 @@ async function callBlogAiOnce({
   timeoutMs?: number;
   maxTokens?: number | null;
   jsonMode?: boolean;
+  revision?: number;
+  scope?: string;
+  provider?: string;
 }): Promise<{ content: string; usage?: AiCallResult["usage"]; finishReason?: string }> {
   if (!apiKey) throw new Error("AI_API_KEY is required for live AI blog generation");
   if (!baseUrl) throw new Error("AI_BASE_URL is required for live AI blog generation");
@@ -173,6 +174,7 @@ async function callBlogAiOnce({
       outputTokens: result.usage.outputTokens,
       totalTokens: result.usage.totalTokens,
     };
+    logAiResult({ model, revision, scope, provider }, result.response.modelId);
     return { content: result.text, usage, finishReason: result.finishReason };
   } catch (error) {
     if (error instanceof Error && (error.name === "AbortError" || error.message === "This operation was aborted")) {
@@ -199,38 +201,12 @@ async function callBlogAiOnce({
   }
 }
 
-export function envAiConfig({
-  model = "",
-  baseUrl = "",
-  apiKey = "",
-}: {
-  model?: string;
-  baseUrl?: string;
-  apiKey?: string;
-} = {}): AiConfig {
-  return {
-    apiKey: apiKey || process.env.AI_API_KEY || "",
-    baseUrl: baseUrl || process.env.AI_BASE_URL || DEFAULT_AI_BASE_URL,
-    model: model || process.env.AI_MODEL || DEFAULT_AI_MODEL,
-    apiStyle: envApiStyle("AI_API_STYLE", "responses"),
-  };
+export function envAiConfig(): AiConfig {
+  return primaryTarget();
 }
 
-export function envFallbackAiConfig({
-  model = "",
-  baseUrl = "",
-  apiKey = "",
-}: {
-  model?: string;
-  baseUrl?: string;
-  apiKey?: string;
-} = {}): AiConfig {
-  return {
-    apiKey: apiKey || process.env.AI_FALLBACK_API_KEY || "",
-    baseUrl: baseUrl || process.env.AI_FALLBACK_BASE_URL || DEFAULT_FALLBACK_AI_BASE_URL,
-    model: model || process.env.AI_FALLBACK_MODEL || DEFAULT_FALLBACK_AI_MODEL,
-    apiStyle: envApiStyle("AI_FALLBACK_API_STYLE", "chat"),
-  };
+export function envFallbackAiConfig(): AiConfig {
+  return configuredTarget(undefined, true) ?? { apiKey: "", baseUrl: "", model: "" };
 }
 
 function sameAiTarget(left: AiConfig, right: AiConfig): boolean {
@@ -330,7 +306,7 @@ export async function callBlogAiWithFailover({
   // Fallback is opt-in and off by default, so local runs fail loudly instead of silently switching
   // models. Publish workflows set AI_FALLBACK_ENABLED=true: a cooldown longer than the retry budget
   // should still produce a post, and the switch is reported (WARN log + ai_fallback_used).
-  if (!(fallbackEnabled ?? envBool("AI_FALLBACK_ENABLED", false))) {
+  if (!(fallbackEnabled ?? Boolean(fallbackConfig.model))) {
     throw new Error(primaryError || primaryConfigError || "primary AI request failed");
   }
   if (fallbackConfigError) {

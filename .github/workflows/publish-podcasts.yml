@@ -24,8 +24,8 @@ on:
         required: false
         type: boolean
         default: false
-      ai_model:
-        description: "Optional AI_MODEL override. Empty = gemini-4-hydrogen."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
       podcast_max_episodes:
@@ -44,7 +44,7 @@ jobs:
       date: ${{ inputs.date || '' }}
       event_schedule: ${{ github.event.schedule || '' }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || '' }}
+      ai_revision: ${{ inputs.ai_revision || '' }}
       podcast_max_episodes: ${{ inputs.podcast_max_episodes || '10' }}
       install_ffmpeg: true
     secrets: inherit

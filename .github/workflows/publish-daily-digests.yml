@@ -15,8 +15,8 @@ on:
         required: false
         type: boolean
         default: false
-      ai_model:
-        description: "Optional AI_MODEL override. Empty = gemini-4-hydrogen."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
 
@@ -31,6 +31,6 @@ jobs:
       date: ${{ inputs.date || '' }}
       event_schedule: ${{ github.event.schedule || '30 0 * * *' }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || '' }}
+      ai_revision: ${{ inputs.ai_revision || '' }}
       sync_wechat: false
     secrets: inherit

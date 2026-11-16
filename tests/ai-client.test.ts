@@ -5,12 +5,26 @@ import test from "node:test";
 
 import { APICallError } from "ai";
 
-import { callBlogAiWithFailover } from "../scripts/blog_ai_client.ts";
+import { callBlogAiWithFailover, envAiConfig } from "../scripts/blog_ai_client.ts";
+import { fetchAiSnapshot, runtimeSnapshot } from "../scripts/ai_runtime_config.ts";
 import { generateJsonStageWithRetries } from "../scripts/ai_json_stage.ts";
 import { tempDir, withMocks } from "./helpers/mocks.ts";
 
 const CHAT_OK = JSON.stringify({ choices: [{ index: 0, message: { content: "## 标题\n\n" + "有效正文".repeat(80) } }] });
 const JSON_HEADERS = { "Content-Type": "application/json" };
+
+function configJson(model = "test-model", baseUrl = "https://api.example.com/v1", fallback = true, revision = 1) {
+  return JSON.stringify({
+    revision,
+    config: {
+      providers: {
+        primary: { baseUrl, protocol: "chat", credential: "AI_API_KEY" },
+        backup: { baseUrl: "https://fallback.example.com/v1", protocol: "chat", credential: "AI_FALLBACK_API_KEY" },
+      },
+      bindings: { blog: { primary: { provider: "primary", model }, fallback: fallback ? { provider: "backup", model: "fallback-model" } : null } },
+    },
+  });
+}
 
 test("AI client fails over to the fallback provider only when the primary is exhausted", async () => {
   // Failover path: primary 503s, fallback answers.
@@ -42,7 +56,7 @@ test("AI client fails over to the fallback provider only when the primary is exh
   assert.match(result.content, /^## 标题/);
   assert.deepEqual(failoverCalls, ["https://primary.example.com/v1/chat/completions", "https://api.deepseek.com/chat/completions"]);
 
-  // Fallback disabled (the default): the run fails instead of silently degrading to a weaker model.
+  // Fallback explicitly disabled: the run fails instead of silently degrading to a weaker model.
   const disabledCalls: string[] = [];
   await withMocks(
     {
@@ -57,6 +71,7 @@ test("AI client fails over to the fallback provider only when the primary is exh
         () =>
           callBlogAiWithFailover({
             prompt: "hello",
+            fallbackEnabled: false,
             primaryConfig: { apiKey: "primary-key", baseUrl: "https://primary.example.com/v1", model: "primary-model", apiStyle: "chat" },
             fallbackConfig: { apiKey: "fallback-key", baseUrl: "https://api.deepseek.com", model: "deepseek-v4-flash", apiStyle: "chat" },
           }),
@@ -158,7 +173,7 @@ test("JSON generation stages regenerate invalid output on the primary and retain
     {
       env: {
         AI_API_KEY: "test-key",
-        AI_BASE_URL: "https://api.example.com/v1",
+        AI_CONFIG_JSON: configJson(),
         AI_MODEL: "test-model",
         AI_API_STYLE: "chat",
         AI_FALLBACK_ENABLED: "true",
@@ -212,7 +227,7 @@ test("JSON stage resumes validated successes, excludes failures and invalidates 
     {
       env: {
         AI_API_KEY: "test-key",
-        AI_BASE_URL: "https://api.example.com/v1",
+        AI_CONFIG_JSON: configJson("test-model", "https://api.example.com/v1", false),
         AI_API_STYLE: "chat",
         AI_FALLBACK_ENABLED: "false",
         AI_RETRY_ATTEMPTS: "1",
@@ -262,7 +277,7 @@ test("JSON stage fails after repeated invalid output without invoking the fallba
     {
       env: {
         AI_API_KEY: "primary-key",
-        AI_BASE_URL: "https://primary.example.com/v1",
+        AI_CONFIG_JSON: configJson("primary-model", "https://primary.example.com/v1"),
         AI_API_STYLE: "chat",
         AI_FALLBACK_API_KEY: "fallback-key",
         AI_FALLBACK_BASE_URL: "https://fallback.example.com/v1",
@@ -297,6 +312,38 @@ test("JSON stage fails after repeated invalid output without invoking the fallba
       await assert.rejects(() => generateJsonStageWithRetries(options), /failed after 2 attempts/);
       assert.deepEqual(calls, ["https://primary.example.com/v1/chat/completions", "https://primary.example.com/v1/chat/completions"]);
       assert.match(fs.readFileSync(path.join(artifactsDir, "new-yorker-weekly-item-17-summary-response-attempt-1.json"), "utf8"), /The prompt/);
+    }
+  );
+});
+
+test("central snapshot wins over legacy variables and refuses missing or mismatched configuration", async () => {
+  await withMocks(
+    {
+      env: {
+        AI_CONFIG_JSON: configJson("admin-model", undefined, false, 7),
+        AI_CONFIG_REVISION: "7",
+        AI_API_KEY: "runtime-key",
+        AI_MODEL: "old-model",
+        AI_BASE_URL: "https://old.invalid",
+      },
+    },
+    async () => {
+      assert.equal(envAiConfig().model, "admin-model");
+      assert.equal(envAiConfig().revision, 7);
+      assert.ok(!JSON.stringify(runtimeSnapshot()).includes("runtime-key"));
+      process.env.AI_CONFIG_REVISION = "8";
+      assert.throws(() => envAiConfig(), /revision mismatch/);
+      delete process.env.AI_CONFIG_JSON;
+      assert.throws(() => envAiConfig(), /Central AI configuration is required/);
+    }
+  );
+});
+
+test("configuration service failures never fall back to local defaults", async () => {
+  await withMocks(
+    { env: { SPARKHUB_DASHBOARD_TOKEN: "test-token", AI_CONFIG_REVISION: "7" }, fetch: async () => new Response("Unauthorized", { status: 401 }) },
+    async () => {
+      await assert.rejects(fetchAiSnapshot, /401/);
     }
   );
 });

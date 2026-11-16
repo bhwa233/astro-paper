@@ -31,8 +31,8 @@ on:
         required: false
         type: boolean
         default: false
-      ai_model:
-        description: "Optional AI model override. Empty = gemini-4-hydrogen."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
       podcast_max_episodes:
@@ -74,8 +74,8 @@ on:
         required: false
         type: boolean
         default: false
-      ai_model:
-        description: "Optional AI model override. Empty = gemini-4-hydrogen."
+      ai_revision:
+        description: "Admin AI configuration revision. Empty = latest; no model override."
         required: false
         type: string
       podcast_max_episodes:
@@ -132,6 +132,15 @@ jobs:
       # 日粒度的 key：这个仓库每天发布十几次，每次存一份 100MB+ 会很快吃满
       # 仓库 10GB 的缓存额度。命中当天已存在的 key 就不再保存，当天后续构建
       # 复用早上那份，只多渲染当天新增的几篇。
+      - name: Pin Admin AI configuration
+        id: ai-config
+        env:
+          SPARKHUB_API_URL: https://api.bhwa233.com
+          SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
+          AI_CONFIG_REVISION: ${{ inputs.ai_revision || '' }}
+          AI_CONFIG_SCOPE: ${{ inputs.task == 'reddit-top20' && 'reddit' || 'blog' }}
+        run: node --import tsx scripts/load_ai_config.ts > /dev/null
+
       - name: "Resolve build cache day"
         id: cache-day
         run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
@@ -156,24 +165,19 @@ jobs:
 
       - name: "Generate scheduled content"
         env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COMMAND_AI_API_KEY: ${{ secrets.COMMAND_AI_API_KEY }}
+          PODCAST_GEMINI_API_KEY: ${{ secrets.PODCAST_GEMINI_API_KEY }}
+          PODCAST_GOOGLE_GEMINI_API_KEY: ${{ secrets.PODCAST_GOOGLE_GEMINI_API_KEY }}
+          PODCAST_GEMINI_ARTICLE_API_KEY: ${{ secrets.PODCAST_GEMINI_ARTICLE_API_KEY }}
+          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY }}
           INPUT_TASK: ${{ inputs.task || '' }}
           INPUT_DATE: ${{ inputs.date || '' }}
           INPUT_FORCE: ${{ inputs.force || 'false' }}
           INPUT_REDDIT_CATEGORY: ${{ inputs.reddit_category || '' }}
           EVENT_SCHEDULE: ${{ inputs.event_schedule || '' }}
-          AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
-          AI_API_STYLE: gemini
-          # Disabled: the codex endpoint rejects the key with HTTP 401 (无效的API Key), so the
-          # fallback only masked the primary error. Re-enable once AI_FALLBACK_API_KEY is valid.
-          AI_FALLBACK_ENABLED: "false"
-          AI_FALLBACK_API_KEY: ${{ secrets.AI_FALLBACK_API_KEY || secrets.AI_API_KEY }}
-          AI_FALLBACK_BASE_URL: https://rightapi.ai/codex/v1
-          AI_FALLBACK_MODEL: gpt-5.6-luna
-          AI_FALLBACK_API_STYLE: chat
           REDDIT_SOURCE_POLL_TIMEOUT_MS: "1500000"
-          GEMINI_API_KEY: ${{ secrets.AI_API_KEY }}
           GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}
           MDBLIST_API_KEY: ${{ secrets.MDBLIST_API_KEY }}
           NYT_API_KEY: ${{ secrets.NYT_API_KEY }}
@@ -187,11 +191,6 @@ jobs:
           SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}
           PODCAST_TRANSCRIBE_PROVIDER: gemini
-          PODCAST_GEMINI_BASE_URL: https://rightapi.ai/gemini
-          PODCAST_GEMINI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
-          PODCAST_GEMINI_ARTICLE_BASE_URL: https://right.codes/gemini
-          PODCAST_GEMINI_ARTICLE_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
-          PODCAST_GEMINI_ARTICLE_API_KEY: ${{ secrets.PODCAST_GEMINI_ARTICLE_API_KEY }}
           PODCAST_GEMINI_SEGMENT_SECONDS: 1200
           PODCAST_GEMINI_MAX_INLINE_CHUNK_MB: 14
           PODCAST_GEMINI_ARTICLE_AUDIO_SPEED: "1.5"
@@ -222,9 +221,6 @@ jobs:
           fi
           if [ -n "$INPUT_REDDIT_CATEGORY" ]; then
             args+=(--reddit-category "$INPUT_REDDIT_CATEGORY")
-          fi
-          if [ -n "$AI_MODEL" ]; then
-            args+=(--model "$AI_MODEL")
           fi
           if [ "$INPUT_FORCE" = "true" ]; then
             args+=(--force)

@@ -25,7 +25,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI_MODEL override. Empty = repository secret/default."
+        description: "Optional AI_MODEL override. Empty = gemini-4-hydrogen."
         required: false
         type: string
       podcast_max_episodes:

@@ -36,7 +36,7 @@ on:
         type: boolean
         default: false
       ai_model:
-        description: "Optional AI_MODEL override. Empty = Gemini 3.8 Flash."
+        description: "Optional AI_MODEL override. Empty = SparkHub Reddit Q&A config (other categories use gemini-4-hydrogen)."
         required: false
         type: string
 
@@ -94,7 +94,7 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ github.sha }}
       upstream_workflow_run: ${{ github.run_id }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
       record_candidates_only: true
     secrets: inherit
 
@@ -110,7 +110,7 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
     secrets: inherit
 
   # 2026-09-26 暂停市场与价值投资栏目，只保留 publish-reddit-markets.yml 的手动派发；恢复时改回
@@ -125,7 +125,7 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
     secrets: inherit
 
   discussions:
@@ -138,7 +138,7 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
     secrets: inherit
 
   # 刷新这一轮全部新候选后才评分、生成文章。K 默认 100，覆盖默认每天最多 30 个新候选。
@@ -153,7 +153,7 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.candidates.outputs.generated_sha }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
     secrets: inherit
 
   # 每次刷新可能跨多个归档日；补齐所有已接受回答的缺失评分，也恢复之前中断的运行。
@@ -166,7 +166,7 @@ jobs:
     uses: ./.github/workflows/score-reddit-life.yml
     with:
       resume_pending: true
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
     secrets: inherit
 
   # 复用已接受的评分，只生成当天文章；历史日期只评分，不重建历史文章。
@@ -181,7 +181,7 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.refresh.outputs.generated_sha || needs.candidates.outputs.generated_sha }}
       upstream_workflow_run: ${{ github.run_id }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
       force_rebuild: ${{ inputs.force || false }}
       skip_scoring: true
     secrets: inherit
@@ -198,7 +198,7 @@ jobs:
       date: ${{ needs.archive-date.outputs.value }}
       upstream_sha: ${{ needs.wechat.outputs.generated_sha }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
     secrets: inherit
 
   # 视频跳过选卡时不产出 generated_sha，图文没有可读的 video.json，据此跳过。
@@ -226,7 +226,7 @@ jobs:
     uses: ./.github/workflows/publish-reddit-life-cards.yml
     with:
       date: ${{ needs.archive-date.outputs.value }}
-      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || needs.config.outputs.ai_model || 'gemini-4-hydrogen' }}
     secrets: inherit
 
   # 排在链尾，微信草稿、视频、图文的产出时刻不受这个栏目影响。needs 只用来排队，
@@ -241,5 +241,5 @@ jobs:
     with:
       date: ${{ needs.archive-date.outputs.value }}
       force: ${{ inputs.force || false }}
-      ai_model: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+      ai_model: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
     secrets: inherit

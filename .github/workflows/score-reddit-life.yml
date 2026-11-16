@@ -59,10 +59,10 @@ jobs:
           INPUT_DATE: ${{ inputs.archive_date || '' }}
           REFRESH_ARTIFACT: ${{ inputs.refresh_artifact || '' }}
           RESUME_PENDING: ${{ inputs.resume_pending || false }}
-          INPUT_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+          INPUT_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
           AI_SUCCESS_CACHE_DIR: .cache/reddit-life-ai

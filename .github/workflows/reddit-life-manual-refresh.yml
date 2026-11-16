@@ -39,7 +39,7 @@ jobs:
           POST_IDS: ${{ inputs.post_ids }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
           AI_TIMEOUT_MS: "600000"

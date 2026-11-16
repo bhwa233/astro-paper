@@ -25,7 +25,7 @@ on:
         required: false
         type: string
       ai_model:
-        description: "Reply rewrite model. Empty = Gemini 3.8 Flash."
+        description: "Reply rewrite model. Empty = gemini-4-hydrogen."
         required: false
         type: string
       post_ids:
@@ -40,7 +40,7 @@ on:
         required: false
         type: string
       ai_model:
-        description: "Reply rewrite model. Empty = Gemini 3.8 Flash."
+        description: "Reply rewrite model. Empty = gemini-4-hydrogen."
         required: false
         type: string
 
@@ -77,7 +77,7 @@ jobs:
           REDDIT_SOURCE_API_TOKEN: ${{ secrets.REDDIT_SOURCE_API_TOKEN }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
           AI_SUCCESS_CACHE_DIR: .cache/reddit-life-ai

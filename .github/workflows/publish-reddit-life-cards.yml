@@ -21,7 +21,7 @@ on:
         default: 20
         type: number
       ai_model:
-        description: "Answer and title selection model. Empty = Gemini 3.8 Flash."
+        description: "Answer and title selection model. Empty = gemini-4-hydrogen."
         required: false
         type: string
       force:
@@ -41,7 +41,7 @@ on:
         default: 20
         type: number
       ai_model:
-        description: "Answer and title selection model. Empty = Gemini 3.8 Flash."
+        description: "Answer and title selection model. Empty = gemini-4-hydrogen."
         required: false
         type: string
       force:
@@ -115,7 +115,7 @@ jobs:
           INPUT_FORCE: ${{ inputs.force || false }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: https://rightapi.ai/gemini
-          AI_MODEL: ${{ inputs.ai_model || 'gemini-3.8-flash' }}
+          AI_MODEL: ${{ inputs.ai_model || 'gemini-4-hydrogen' }}
           AI_API_STYLE: gemini
           AI_FALLBACK_ENABLED: "false"
           AI_SUCCESS_CACHE_DIR: .cache/reddit-life-ai

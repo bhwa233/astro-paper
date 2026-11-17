@@ -1,10 +1,10 @@
 // Reuse the existing HTTP retry helper and Zod. This module only resolves SparkHub's
 // versioned runtime contract; credentials stay in this process and never in snapshots.
 import { z } from "zod";
-import { fetchJson, writeStderr } from "./blog_common.ts";
+import { fetchJson, writeStderr, writeStdout } from "./blog_common.ts";
 
 const target = z.object({ provider: z.string().min(1), model: z.string().min(1) });
-const credentials = z.enum([
+const legacyCredentials = z.enum([
   "OPENAI_API_KEY",
   "COMMAND_AI_API_KEY",
   "PODCAST_GEMINI_API_KEY",
@@ -13,6 +13,21 @@ const credentials = z.enum([
   "PODCAST_GEMINI_ARTICLE_API_KEY",
   "AI_FALLBACK_API_KEY",
 ]);
+const managedCredential = z.string().regex(/^managed:[a-f0-9-]{36}$/);
+const credentials = z.union([legacyCredentials, managedCredential]);
+const runtimeCredentialsSchema = z.preprocess(
+  value => {
+    if (typeof value !== "string") return value;
+    try {
+      return JSON.parse(value) as unknown;
+    } catch {
+      // Native JSON errors can include snippets of the private payload.
+      return null;
+    }
+  },
+  z.object({ revision: z.number().int().positive(), credentials: z.record(managedCredential, z.string().min(1).max(8192)) }).strict()
+);
+const JOB_SCOPES = ["blog", "reddit", "blog-transcription", "blog-article"] as const;
 const snapshotSchema = z.object({
   revision: z.number().int().positive(),
   config: z.object({
@@ -44,6 +59,60 @@ export async function fetchAiSnapshot(): Promise<AiSnapshot> {
   return snapshot;
 }
 
+// Deliver only keys referenced by this pinned job. The response is private runtime
+// state, never part of the public snapshot, stdout or generation artifacts.
+export async function loadRuntimeCredentials(snapshot: AiSnapshot): Promise<void> {
+  const scopes = JOB_SCOPES.filter(scope => snapshot.config.bindings[scope]);
+  const needed = new Set(
+    scopes.flatMap(scope => {
+      const binding = snapshot.config.bindings[scope];
+      return [binding.primary, binding.fallback].flatMap(target => {
+        const name = target && snapshot.config.providers[target.provider]?.credential;
+        return name?.startsWith("managed:") ? [name] : [];
+      });
+    })
+  );
+  if (!needed.size) return;
+  const existing = process.env.AI_RUNTIME_CREDENTIALS_JSON;
+  if (existing) {
+    const parsed = runtimeCredentialsSchema.safeParse(existing);
+    if (parsed.success && parsed.data.revision === snapshot.revision && [...needed].every(name => parsed.data.credentials[name])) return;
+  }
+  const token = process.env.SPARKHUB_DASHBOARD_TOKEN;
+  if (!token) throw new Error("SPARKHUB_DASHBOARD_TOKEN is required to load saved model keys");
+  const url = new URL("/api/linkdisk/dashboard/ai/runtime/credentials", process.env.SPARKHUB_API_URL || "https://api.bhwa233.com");
+  if (url.protocol !== "https:") throw new Error("AI credentials require HTTPS");
+  let response: { success: boolean; data: unknown };
+  try {
+    response = await fetchJson(url.href, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ revision: snapshot.revision, scopes }),
+      timeoutMs: 30_000,
+      retries: 2,
+    });
+  } catch {
+    throw new Error("Saved model keys could not be loaded from Admin");
+  }
+  const parsed = runtimeCredentialsSchema.safeParse(response.data);
+  if (
+    !response.success ||
+    !parsed.success ||
+    parsed.data.revision !== snapshot.revision ||
+    [...needed].some(name => !parsed.data.credentials[name]) ||
+    Object.keys(parsed.data.credentials).some(name => !needed.has(name))
+  ) {
+    throw new Error("Invalid or incomplete saved model credentials for the pinned revision");
+  }
+  if (process.env.GITHUB_ACTIONS === "true") {
+    for (const value of Object.values(parsed.data.credentials)) {
+      // Escape workflow-command data before masking, including multiline upstream values.
+      writeStdout(`::add-mask::${value.replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A")}\n`);
+    }
+  }
+  process.env.AI_RUNTIME_CREDENTIALS_JSON = JSON.stringify(parsed.data);
+}
+
 let cached: { json: string; snapshot: AiSnapshot } | undefined;
 export function runtimeSnapshot(): AiSnapshot {
   const json = process.env.AI_CONFIG_JSON;
@@ -64,7 +133,16 @@ export function configuredTarget(scope: BlogAiScope = textAiScope(), fallback = 
   if (!selected) return null;
   const provider = snapshot.config.providers[selected.provider];
   if (!provider) throw new Error(`Missing AI provider: ${selected.provider}`);
-  const apiKey = process.env[provider.credential] || "";
+  let apiKey: string;
+  if (provider.credential.startsWith("managed:")) {
+    // Managed references never silently fall back to a legacy environment key.
+    const parsed = runtimeCredentialsSchema.safeParse(process.env.AI_RUNTIME_CREDENTIALS_JSON || "null");
+    if (!parsed.success || parsed.data.revision !== snapshot.revision)
+      throw new Error("Saved model keys are missing for this revision. Run load_ai_config.ts first.");
+    apiKey = parsed.data.credentials[provider.credential] || "";
+  } else {
+    apiKey = process.env[legacyCredentials.parse(provider.credential)] || "";
+  }
   if (!apiKey) throw new Error(`Credential ${provider.credential} is missing in this runtime`);
   const url = new URL(provider.baseUrl);
   if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) throw new Error("Invalid AI provider URL");

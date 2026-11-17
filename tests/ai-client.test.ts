@@ -6,7 +6,7 @@ import test from "node:test";
 import { APICallError } from "ai";
 
 import { callBlogAiWithFailover, envAiConfig } from "../scripts/blog_ai_client.ts";
-import { fetchAiSnapshot, runtimeSnapshot } from "../scripts/ai_runtime_config.ts";
+import { fetchAiSnapshot, runtimeSnapshot, loadRuntimeCredentials } from "../scripts/ai_runtime_config.ts";
 import { generateJsonStageWithRetries } from "../scripts/ai_json_stage.ts";
 import { tempDir, withMocks } from "./helpers/mocks.ts";
 
@@ -344,6 +344,41 @@ test("configuration service failures never fall back to local defaults", async (
     { env: { SPARKHUB_DASHBOARD_TOKEN: "test-token", AI_CONFIG_REVISION: "7" }, fetch: async () => new Response("Unauthorized", { status: 401 }) },
     async () => {
       await assert.rejects(fetchAiSnapshot, /401/);
+    }
+  );
+});
+
+test("managed keys are pinned, private, and never fall back to a task's legacy key", async () => {
+  const ref = "managed:11111111-1111-4111-8111-111111111111";
+  const config = JSON.parse(configJson("saved-model", undefined, false, 9));
+  config.config.providers.primary.credential = ref;
+  await withMocks(
+    {
+      env: {
+        AI_CONFIG_JSON: JSON.stringify(config),
+        AI_CONFIG_REVISION: "9",
+        AI_API_KEY: "wrong-legacy-key",
+        AI_RUNTIME_CREDENTIALS_JSON: "",
+        SPARKHUB_DASHBOARD_TOKEN: "test-token",
+      },
+      fetch: async (input, init) => {
+        assert.match(String(input), /\/runtime\/credentials$/);
+        assert.deepEqual(JSON.parse(String(init?.body)), { revision: 9, scopes: ["blog"] });
+        return new Response(JSON.stringify({ success: true, data: { revision: 9, credentials: { [ref]: "saved-runtime-key" } } }));
+      },
+    },
+    async () => {
+      assert.throws(() => envAiConfig(), /Saved model keys are missing/);
+      await loadRuntimeCredentials(runtimeSnapshot());
+      assert.equal(envAiConfig().apiKey, "saved-runtime-key");
+      assert.ok(!JSON.stringify(runtimeSnapshot()).includes("saved-runtime-key"));
+      process.env.AI_RUNTIME_CREDENTIALS_JSON = JSON.stringify({ revision: 8, credentials: { [ref]: "stale-key" } });
+      assert.throws(() => envAiConfig(), /Saved model keys are missing/);
+      process.env.AI_RUNTIME_CREDENTIALS_JSON = '{"secret":"never-print-this-key"';
+      assert.throws(
+        () => envAiConfig(),
+        error => error instanceof Error && !error.message.includes("never-print-this-key")
+      );
     }
   );
 });

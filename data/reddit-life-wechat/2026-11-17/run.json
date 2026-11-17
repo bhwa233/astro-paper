@@ -1,0 +1,27 @@
+{
+  "version": 6,
+  "archiveDate": "2026-11-17",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "d0f1810aaf88596432422a3217966db24595b3a2",
+    "workflowRun": "44156193753",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-11-17-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-11-17/upstream-life.md"
+  },
+  "selection": {
+    "model": "",
+    "candidateCount": 1,
+    "minScore": 60,
+    "scores": [
+      {
+        "rank": 1,
+        "score": 78,
+        "reason": "探讨殡葬空间与生死议题，具有极高的普世性和长尾价值；回答提供了多种文化下的处理方式，不局限于单一地区，且内容通俗易懂，易引发读者思考。"
+      }
+    ]
+  },
+  "posts": []
+}

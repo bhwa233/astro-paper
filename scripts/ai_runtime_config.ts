@@ -1,7 +1,7 @@
 // Reuse the existing HTTP retry helper and Zod. This module only resolves SparkHub's
 // versioned runtime contract; credentials stay in this process and never in snapshots.
 import { z } from "zod";
-import { fetchJson, writeStderr, writeStdout } from "./blog_common.ts";
+import { fetchJson, writeStderr } from "./blog_common.ts";
 
 const target = z.object({ provider: z.string().min(1), model: z.string().min(1) });
 const legacyCredentials = z.enum([
@@ -106,8 +106,9 @@ export async function loadRuntimeCredentials(snapshot: AiSnapshot): Promise<void
   }
   if (process.env.GITHUB_ACTIONS === "true") {
     for (const value of Object.values(parsed.data.credentials)) {
+      // CI redirects public snapshot stdout to /dev/null. Keep masking on stderr.
       // Escape workflow-command data before masking, including multiline upstream values.
-      writeStdout(`::add-mask::${value.replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A")}\n`);
+      writeStderr(`::add-mask::${value.replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A")}\n`);
     }
   }
   process.env.AI_RUNTIME_CREDENTIALS_JSON = JSON.stringify(parsed.data);

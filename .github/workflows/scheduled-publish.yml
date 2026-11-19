@@ -15,7 +15,6 @@ run-name: >-
   || (github.event.schedule == '34 5 * * 6' && 'new-yorker-weekly')
   || (github.event.schedule == '19 6 * * 6' && 'atlantic-monthly')
   || (github.event.schedule == '43 7 * * 6' && 'wired-monthly')
-  || (github.event.schedule == '23 16 * * *' && 'weibo-trending')
   || github.event.schedule }}
 
 permissions:
@@ -36,7 +35,8 @@ on:
     - cron: "34 5 * * 6" # new-yorker-weekly
     - cron: "19 6 * * 6" # atlantic-monthly，月刊按周轮询，账本去重
     - cron: "43 7 * * 6" # wired-monthly，同上
-    - cron: "23 16 * * *" # weibo-trending，北京次日 00:23 归档前一天完整累积榜
+    # 2026-11-19 暂停微博热搜定时发布，保留手动派发。
+    # - cron: "23 16 * * *" # weibo-trending，北京次日 00:23 归档前一天完整累积榜
   workflow_dispatch:
     inputs:
       task:
@@ -83,7 +83,6 @@ jobs:
         || (github.event.schedule == '34 5 * * 6' && 'new-yorker-weekly')
         || (github.event.schedule == '19 6 * * 6' && 'atlantic-monthly')
         || (github.event.schedule == '43 7 * * 6' && 'wired-monthly')
-        || (github.event.schedule == '23 16 * * *' && 'weibo-trending')
         || '' }}
       date: ${{ inputs.date || '' }}
       # 手动派发没有 cron；生成器会按 task 在 SCHEDULED_TASK_INPUTS 里反查时区与日期偏移。

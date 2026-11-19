@@ -168,13 +168,22 @@ async function callBlogAiOnce({
       maxRetries: 0,
       timeout: timeoutMs,
     });
-    if (!result.text.trim()) throw new Error("AI response missing message content");
     const usage = {
       inputTokens: result.usage.inputTokens,
       outputTokens: result.usage.outputTokens,
       totalTokens: result.usage.totalTokens,
     };
-    logAiResult({ model, revision, scope, provider }, result.response.modelId);
+    logAiResult(
+      { model, revision, scope, provider },
+      result.response.modelId,
+      {
+        ...usage,
+        reasoningTokens: result.usage.outputTokenDetails.reasoningTokens,
+        cachedInputTokens: result.usage.inputTokenDetails.cacheReadTokens,
+      },
+      result.text.trim() ? "completed" : "invalid_response"
+    );
+    if (!result.text.trim()) throw new Error("AI response missing message content");
     return { content: result.text, usage, finishReason: result.finishReason };
   } catch (error) {
     if (error instanceof Error && (error.name === "AbortError" || error.message === "This operation was aborted")) {
@@ -191,6 +200,18 @@ async function callBlogAiOnce({
     }
     if (error instanceof Error && /^AI response missing message content/.test(error.message)) throw error;
     if (NoObjectGeneratedError.isInstance(error)) {
+      logAiResult(
+        { model, revision, scope, provider },
+        error.response?.modelId,
+        {
+          inputTokens: error.usage?.inputTokens,
+          outputTokens: error.usage?.outputTokens,
+          totalTokens: error.usage?.totalTokens,
+          reasoningTokens: error.usage?.outputTokenDetails.reasoningTokens,
+          cachedInputTokens: error.usage?.inputTokenDetails.cacheReadTokens,
+        },
+        "invalid_response"
+      );
       // jsonMode 下 SDK 只说 "could not parse the response"，看不出是被安全策略拦下、
       // 截断在半截 JSON，还是模型直接写了散文。带上 finishReason 和原始输出才能定位。
       const finishReason = error.finishReason || "unknown";

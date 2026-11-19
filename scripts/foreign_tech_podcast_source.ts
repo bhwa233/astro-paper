@@ -711,7 +711,18 @@ function retryableGeminiStatus(status: number): boolean {
 
 class NonRetryableGeminiError extends Error {}
 
-type GeminiResponse = { modelVersion?: string; candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[]; error?: { message?: string } };
+type GeminiResponse = {
+  modelVersion?: string;
+  candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[];
+  error?: { message?: string };
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+    thoughtsTokenCount?: number;
+    totalTokenCount?: number;
+    cachedContentTokenCount?: number;
+  };
+};
 
 /**
  * 一次 Gemini generateContent 调用加重试。转写与成文以前各抄一份同样的循环，只差标签、payload
@@ -760,8 +771,23 @@ async function geminiGenerateContent({
       }
       const json = JSON.parse(text) as GeminiResponse;
       const selected = primaryTarget(label.includes("article") || label.includes("成文") ? "blog-article" : "blog-transcription");
-      if (selected) logAiResult(selected, (json as GeminiResponse & { modelVersion?: string }).modelVersion);
       const output = extract(json);
+      if (selected)
+        logAiResult(
+          selected,
+          json.modelVersion,
+          {
+            inputTokens: json.usageMetadata?.promptTokenCount,
+            outputTokens:
+              json.usageMetadata?.candidatesTokenCount === undefined
+                ? undefined
+                : json.usageMetadata.candidatesTokenCount + (json.usageMetadata.thoughtsTokenCount ?? 0),
+            totalTokens: json.usageMetadata?.totalTokenCount,
+            reasoningTokens: json.usageMetadata?.thoughtsTokenCount,
+            cachedInputTokens: json.usageMetadata?.cachedContentTokenCount,
+          },
+          output ? "completed" : "invalid_response"
+        );
       if (!output && json.error?.message) throw new NonRetryableGeminiError(json.error.message);
       return output;
     } catch (error) {

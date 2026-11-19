@@ -163,15 +163,27 @@ export function primaryTarget(scope?: BlogAiScope) {
   if (!target) throw new Error("Primary AI target is missing");
   return target;
 }
-export function logAiResult(config: { model: string; revision?: number; scope?: string; provider?: string }, returnedModel?: string) {
+export function logAiResult(
+  config: { model: string; revision?: number; scope?: string; provider?: string },
+  returnedModel?: string,
+  usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number; reasoningTokens?: number; cachedInputTokens?: number },
+  status: "completed" | "invalid_response" = "completed"
+) {
   writeStderr(
     JSON.stringify({
-      event: "ai.completed",
+      event: `ai.${status}`,
       revision: config.revision,
       scope: config.scope,
       provider: config.provider,
       requestedModel: config.model,
       returnedModel,
+      usage: {
+        inputTokens: usage?.inputTokens ?? null,
+        outputTokens: usage?.outputTokens ?? null,
+        totalTokens: usage?.totalTokens ?? null,
+        reasoningTokens: usage?.reasoningTokens ?? null,
+        cachedInputTokens: usage?.cachedInputTokens ?? null,
+      },
     })
   );
 }

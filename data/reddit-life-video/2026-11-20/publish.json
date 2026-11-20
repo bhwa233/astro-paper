@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-20",
+  "model": "gemini-4-hydrogen",
+  "sourceSha": "b22d7cd4e44f122b4cd8a621be7d503c8d37e5ef2986461aff184f0a05c9f209",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "冷知识",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "露齿笑和捶胸会招来猛撞或粪便反击，而抱娃互动与慢眨眼则能换来动物的温柔回应。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "职场生存",
+        "灵魂拷问",
+        "破防瞬间"
+      ],
+      "summary": "社会不再为潜力买单，身体修复力下滑、友谊得靠预约，多数难题只能带着过下去。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

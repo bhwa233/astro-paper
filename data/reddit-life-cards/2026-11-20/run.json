@@ -1,0 +1,200 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-20",
+  "target": 20,
+  "readyBefore": {
+    "douyin": 19,
+    "wechat_channels": 24,
+    "wechat_mp": 77
+  },
+  "gap": 1,
+  "complete": true,
+  "model": "gemini-4-hydrogen",
+  "items": [
+    {
+      "id": 1699,
+      "postId": "1y0vrl4",
+      "contentSha256": "eebfb193c687f371424377c4fa9bb5a3cf1db322eaf8ea86685b7fa229c892d6",
+      "question": "你是从什么时候开始不再在乎庆祝自己生日的？",
+      "title": "让人放弃庆祝生日的真实瞬间",
+      "summary": "不再过生日往往不是因为变老，而是重要的人离开、期待屡次落空，或被生活耗尽了精力。",
+      "tags": [
+        "人性观察",
+        "家庭关系",
+        "身心健康",
+        "破防瞬间",
+        "普通人故事"
+      ],
+      "answerCount": 75,
+      "cards": [
+        {
+          "index": 1,
+          "body": "单亲爸爸是建筑工人，每天4点出门，却从不缺席第一个祝我生日快乐。2023年11月他在工地意外去世，一个月后就是我34岁生日。那天醒来看到手机里没了他的未接来电，我心彻底碎了，从此害怕过生日。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "以前我生平第一次自己办生日派对，结果当初回复说“会来”的13个人里，最后没有一个到场。从那以后我再也没庆祝过生日，而且也绝对不往外说。",
+          "sourceIndex": 24,
+          "verbatim": true
+        },
+        {
+          "index": 3,
+          "body": "从我丈夫一次次忘掉我的生日，还提醒我说在他看来过生日感觉很虚伪的那时候起。",
+          "sourceIndex": 72,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "有一次我生日其实非常不开心，却被大家期待“必须开心”，这种强装的社交表演直接引发了我的焦虑发作。从那以后，我要求所有朋友只能在生日前后一天发消息，绝对不要在生日当天联系我。",
+          "sourceIndex": 38,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "我的生日就在9·11事件那天，出生在1999年。在美国最严重的恐袭周年纪念日这天高兴地过生日，感觉特别别扭。加上从小到大每年学校里都要放当时的视频，本来对生日那点开心劲儿也全被磨没了。",
+          "sourceIndex": 29,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "从我小时候起就没别人在乎过我的生日，所以我自己干脆也不在乎了。一个人庆祝只觉得又尴尬又可悲。现在唯一还会发生的事，就是每隔几年我妈会给我发条祝我生日快乐的短信，有时候连日期都发不对。",
+          "sourceIndex": 68,
+          "verbatim": true
+        },
+        {
+          "index": 7,
+          "body": "我生日在12月21日。大家结婚生子后，永远是我主动约聚会，可答复永远是工作有事、要参加节日派对或家里有一堆事。过完30岁生日，我就彻底放弃了。",
+          "sourceIndex": 52,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "从我当上妈妈的那一刻起。基本上一切都不再围绕着“我”转了。",
+          "sourceIndex": 69,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "我和哥哥是同一天生日，小时候我特别讨厌跟他共用一个生日，总想拥有只属于自己的那一天。现在我再也不告诉任何人我的生日，每到那天我就一个人去墓地坐着。这种痛不会变轻，只是慢慢变得能扛得住了。",
+          "sourceIndex": 18,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "大概22岁左右吧。当时突然就没什么兴奋劲儿了，生活的方方面面都压了过来。作为成年人，我已经累到没精力再去庆祝了。要是没人送我礼物或生日蛋糕，我一点也不会介意，也不想大家大惊小怪的，实在没什么意思。",
+          "sourceIndex": 62,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-00.png",
+          "sha256": "5ba6907df0482ebf953a999354f36f229bf8198199860851d06df878911fead2"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-01.png",
+          "sha256": "07deb51868596f174d5e613711c4474a38c27ad9f606fa5d93b62adf5d068428"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-02.png",
+          "sha256": "cff23ac66335ac1437169121f754e72733793cac427f2da7f69fa7b56357ceaf"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-03.png",
+          "sha256": "7eaf292b6ddb58cab1dee076175605088c2e8738663da639798d33eccbdb94e4"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-04.png",
+          "sha256": "ef1894ef392bea3f7a0770d153d3de3127e646e9eadeb1332698583089c61bb7"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-05.png",
+          "sha256": "729316e555436c5203e611d3a864552cd3e6fc5f6975e1d582b1897573943068"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-06.png",
+          "sha256": "06e45bafabac34c443a8aee03ff024b9b7cf0f4bbb2fb4b8aa458576725e4090"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-07.png",
+          "sha256": "7a3db4c8f5b370168cfc0b9742ed06f9b80e4ded79fefa2029b819dc189d3b1e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-08.png",
+          "sha256": "954a5f7a75683a33d46c798520726bbc3b8eaf8fca002d3e6dd1671e7035ecb9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-09.png",
+          "sha256": "4f37319f2bb5796b3456570b81a657706dd32a5a9cb58d3e4ec265ab9139330d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-20/1699/card-10.png",
+          "sha256": "771d5300bb1b0abf8af72b06860369400ea59580bf746e9712d8f50a8e5830ea"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "release": {
+    "tag": "reddit-life-cards-2026-11-20",
+    "assets": [
+      {
+        "asset": "1699-card-00.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-00.png",
+        "sha256": "5ba6907df0482ebf953a999354f36f229bf8198199860851d06df878911fead2"
+      },
+      {
+        "asset": "1699-card-01.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-01.png",
+        "sha256": "07deb51868596f174d5e613711c4474a38c27ad9f606fa5d93b62adf5d068428"
+      },
+      {
+        "asset": "1699-card-02.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-02.png",
+        "sha256": "cff23ac66335ac1437169121f754e72733793cac427f2da7f69fa7b56357ceaf"
+      },
+      {
+        "asset": "1699-card-03.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-03.png",
+        "sha256": "7eaf292b6ddb58cab1dee076175605088c2e8738663da639798d33eccbdb94e4"
+      },
+      {
+        "asset": "1699-card-04.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-04.png",
+        "sha256": "ef1894ef392bea3f7a0770d153d3de3127e646e9eadeb1332698583089c61bb7"
+      },
+      {
+        "asset": "1699-card-05.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-05.png",
+        "sha256": "729316e555436c5203e611d3a864552cd3e6fc5f6975e1d582b1897573943068"
+      },
+      {
+        "asset": "1699-card-06.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-06.png",
+        "sha256": "06e45bafabac34c443a8aee03ff024b9b7cf0f4bbb2fb4b8aa458576725e4090"
+      },
+      {
+        "asset": "1699-card-07.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-07.png",
+        "sha256": "7a3db4c8f5b370168cfc0b9742ed06f9b80e4ded79fefa2029b819dc189d3b1e"
+      },
+      {
+        "asset": "1699-card-08.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-08.png",
+        "sha256": "954a5f7a75683a33d46c798520726bbc3b8eaf8fca002d3e6dd1671e7035ecb9"
+      },
+      {
+        "asset": "1699-card-09.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-09.png",
+        "sha256": "4f37319f2bb5796b3456570b81a657706dd32a5a9cb58d3e4ec265ab9139330d"
+      },
+      {
+        "asset": "1699-card-10.png",
+        "path": "data/reddit-life-cards/2026-11-20/1699/card-10.png",
+        "sha256": "771d5300bb1b0abf8af72b06860369400ea59580bf746e9712d8f50a8e5830ea"
+      }
+    ]
+  }
+}

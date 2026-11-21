@@ -120,6 +120,14 @@
       "epubSha256": "8e073d29878bae6944a10518e54e1da1a6d00ed7814699567fdc9d58e9363292",
       "archivedAt": "2026-11-14",
       "postPath": "src/content/posts/zh-cn/纽约客-2026-11-09.md"
+    },
+    {
+      "key": "new-yorker:2026-11-16:cb524de41aa4db6a1eb631c68d5357f172d2f8f041257280f873aad448cf4c52",
+      "issueDate": "2026-11-16",
+      "sourceCommit": "bd9995f1e4200e4da2d115b3543d7a8662fe7d59",
+      "epubSha256": "cb524de41aa4db6a1eb631c68d5357f172d2f8f041257280f873aad448cf4c52",
+      "archivedAt": "2026-11-21",
+      "postPath": "src/content/posts/zh-cn/纽约客-2026-11-16.md"
     }
   ]
 }

@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-21",
+  "model": "gemini-4-hydrogen",
+  "sourceSha": "7fea1296d19bf8cd35b9487a921dbbe7d23818c2948aedcd4f502f206e9e78a8",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "身心健康",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "最划算的不是直接加钱，而是利用复利和每天4%概率卡漏洞，或将它押在手术、代谢与快乐值上。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "反常识",
+        "离谱见闻"
+      ],
+      "summary": "触屏、强行联网与订阅制把简单耐用的物理交互变成故障隐患，让消费者花更多钱却失去控制权。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

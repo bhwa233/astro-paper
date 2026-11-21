@@ -112,6 +112,14 @@
       "epubSha256": "96315d0293415f83354565f025a67d031ce9177e142334abacfeddfd4c0a5bfd",
       "archivedAt": "2026-11-14",
       "postPath": "src/content/posts/zh-cn/经济学人-2026-11-14.md"
+    },
+    {
+      "key": "economist:2026-11-21:694728fe138152efef418dc6e3ea29e25104cdff3430a160eab00ad9a1812851",
+      "issueDate": "2026-11-21",
+      "sourceCommit": "5d368967ef2f123a07cfe84a8f0504838b928f24",
+      "epubSha256": "694728fe138152efef418dc6e3ea29e25104cdff3430a160eab00ad9a1812851",
+      "archivedAt": "2026-11-21",
+      "postPath": "src/content/posts/zh-cn/经济学人-2026-11-21.md"
     }
   ]
 }

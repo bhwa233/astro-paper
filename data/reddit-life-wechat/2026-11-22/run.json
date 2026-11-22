@@ -1,0 +1,57 @@
+{
+  "version": 6,
+  "archiveDate": "2026-11-22",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "30b7f226bdf54e4a2fbda02f527996c458734c7f",
+    "workflowRun": "45051917300",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-11-22-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-11-22/upstream-life.md"
+  },
+  "selection": {
+    "model": "",
+    "candidateCount": 7,
+    "minScore": 60,
+    "scores": [
+      {
+        "rank": 4,
+        "score": 90,
+        "reason": "情感与亲密关系的永恒话题，回答涵盖后悔反思、双方各自安好、负罪感与人性弱点等多重视角，真实细腻且极具共鸣，无任何文化或背景门槛。"
+      },
+      {
+        "rank": 3,
+        "score": 88,
+        "reason": "从资本收购、重资产运营、缺乏医保和拟人化医疗期待等多维度剖析宠物看病贵的原因，视角深刻通俗，国内养宠读者共鸣极强且具长尾价值"
+      },
+      {
+        "rank": 1,
+        "score": 87,
+        "reason": "精准击中普通人对健身效果的普遍困惑，回答结合真实经历从训练强度、饮食体脂、基因差异及社交媒体滤镜等角度通俗解析，兼具认知颠覆与长尾共鸣。"
+      },
+      {
+        "rank": 5,
+        "score": 78,
+        "reason": "用形象通俗的比喻打破电子游戏带来的认知误区，生动解答了狙击手测距、风偏修正与瞄准基线等物理细节，趣味科普属性强且具备持久长尾价值。"
+      },
+      {
+        "rank": 6,
+        "score": 78,
+        "reason": "幕后流水线影视制作与商业模式揭秘通俗易懂，类似快餐短剧的降本增效逻辑能引发好奇与反差感，兼具趣味性与长尾价值。"
+      },
+      {
+        "rank": 7,
+        "score": 52,
+        "reason": "童年滤镜破灭的心理体验很有共鸣，但回答高度依赖具体欧美老片的怀旧盘点，属于依赖特定作品知识的清单，国内读者代入感有限。"
+      },
+      {
+        "rank": 2,
+        "score": 15,
+        "reason": "触及地区依赖与对立争议扣分项：核心高度依赖美国当代政坛人物与党派内斗背景，充满政治立场评判与争议，缺乏普适长尾价值，普通大众读者难以共鸣。"
+      }
+    ]
+  },
+  "posts": []
+}

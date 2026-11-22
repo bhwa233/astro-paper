@@ -2484,7 +2484,7 @@ timezone: Asia/Shanghai
 
 94\. 无论如何也得在 Mega Man Legends 3 里把咱们的蓝色小子接回家才行！
 
-95\. 我最想预购的是《Command & Conquer: ****\_\_\_\_****》。
+95\. 我最想预购的是《Command & Conquer: \***\*\_\_\_\_\*\***》。
 
 96\. 要是退回二十年前，我也会同意立刻预购 Command & Conquer；可惜后来我们等来的却是第 4 代和 Rivals。
 

@@ -1,0 +1,47 @@
+{
+  "version": 6,
+  "archiveDate": "2026-11-23",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "fcf02dcf73b883a1898c522c75437491d80e03fc",
+    "workflowRun": "45276120462",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-11-23-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-11-23/upstream-life.md"
+  },
+  "selection": {
+    "model": "",
+    "candidateCount": 5,
+    "minScore": 60,
+    "scores": [
+      {
+        "rank": 2,
+        "score": 89,
+        "reason": "话题贴近日常外出就餐体验，无需任何文化背景即可产生共鸣，回答中既有“纸巾别塞进水杯”等反常识实用细节，又展现了服务员、顾客与管理层的多元心理视角，长尾价值和分享欲极强。"
+      },
+      {
+        "rank": 4,
+        "score": 88,
+        "reason": "话题探讨身体长期透支的警示信号，长尾价值高且极易引发国内职场人和学生对熬夜、睡眠债的普遍共鸣；代表回答具体生动，涵盖大脑突然“拉闸”、越累越失眠和疲惫幻觉等可代入细节，整体通俗易懂，不依赖特定地区背景或专业诊疗知识。"
+      },
+      {
+        "rank": 1,
+        "score": 82,
+        "reason": "话题切中信息差与省钱痛点，既有长辈为过期服务付费的普遍共鸣，又有自己修车省钱与花钱买省心的多角度真实对比，无需美国文化背景即可轻松读懂。"
+      },
+      {
+        "rank": 5,
+        "score": 54,
+        "reason": "虽然个别回答提到了父爱与伴侣互动等普遍情感，但整体属于特定电子游戏作品盘点，多数回答高度依赖具体角色名、台词和剧情细节且缺乏背景解释，未玩过这些游戏的普通大众难以产生共鸣。"
+      },
+      {
+        "rank": 3,
+        "score": 35,
+        "reason": "触及扣分项「地区依赖」：内容高度依赖美国特有的800分信用评分体系、车行贷款套路、当地车价及品牌文化梗（如斯巴鲁车主梗），中国大陆无对应评分制度，普通读者缺乏背景难以代入。"
+      }
+    ]
+  },
+  "posts": []
+}

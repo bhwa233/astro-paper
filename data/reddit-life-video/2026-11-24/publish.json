@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-24",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "0b420c56f75708e93627cb5720f6bd1d7eea901f969801cda742c46db3b0c906",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "反常识",
+        "避坑指南"
+      ],
+      "summary": "捶胸露齿会被当成宣战反击，而慢眨眼与展示幼崽则能激发猛兽和灵长类的善意共鸣。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "身心健康",
+        "年轻人困境",
+        "中年人生"
+      ],
+      "summary": "潜力的保质期终会结束，成年人必须停止向外归咎并独自为所有结果兜底。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

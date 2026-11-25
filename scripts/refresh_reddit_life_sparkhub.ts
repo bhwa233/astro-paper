@@ -85,6 +85,7 @@ async function rewrite(post: RedditPostEvidence, template: string, date: string,
     model,
     artifactsDir,
     jitterMs: 1_000,
+    maxTokens: 12_000,
     parse: raw => {
       const item = parseRedditItemOutcome(raw, PROMPT_RANK, category.summaryMinChars, category.summaryFormat);
       if (!item) return { error: "Model excluded this post by topic" };
@@ -164,7 +165,12 @@ async function main(): Promise<void> {
   };
   try {
     const context = { template, date, model, artifactsDir };
-    for (const batch of chunks(run.items, REDDIT_TRENDING_MAX_DETAIL_POSTS)) {
+    const maxItems = envPositiveInt("REDDIT_REFRESH_MAX_ITEMS", 10);
+    const items = requestedIds ? run.items : run.items.slice(0, maxItems);
+    if (items.length < run.items.length) {
+      writeStderr(`${LABEL} processing ${items.length}/${run.items.length} items within the run budget\n`);
+    }
+    for (const batch of chunks(items, REDDIT_TRENDING_MAX_DETAIL_POSTS)) {
       const withPermalink = batch.filter(item => item.permalink);
       let evidence: RedditPostEvidence[] = [];
       let fetchError = "";

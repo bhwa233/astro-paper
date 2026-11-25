@@ -75,6 +75,15 @@ export function parseRetryAfterMs(value: string | null | undefined, nowMs = Date
 
 type AiRetryableError = Error & { retryAfterMs?: number };
 
+export class AiOutputError extends Error {
+  constructor(
+    message: string,
+    readonly responseText?: string
+  ) {
+    super(message);
+  }
+}
+
 function errorRetryAfterMs(error: unknown): number {
   const value = (error as AiRetryableError | undefined)?.retryAfterMs;
   return typeof value === "number" && value > 0 ? value : 0;
@@ -183,7 +192,7 @@ async function callBlogAiOnce({
       },
       result.text.trim() ? "completed" : "invalid_response"
     );
-    if (!result.text.trim()) throw new Error("AI response missing message content");
+    if (!result.text.trim()) throw new AiOutputError("AI response missing message content");
     return { content: result.text, usage, finishReason: result.finishReason };
   } catch (error) {
     if (error instanceof Error && (error.name === "AbortError" || error.message === "This operation was aborted")) {
@@ -198,7 +207,7 @@ async function callBlogAiOnce({
       if (retryAfterMs > 0) failure.retryAfterMs = retryAfterMs;
       throw failure;
     }
-    if (error instanceof Error && /^AI response missing message content/.test(error.message)) throw error;
+    if (error instanceof AiOutputError) throw error;
     if (NoObjectGeneratedError.isInstance(error)) {
       logAiResult(
         { model, revision, scope, provider },
@@ -215,7 +224,7 @@ async function callBlogAiOnce({
       // jsonMode 下 SDK 只说 "could not parse the response"，看不出是被安全策略拦下、
       // 截断在半截 JSON，还是模型直接写了散文。带上 finishReason 和原始输出才能定位。
       const finishReason = error.finishReason || "unknown";
-      throw new Error(`AI request failed: ${error.message} finishReason=${finishReason} text=${clipText(error.text, 1200) || "<empty>"}`);
+      throw new AiOutputError(`${error.message} finishReason=${finishReason}`, error.text);
     }
     if (error instanceof Error) throw new Error(`AI request failed: ${error.message}`);
     throw new Error(`AI request failed: ${String(error)}`);
@@ -272,6 +281,7 @@ export async function callBlogAiWithFailover({
   maxTokens = envMaxTokens(),
   jsonMode = false,
   fallbackEnabled,
+  maxRequests = Infinity,
 }: {
   prompt: string;
   primaryConfig?: AiConfig;
@@ -280,10 +290,12 @@ export async function callBlogAiWithFailover({
   maxTokens?: number | null;
   jsonMode?: boolean;
   fallbackEnabled?: boolean;
+  maxRequests?: number;
 }): Promise<AiCallResult> {
   const primaryConfigError = configErrorMessage(primaryConfig, "primary");
   const fallbackConfigError = configErrorMessage(fallbackConfig, "fallback");
   let primaryError = primaryConfigError;
+  let requests = 0;
 
   if (!primaryConfigError) {
     // Retry the primary target on transient failures (dropped connections under load, 5xx, 429)
@@ -297,11 +309,14 @@ export async function callBlogAiWithFailover({
     let cooldownRetries = 0;
     for (;;) {
       try {
+        requests += 1;
         const result = await callBlogAiOnce({ prompt, ...primaryConfig, timeoutMs, maxTokens, jsonMode });
         const retried = transientRetries > 0 || cooldownRetries > 0;
         return { ...result, config: primaryConfig, usedFallback: false, primaryError: retried ? primaryError : undefined };
       } catch (error) {
+        if (error instanceof AiOutputError) throw error;
         primaryError = error instanceof Error ? error.message : String(error);
+        if (requests >= maxRequests) break;
         if (isCooldownAiError(primaryError) && cooldownRetries < cooldownAttempts - 1) {
           const delayMs = cooldownDelayMs(cooldownRetries, errorRetryAfterMs(error));
           if (cooldownWaitedMs + delayMs > cooldownBudgetMs) {
@@ -327,7 +342,7 @@ export async function callBlogAiWithFailover({
   // Fallback is opt-in and off by default, so local runs fail loudly instead of silently switching
   // models. Publish workflows set AI_FALLBACK_ENABLED=true: a cooldown longer than the retry budget
   // should still produce a post, and the switch is reported (WARN log + ai_fallback_used).
-  if (!(fallbackEnabled ?? Boolean(fallbackConfig.model))) {
+  if (requests >= maxRequests || !(fallbackEnabled ?? Boolean(fallbackConfig.model))) {
     throw new Error(primaryError || primaryConfigError || "primary AI request failed");
   }
   if (fallbackConfigError) {

@@ -5,7 +5,7 @@ import fs from "node:fs";
 import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { ensureDir, envPositiveInt, sleep, writeStderr } from "./blog_common.ts";
-import { type AiCallResult, callBlogAiWithFailover, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
+import { type AiCallResult, AiOutputError, callBlogAiWithFailover, envAiConfig, envFallbackAiConfig } from "./blog_ai_client.ts";
 
 export function writeAiArtifact(artifactsDir: string, task: string, name: string, content: string): string {
   if (!artifactsDir) return "";
@@ -15,12 +15,13 @@ export function writeAiArtifact(artifactsDir: string, task: string, name: string
   return file;
 }
 
-export async function callAi(prompt: string, model: string, jsonMode = false): Promise<AiCallResult> {
+export async function callAi(prompt: string, model: string, jsonMode = false, limits?: { maxRequests: number; maxTokens?: number }): Promise<AiCallResult> {
   const result = await callBlogAiWithFailover({
     prompt,
     primaryConfig: envAiConfig(),
     fallbackConfig: envFallbackAiConfig(),
     jsonMode,
+    ...limits,
   });
   if (result.usedFallback) {
     writeStderr(
@@ -52,6 +53,7 @@ export type JsonStageOptions<T> = {
   parse: (content: string) => T;
   /** 逐条目并发调用时给一个上界，避开同批重试的惊群。 */
   jitterMs?: number;
+  maxTokens?: number;
   /** 不给就抛错；给了则由它把「重试用尽」翻译成一个可继续处理的值（Reddit 逐帖降级）。 */
   onExhausted?: (message: string) => T;
 };
@@ -65,9 +67,10 @@ export async function generateJsonStageWithRetries<T>({
   artifactsDir,
   parse,
   jitterMs = 0,
+  maxTokens,
   onExhausted,
 }: JsonStageOptions<T>): Promise<T> {
-  const attempts = retryAttempts();
+  const attempts = Math.min(retryAttempts(), 2);
   // Reuse the existing stage parser and artifact writer: only validated responses are
   // cached. Substack's translation cache has a different article contract; no new
   // cache dependency is needed for these small, immutable JSON responses.
@@ -96,15 +99,25 @@ export async function generateJsonStageWithRetries<T>({
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     await sleep(retryDelayMs(attempt, jitterMs));
     if (attempt > 1) writeAiArtifact(artifactsDir, task, `${artifactPrefix}-retry-prompt-attempt-${attempt}.md`, attemptPrompt);
+    let content: string;
     try {
-      // Validate outside provider failover: malformed output must regenerate on
-      // the primary with feedback, even when request-level fallback is enabled.
-      const response = await callAi(attemptPrompt, model, true);
-      writeAiArtifact(artifactsDir, task, `${artifactPrefix}-response-attempt-${attempt}.json`, response.content);
-      const value = parse(response.content);
+      content = (await callAi(attemptPrompt, model, true, { maxRequests: attempt === 1 ? 2 : 1, maxTokens })).content;
+    } catch (error) {
+      if (!(error instanceof AiOutputError)) {
+        const message = error instanceof Error ? error.message : String(error);
+        writeAiArtifact(artifactsDir, task, `${artifactPrefix}-error-attempt-${attempt}.txt`, message);
+        if (onExhausted) return onExhausted(message);
+        throw error;
+      }
+      // Some gateways wrap a valid object in prose. The stage parser still validates the full contract.
+      content = error.responseText || "";
+    }
+    try {
+      writeAiArtifact(artifactsDir, task, `${artifactPrefix}-response-attempt-${attempt}.json`, content);
+      const value = parse(content);
       if (cacheFile) {
         try {
-          const temporary = writeAiArtifact(path.dirname(cacheFile), cacheKey, `${randomUUID()}.tmp`, response.content);
+          const temporary = writeAiArtifact(path.dirname(cacheFile), cacheKey, `${randomUUID()}.tmp`, content);
           fs.renameSync(temporary, cacheFile);
         } catch (error) {
           writeStderr(`WARN: [ai-cache] ${stage}: could not save response: ${error instanceof Error ? error.message : String(error)}`);

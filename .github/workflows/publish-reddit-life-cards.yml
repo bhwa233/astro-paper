@@ -130,7 +130,8 @@ jobs:
           TARGET: ${{ inputs.target || 20 }}
           INPUT_FORCE: ${{ inputs.force || false }}
           AI_SUCCESS_CACHE_DIR: .cache/reddit-life-ai
-          AI_TIMEOUT_MS: "600000"
+          AI_TIMEOUT_MS: "90000"
+          AI_COOLDOWN_RETRY_MAX_DELAY_MS: "30000"
           GH_TOKEN: ${{ github.token }}
           SPARKHUB_API_URL: https://api.bhwa233.com
           SPARKHUB_DASHBOARD_TOKEN: ${{ secrets.SPARKHUB_DASHBOARD_TOKEN }}

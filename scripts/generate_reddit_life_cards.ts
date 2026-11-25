@@ -9,7 +9,7 @@
 // 上传与提交之后由 attach_reddit_life_cards_sparkhub.ts 把地址回报给 SparkHub，那一步才把平台设为 ready。
 import fs from "node:fs";
 import path from "node:path";
-import { booleanArg, dateStringInTimeZone, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
+import { booleanArg, dateStringInTimeZone, envPositiveInt, parseArgs, repoRoot, stringArg, writeStderr, writeStdout } from "./blog_common.ts";
 import { envAiConfig } from "./blog_ai_client.ts";
 import { sha256, writeJson, type ArchivedFile } from "./committed_handoff.ts";
 import { buildReleaseManifest, restoreReleaseAssets, type ReleaseManifest } from "./release_assets.ts";
@@ -61,7 +61,14 @@ export type RedditLifeCardsRunManifest = {
   release?: ReleaseManifest;
 };
 
-type Result = { date: string; status: "processed" | "partial" | "full" | "reused"; manifestPath: string; generated: number; failed: number; rendered: boolean };
+type Result = {
+  date: string;
+  status: "processed" | "partial" | "deferred" | "full" | "reused";
+  manifestPath: string;
+  generated: number;
+  failed: number;
+  rendered: boolean;
+};
 
 function postMarkdown(post: SparkhubRedditLifePost): string {
   return `\n## ${post.title}\n${post.content_md.trim()}\n`;
@@ -114,9 +121,19 @@ export async function generateRedditLifeCards({
   const needed = Math.max(0, backlog.gap - backlog.candidates.filter(post => completedIds.has(post.id)).length);
   if (existing?.release && needed > 0) restoreReleaseAssets(repo, existing.release);
   const failures: RedditLifeCardsRunManifest["failures"] = [];
+  const maxCandidates = envPositiveInt("REDDIT_CARD_MAX_CANDIDATES", 5);
+  const deadline = Date.now() + 15 * 60_000;
+  let attempted = 0;
+  let deferred = false;
   for (const post of backlog.candidates) {
     if (items.length - previousCount >= needed) break;
     if (completedIds.has(post.id)) continue;
+    if (attempted >= maxCandidates || Date.now() >= deadline) {
+      deferred = true;
+      writeStderr(`[reddit-life-cards] ${date}: batch budget reached after ${attempted} candidates`);
+      break;
+    }
+    attempted += 1;
     try {
       const [question] = parseRedditLifeVideoQuestions([postMarkdown(post)]);
       if (!question) throw new Error("post has no answers");
@@ -188,13 +205,13 @@ export async function generateRedditLifeCards({
   );
   // Commit/attach successful cards before flagging an incomplete batch in CI.
   // A rerun resumes this manifest and never asks the model to redo accepted cards.
-  if (items.length === 0) {
+  if (items.length === 0 && !deferred) {
     throw new Error(`${failures.length} card candidates failed and ${items.length}/${backlog.gap} were generated; see ${manifestRel}`);
   }
   return {
     date,
-    status: complete ? "processed" : "partial",
-    manifestPath: manifestRel,
+    status: complete ? "processed" : deferred ? "deferred" : "partial",
+    manifestPath: items.length ? manifestRel : "",
     generated: items.length,
     failed: failures.length,
     rendered: items.length > previousCount,

@@ -36,11 +36,11 @@ export function renderRedditLifeNewspicCards(selection: RedditLifeNewspicSelecti
       "utf8"
     );
     const result = spawnSync(
-      "pnpm",
+      process.execPath,
       [
-        "run",
-        "render:stills",
-        "--",
+        "--import",
+        "tsx",
+        "scripts/render_stills.ts",
         "--composition",
         COMPOSITION_ID,
         "--props",
@@ -52,7 +52,7 @@ export function renderRedditLifeNewspicCards(selection: RedditLifeNewspicSelecti
         "--count",
         String(selection.cards.length + 1),
       ],
-      { cwd: rendererPackageRoot, encoding: "utf8" }
+      { cwd: rendererPackageRoot, encoding: "utf8", timeout: 120_000, killSignal: "SIGKILL" }
     );
     if (result.status !== 0) throw renderFailure(result);
 

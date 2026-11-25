@@ -184,6 +184,7 @@ export async function selectRedditLifeVideoCards({
     prompt,
     model,
     artifactsDir,
+    maxTokens: count * 4_096,
     parse: content => parseRedditLifeVideoSelection(content, questions, count),
   });
 }
@@ -227,6 +228,7 @@ export async function selectRedditLifeCards({
     prompt,
     model,
     artifactsDir,
+    maxTokens: 4_096,
     parse: content => parseRedditLifeVideoSelection(content, [question], 1, redditLifeCardCount),
   });
   return selection.issues[0]!;

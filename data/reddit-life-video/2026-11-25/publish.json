@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-25",
+  "model": "gemini-3.8-flash",
+  "sourceSha": "e1db3c0fbaf127edecac71b2f1d1456e413313e1c2a67b1ba2ae82a172c9763e",
+  "issues": [
+    {
+      "position": 1,
+      "questionIndex": 1,
+      "status": "processed",
+      "tags": [
+        "认知思维",
+        "人性观察",
+        "身心健康",
+        "灵魂拷问",
+        "意想不到"
+      ],
+      "summary": "除了复利暴击和日常真爱等脑洞，多数人最终倾向把额度留给身心健康与重症生存率。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    },
+    {
+      "position": 2,
+      "questionIndex": 2,
+      "status": "processed",
+      "tags": [
+        "社会变迁",
+        "金钱消费",
+        "人性观察",
+        "避坑指南",
+        "反常识"
+      ],
+      "summary": "所谓升级往往牺牲了纯粹物理操作的可靠与耐用，把简单生活绑架进繁琐的系统与网络里。",
+      "droppedTags": [],
+      "summaryOutOfBand": false,
+      "problems": []
+    }
+  ]
+}

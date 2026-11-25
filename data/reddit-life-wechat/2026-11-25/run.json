@@ -1,0 +1,12 @@
+{
+  "version": 6,
+  "archiveDate": "2026-11-25",
+  "timeZone": "America/Los_Angeles",
+  "status": "upstream-empty",
+  "upstream": {
+    "generatedSha": "3f71c239065a0bd48214397a7f750000be3e50d9",
+    "workflowRun": "45690342887",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-11-25-life.md"
+  },
+  "posts": []
+}

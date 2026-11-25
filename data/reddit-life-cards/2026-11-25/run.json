@@ -1,0 +1,333 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-25",
+  "target": 20,
+  "readyBefore": {
+    "douyin": 6,
+    "wechat_channels": 11,
+    "wechat_mp": 78
+  },
+  "gap": 14,
+  "complete": false,
+  "model": "gemini-3.8-flash",
+  "items": [
+    {
+      "id": 1242,
+      "postId": "1xoms39",
+      "contentSha256": "07d5ef5ac6505599067bd491ba4b4b0c119e02f1bc54349e2513cbc33b01995d",
+      "question": "为什么麦当劳和塔可钟等快餐店，全变成了毫无个性的灰色方盒子？",
+      "title": "快餐店换成灰色方盒子的商业真相",
+      "summary": "核心是方便房产转手卖给下家，并用冰冷设计劝退占座顾客，强推外带以拉高翻台率。",
+      "tags": [
+        "金钱消费",
+        "社会变迁",
+        "反常识",
+        "冷知识"
+      ],
+      "answerCount": 6,
+      "cards": [
+        {
+          "index": 1,
+          "body": "去特色化的核心原因是方便转售。麦当劳很大程度上是房地产特许经营公司，掌握土地与建筑物产权。毫无特色的方盒子能极大降低改造成本，极易卖掉或转租；而自带钟楼的老塔可钟哪怕转手，看起来也永远像塔可钟。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "极简设计更易清洁维护，对堂食却极度不适。类似候机室的冰冷桌椅坐十几分钟就难受，以此劝退霸占卡座一整天的顾客，转而力推外带与得来速。把让人坐不住的空间包装成高端，既压缩保洁人力，又拉高翻台率。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "减少儿童营销与健康审查是关键拐点。因法律限制向儿童打广告，快餐巨头雪藏了卡通角色，游乐区也存在法律责任风险。取而代之的是面向成人的暗淡视觉，好让买汉堡的大人不再觉得自己是在儿童乐园里吃垃圾食品。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "去色彩化最初意图正好相反。麦当劳推出麦咖啡时为迎战星巴克，曾摆上舒适大沙发与壁炉想成为“第三空间”。后来随着运营成本上升，企业才彻底反转策略，转向对堂食顾客采取冷淡驱赶的敌意设计。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "剥离温度让品牌失去家庭客群。比起毫无灵魂的灰色盒子，保留鲜艳色彩与游乐设施的 Chick-fil-A 总是排长龙。许多家庭因孩子玩耍才每周光顾，而冰冷快餐店让人吃完只想逃跑，正失去吸引力。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "这折射了当代的“转售价值综合征”。无论是买车只选黑白灰还是装修刷出租屋灰，大家都在为虚无缥缈的未来转手价值剥夺个性与乐趣。整座城市被改造成灰暗方盒子，仿佛所有建筑都在准备被下一任买家接盘。",
+          "sourceIndex": 5,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1242/card-00.png",
+          "sha256": "be124f0d3f9e0294d6640adbc3c0d5c7f6fa82af1d426adbd1ceccbb7d1face7"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1242/card-01.png",
+          "sha256": "1c6b1e158d50f7309a89acabcfcaa1d2539ecf476002146674252489cbb23b46"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1242/card-02.png",
+          "sha256": "d1dcee492af064f3356351860f740e0f265171c0e0d61d5942878415896f4a68"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1242/card-03.png",
+          "sha256": "d5c495781df83469d7012d0d171c500ba7c2d8f363eada3c31a9421340a66e9e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1242/card-04.png",
+          "sha256": "a0d1d29a380bd4536ded15f43312f93423d3764990cc176b1adcec3db464c685"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1242/card-05.png",
+          "sha256": "7a92c33eb486a73eeb900bc0864df2b200b4adcf73a5b40439fb76b205d98519"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1242/card-06.png",
+          "sha256": "c27f79ddbd8537408985a894538abaa5426d09351e54ee58e92b168890211f41"
+        }
+      ]
+    },
+    {
+      "id": 1196,
+      "postId": "1xm5zde",
+      "contentSha256": "bc8aae8b83f228d83391e7318ad23eb146e502b311888a5e0c4f2c304104611f",
+      "question": "有什么体验堪称「人生满分」，这辈子至少得经历一次？",
+      "title": "从抠巨型鼻屎到日全食的满分体验",
+      "summary": "真正让人觉得人生满分的瞬间往往无关金钱，而是极致的感官释放、自然奇观与纯粹的人际温情。",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "亲身经历",
+        "意想不到"
+      ],
+      "answerCount": 17,
+      "cards": [
+        {
+          "index": 1,
+          "body": "抠出一颗感觉直接连着大脑神经的巨大硬鼻屎。拔出来那一瞬间整个人通透无比，宛如古代埃及人做木乃伊抽出脑髓的快感，堪比忙碌一整天后终于脱掉束缚的释怀。",
+          "sourceIndex": 2,
+          "verbatim": true
+        },
+        {
+          "index": 2,
+          "body": "亲眼见证一次日全食，而且必须处于100%全食带内。99.9%的偏食和全食有天壤之别，当太阳彻底被遮蔽、喧闹的体育场瞬间陷入死寂，那种非现实的壮丽感会让你彻底理解古人为何将其视作神迹。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "糟糕工作一天后筋疲力尽地推开家门，三岁的孩子扔下手头所有东西飞奔过来给你结结实实的拥抱；哪怕是平时沉默的青春期儿子，在得知你生病出院时给你的熊抱，也是人间最纯粹的治愈。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "在满月映照的夜晚，跳进温暖的海水里畅游。如果水里碰巧有发光浮游生物，或者像在法属波利尼西亚夜潜后浮出水面，身旁掠过礁鲨，仰头就是数不清的繁星，那种震撼会让人终生难忘。",
+          "sourceIndex": 1,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "穿着冰冷湿透的袜子徒步跋涉一整天后，换上一双干爽温暖的羊毛厚袜，最好还是刚从烘干机里拿出来的。这种救赎感就如同在暴雨中骑车回家全身湿透后换上家居服，或者滑雪一整天后终于脱掉沉重的雪靴。",
+          "sourceIndex": 3,
+          "verbatim": true
+        },
+        {
+          "index": 6,
+          "body": "在异国他乡抛开攻略，随性走进挤满当地人的小餐馆。就算语言不通，只能对着菜单比划点菜，也能吃到毕生难忘的美味，甚至靠手势和西西里岛老面包师聊起祖传杏仁酥食谱，那份真诚的人情味无可替代。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "亲临现场观看一次美国全国热棒协会的顶级直线加速赛。那种轰鸣和震动根本无法用语言形容，哪怕站得不够近，赛车起步瞬间的声浪也会直接震碎耳膜，让你的内脏和整座大地一起剧烈颤抖。",
+          "sourceIndex": 11,
+          "verbatim": true
+        },
+        {
+          "index": 8,
+          "body": "凌晨两点睡眼惺忪地醒来，转头发现身旁的爱人也恰好醒着，在漆黑静谧的夜色中相视一笑，随后发生一段毫无预谋却极其契合的缠绵亲昵。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 9,
+          "body": "亲眼站在大峡谷边缘俯瞰纵深，或者仰望喜马拉雅山脉的雪峰。面对这种尺度的大自然，再多的照片都无法还原那种让人失语的敬畏。",
+          "sourceIndex": 13,
+          "verbatim": true
+        },
+        {
+          "index": 10,
+          "body": "叫上好友来家里，四个人挤在同一张沙发上通宵打单机合作游戏。",
+          "sourceIndex": 6,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-00.png",
+          "sha256": "9c603ff923f5230128275e4ac5dcbfa928198db74089249c5e3d740339a3c715"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-01.png",
+          "sha256": "99338ffdb56b7d5476b419089640a678b6a39a2b9d57087f13fcd852f6dea99e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-02.png",
+          "sha256": "d9c27b54e3aa58723b545b9d884c7e517bbe814a39a8fc012e6f7dd0ebcab069"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-03.png",
+          "sha256": "c1d478df66948471fcc51bf0d92c3e435b389155f6f68760a2241e012ac13104"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-04.png",
+          "sha256": "69614ba40327a0ae36bb64ff2af439b3ad57a76a5c1a02a7ea72f118f20eccfe"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-05.png",
+          "sha256": "7349fe995a57bfaf9f27c26eeca6591cebc66eced0fc40b1a3377ae8c74e3b91"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-06.png",
+          "sha256": "e1cad13b159c1a1ecbea7613c270d11d649ccec3524c4aaebb8967c64ecf31e4"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-07.png",
+          "sha256": "231491c3f2f6eecdb0640877712d71b2bd055f4d49834223e81e410bfe7d2586"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-08.png",
+          "sha256": "ea880979819b20d302376337c343465c44ff7611a0935c456a038ca8ac45f580"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-09.png",
+          "sha256": "9f2eb23379e23c3dc31c9af006515c2ee4249ac563f45936a250fe74bcdd4281"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-25/1196/card-10.png",
+          "sha256": "d7516f41403672185b13c355b8ec5178f51883c08f16f1b38ddfb7411fd9b498"
+        }
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "id": 1402,
+      "postId": "1xse59e",
+      "error": "AI provider HTTP 400: {\"error\":{\"code\":400,\"message\":\"内容违规，请求已拒绝；未扣费\",\"status\":\"INVALID_ARGUMENT\"}}"
+    },
+    {
+      "id": 1170,
+      "postId": "1xmhoas",
+      "error": "AI provider HTTP 400: {\"error\":{\"code\":400,\"message\":\"内容违规，请求已拒绝；未扣费\",\"status\":\"INVALID_ARGUMENT\"}}"
+    },
+    {
+      "id": 1031,
+      "postId": "1xi9ov0",
+      "error": "AI provider HTTP 400: {\"error\":{\"code\":400,\"message\":\"内容违规，请求已拒绝；未扣费\",\"status\":\"INVALID_ARGUMENT\"}}"
+    }
+  ],
+  "release": {
+    "tag": "reddit-life-cards-2026-11-25",
+    "assets": [
+      {
+        "asset": "1242-card-00.png",
+        "path": "data/reddit-life-cards/2026-11-25/1242/card-00.png",
+        "sha256": "be124f0d3f9e0294d6640adbc3c0d5c7f6fa82af1d426adbd1ceccbb7d1face7"
+      },
+      {
+        "asset": "1242-card-01.png",
+        "path": "data/reddit-life-cards/2026-11-25/1242/card-01.png",
+        "sha256": "1c6b1e158d50f7309a89acabcfcaa1d2539ecf476002146674252489cbb23b46"
+      },
+      {
+        "asset": "1242-card-02.png",
+        "path": "data/reddit-life-cards/2026-11-25/1242/card-02.png",
+        "sha256": "d1dcee492af064f3356351860f740e0f265171c0e0d61d5942878415896f4a68"
+      },
+      {
+        "asset": "1242-card-03.png",
+        "path": "data/reddit-life-cards/2026-11-25/1242/card-03.png",
+        "sha256": "d5c495781df83469d7012d0d171c500ba7c2d8f363eada3c31a9421340a66e9e"
+      },
+      {
+        "asset": "1242-card-04.png",
+        "path": "data/reddit-life-cards/2026-11-25/1242/card-04.png",
+        "sha256": "a0d1d29a380bd4536ded15f43312f93423d3764990cc176b1adcec3db464c685"
+      },
+      {
+        "asset": "1242-card-05.png",
+        "path": "data/reddit-life-cards/2026-11-25/1242/card-05.png",
+        "sha256": "7a92c33eb486a73eeb900bc0864df2b200b4adcf73a5b40439fb76b205d98519"
+      },
+      {
+        "asset": "1242-card-06.png",
+        "path": "data/reddit-life-cards/2026-11-25/1242/card-06.png",
+        "sha256": "c27f79ddbd8537408985a894538abaa5426d09351e54ee58e92b168890211f41"
+      },
+      {
+        "asset": "1196-card-00.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-00.png",
+        "sha256": "9c603ff923f5230128275e4ac5dcbfa928198db74089249c5e3d740339a3c715"
+      },
+      {
+        "asset": "1196-card-01.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-01.png",
+        "sha256": "99338ffdb56b7d5476b419089640a678b6a39a2b9d57087f13fcd852f6dea99e"
+      },
+      {
+        "asset": "1196-card-02.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-02.png",
+        "sha256": "d9c27b54e3aa58723b545b9d884c7e517bbe814a39a8fc012e6f7dd0ebcab069"
+      },
+      {
+        "asset": "1196-card-03.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-03.png",
+        "sha256": "c1d478df66948471fcc51bf0d92c3e435b389155f6f68760a2241e012ac13104"
+      },
+      {
+        "asset": "1196-card-04.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-04.png",
+        "sha256": "69614ba40327a0ae36bb64ff2af439b3ad57a76a5c1a02a7ea72f118f20eccfe"
+      },
+      {
+        "asset": "1196-card-05.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-05.png",
+        "sha256": "7349fe995a57bfaf9f27c26eeca6591cebc66eced0fc40b1a3377ae8c74e3b91"
+      },
+      {
+        "asset": "1196-card-06.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-06.png",
+        "sha256": "e1cad13b159c1a1ecbea7613c270d11d649ccec3524c4aaebb8967c64ecf31e4"
+      },
+      {
+        "asset": "1196-card-07.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-07.png",
+        "sha256": "231491c3f2f6eecdb0640877712d71b2bd055f4d49834223e81e410bfe7d2586"
+      },
+      {
+        "asset": "1196-card-08.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-08.png",
+        "sha256": "ea880979819b20d302376337c343465c44ff7611a0935c456a038ca8ac45f580"
+      },
+      {
+        "asset": "1196-card-09.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-09.png",
+        "sha256": "9f2eb23379e23c3dc31c9af006515c2ee4249ac563f45936a250fe74bcdd4281"
+      },
+      {
+        "asset": "1196-card-10.png",
+        "path": "data/reddit-life-cards/2026-11-25/1196/card-10.png",
+        "sha256": "d7516f41403672185b13c355b8ec5178f51883c08f16f1b38ddfb7411fd9b498"
+      }
+    ]
+  }
+}

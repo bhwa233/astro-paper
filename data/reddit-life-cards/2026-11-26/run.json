@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-26",
+  "target": 20,
+  "readyBefore": {
+    "douyin": 8,
+    "wechat_channels": 13,
+    "wechat_mp": 80
+  },
+  "gap": 12,
+  "complete": false,
+  "model": "gemini-3.8-flash",
+  "items": [
+    {
+      "id": 1041,
+      "postId": "1xif9ms",
+      "contentSha256": "b4992d8cb4a9cfeb948c570d19c88aa3e3b01229bce92e2e5ea69f2a9b8014f7",
+      "question": "父母把更多遗产留给混得差的孩子，对混得好的孩子公平吗？",
+      "title": "遗产多留给混得差的孩子，真能实现公平吗",
+      "summary": "除非子女身患残疾，否则偏心留遗产既会寒了懂事孩子的心，钱也往往会被挥霍一空。",
+      "tags": [
+        "家庭关系",
+        "金钱消费",
+        "人性观察",
+        "亲身经历",
+        "灵魂拷问"
+      ],
+      "answerCount": 7,
+      "cards": [
+        {
+          "index": 1,
+          "body": "我见过混得好的孩子只分到10%、混得差的分到90%的案例。拿大头的去搞商业项目，五年后破产、房子被法拍，还因为分配不公导致手足彻底断绝来往。除非子女有残疾，否则九成以上情况下偏心分配都是错的。",
+          "sourceIndex": 1,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "我会把遗产严格平分，不平分对优秀又省心的孩子无异于一记耳光。活着时我可以多帮衬困难的孩子，但绝不能把偏心当成最后的告别礼。混得好意味着付出更多努力，若因不添麻烦反而受罚，任谁都会满腹怨气。",
+          "sourceIndex": 5,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "父亲去世后，祖父母为妹妹包办一切、买车付学费，她却刷爆信用卡、破产失业并跟全家断绝关系；而我高中退学后靠打工自费读完大学、买房成家并照顾母亲。总向家里哭穷的孩子，其实早就提前挥霍光了他们的遗产。",
+          "sourceIndex": 4,
+          "verbatim": false
+        },
+        {
+          "index": 4,
+          "body": "真正妥当的做法往往反直觉：把钱全给混得好的孩子，嘱咐他确保有问题的兄弟姐妹有饭吃、有房住。因为只有具备理财能力的人才能管好资产；把钱全给把生活搞得一团糟的孩子，百分之百会被挥霍得干干净净。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 5,
+          "body": "我哥哥是听障人士，父母却把他当成毫无自理能力的人溺爱，替他代做作业，待业三年后花钱送他去日本旅游才肯去快餐店打工，吃撑了还得我妈跨国帮他挂号，父母竟还打算为他设信托。把钱塞给这种人无异于打水漂。",
+          "sourceIndex": 2,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "父母生前可以根据需求给予不同支持，比如给骨折的孩子出医药费，这合情合理。但立遗嘱不同，死后无法预料命运转折，混得好的可能车祸失业，穷困的也可能逆袭。用遗嘱搞按需分配，往往变成对勤奋者的背刺。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "如果混得差是因为健康问题或残疾，倾斜支持理所应当，最好设特殊需求信托以免失去政府福利；但如果穷是因为懒惰、赌博、酗酒等个人选择，留大笔遗产只是在资助恶习。金钱不会让从未担责的人突然洗心革面。",
+          "sourceIndex": 7,
+          "verbatim": false
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-11-26/1041/card-00.png",
+          "sha256": "901d2c029b4f7e92e3a6b6e4acefbb22367730075bed72926859ef3de00b493c"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-26/1041/card-01.png",
+          "sha256": "779e816de0fc9e52c8dbf0da0d2d5e3586f8d90dffe260506f14ec634bcbfbbc"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-26/1041/card-02.png",
+          "sha256": "2e34e3b124182345cf70e360f65bcc656f3bcd4f941a1b12c965cc0bfef82ba2"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-26/1041/card-03.png",
+          "sha256": "37525119ee744097fedfc28fc4159f161fb175e331db1f4c138c30a57b8c03a4"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-26/1041/card-04.png",
+          "sha256": "969c08e9451f31ef618899a9a25e6d6de38bc960febd7ed3cd1c4e72bb485b5e"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-26/1041/card-05.png",
+          "sha256": "7f16b06bd173f29d601c4f76c484732fe990b124c0a87c553c4c7b6837ff3dd5"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-26/1041/card-06.png",
+          "sha256": "e2d8ae561b4267a541af7fb50aff244e62a26706383a8c05a75f7e10cccb1f09"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-26/1041/card-07.png",
+          "sha256": "0677a43a1bd2750eca88404b8ee56652fb9255ea30a3ca7b8a155c0e5ca9791a"
+        }
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "id": 1402,
+      "postId": "1xse59e",
+      "error": "AI provider HTTP 400: {\"error\":{\"code\":400,\"message\":\"内容违规，请求已拒绝；未扣费\",\"status\":\"INVALID_ARGUMENT\"}}"
+    },
+    {
+      "id": 1170,
+      "postId": "1xmhoas",
+      "error": "AI provider HTTP 400: {\"error\":{\"code\":400,\"message\":\"内容违规，请求已拒绝；未扣费\",\"status\":\"INVALID_ARGUMENT\"}}"
+    },
+    {
+      "id": 1031,
+      "postId": "1xi9ov0",
+      "error": "AI provider HTTP 400: {\"error\":{\"code\":400,\"message\":\"内容违规，请求已拒绝；未扣费\",\"status\":\"INVALID_ARGUMENT\"}}"
+    },
+    {
+      "id": 1042,
+      "postId": "1xi8m2i",
+      "error": "AI provider HTTP 502: <!DOCTYPE html> <!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]--> <!--[if IE 7]> <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endif]--> <!--[if IE 8]> <html class=\"no-js ie8 oldie\" lang=\"en-US\"> <![endif]--> <!--[if gt IE 8]><!--> <html class=\"no-js\" lang=\"en-US\"> <!--<![endif]--> <head> <title>xxsxx.fun | 502: Bad gateway</title> <meta charset=\"UTF-8\" /> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\" /> <meta name=\"robots\" content=\"noindex, nofollow\" /> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" /> <link rel=\"stylesheet\" id=\"cf_styles-css\" href=\"/cdn-cgi/styles/main.css\" /> </head> <body> <div id=\"cf-wrapper\"> <div id=\"cf-error-details\" class=\"p-0\"> <header class=\"mx-auto pt-10 lg:pt-6 lg:px-8 w-240 lg:w-full mb-8\"> <h1 class=\"inline-block sm:block sm:mb-2 font-light text-60 lg:text-4xl text-black-dark leading-tight mr-2\"> <span class=\"inline-block\">Bad gateway</span> <span class=\"code-label\">Error code 502</span> </h1> <div> Visit <a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&utm_campaign=api.site\" target=\"_blank\""
+    }
+  ],
+  "release": {
+    "tag": "reddit-life-cards-2026-11-26",
+    "assets": [
+      {
+        "asset": "1041-card-00.png",
+        "path": "data/reddit-life-cards/2026-11-26/1041/card-00.png",
+        "sha256": "901d2c029b4f7e92e3a6b6e4acefbb22367730075bed72926859ef3de00b493c"
+      },
+      {
+        "asset": "1041-card-01.png",
+        "path": "data/reddit-life-cards/2026-11-26/1041/card-01.png",
+        "sha256": "779e816de0fc9e52c8dbf0da0d2d5e3586f8d90dffe260506f14ec634bcbfbbc"
+      },
+      {
+        "asset": "1041-card-02.png",
+        "path": "data/reddit-life-cards/2026-11-26/1041/card-02.png",
+        "sha256": "2e34e3b124182345cf70e360f65bcc656f3bcd4f941a1b12c965cc0bfef82ba2"
+      },
+      {
+        "asset": "1041-card-03.png",
+        "path": "data/reddit-life-cards/2026-11-26/1041/card-03.png",
+        "sha256": "37525119ee744097fedfc28fc4159f161fb175e331db1f4c138c30a57b8c03a4"
+      },
+      {
+        "asset": "1041-card-04.png",
+        "path": "data/reddit-life-cards/2026-11-26/1041/card-04.png",
+        "sha256": "969c08e9451f31ef618899a9a25e6d6de38bc960febd7ed3cd1c4e72bb485b5e"
+      },
+      {
+        "asset": "1041-card-05.png",
+        "path": "data/reddit-life-cards/2026-11-26/1041/card-05.png",
+        "sha256": "7f16b06bd173f29d601c4f76c484732fe990b124c0a87c553c4c7b6837ff3dd5"
+      },
+      {
+        "asset": "1041-card-06.png",
+        "path": "data/reddit-life-cards/2026-11-26/1041/card-06.png",
+        "sha256": "e2d8ae561b4267a541af7fb50aff244e62a26706383a8c05a75f7e10cccb1f09"
+      },
+      {
+        "asset": "1041-card-07.png",
+        "path": "data/reddit-life-cards/2026-11-26/1041/card-07.png",
+        "sha256": "0677a43a1bd2750eca88404b8ee56652fb9255ea30a3ca7b8a155c0e5ca9791a"
+      }
+    ]
+  }
+}

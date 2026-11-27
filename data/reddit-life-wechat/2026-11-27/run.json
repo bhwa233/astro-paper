@@ -1,0 +1,27 @@
+{
+  "version": 6,
+  "archiveDate": "2026-11-27",
+  "timeZone": "America/Los_Angeles",
+  "status": "processed",
+  "upstream": {
+    "generatedSha": "ea5b81398a9d8607c7bc497c30170796d63c09d3",
+    "workflowRun": "46057207209",
+    "lifeArticlePath": "src/content/posts/zh-cn/reddit-2026-11-27-life.md"
+  },
+  "rawSources": {
+    "upstreamLifeMarkdown": "data/reddit-life-wechat/2026-11-27/upstream-life.md"
+  },
+  "selection": {
+    "model": "",
+    "candidateCount": 1,
+    "minScore": 60,
+    "scores": [
+      {
+        "rank": 1,
+        "score": 86,
+        "reason": "话题类似双十一买过最值的耐用品，回答既有行业内幕也有充满生活温情与怀旧感的人生故事，中国读者极易代入与共鸣。"
+      }
+    ]
+  },
+  "posts": []
+}

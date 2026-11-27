@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "archiveDate": "2026-11-27",
+  "target": 20,
+  "readyBefore": {
+    "douyin": 9,
+    "wechat_channels": 14,
+    "wechat_mp": 81
+  },
+  "gap": 11,
+  "complete": false,
+  "model": "gemini-3.8-flash",
+  "items": [
+    {
+      "id": 997,
+      "postId": "1xhgfd0",
+      "contentSha256": "5efea6bf5e3495ca258d507d19e22754ebee6869e7444bc58149f7361fc93c03",
+      "question": "变老有哪些没人愿意挑明的残酷真相？",
+      "title": "变老时没人挑明的残酷真相",
+      "summary": "衰老最残忍的不是肉体磨损，而是内心仍是少年，却要目送见证人离去并沦为异乡人。",
+      "tags": [
+        "身心健康",
+        "人性观察",
+        "中年人生",
+        "破防瞬间"
+      ],
+      "answerCount": 25,
+      "cards": [
+        {
+          "index": 1,
+          "body": "内心感知与肉体衰败之间存在极其残酷的割裂。哪怕到了九十岁，身体已形同废墟，内心却依然像个渴望父母拥抱安慰的少年。许多高龄老人神志清醒却痛苦不堪，因为他们本质上成了被囚禁在一具失灵躯壳里的囚徒。",
+          "sourceIndex": 9,
+          "verbatim": false
+        },
+        {
+          "index": 2,
+          "body": "活得越久，越要目送构筑你人生根基的人相继离去，即「主要见证人」的逝去。不仅是痛失挚爱，更残酷的是，那个最清楚你真实面目、熟知你成长轨迹的人彻底消失了。后来走进你生活的人，认识的都只是成年的你。",
+          "sourceIndex": 3,
+          "verbatim": false
+        },
+        {
+          "index": 3,
+          "body": "童年那些充满魔法般温馨的节日记忆，长大后才发现全靠某一个精疲力竭的大人在幕后咬牙操办。当这位长辈衰老或离去，节日氛围便不会自动延续；如果没有人接过这份重担，那些魔法便就此彻底湮灭。",
+          "sourceIndex": 16,
+          "verbatim": true
+        },
+        {
+          "index": 4,
+          "body": "很多事情的「最后一次」总是在不知不觉中溜走的。你可能再也无法完成一次侧手翻、吊一次单杠，或者猛然意识到，自己已经记不清上一次把渐渐长大的孩子抱在怀里究竟是哪一天。",
+          "sourceIndex": 20,
+          "verbatim": true
+        },
+        {
+          "index": 5,
+          "body": "全身各处的隐痛往往查不出病因。在做完一系列验血、全身体内炎症筛查、X光、核磁共振及神经传导检查且结果皆呈阴性后，医生只会平静地告诉你：这只是衰老带来的退行性酸痛，除了服药缓解，只能学会与之共存。",
+          "sourceIndex": 19,
+          "verbatim": false
+        },
+        {
+          "index": 6,
+          "body": "越长大越会发现，所有人其实都在摸着石头过河。小时候以为高层和管理者运筹帷幄、无所不知，人到中年才看清大部分人只是在临场硬撑，差别仅仅在于经验丰富、装得更有自信，或是精于将下属的心血据为己有。",
+          "sourceIndex": 6,
+          "verbatim": false
+        },
+        {
+          "index": 7,
+          "body": "如果你有一对失职糟糕的父母，衰老会击碎最后的幻想：他们永远不会改变，你对他们而言根本没有重要到足以让他们变成更好的人。当他们离世时，你哀悼的往往不是真实的他们，而是永远失去了拥有称职父母的希望。",
+          "sourceIndex": 10,
+          "verbatim": false
+        },
+        {
+          "index": 8,
+          "body": "你会眼睁睁看着长大的故土与熟悉的世界一点点消失。更深的异化在于，你的笑话、价值观和思维模式彻底与新一代人脱节，语言不再相通，最终在自己生活了一辈子的社会里彻底沦为异乡人。",
+          "sourceIndex": 24,
+          "verbatim": false
+        },
+        {
+          "index": 9,
+          "body": "心理认知可能长期停留在二十多岁，但某天照镜子时，会冷不防看到下垂的眼角、深刻的法令纹和后移的发际线，甚至猛然在镜中看到了父母当年的面孔。心理年龄依然年轻，但穿年轻人的衣服只会被讥讽为用力过猛。",
+          "sourceIndex": 7,
+          "verbatim": false
+        },
+        {
+          "index": 10,
+          "body": "友谊的消逝大多没有激烈的争吵，只是无声的淡出。在加班、育儿和一身疲惫的拉扯下，大家彼此没有做错任何事，却在一转眼间发现曾经无话不谈的挚友已经几年没有联系，不刻意用力去维系，旧日的情谊就会彻底蒸发。",
+          "sourceIndex": 21,
+          "verbatim": true
+        }
+      ],
+      "images": [
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-00.png",
+          "sha256": "738a1f44fbd627d4f9c50960e328a000b69cbc7d475d737a50ce092ca147cbfa"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-01.png",
+          "sha256": "067f153cb7e75c7a3eb5090666ba0a965dbeb9c35bbf8700d85500e016117bbc"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-02.png",
+          "sha256": "1083c27934b87b23276b4047fc8c893c93353036e047156a649507a9096d73aa"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-03.png",
+          "sha256": "960158be8da1a5e3804642d1143dcccdcebf5d1851d62b9a18a45bc92bd10186"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-04.png",
+          "sha256": "dae9dbf79a514d97d642869a68df9cd629aec545c7772f0821b49cf97cfed5d9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-05.png",
+          "sha256": "8e430cf28852e1bbbcb6fb841f74bc60c52aa490ec576e939ba9f8fb5e1230c9"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-06.png",
+          "sha256": "f75f0933e1ddc7ba19ab481c53701961902289412b8fc048ee037a2c72677609"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-07.png",
+          "sha256": "67fb77c26b1efe37b8b4e2754d1fd350a596f0fac6da0c170fd14a88d9de3730"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-08.png",
+          "sha256": "5fd1dec788eb6b1cfe6deb199875171a749195d9a609ea46dd83adbac16f935d"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-09.png",
+          "sha256": "f8538e2f1d3780a894a43cb284e1e9744446ca49056c0cf24850fa42cfc03994"
+        },
+        {
+          "path": "data/reddit-life-cards/2026-11-27/997/card-10.png",
+          "sha256": "b47692f29f892dbaf9fd4219b49659e18bd911a3438e751cdc378e08330cc899"
+        }
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "id": 1402,
+      "postId": "1xse59e",
+      "error": "AI provider HTTP 400: {\"error\":{\"code\":400,\"message\":\"内容违规，请求已拒绝；未扣费\",\"status\":\"INVALID_ARGUMENT\"}}"
+    },
+    {
+      "id": 1170,
+      "postId": "1xmhoas",
+      "error": "AI provider HTTP 400: {\"error\":{\"code\":400,\"message\":\"内容违规，请求已拒绝；未扣费\",\"status\":\"INVALID_ARGUMENT\"}}"
+    },
+    {
+      "id": 1031,
+      "postId": "1xi9ov0",
+      "error": "AI provider HTTP 400: {\"error\":{\"code\":400,\"message\":\"内容违规，请求已拒绝；未扣费\",\"status\":\"INVALID_ARGUMENT\"}}"
+    },
+    {
+      "id": 1042,
+      "postId": "1xi8m2i",
+      "error": "AI request failed: The operation was aborted due to timeout"
+    }
+  ],
+  "release": {
+    "tag": "reddit-life-cards-2026-11-27",
+    "assets": [
+      {
+        "asset": "997-card-00.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-00.png",
+        "sha256": "738a1f44fbd627d4f9c50960e328a000b69cbc7d475d737a50ce092ca147cbfa"
+      },
+      {
+        "asset": "997-card-01.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-01.png",
+        "sha256": "067f153cb7e75c7a3eb5090666ba0a965dbeb9c35bbf8700d85500e016117bbc"
+      },
+      {
+        "asset": "997-card-02.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-02.png",
+        "sha256": "1083c27934b87b23276b4047fc8c893c93353036e047156a649507a9096d73aa"
+      },
+      {
+        "asset": "997-card-03.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-03.png",
+        "sha256": "960158be8da1a5e3804642d1143dcccdcebf5d1851d62b9a18a45bc92bd10186"
+      },
+      {
+        "asset": "997-card-04.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-04.png",
+        "sha256": "dae9dbf79a514d97d642869a68df9cd629aec545c7772f0821b49cf97cfed5d9"
+      },
+      {
+        "asset": "997-card-05.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-05.png",
+        "sha256": "8e430cf28852e1bbbcb6fb841f74bc60c52aa490ec576e939ba9f8fb5e1230c9"
+      },
+      {
+        "asset": "997-card-06.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-06.png",
+        "sha256": "f75f0933e1ddc7ba19ab481c53701961902289412b8fc048ee037a2c72677609"
+      },
+      {
+        "asset": "997-card-07.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-07.png",
+        "sha256": "67fb77c26b1efe37b8b4e2754d1fd350a596f0fac6da0c170fd14a88d9de3730"
+      },
+      {
+        "asset": "997-card-08.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-08.png",
+        "sha256": "5fd1dec788eb6b1cfe6deb199875171a749195d9a609ea46dd83adbac16f935d"
+      },
+      {
+        "asset": "997-card-09.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-09.png",
+        "sha256": "f8538e2f1d3780a894a43cb284e1e9744446ca49056c0cf24850fa42cfc03994"
+      },
+      {
+        "asset": "997-card-10.png",
+        "path": "data/reddit-life-cards/2026-11-27/997/card-10.png",
+        "sha256": "b47692f29f892dbaf9fd4219b49659e18bd911a3438e751cdc378e08330cc899"
+      }
+    ]
+  }
+}
